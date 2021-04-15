@@ -1,0 +1,11 @@
+{
+  "name": "sushi-chat-server",
+  "version": "1.0.0",
+  "description": "server of sushi chat",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Eri-0910",
+  "license": "ISC"
+}
