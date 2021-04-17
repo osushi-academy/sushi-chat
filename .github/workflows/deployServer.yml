@@ -1,11 +1,11 @@
 name: Deploy server to heroku
 
 on:
-  pull_request:
+  push:
     branches:
       - master
     paths:
-      - './server/**'
+      - "./server/**"
 
 jobs:
   build:
