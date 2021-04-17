@@ -3,8 +3,10 @@
   "version": "1.0.0",
   "description": "server of sushi chat",
   "main": "app.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --loader ts-node/esm ./app.ts"
   },
   "author": "Eri-0910",
   "license": "ISC",
@@ -12,6 +14,11 @@
     "express": "^4.17.1",
     "http": "^0.0.1-security",
     "path": "^0.12.7",
-    "socket.io": "^4.0.1"
+    "socket.io": "^4.0.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.11"
   }
 }
