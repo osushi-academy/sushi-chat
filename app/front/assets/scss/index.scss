@@ -1,0 +1,426 @@
+body {
+  font-family: "M PLUS 1p", sans-serif;
+}
+
+button {
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: auto;
+  }
+}
+
+label {
+  position: relative;
+  cursor: pointer;
+  padding-left: 0px;
+
+  & > input[type="checkbox"] {
+    outline: none;
+    margin: 0.2rem;
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+
+    &:focus-visible::before {
+      outline: auto;
+      outline-offset: 2px;
+      outline-color: blue;
+    }
+
+    &::before {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      opacity: 1;
+      content: "";
+      display: inline-block;
+      height: 16px;
+      width: 16px;
+      background: #fff;
+      border: 1px solid #231815;
+      border-radius: 1px;
+    }
+
+    &:checked::before {
+      background: rgb(59, 183, 255);
+      border-color: transparent;
+    }
+
+    &::after {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      opacity: 0;
+      content: "";
+      display: inline-block;
+      height: 16px;
+      width: 16px;
+      background: white;
+      clip-path: polygon(10% 50%, 20% 40%, 45% 60%, 80% 20%, 90% 30%, 45% 83%);
+    }
+
+    &:checked::after {
+      opacity: 1;
+    }
+  }
+}
+
+textarea {
+  &:focus {
+    outline: none;
+  }
+}
+
+span.key-span {
+  background: rgb(110, 110, 110);
+  color: rgb(243, 243, 243);
+  border-radius: 1px;
+  padding: 0 0.4em;
+  margin: 0 0.2em;
+  font-weight: bold;
+}
+
+$black: #333;
+$gray: rgb(228, 228, 228);
+
+.page {
+  display: flex;
+  overflow-x: scroll;
+  white-space: nowrap;
+  flex-wrap: nowrap;
+  height: 100vh;
+  min-width: 0;
+}
+
+.topic-block {
+  white-space: normal;
+  flex-shrink: 0;
+  width: 440px;
+  height: 100%;
+  position: relative;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  margin: 0 2em;
+}
+
+.topic-header {
+  margin-right: 2rem;
+  flex-shrink: 0;
+  padding: 1em 0;
+
+  & > .top-line {
+    & > .prefix {
+      background: white;
+      color: $black;
+      font-size: 120%;
+      padding: 0.25em 0.5em;
+    }
+  }
+
+  & > .main-line {
+    display: flex;
+    align-items: center;
+    padding: 0 1em;
+
+    & > h1.title {
+      display: inline-block;
+      padding: 0 0.5em;
+      flex: 1;
+    }
+
+    & > .next-button {
+      width: 3em;
+      height: 3em;
+      border-radius: 100%;
+      border: none;
+      color: $black;
+      background: transparent;
+      display: grid;
+      align-items: center;
+    }
+  }
+}
+
+.chat-area {
+  height: 300px;
+  flex: 1;
+  display: flex;
+  border-top: 2px solid $gray;
+  position: relative;
+
+  & > .text-zone {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    overflow-y: scroll;
+
+    & > .scrollable {
+      scroll-snap-type: y mandatory;
+      overflow-y: scroll;
+      overscroll-behavior: none;
+      padding: 1em 1rem;
+    }
+  }
+
+  & > .stamp-zone {
+    flex-shrink: 1;
+    width: 4rem;
+    background: white;
+    margin-top: auto;
+    margin-bottom: 1em;
+
+    & > .stamp-submit-button {
+      border: none;
+      width: 3.2rem;
+      height: 3.2rem;
+      border: 4px solid rgb(207, 13, 13);
+      background: rgb(207, 13, 13);
+      color: white;
+      border-radius: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      outline-color: rgb(207, 13, 13);
+
+      &:hover,
+      &:active {
+        background: white;
+        color: rgb(207, 13, 13);
+      }
+    }
+  }
+
+  & > .message-badge {
+    position: absolute;
+    width: 100%;
+    max-width: 200px;
+    bottom: 1em;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 0.5em 2em;
+    border-radius: 999px;
+    border: 2px solid rgb(56, 137, 230);
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    border: none;
+    display: grid;
+    align-items: center;
+    z-index: 30;
+  }
+}
+
+.input-area {
+  position: sticky;
+  bottom: 0;
+  padding: 0.5em 1em;
+  background: white;
+  border-top: 2px solid $gray;
+
+  & > .main-line {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+
+    & > .textarea {
+      padding: 0.5em;
+      border: none;
+      background: transparent;
+      border-radius: 5px;
+      margin-right: 1em;
+      line-height: 1.5;
+      width: 100%;
+      min-height: 5em;
+
+      &:empty::before {
+        content: attr(placeholder);
+        pointer-events: none;
+        display: block;
+        color: rgb(167, 167, 167);
+      }
+
+      &:focus {
+        outline: none;
+      }
+    }
+
+    & > .submit-button {
+      position: relative;
+      flex-shrink: 0;
+      width: 2.4em;
+      height: 2.4em;
+      vertical-align: middle;
+      text-align: center;
+      border: none;
+      background: transparent;
+      border-radius: 10px;
+      display: grid;
+      align-items: center;
+
+      & > .question-badge {
+        position: absolute;
+        width: 0.75rem;
+        height: 0.75rem;
+        line-height: 0.75rem;
+        border-radius: 100%;
+        font-size: 7.5px;
+        font-weight: bold;
+        text-align: center;
+        background: rgb(48, 135, 248);
+        color: white;
+        bottom: 0.25rem;
+        right: 0.5rem;
+      }
+    }
+  }
+
+  & > .key-instruct {
+    font-size: 70%;
+    color: gray;
+    margin-bottom: 0.5rem;
+    text-align: end;
+  }
+
+  & > .question-checkbox {
+    font-size: 85%;
+    margin-left: 0.5em;
+  }
+}
+
+.chatitem-wrapper {
+  padding: 0.45em 0;
+  scroll-snap-align: end;
+
+  & > .comment,
+  .reaction {
+    position: relative;
+    flex-shrink: 0;
+    display: flex;
+    padding: 0.75em 0.5em;
+    border: 1.5px solid rgb(185, 185, 185);
+    border-radius: 5px;
+    box-shadow: $gray 0px 2px 5px -1px, $gray 0px 1px 3px -1px;
+    overflow: hidden;
+
+    &.reaction {
+      box-shadow: none;
+    }
+
+    &.question {
+      background: rgb(224, 242, 255);
+      border-color: rgb(89, 179, 243);
+    }
+
+    & > .bg-good-icon {
+      position: absolute;
+      bottom: 0;
+      right: 0.5rem;
+      transform: translateY(50%);
+      opacity: 0;
+      transition: all 0.3s;
+
+      & > .material-icons {
+        font-size: 32px;
+        color: #333;
+        transform: translate(0%, 40%) rotate(-10deg);
+      }
+    }
+
+    &.already-good > .bg-good-icon {
+      transform: translate(0);
+      opacity: 1;
+    }
+
+    &:hover > .bg-good-icon {
+      transform: translate(0);
+      opacity: 1;
+    }
+
+    // アニメーション
+    transition: all 0.3s;
+
+    &.comment {
+      cursor: pointer;
+      &:hover {
+        background: rgb(245, 245, 245);
+      }
+    }
+
+    &.question:hover {
+      background: rgb(206, 234, 255);
+    }
+
+    & > .icon-wrapper {
+      flex-shrink: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 100%;
+      align-self: flex-start;
+      margin-right: 1em;
+      margin-bottom: 0.5rem;
+      padding: 3px;
+      background: rgb(223, 223, 223);
+      display: grid;
+      align-items: center;
+      position: relative;
+
+      & > .question-badge {
+        width: 1.25rem;
+        height: 1.25rem;
+        line-height: 1.25rem;
+        border-radius: 100%;
+        font-size: 10px;
+        font-weight: bold;
+        text-align: center;
+        background: rgb(48, 135, 248);
+        color: white;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+      }
+    }
+
+    &.reaction {
+      margin-left: 2em;
+      align-items: center;
+
+      & > .icon-wrapper {
+        width: 1.6rem;
+        height: 1.6rem;
+        margin: 0;
+        margin-right: 1em;
+        align-self: center; // NOTE: for safari (yuta-ike)
+      }
+
+      & > .icon-wrapper {
+        margin-right: 1em;
+      }
+
+      & > .text {
+        flex: 1;
+        margin-left: 0.5em;
+        color: rgb(77, 77, 77);
+        font-style: oblique;
+        word-break: break-all;
+      }
+    }
+
+    &.comment > .baloon {
+      border-radius: 1.5em;
+      width: 100%;
+      word-break: break-all;
+      z-index: 5;
+    }
+  }
+}
