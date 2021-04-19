@@ -2,9 +2,9 @@
   <div class="chatitem-wrapper">
     <article class="comment">
       <div class="icon-wrapper">
-        <img :src="icons[iconNum].icon" alt="" />
+        <img :src="icons[icon_id].icon" alt="" />
       </div>
-      <div class="baloon">{{ text }}</div>
+      <div class="baloon">{{ content }}</div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
@@ -14,8 +14,8 @@
 <script>
 export default {
   props: {
-    iconNum: Number,
-    text: String,
+    icon_id: Number,
+    content: String,
   },
   data() {
     return {
