@@ -34,8 +34,6 @@ export default {
   buildModules: [
     // https://go.nuxtjs.dev/typescript
     '@nuxt/typescript-build',
-    // https://go.nuxtjs.dev/tailwindcss
-    '@nuxtjs/tailwindcss',
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -54,7 +52,7 @@ export default {
   // WebFontLoader
   webfontloader: {
     google: {
-      families: ['M PLUS 1p:100,400,700']
+      families: ['M PLUS 1p:100,400,700', 'Material Icons']
     }
   },
 }

@@ -12,28 +12,11 @@
       <div class="chat-area">
         <div class="text-zone">
           <div class="scrollable">
-            <div class="chatitem-wrapper">
-              <article class="comment">
-                <div class="icon-wrapper">
-                  <img src="@/assets/img/sushi_salmon.png" alt="" />
-                </div>
-                <div class="baloon">画像処理どうなってんの→独自実装!!?????</div>
-                <div class="bg-good-icon">
-                  <span class="material-icons"> thumb_up </span>
-                </div>
-              </article>
-            </div>
-            <div class="chatitem-wrapper">
-              <article class="comment">
-                <div class="icon-wrapper">
-                  <img src="@/assets/img/sushi_salmon.png" alt="" />
-                </div>
-                <div class="baloon">デザイン期間中に作ったのか！</div>
-                <div class="bg-good-icon">
-                  <span class="material-icons"> thumb_up </span>
-                </div>
-              </article>
-            </div>
+            <Comment
+              iconNum="0"
+              text="画像処理どうなってんの→独自実装!!?????"
+            />
+            <Comment iconNum="1" text="デザイン期間中に作ったのか！" />
             <div class="chatitem-wrapper">
               <article class="comment">
                 <div class="icon-wrapper">
@@ -75,7 +58,7 @@
             <div class="chatitem-wrapper">
               <article class="comment">
                 <div class="icon-wrapper">
-                  <img src="@/assets/img/sushi_uni2.png" alt="" />
+                  <img src="@/assets/img/sushi_uni.png" alt="" />
                 </div>
                 <div class="baloon">なんか始まった笑笑</div>
                 <div class="bg-good-icon">
@@ -86,7 +69,7 @@
             <div class="chatitem-wrapper">
               <article class="comment">
                 <div class="icon-wrapper">
-                  <img src="@/assets/img/sushi_uni2.png" alt="" />
+                  <img src="@/assets/img/sushi_uni.png" alt="" />
                 </div>
                 <div class="baloon">
                   既存のモデルそのままじゃなく独自改良してるのいいね
@@ -241,7 +224,7 @@
             <div class="chatitem-wrapper">
               <article class="comment">
                 <div class="icon-wrapper">
-                  <img src="@/assets/img/sushi_uni2.png" alt="" />
+                  <img src="@/assets/img/sushi_uni.png" alt="" />
                 </div>
                 <div class="baloon">なんか始まった笑笑</div>
                 <div class="bg-good-icon">
@@ -252,7 +235,7 @@
             <div class="chatitem-wrapper">
               <article class="comment">
                 <div class="icon-wrapper">
-                  <img src="@/assets/img/sushi_uni2.png" alt="" />
+                  <img src="@/assets/img/sushi_uni.png" alt="" />
                 </div>
                 <div class="baloon">
                   既存のモデルそのままじゃなく独自改良してるのいいね
@@ -339,8 +322,13 @@
   </div>
 </template>
 
-<script lang="ts">
+<script>
+import Comment from '@/components/Comment.vue'
 import Vue from 'vue'
 
-export default Vue.extend({})
+export default Vue.extend({
+  components: {
+    Comment,
+  },
+})
 </script>

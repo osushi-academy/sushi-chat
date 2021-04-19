@@ -3,7 +3,7 @@
     <Nuxt />
   </div>
 </template>
-<script lang="ts">
+<script>
 export default {
   head: {
     link: [
@@ -15,10 +15,6 @@ export default {
       {
         rel: 'preconnect',
         href: 'https://fonts.gstatic.com',
-      },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/icon?family=Material+Icons',
       },
     ],
     title: 'SUSHI CHAT',
