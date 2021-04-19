@@ -1,6 +1,6 @@
 <template>
   <div class="chatitem-wrapper">
-    <article class="comment">
+    <article v-if="type == 'message'" class="comment">
       <div class="icon-wrapper">
         <img :src="icons[icon_id].icon" alt="" />
       </div>
@@ -9,6 +9,13 @@
         <span class="material-icons"> thumb_up </span>
       </div>
     </article>
+    <article v-if="type == 'reaction'" class="reaction">
+      <div class="icon-wrapper">
+        <img :src="icons[icon_id].icon" alt="" />
+      </div>
+      <span class="material-icons"> thumb_up </span>
+      <div class="text">{{ content }}</div>
+    </article>
   </div>
 </template>
 <script>
@@ -16,6 +23,7 @@ export default {
   props: {
     icon_id: Number,
     content: String,
+    type: String,
   },
   data() {
     return {
