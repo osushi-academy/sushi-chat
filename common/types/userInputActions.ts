@@ -1,10 +1,9 @@
 import { ChatItem } from './model'
 
 export type InsertEditingAction = {
-  type: "nsert-editing",
+  type: "insert-editing",
   content: {
     "id": string,
-    "topic_id": string
   }
 }
 

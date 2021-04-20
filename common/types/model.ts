@@ -14,6 +14,7 @@ export type ChatItemBase = {
  */
 export type Message = ChatItemBase & {
   "content": string              // メッセージの内容
+  "is_question": boolean
 }
 
 /**
