@@ -5,18 +5,12 @@
       <div class="text-zone">
         <div class="scrollable">
           <div v-for="message in messages" :key="message">
-            <Message
-              :icon_id="message.icon_id"
-              :content="message.content"
-              :type="message.type"
-            />
+            <Message :message="message" />
           </div>
         </div>
       </div>
       <div class="stamp-zone">
-        <button class="stamp-submit-button">
-          <span class="material-icons"> favorite </span>
-        </button>
+        <FavoriteButton @favorite="favorite" />
       </div>
       <button class="message-badge" v-show="is_notify">
         最新のコメント
@@ -30,11 +24,13 @@
 import TopicHeader from '@/components/TopicHeader.vue'
 import Message from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
+import FavoriteButton from '@/components/FavoriteButton.vue'
 export default {
   components: {
     TopicHeader,
     Message,
     TextArea,
+    FavoriteButton,
   },
   props: {
     topic: Object,
@@ -48,6 +44,7 @@ export default {
           type: 'message',
           icon_id: 0,
           content: '画像処理どうなってんの→独自実装!!?????',
+          is_question: false,
         },
         {
           id: 1,
@@ -56,6 +53,7 @@ export default {
           icon_id: 1,
           content:
             '背景切り抜きまでしてくれるんか、すごいな。画像処理を独自実装...!すご！すご！',
+          is_question: false,
         },
         {
           id: 2,
@@ -63,6 +61,7 @@ export default {
           type: 'message',
           icon_id: 2,
           content: 'デザイン期間中に作ったのか！',
+          is_question: false,
         },
         {
           id: 3,
@@ -70,6 +69,7 @@ export default {
           type: 'message',
           icon_id: 3,
           content: 'バックエンドはどんな技術を使ったんですか？',
+          is_question: true,
         },
         {
           id: 4,
@@ -77,6 +77,7 @@ export default {
           type: 'message',
           icon_id: 4,
           content: 'チーム名の圧がすごいwwwwwwwwwww',
+          is_question: false,
         },
         {
           id: 5,
@@ -84,6 +85,7 @@ export default {
           type: 'message',
           icon_id: 5,
           content: 'なんか始まった笑笑',
+          is_question: false,
         },
         {
           id: 6,
@@ -91,6 +93,7 @@ export default {
           type: 'message',
           icon_id: 6,
           content: '既存のモデルそのままじゃなく独自改良してるのいいね',
+          is_question: false,
         },
         {
           id: 7,
@@ -98,6 +101,7 @@ export default {
           type: 'message',
           icon_id: 7,
           content: 'チーム名からのフリとオチ面白い笑笑',
+          is_question: false,
         },
         {
           id: 8,
@@ -105,6 +109,7 @@ export default {
           type: 'reaction',
           icon_id: 0,
           content: 'なんか始まった笑笑',
+          is_question: false,
         },
         {
           id: 9,
@@ -112,6 +117,7 @@ export default {
           type: 'reaction',
           icon_id: 1,
           content: 'チーム名の圧がすごいwwwwwwwwwww',
+          is_question: false,
         },
         {
           id: 10,
@@ -119,6 +125,7 @@ export default {
           type: 'message',
           icon_id: 10,
           content: 'UIきれい!',
+          is_question: false,
         },
       ],
     }

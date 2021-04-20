@@ -1,29 +1,53 @@
 <template>
   <div class="chatitem-wrapper">
-    <article v-if="type == 'message'" class="comment">
+    <article
+      v-if="message.type == 'message' && !message.is_question"
+      class="comment"
+    >
       <div class="icon-wrapper">
-        <img :src="icons[icon_id].icon" alt="" />
+        <img :src="icons[message.icon_id].icon" alt="" />
       </div>
-      <div class="baloon">{{ content }}</div>
+      <div class="baloon">{{ message.content }}</div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
     </article>
-    <article v-if="type == 'reaction'" class="reaction">
+    <article
+      v-if="message.type == 'message' && message.is_question"
+      class="comment question"
+    >
       <div class="icon-wrapper">
-        <img :src="icons[icon_id].icon" alt="" />
+        <img :src="icons[message.icon_id].icon" alt="" />
+        <div class="question-badge">Q</div>
+      </div>
+      <div class="baloon">{{ message.content }}</div>
+      <div class="bg-good-icon">
+        <span class="material-icons"> thumb_up </span>
+      </div>
+    </article>
+    <article v-if="message.type == 'reaction'" class="reaction">
+      <div class="icon-wrapper">
+        <img :src="icons[message.icon_id].icon" alt="" />
       </div>
       <span class="material-icons"> thumb_up </span>
-      <div class="text">{{ content }}</div>
+      <div class="text">{{ message.content }}</div>
     </article>
   </div>
 </template>
 <script>
 export default {
   props: {
-    icon_id: Number,
-    content: String,
-    type: String,
+    message: {
+      type: Object,
+      default: () => ({
+        id: 0,
+        topic_id: 0,
+        type: 'message',
+        icon_id: 0,
+        content: '画像処理どうなってんの→独自実装!!?????',
+        is_question: false,
+      }),
+    },
   },
   data() {
     return {
