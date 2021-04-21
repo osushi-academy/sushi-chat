@@ -177,15 +177,17 @@ export default {
   },
   methods: {
     good: function (message) {
+      // いいねmessage
       let m = {
         id: this.messages[message.topic_id].length,
         topic_id: message.topic_id,
         type: 'reaction',
-        icon_id: message.icon_id,
+        icon_id: 0, // ユーザーが選んだicon_id
         content: message.content,
         is_question: false,
       }
       this.messages[message.topic_id].push(m)
+      // submit
     },
     favorite: function () {
       console.log('favorite')
