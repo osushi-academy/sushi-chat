@@ -6,29 +6,46 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from 'vue'
 import ChatRoom from '@/components/ChatRoom.vue'
 
-export default {
+// Topic型
+// これはDomainに関する型（＝UIだけでなくプロジェクト全体（今回はサーバーサイドも含め）で使いまわされる型）
+// なので本来は別ファイルで定義すべき
+type Topic = {
+  id: string
+  title: string
+  description: string
+}
+
+// Data型
+type DataType = {
+  topics: Topic[]
+  isNotify: boolean
+}
+
+export default Vue.extend({
+  name: 'Index',
   components: {
     ChatRoom,
   },
-  data() {
+  data(): DataType {
     return {
       topics: [
         {
-          id: 0,
-          content: '量子力学セミナー',
+          id: '0',
+          title: '量子力学セミナー',
           description: '量子力学の発表',
         },
         {
-          id: 1,
-          content: 'めだまやき',
+          id: '1',
+          title: 'めだまやき',
           description: 'めだまやきを焼く',
         },
       ],
-      is_notify: false,
+      isNotify: false,
     }
   },
-}
+})
 </script>
