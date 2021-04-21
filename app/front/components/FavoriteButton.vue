@@ -1,6 +1,6 @@
 <template>
-  <button class="stamp-submit-button">
-    <span class="material-icons" @click="favorite"> favorite </span>
+  <button class="stamp-submit-button" @click="favorite">
+    <span class="material-icons"> favorite </span>
   </button>
 </template>
 <script>

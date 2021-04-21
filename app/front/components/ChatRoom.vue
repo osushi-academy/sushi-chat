@@ -4,8 +4,8 @@
     <div class="chat-area">
       <div class="text-zone">
         <div class="scrollable">
-          <div v-for="message in messages[topic.id]" :key="message">
-            <Message :message="message" />
+          <div v-for="message in messages[topic.id]" :key="message.id">
+            <Message :message="message" @good="good" />
           </div>
         </div>
       </div>
@@ -172,7 +172,24 @@ export default {
           },
         ],
       ],
+      is_notify: false,
     }
+  },
+  methods: {
+    good: function (message) {
+      let m = {
+        id: this.messages[message.topic_id].length,
+        topic_id: message.topic_id,
+        type: 'reaction',
+        icon_id: message.icon_id,
+        content: message.content,
+        is_question: false,
+      }
+      this.messages[message.topic_id].push(m)
+    },
+    favorite: function () {
+      console.log('favorite')
+    },
   },
 }
 </script>

@@ -3,6 +3,7 @@
     <article
       v-if="message.type == 'message' && !message.is_question"
       class="comment"
+      @click="good"
     >
       <div class="icon-wrapper">
         <img :src="icons[message.icon_id].icon" alt="" />
@@ -12,9 +13,11 @@
         <span class="material-icons"> thumb_up </span>
       </div>
     </article>
+
     <article
       v-if="message.type == 'message' && message.is_question"
       class="comment question"
+      @click="good"
     >
       <div class="icon-wrapper">
         <img :src="icons[message.icon_id].icon" alt="" />
@@ -25,6 +28,7 @@
         <span class="material-icons"> thumb_up </span>
       </div>
     </article>
+
     <article v-if="message.type == 'reaction'" class="reaction">
       <div class="icon-wrapper">
         <img :src="icons[message.icon_id].icon" alt="" />
@@ -65,6 +69,11 @@ export default {
         { icon: require('@/assets/img/sushi_uni.png') },
       ],
     }
+  },
+  methods: {
+    good: function () {
+      this.$emit('good', this.message)
+    },
   },
 }
 </script>

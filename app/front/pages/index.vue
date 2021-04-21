@@ -1,6 +1,6 @@
 <template>
   <div class="container page">
-    <div v-for="topic in topics" :key="topic">
+    <div v-for="topic in topics" :key="topic.id">
       <ChatRoom :topic="topic" />
     </div>
   </div>
