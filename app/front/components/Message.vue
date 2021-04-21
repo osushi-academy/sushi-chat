@@ -1,12 +1,12 @@
 <template>
   <div class="chatitem-wrapper">
     <article
-      v-if="message.type == 'message' && !message.is_question"
+      v-if="message.type == 'message' && !message.isQuestion"
       class="comment"
       @click="good"
     >
       <div class="icon-wrapper">
-        <img :src="icons[message.icon_id].icon" alt="" />
+        <img :src="icons[message.iconId].icon" alt="" />
       </div>
       <div class="baloon">{{ message.content }}</div>
       <div class="bg-good-icon">
@@ -15,12 +15,12 @@
     </article>
 
     <article
-      v-if="message.type == 'message' && message.is_question"
+      v-if="message.type == 'message' && message.isQuestion"
       class="comment question"
       @click="good"
     >
       <div class="icon-wrapper">
-        <img :src="icons[message.icon_id].icon" alt="" />
+        <img :src="icons[message.iconId].icon" alt="" />
         <div class="question-badge">Q</div>
       </div>
       <div class="baloon">{{ message.content }}</div>
@@ -31,7 +31,7 @@
 
     <article v-if="message.type == 'reaction'" class="reaction">
       <div class="icon-wrapper">
-        <img :src="icons[message.icon_id].icon" alt="" />
+        <img :src="icons[message.iconId].icon" alt="" />
       </div>
       <span class="material-icons"> thumb_up </span>
       <div class="text">{{ message.content }}</div>
@@ -47,9 +47,9 @@ export default {
         id: 0,
         topic_id: 0,
         type: 'message',
-        icon_id: 0,
+        iconId: 0,
         content: '画像処理どうなってんの→独自実装!!?????',
-        is_question: false,
+        isQuestion: false,
       }),
     },
   },
