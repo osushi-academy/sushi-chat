@@ -1,14 +1,16 @@
 <template>
-  <button class="stamp-submit-button" @click="favorite">
+  <button class="stamp-submit-button" @click="clickFavorite">
     <span class="material-icons"> favorite </span>
   </button>
 </template>
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
   methods: {
-    favorite: function () {
+    clickFavorite() {
       this.$emit('favorite')
     },
   },
-}
+})
 </script>

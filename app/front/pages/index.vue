@@ -8,20 +8,12 @@
 
 <script lang="ts">
 import Vue from 'vue'
+import * as Model from '@/models/contents'
 import ChatRoom from '@/components/ChatRoom.vue'
-
-// Topic型
-// これはDomainに関する型（＝UIだけでなくプロジェクト全体（今回はサーバーサイドも含め）で使いまわされる型）
-// なので本来は別ファイルで定義すべき
-type Topic = {
-  id: string
-  title: string
-  description: string
-}
 
 // Data型
 type DataType = {
-  topics: Topic[]
+  topics: Model.Topic[]
   isNotify: boolean
 }
 

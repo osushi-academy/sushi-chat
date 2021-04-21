@@ -1,38 +1,77 @@
 <template>
   <section class="input-area" role="form">
     <div class="main-line">
-      <div
+      <input
+        v-model="text"
         class="textarea"
         contenteditable
         placeholder="コメントを入力して盛り上げよう!!"
-      ></div>
-      <button class="submit-button">
+        @keydown.enter.meta.exact="sendMessage"
+      />
+      <button type="submit" class="submit-button" @click="sendMessage">
         <span class="material-icons"> send </span>
-        <div class="question-badge" v-show="is_question">Q</div>
+        <div v-show="isQuestion" class="question-badge">Q</div>
       </button>
     </div>
     <KeyInstruction />
     <label class="question-checkbox">
-      <input type="checkbox" @click="questionFlag" />質問として投稿する
+      <input type="checkbox" @click="setQuestion" />質問として投稿する
     </label>
   </section>
 </template>
-<script>
+<script lang="ts">
+import Vue, { PropOptions } from 'vue'
+import * as Model from '@/models/contents'
 import KeyInstruction from '@/components/KeyInstruction.vue'
 
-export default {
+// Data型
+type DataType = {
+  isQuestion: boolean
+  text: string
+}
+export default Vue.extend({
+  name: 'TextArea',
   components: {
     KeyInstruction,
   },
-  data() {
+  props: {
+    topic: {
+      type: Object,
+      required: true,
+    } as PropOptions<Model.TopicPropType>,
+  },
+  data(): DataType {
     return {
-      is_question: false,
+      isQuestion: false,
+      text: '',
     }
   },
   methods: {
-    questionFlag: function () {
-      this.is_question = !this.is_question
+    getId(): string {
+      return Math.random().toString(36).slice(-8)
+    },
+    sendMessage() {
+      // 空なら何もしないでreturn
+      if (!this.text.length) {
+        return
+      }
+      // 新規message
+      const m: Model.Message = {
+        id: `${this.getId()}`,
+        topicId: this.topic.id,
+        type: 'message',
+        iconId: '0',
+        content: this.text,
+        timestamp: 1100,
+        isQuestion: this.isQuestion,
+      }
+      // 入力を空に
+      this.text = ''
+      this.$emit('submit', m)
+    },
+    setQuestion() {
+      this.isQuestion = !this.isQuestion
     },
   },
-}
+})
 </script>

@@ -1,66 +1,36 @@
 <template>
   <article class="topic-block">
-    <TopicHeader :title="topic.id + 1 + '. ' + topic.content" />
+    <TopicHeader :title="Number(topic.id) + 1 + '. ' + topic.title" />
     <div class="chat-area">
       <div class="text-zone">
         <div class="scrollable">
           <div v-for="message in messages" :key="message.id">
-            <MessageComponent :message="message" @good="good" />
+            <MessageComponent :message="message" @good="clickGood" />
           </div>
         </div>
       </div>
       <div class="stamp-zone">
-        <FavoriteButton @favorite="favorite" />
+        <FavoriteButton @favorite="clickFavorite" />
       </div>
       <button v-show="isNotify" class="message-badge">
         最新のコメント
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
-    <TextArea />
+    <TextArea :topic="topic" @submit="clickSubmit" />
   </article>
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
+import * as Model from '@/models/contents'
 import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
 import FavoriteButton from '@/components/FavoriteButton.vue'
 
-// Topic型
-type Topic = {
-  id: string
-  title: string
-  description: string
-}
-// ChatItem型
-type ChatItemBase = {
-  id: string
-  topicId: string
-  type: string
-  iconId: string
-  timestamp: number
-}
-type Message = ChatItemBase & {
-  type: 'message'
-  content: string
-  isQuestion: boolean
-}
-type Reaction = ChatItemBase & {
-  type: 'reaction'
-  target: {
-    id: string
-    content: string
-  }
-}
-export type ChatItem = Message | Reaction
-
-// Propのtopicの型（今回はTopicをそのまま）
-type TopicPropType = Topic
-
 // Data型
 type DataType = {
-  messages: ChatItem[]
+  messages: Model.ChatItem[]
   isNotify: boolean
 }
 
@@ -76,7 +46,7 @@ export default Vue.extend({
     topic: {
       type: Object,
       required: true,
-    } as PropOptions<TopicPropType>,
+    } as PropOptions<Model.TopicPropType>,
   },
   data(): DataType {
     return {
@@ -191,10 +161,16 @@ export default Vue.extend({
     }
   },
   methods: {
-    good(message: Message) {
+    getId(): string {
+      return Math.random().toString(36).slice(-8)
+    },
+    clickSubmit(message: Model.Message) {
+      this.messages.push(message)
+    },
+    clickGood(message: Model.Message) {
       // いいねmessage
-      const m: Reaction = {
-        id: `${this.messages.length}`,
+      const m: Model.Reaction = {
+        id: `${this.getId()}`,
         topicId: message.topicId,
         type: 'reaction',
         iconId: '0',
@@ -207,7 +183,7 @@ export default Vue.extend({
       this.messages.push(m)
       // submit
     },
-    favorite() {
+    clickFavorite() {
       console.log('favorite')
     },
   },
