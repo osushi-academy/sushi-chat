@@ -20,9 +20,7 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [
-    '@/assets/scss/app.scss'
-  ],
+  css: ['@/assets/scss/app.scss'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [],
@@ -53,7 +51,7 @@ export default {
   // WebFontLoader
   webfontloader: {
     google: {
-      families: ['M PLUS 1p:100,400,700', 'Material Icons']
-    }
+      families: ['M PLUS 1p:100,400,700', 'Material Icons'],
+    },
   },
 }
