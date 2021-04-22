@@ -55,4 +55,9 @@ export default {
       families: ['M PLUS 1p:100,400,700', 'Material Icons'],
     },
   },
+
+  // Deployment
+  generate: {
+    dir: 'public',
+  },
 }
