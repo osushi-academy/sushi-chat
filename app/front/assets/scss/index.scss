@@ -1,5 +1,5 @@
 body {
-  font-family: "M PLUS 1p", sans-serif;
+  font-family: 'M PLUS 1p', sans-serif;
 }
 
 button {
@@ -19,7 +19,7 @@ label {
   cursor: pointer;
   padding-left: 0px;
 
-  & > input[type="checkbox"] {
+  & > input[type='checkbox'] {
     outline: none;
     margin: 0.2rem;
     width: 12px;
@@ -38,7 +38,7 @@ label {
       left: 0;
       transform: translateY(-50%);
       opacity: 1;
-      content: "";
+      content: '';
       display: inline-block;
       height: 16px;
       width: 16px;
@@ -58,7 +58,7 @@ label {
       left: 0;
       transform: translateY(-50%);
       opacity: 0;
-      content: "";
+      content: '';
       display: inline-block;
       height: 16px;
       width: 16px;
@@ -242,6 +242,7 @@ $gray: rgb(228, 228, 228);
       line-height: 1.5;
       width: 100%;
       min-height: 5em;
+      white-space: pre-line;
 
       &:empty::before {
         content: attr(placeholder);
@@ -421,6 +422,7 @@ $gray: rgb(228, 228, 228);
       width: 100%;
       word-break: break-all;
       z-index: 5;
+      white-space: pre-line;
     }
   }
 }

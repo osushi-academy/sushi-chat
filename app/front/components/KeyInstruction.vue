@@ -5,6 +5,3 @@
     >+<span class="key-span">ENTER</span>で送信
   </div>
 </template>
-<script>
-export default {}
-</script>

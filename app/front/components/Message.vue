@@ -1,23 +1,26 @@
 <template>
   <div class="chatitem-wrapper">
     <article
-      v-if="message.type == 'message' && !message.is_question"
+      v-if="message.type == 'message' && !message.isQuestion"
       class="comment"
+      @click="clickGood"
     >
       <div class="icon-wrapper">
-        <img :src="icons[message.icon_id].icon" alt="" />
+        <img :src="icons[message.iconId].icon" alt="" />
       </div>
       <div class="baloon">{{ message.content }}</div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
     </article>
+
     <article
-      v-if="message.type == 'message' && message.is_question"
+      v-if="message.type == 'message' && message.isQuestion"
       class="comment question"
+      @click="clickGood"
     >
       <div class="icon-wrapper">
-        <img :src="icons[message.icon_id].icon" alt="" />
+        <img :src="icons[message.iconId].icon" alt="" />
         <div class="question-badge">Q</div>
       </div>
       <div class="baloon">{{ message.content }}</div>
@@ -25,31 +28,43 @@
         <span class="material-icons"> thumb_up </span>
       </div>
     </article>
+
     <article v-if="message.type == 'reaction'" class="reaction">
       <div class="icon-wrapper">
-        <img :src="icons[message.icon_id].icon" alt="" />
+        <img :src="icons[message.iconId].icon" alt="" />
       </div>
       <span class="material-icons"> thumb_up </span>
-      <div class="text">{{ message.content }}</div>
+      <div class="text">{{ message.target.content }}</div>
     </article>
   </div>
 </template>
-<script>
-export default {
+<script lang="ts">
+import Vue, { PropOptions } from 'vue'
+import * as Model from '@/models/contents'
+
+// Data型
+type DataType = {
+  icons: any
+}
+
+export default Vue.extend({
+  name: 'Message',
   props: {
     message: {
       type: Object,
+      required: true,
       default: () => ({
-        id: 0,
-        topic_id: 0,
+        id: '0',
+        topicId: '0',
         type: 'message',
-        icon_id: 0,
+        iconId: '0',
         content: '画像処理どうなってんの→独自実装!!?????',
-        is_question: false,
+        isQuestion: false,
+        timestamp: 100,
       }),
-    },
+    } as PropOptions<Model.ChatItemPropType>,
   },
-  data() {
+  data(): DataType {
     return {
       icons: [
         { icon: require('@/assets/img/sushi_akami.png') },
@@ -66,5 +81,10 @@ export default {
       ],
     }
   },
-}
+  methods: {
+    clickGood() {
+      this.$emit('good', this.message)
+    },
+  },
+})
 </script>

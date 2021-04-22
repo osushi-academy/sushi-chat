@@ -8,10 +8,16 @@
     </div>
   </div>
 </template>
-<script>
-export default {
+<script lang="ts">
+import Vue from 'vue'
+
+export default Vue.extend({
+  name: 'TopicHeader',
   props: {
-    title: String,
+    title: {
+      type: String,
+      required: true,
+    },
   },
-}
+})
 </script>

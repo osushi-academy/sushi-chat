@@ -1,178 +1,191 @@
 <template>
   <article class="topic-block">
-    <TopicHeader :title="topic.id + 1 + '. ' + topic.content" />
+    <TopicHeader :title="Number(topic.id) + 1 + '. ' + topic.title" />
     <div class="chat-area">
       <div class="text-zone">
         <div class="scrollable">
-          <div v-for="message in messages[topic.id]" :key="message">
-            <Message :message="message" />
+          <div v-for="message in messages" :key="message.id">
+            <MessageComponent :message="message" @good="clickGood" />
           </div>
         </div>
       </div>
       <div class="stamp-zone">
-        <FavoriteButton @favorite="favorite" />
+        <FavoriteButton @favorite="clickFavorite" />
       </div>
-      <button class="message-badge" v-show="is_notify">
+      <button v-show="isNotify" class="message-badge">
         最新のコメント
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
-    <TextArea />
+    <TextArea :topic="topic" @submit="clickSubmit" />
   </article>
 </template>
-<script>
+<script lang="ts">
+import Vue, { PropOptions } from 'vue'
+import * as Model from '@/models/contents'
 import TopicHeader from '@/components/TopicHeader.vue'
-import Message from '@/components/Message.vue'
+import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
 import FavoriteButton from '@/components/FavoriteButton.vue'
-export default {
+
+// Data型
+type DataType = {
+  messages: Model.ChatItem[]
+  isNotify: boolean
+}
+
+export default Vue.extend({
+  name: 'ChatRoom',
   components: {
     TopicHeader,
-    Message,
+    MessageComponent,
     TextArea,
     FavoriteButton,
   },
   props: {
-    topic: Object,
+    topic: {
+      type: Object,
+      required: true,
+    } as PropOptions<Model.TopicPropType>,
   },
-  data() {
+  data(): DataType {
     return {
       messages: [
-        [
-          {
-            id: 0,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 0,
-            content: '画像処理どうなってんの→独自実装!!?????',
-            is_question: false,
-          },
-          {
-            id: 1,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 1,
+        {
+          id: '0',
+          topicId: '0',
+          type: 'message',
+          iconId: '0',
+          content: '画像処理どうなってんの→独自実装!!?????',
+          isQuestion: false,
+          timestamp: 100,
+        },
+        {
+          id: '1',
+          topicId: '0',
+          type: 'message',
+          iconId: '1',
+          content:
+            '背景切り抜きまでしてくれるんか、すごいな。画像処理を独自実装...!すご！すご！',
+          isQuestion: false,
+          timestamp: 200,
+        },
+        {
+          id: '2',
+          topicId: '0',
+          type: 'message',
+          iconId: '2',
+          content: 'デザイン期間中に作ったのか！',
+          isQuestion: false,
+          timestamp: 300,
+        },
+        {
+          id: '3',
+          topicId: '0',
+          type: 'message',
+          iconId: '3',
+          content: 'バックエンドはどんな技術を使ったんですか？',
+          isQuestion: true,
+          timestamp: 400,
+        },
+        {
+          id: '4',
+          topicId: '0',
+          type: 'message',
+          iconId: '4',
+          content: 'チーム名の圧がすごいwwwwwwwwwww',
+          isQuestion: false,
+          timestamp: 500,
+        },
+        {
+          id: '5',
+          topicId: '0',
+          type: 'message',
+          iconId: '5',
+          content: 'なんか始まった笑笑',
+          isQuestion: false,
+          timestamp: 600,
+        },
+        {
+          id: '6',
+          topicId: '0',
+          type: 'message',
+          iconId: '6',
+          content: '既存のモデルそのままじゃなく独自改良してるのいいね',
+          isQuestion: false,
+          timestamp: 700,
+        },
+        {
+          id: '7',
+          topicId: '0',
+          type: 'message',
+          iconId: '7',
+          content: 'チーム名からのフリとオチ面白い笑笑',
+          isQuestion: false,
+          timestamp: 800,
+        },
+        {
+          id: '8',
+          topicId: '0',
+          type: 'reaction',
+          iconId: '0',
+          timestamp: 900,
+          target: {
+            id: '1',
             content:
               '背景切り抜きまでしてくれるんか、すごいな。画像処理を独自実装...!すご！すご！',
-            is_question: false,
           },
-          {
-            id: 2,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 2,
+        },
+        {
+          id: '9',
+          topicId: '0',
+          type: 'reaction',
+          iconId: '1',
+          timestamp: 1000,
+          target: {
+            id: '2',
             content: 'デザイン期間中に作ったのか！',
-            is_question: false,
           },
-          {
-            id: 3,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 3,
-            content: 'バックエンドはどんな技術を使ったんですか？',
-            is_question: true,
-          },
-          {
-            id: 4,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 4,
-            content: 'チーム名の圧がすごいwwwwwwwwwww',
-            is_question: false,
-          },
-          {
-            id: 5,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 5,
-            content: 'なんか始まった笑笑',
-            is_question: false,
-          },
-          {
-            id: 6,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 6,
-            content: '既存のモデルそのままじゃなく独自改良してるのいいね',
-            is_question: false,
-          },
-          {
-            id: 7,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 7,
-            content: 'チーム名からのフリとオチ面白い笑笑',
-            is_question: false,
-          },
-          {
-            id: 8,
-            topic_id: 0,
-            type: 'reaction',
-            icon_id: 0,
-            content: 'なんか始まった笑笑',
-            is_question: false,
-          },
-          {
-            id: 9,
-            topic_id: 0,
-            type: 'reaction',
-            icon_id: 1,
-            content: 'チーム名の圧がすごいwwwwwwwwwww',
-            is_question: false,
-          },
-          {
-            id: 10,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 10,
-            content: 'UIきれい!',
-            is_question: false,
-          },
-        ],
-        [
-          {
-            id: 0,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 0,
-            content: '画像処理どうなってんの→独自実装!!?????',
-            is_question: false,
-          },
-          {
-            id: 1,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 3,
-            content: 'バックエンドはどんな技術を使ったんですか？',
-            is_question: true,
-          },
-          {
-            id: 2,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 4,
-            content: 'チーム名の圧がすごいwwwwwwwwwww',
-            is_question: false,
-          },
-          {
-            id: 3,
-            topic_id: 0,
-            type: 'message',
-            icon_id: 6,
-            content: '既存のモデルそのままじゃなく独自改良してるのいいね',
-            is_question: false,
-          },
-          {
-            id: 4,
-            topic_id: 0,
-            type: 'reaction',
-            icon_id: 1,
-            content: 'チーム名の圧がすごいwwwwwwwwwww',
-            is_question: false,
-          },
-        ],
+        },
+        {
+          id: '10',
+          topicId: '0',
+          type: 'message',
+          iconId: '10',
+          content: 'UIきれい!',
+          isQuestion: false,
+          timestamp: 100,
+        },
       ],
+      isNotify: false,
     }
   },
-}
+  methods: {
+    getId(): string {
+      return Math.random().toString(36).slice(-8)
+    },
+    clickSubmit(message: Model.Message) {
+      this.messages.push(message)
+    },
+    clickGood(message: Model.Message) {
+      // いいねmessage
+      const m: Model.Reaction = {
+        id: `${this.getId()}`,
+        topicId: message.topicId,
+        type: 'reaction',
+        iconId: '0',
+        target: {
+          id: message.id,
+          content: message.content,
+        },
+        timestamp: 1100,
+      }
+      this.messages.push(m)
+      // submit
+    },
+    clickFavorite() {
+      console.log('favorite')
+    },
+  },
+})
 </script>
