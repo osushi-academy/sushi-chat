@@ -1,7 +1,7 @@
 <template>
   <section class="input-area" role="form">
     <div class="main-line">
-      <input
+      <textarea
         v-model="text"
         class="textarea"
         contenteditable
