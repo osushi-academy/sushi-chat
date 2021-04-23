@@ -178,6 +178,7 @@ $gray: rgb(228, 228, 228);
     background: white;
     margin-top: auto;
     margin-bottom: 1em;
+    position: relative;
 
     & > .stamp-submit-button {
       border: none;
@@ -444,32 +445,32 @@ $gray: rgb(228, 228, 228);
 .heart-button::before {
   background-image: url('@/assets/img/heart.svg');
   top: 0;
-  left: -12px;
+  left: -6px;
 }
 
 /* 右下のハートのスタイル */
 .heart-button::after {
   background-image: url('@/assets/img/heart-reverse.svg');
-  bottom: -6px;
-  right: -14px;
+  bottom: -1px;
+  right: 2px;
 }
 
 /* ========= ホバー時のスタイル ======== */
 
 /* ボタンホバー時のスタイル */
-.heart-button:hover {
+.heart-button:active {
   background-color: #fff;
   border-color: #ef4b53;
   color: #ef4b53;
 }
 
 /* ボタンホバー時の左上のハートのスタイル */
-.heart-button:hover::before {
+.heart-button:active::before {
   animation: heart 1.5s infinite ease-out;
 }
 
 /* ボタンホバー時の右下のハートのスタイル */
-.heart-button:hover::after {
+.heart-button:active::after {
   animation: heart 1.5s 0.2s infinite ease-out;
 }
 
@@ -486,20 +487,13 @@ $gray: rgb(228, 228, 228);
     opacity: 1;
   }
   100% {
-    transform: translateY(-20px) scale(1.4);
+    transform: translateY(-300px) scale(1.4);
     opacity: 0;
   }
 }
 
 /* ========= SPのスタイル ======== */
 @media screen and (max-width: 768px) {
-
-  /* ボタン本体のスタイル */
-  .heart-button {
-    background-color: #fff;
-    border-color: #ef4b53;
-    color: #ef4b53;
-  }
   
   /* 左上のハートのスタイル */
   .heart-button::before {
