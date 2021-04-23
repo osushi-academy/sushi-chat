@@ -1,5 +1,5 @@
 <template>
-  <button class="stamp-submit-button" @click="clickFavorite">
+  <button class="stamp-submit-button heart-button" @click="clickFavorite">
     <span class="material-icons"> favorite </span>
   </button>
 </template>

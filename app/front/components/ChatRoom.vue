@@ -183,7 +183,8 @@ export default Vue.extend({
       this.messages.push(m)
       // submit
     },
-    clickFavorite() {},
+    clickFavorite() {
+    },
   },
 })
 </script>

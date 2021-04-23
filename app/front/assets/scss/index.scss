@@ -426,3 +426,88 @@ $gray: rgb(228, 228, 228);
     }
   }
 }
+
+
+/* ハートの共通スタイル */
+.heart-button::before,
+.heart-button::after {
+  content: "";
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  opacity: 0;
+}
+
+/* 左上のハートのスタイル */
+.heart-button::before {
+  background-image: url('@/assets/img/heart.svg');
+  top: 0;
+  left: -12px;
+}
+
+/* 右下のハートのスタイル */
+.heart-button::after {
+  background-image: url('@/assets/img/heart-reverse.svg');
+  bottom: -6px;
+  right: -14px;
+}
+
+/* ========= ホバー時のスタイル ======== */
+
+/* ボタンホバー時のスタイル */
+.heart-button:hover {
+  background-color: #fff;
+  border-color: #ef4b53;
+  color: #ef4b53;
+}
+
+/* ボタンホバー時の左上のハートのスタイル */
+.heart-button:hover::before {
+  animation: heart 1.5s infinite ease-out;
+}
+
+/* ボタンホバー時の右下のハートのスタイル */
+.heart-button:hover::after {
+  animation: heart 1.5s 0.2s infinite ease-out;
+}
+
+/* ========= アニメーションの設定 ======== */
+@keyframes heart {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px) scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* ========= SPのスタイル ======== */
+@media screen and (max-width: 768px) {
+
+  /* ボタン本体のスタイル */
+  .heart-button {
+    background-color: #fff;
+    border-color: #ef4b53;
+    color: #ef4b53;
+  }
+  
+  /* 左上のハートのスタイル */
+  .heart-button::before {
+    animation: heart 1.5s infinite ease-out;
+  }
+
+  /* 右下のハートのスタイル */
+  .heart-button::after {
+    animation: heart 1.5s 0.2s infinite ease-out;
+  }
+}
