@@ -20,9 +20,7 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [
-    '@/assets/scss/app.scss'
-  ],
+  css: ['@/assets/scss/app.scss'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [],
@@ -33,8 +31,23 @@ export default {
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
   buildModules: [
     // https://go.nuxtjs.dev/typescript
-    '@nuxt/typescript-build',
+    [
+      '@nuxt/typescript-build',
+      {
+        typeCheck: true,
+        ignoreNotFoundWarnings: true,
+      },
+    ],
+    '@nuxtjs/pwa',
   ],
+  loaders: {
+    ts: {
+      silent: true,
+    },
+    tsx: {
+      silent: true,
+    },
+  },
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
@@ -53,7 +66,7 @@ export default {
   // WebFontLoader
   webfontloader: {
     google: {
-      families: ['M PLUS 1p:100,400,700', 'Material Icons']
-    }
+      families: ['M PLUS 1p:100,400,700', 'Material Icons'],
+    },
   },
 }
