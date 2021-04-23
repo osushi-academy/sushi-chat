@@ -3,7 +3,7 @@
     <TopicHeader :title="Number(topic.id) + 1 + '. ' + topic.title" />
     <div class="chat-area">
       <div class="text-zone">
-        <div class="scrollable">
+        <div :id="topic.id" class="scrollable">
           <div v-for="message in messages" :key="message.id">
             <MessageComponent :message="message" @good="clickGood" />
           </div>
