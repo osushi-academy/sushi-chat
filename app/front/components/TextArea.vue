@@ -50,7 +50,7 @@ export default Vue.extend({
     getId(): string {
       return Math.random().toString(36).slice(-8)
     },
-    sendMessage() {
+    async sendMessage() {
       // 空なら何もしないでreturn
       if (!this.text.length) {
         return
@@ -67,7 +67,14 @@ export default Vue.extend({
       }
       // 入力を空に
       this.text = ''
-      this.$emit('submit', m)
+      // submit
+      await this.$emit('submit', m)
+
+      // スクロール
+      const element: HTMLElement | null = document.getElementById(this.topic.id)
+      if (element) {
+        element.scrollTo(0, 10000)
+      }
     },
     setQuestion() {
       this.isQuestion = !this.isQuestion
