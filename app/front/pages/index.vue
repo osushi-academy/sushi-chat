@@ -1,13 +1,13 @@
 <template>
   <div class="container page">
-    <modal name="hello-world">
+    <modal name="select-modal">
       <div class="modal-header">
         <h2>トピック作成</h2>
       </div>
       <div class="modal-body">
         <div v-for="(topic, index) in topics" :key="index">
           <input
-            v-model="topics[index]"
+            v-model="topic.content"
             class="textarea"
             contenteditable
             placeholder="トピック名"
@@ -65,18 +65,27 @@ export default Vue.extend({
     this.$modal.show('select-modal')
   },
   methods: {
+    getId(): string {
+      return uuidv4()
+    },
     // modalを消し、topic作成
     hide(): any {
       this.topics.push()
       this.$modal.hide('select-modal')
     },
     // 該当するtopicを削除
-    removeTopic(index: Number) {
+    removeTopic(index: number) {
       this.topics.splice(index, 1)
     },
     // topic追加
     addTopic() {
-      this.topics.push() // 配列に１つ空データを追加する
+      // 新規topic
+      const t: Model.Topic = {
+        id: `${this.getId()}`,
+        title: '',
+        description: '',
+      }
+      this.topics.push(t)
     },
   },
 })
