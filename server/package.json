@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "server of sushi chat",
   "main": "app.js",
-  "type": "module",
   "scripts": {
-    "start": "ts-node-dev --transpile-only --rs ./src/app.ts",
+    "start": "node ./dist/app.js",
+    "build": "tsc -p .",
+    "start-dev": "ts-node-dev --transpile-only --rs ./src/app.ts",
     "test": "jest"
   },
   "author": "Eri-0910",
