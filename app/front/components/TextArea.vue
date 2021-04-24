@@ -77,9 +77,14 @@ export default Vue.extend({
       // スクロール
       const element: HTMLElement | null = document.getElementById(this.topic.id)
       if (element) {
-        element.scrollTo({ top: 100000, left: 0, behavior: 'smooth' })
+        element.scrollTo({
+          top: element.scrollHeight,
+          left: 0,
+          behavior: 'smooth',
+        })
       }
     },
+    // 質問フラグを立てる
     setQuestion() {
       this.isQuestion = !this.isQuestion
     },

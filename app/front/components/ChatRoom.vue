@@ -12,7 +12,7 @@
       <div class="stamp-zone">
         <FavoriteButton @favorite="clickFavorite" />
       </div>
-      <button v-show="isNotify" class="message-badge">
+      <button v-show="isNotify" class="message-badge" @click="clickScroll">
         最新のコメント
         <div class="material-icons">arrow_downward</div>
       </button>
@@ -22,6 +22,8 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
+// @ts-ignore
+import { v4 as uuidv4 } from 'uuid'
 import * as Model from '@/models/contents'
 import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
@@ -162,12 +164,14 @@ export default Vue.extend({
   },
   methods: {
     getId(): string {
-      return Math.random().toString(36).slice(-8)
+      return uuidv4()
     },
+    // 送信ボタン
     clickSubmit(message: Model.Message) {
       this.messages.push(message)
     },
-    clickGood(message: Model.Message) {
+    // いいねボタン
+    async clickGood(message: Model.Message) {
       // いいねmessage
       const m: Model.Reaction = {
         id: `${this.getId()}`,
@@ -180,10 +184,49 @@ export default Vue.extend({
         },
         timestamp: 1100,
       }
-      this.messages.push(m)
       // submit
+      await this.messages.push(m)
+
+      // スクロール
+      const element: HTMLElement | null = document.getElementById(this.topic.id)
+      if (element) {
+        // 下までスクロールされていなければ通知を出す
+        // if (this.isScrollBottom(element)) {
+        //   element.scrollTo({
+        //     top: element.scrollHeight,
+        //     left: 0,
+        //     behavior: 'smooth',
+        //   })
+        // } else {
+        //   this.isNotify = true
+        // }
+        element.scrollTo({
+          top: element.scrollHeight,
+          left: 0,
+          behavior: 'smooth',
+        })
+      }
     },
+    // ハートボタン
     clickFavorite() {},
+    // いちばん下までスクロール
+    clickScroll() {
+      const element: HTMLElement | null = document.getElementById(this.topic.id)
+      if (element) {
+        element.scrollTo({
+          top: element.scrollHeight,
+          left: 0,
+          behavior: 'smooth',
+        })
+        this.isNotify = false
+      }
+    },
+    // いちばん下までスクロールしてあるか
+    isScrollBottom(element: HTMLElement): Boolean {
+      return (
+        element.scrollHeight < element.scrollTop + element.offsetHeight + 200
+      )
+    },
   },
 })
 </script>
