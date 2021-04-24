@@ -434,3 +434,10 @@ $gray: rgb(228, 228, 228);
 .modal-header {
   border-bottom: 1px solid #ddd;
 }
+
+.modal-scrollable {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  overscroll-behavior: none;
+  padding: 1em 1rem;
+}

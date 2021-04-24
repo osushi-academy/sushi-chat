@@ -1,8 +1,6 @@
 <template>
   <article class="topic-block">
-    <TopicHeader
-      :title="Number(chatData.topic.id) + 1 + '. ' + chatData.topic.title"
-    />
+    <TopicHeader :title="topicIndex + 1 + '. ' + chatData.topic.title" />
     <div class="chat-area">
       <div class="text-zone">
         <div :id="chatData.topic.id" class="scrollable">
@@ -55,6 +53,7 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<ChatDataPropType>,
+    topicIndex: Number,
   },
   data(): DataType {
     return {

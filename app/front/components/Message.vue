@@ -40,7 +40,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import * as Model from '@/models/contents'
+import { ChatItemPropType } from '@/models/contents'
 
 // Data型
 type DataType = {
@@ -62,7 +62,7 @@ export default Vue.extend({
         isQuestion: false,
         timestamp: 100,
       }),
-    } as PropOptions<Model.ChatItemPropType>,
+    } as PropOptions<ChatItemPropType>,
   },
   data(): DataType {
     return {
@@ -75,9 +75,9 @@ export default Vue.extend({
         { icon: require('@/assets/img/sushi_kai_hokkigai.png') },
         { icon: require('@/assets/img/sushi_salmon.png') },
         { icon: require('@/assets/img/sushi_shirasu.png') },
-        { icon: require('@/assets/img/sushi_syari.png') },
         { icon: require('@/assets/img/sushi_tai.png') },
         { icon: require('@/assets/img/sushi_uni.png') },
+        { icon: require('@/assets/img/sushi_syari.png') },
       ],
     }
   },

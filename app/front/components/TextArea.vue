@@ -23,7 +23,7 @@
 import Vue, { PropOptions } from 'vue'
 // @ts-ignore
 import { v4 as uuidv4 } from 'uuid'
-import * as Model from '@/models/contents'
+import { TopicPropType, Message } from '@/models/contents'
 import KeyInstruction from '@/components/KeyInstruction.vue'
 
 // Data型
@@ -40,7 +40,7 @@ export default Vue.extend({
     topic: {
       type: Object,
       required: true,
-    } as PropOptions<Model.TopicPropType>,
+    } as PropOptions<TopicPropType>,
   },
   data(): DataType {
     return {
@@ -58,7 +58,7 @@ export default Vue.extend({
         return
       }
       // 新規message
-      const m: Model.Message = {
+      const m: Message = {
         id: `${this.getId()}`,
         topicId: this.topic.id,
         type: 'message',
@@ -69,8 +69,6 @@ export default Vue.extend({
       }
       // 入力を空に
       this.text = ''
-      // show uuid
-      console.log(m.id)
       // submit
       await this.$emit('submit', m)
 
