@@ -61,13 +61,14 @@ export default Vue.extend({
   },
   methods: {
     // 送信ボタン
-    clickSubmit(text: string, isQuestion: boolean) {
-      this.$emit('send-message', text, this.chatData.topic.id, isQuestion)
+    async clickSubmit(text: string, isQuestion: boolean) {
+      await this.$emit('send-message', text, this.chatData.topic.id, isQuestion)
+      this.clickScroll()
     },
     // いいねボタン
-    clickGood(message: Message) {
+    async clickGood(message: Message) {
       // submit
-      this.$emit('send-reaction', message)
+      await this.$emit('send-reaction', message)
 
       // スクロール
       const element: HTMLElement | null = document.getElementById(
