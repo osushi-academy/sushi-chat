@@ -429,22 +429,33 @@ $gray: rgb(228, 228, 228);
 }
 
 /* モーダル */
-.modal-header,
 .modal-body {
   padding: 5px 25px;
   overflow: hidden;
+
+  .modal-index {
+    display: inline;
+  }
+
+  & > .topic-remove {
+  }
+
+  & > .topic-add {
+  }
+
+  & > .topic-remove {
+  }
 }
 .modal-header {
   border-bottom: 1px solid #ddd;
+  padding: 5px 25px;
+  overflow: hidden;
 }
 .modal-scrollable {
   scroll-snap-type: y mandatory;
   overflow-y: scroll;
   overscroll-behavior: none;
   padding: 1em 1rem;
-}
-.modal-index {
-  display: inline;
 }
 
 /* ハートの共通スタイル */

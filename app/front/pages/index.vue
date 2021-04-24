@@ -21,10 +21,18 @@
             contenteditable
             placeholder="トピック名"
           />
-          <button type="button" @click="removeTopic(index)">削除</button>
+          <button
+            type="button"
+            class="topic-remove"
+            @click="removeTopic(index)"
+          >
+            削除
+          </button>
         </div>
-        <button type="button" @click="addTopic">追加</button>
-        <button type="button" @click="startChat">はじめる</button>
+        <button type="button" class="topic-add" @click="addTopic">追加</button>
+        <button type="button" class="topic-start" @click="startChat">
+          はじめる
+        </button>
       </div>
     </modal>
     <modal v-if="!isAdmin" name="sushi-modal">
