@@ -19,18 +19,24 @@
         <button type="button" @click="hide">はじめる</button>
       </div>
     </modal>
-    <modal v-if="!isAdmin" name="sushi-modal" :clickToClose="false">
+    <modal v-if="!isAdmin" name="sushi-modal" :click-to-close="false">
       <div class="modal-header">
         <h2>寿司を選んでね</h2>
       </div>
       <div class="modal-body">
         <div class="icon-list">
-          <div v-for="(icon,index) in icons" :key="index" class="icon-box">
-            <img :src="icon.url" alt="" @click="clickIcon">
-            <input class="disable-checkbox" type="checkbox" />
+          <div v-for="(icon, index) in icons" :key="index" class="icon-box">
+            <img
+              :src="icon.url"
+              alt=""
+              :class="{ 'icon-selected': iconChecked == index }"
+              @click="clickIcon(index)"
+            />
           </div>
-        </div> 
-        <button v-if="checked" type="button" @click="hide">はじめる</button>
+        </div>
+        <button v-if="iconChecked >= 0" type="button" @click="hide">
+          はじめる
+        </button>
       </div>
     </modal>
     <div v-for="chatData in chatDataList" :key="chatData.topic.id">
@@ -63,7 +69,7 @@ type DataType = {
   messages: ChatItem[]
   isAdmin: boolean
   icons: any
-  checked: boolean
+  iconChecked: Number
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -91,7 +97,7 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_tai.png') },
         { url: require('@/assets/img/sushi_uni.png') },
       ],
-      checked: false,
+      iconChecked: -1,
     }
   },
   computed: {
@@ -164,10 +170,9 @@ export default Vue.extend({
       this.topics.push(t)
     },
     // アイコン選択
-    clickIcon(){
-      this.checked = true
-    }
-
+    clickIcon(index: number) {
+      this.iconChecked = index
+    },
   },
 })
 
