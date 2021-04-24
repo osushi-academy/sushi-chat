@@ -27,11 +27,15 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   let stampCount: number = 0;
   let firstCommentTime: number = 0;
 
+  //サーバー起こしておくため
   setInterval(() => {
     if (activeUserCount > 0) {
       io.sockets.emit("");
     }
   }, 30000);
+
+  //このこが2秒毎にスタンプを送る
+  stampIntervalSender(io, stamps);
 
   //本体
   io.on("connection", (socket) => {
@@ -114,9 +118,6 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         topicId: received.topicId,
       });
     });
-
-    //このこが2秒毎にスタンプを送る
-    stampIntervalSender(io, stamps);
 
     //接続解除時に行う処理
     socket.on("disconnect", (reason) => {
