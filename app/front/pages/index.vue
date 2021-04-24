@@ -121,6 +121,7 @@ export default Vue.extend({
         id: getUUID(),
         topicId,
         content: text,
+        isQuestion,
       }
       // サーバーに反映する
       socket.emit('POST_CHAT_ITEM', params)
