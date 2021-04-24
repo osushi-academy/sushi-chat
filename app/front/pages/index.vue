@@ -1,6 +1,32 @@
 <template>
   <div class="container page">
-    <!-- {{ chatDataList }} -->
+    <modal v-if="isAdmin" name="topic-modal">
+      <div class="modal-header">
+        <h2>トピック作成</h2>
+      </div>
+      <div class="modal-body">
+        <div v-for="(topic, index) in topics" :key="index">
+          <input
+            v-model="topic.content"
+            class="textarea"
+            contenteditable
+            placeholder="トピック名"
+            @keydown.enter.exact="addTopic"
+          />
+          <button type="button" @click="removeTopic(index)">削除</button>
+        </div>
+        <button type="button" @click="addTopic">追加</button>
+        <button type="button" @click="hide">はじめる</button>
+      </div>
+    </modal>
+    <modal v-if="!isAdmin" name="sushi-modal">
+      <div class="modal-header">
+        <h2>寿司を選んでね</h2>
+      </div>
+      <div class="modal-body">
+        <button type="button" @click="hide">はじめる</button>
+      </div>
+    </modal>
     <div v-for="chatData in chatDataList" :key="chatData.topic.id">
       <ChatRoom :chat-data="chatData" @send-message="sendMessage" />
     </div>
@@ -9,6 +35,10 @@
 
 <script lang="ts">
 import Vue from 'vue'
+// @ts-ignore
+import { v4 as uuidv4 } from 'uuid'
+// @ts-ignore
+import VModal from 'vue-js-modal'
 import { ChatItem, Topic } from '@/models/contents'
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
@@ -25,8 +55,9 @@ type DataType = {
   isNotify: boolean
   topics: Topic[]
   messages: ChatItem[]
+  isAdmin: boolean
 }
-
+Vue.use(VModal)
 export default Vue.extend({
   name: 'Index',
   components: {
@@ -38,6 +69,7 @@ export default Vue.extend({
       messages: [],
       activeUserCount: 0,
       isNotify: false,
+      isAdmin: false,
     }
   },
   computed: {
@@ -48,7 +80,13 @@ export default Vue.extend({
       }))
     },
   },
-  mounted() {
+  mounted(): any {
+    if (this.isAdmin) {
+      this.$modal.show('topic-modal')
+    } else {
+      this.$modal.show('sushi-modal')
+    }
+
     const socket = io(process.env.apiBaseUrl as string)
     socket.emit(
       'ENTER_ROOM',
@@ -76,6 +114,32 @@ export default Vue.extend({
       socket.emit('POST_CHAT_ITEM', message)
       // ローカルに反映する
       this.messages.push(message)
+    },
+    getId(): string {
+      return uuidv4()
+    },
+    // modalを消し、topic作成
+    hide(): any {
+      this.topics.push()
+      if (this.isAdmin) {
+        this.$modal.hide('topic-modal')
+      } else {
+        this.$modal.hide('sushi-modal')
+      }
+    },
+    // 該当するtopicを削除
+    removeTopic(index: number) {
+      this.topics.splice(index, 1)
+    },
+    // topic追加
+    addTopic() {
+      // 新規topic
+      const t: Topic = {
+        id: `${this.getId()}`,
+        title: '',
+        description: '',
+      }
+      this.topics.push(t)
     },
   },
 })
