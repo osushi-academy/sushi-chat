@@ -436,6 +436,36 @@ $gray: rgb(228, 228, 228);
   border-bottom: 1px solid #ddd;
 }
 
+/* アイコン選択モーダル */
+.icon-list {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: 1fr;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+
+  & > .icon-box {
+    box-sizing: border-box;
+    display: flex;
+    border-radius: 100%;
+    align-items: center;
+    justify-content: center;
+    object-fit: contain;
+    position: relative;
+    & > .sushi-fit {
+      height: 80%;
+    }
+  }
+  & > .icon-box:hover {
+    background: rgb(235, 235, 235);
+  }
+  & > .icon-selected {
+    border: solid 5px;
+    border-color: #ae1f23;
+  }
+}
+
 /* ハートの共通スタイル */
 .heart-button::before,
 .heart-button::after {

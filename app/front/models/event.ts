@@ -18,6 +18,7 @@ export type EventType =
 export type PostChatItemMessageParams = {
   type: 'message' // アイテムタイプ
   id: string // フロントで生成したアイテムID
+  iconId: string // アイコンID
   topicId: string // トピックID
   content: string // コメントの中身
   isQuestion: boolean
@@ -25,6 +26,7 @@ export type PostChatItemMessageParams = {
 export type PostChatItemReactionParams = {
   type: 'reaction' // アイテムタイプ
   id: string // フロントで生成したアイテムID
+  iconId: string // アイコンID
   topicId: string // トピックID
   reactionToId: string // リアクションを送るメッセージのID
 }
