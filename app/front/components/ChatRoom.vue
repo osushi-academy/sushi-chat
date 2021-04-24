@@ -1,6 +1,9 @@
 <template>
   <article class="topic-block">
-    <TopicHeader :title="topicIndex + 1 + '. ' + chatData.topic.title" />
+    <TopicHeader
+      :title="topicIndex + 1 + '. ' + chatData.topic.title"
+      :is-admin="isAdmin"
+    />
     <div class="chat-area">
       <div class="text-zone">
         <div :id="chatData.topic.id" class="scrollable">
@@ -51,7 +54,16 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<ChatDataPropType>,
-    topicIndex: Number,
+    topicIndex: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
   },
   data(): DataType {
     return {

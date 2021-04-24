@@ -1,11 +1,19 @@
 <template>
   <div class="container page">
-    <modal v-if="isAdmin" name="sushi-modal" :click-to-close="false">
+    <modal
+      v-if="isAdmin"
+      name="sushi-modal"
+      :adaptive="true"
+      height="auto"
+      :click-to-close="false"
+      :scrollable="true"
+    >
       <div class="modal-header">
         <h2>トピック作成</h2>
       </div>
       <div class="modal-body modal-scrollable">
         <div v-for="(topic, index) in topicsAdmin" :key="index">
+          <h3 class="modal-index">{{ index + 1 }}</h3>
           <input
             v-model="topicsAdmin[index].title"
             name="titleArea"
@@ -27,8 +35,10 @@
         <button type="button" @click="hide">はじめる</button>
       </div>
     </modal>
-    <div v-for="chatData in chatDataList" :key="chatData.topic.id">
+    <div v-for="(chatData, index) in chatDataList" :key="index">
       <ChatRoom
+        :topic-index="index"
+        :is-admin="isAdmin"
         :chat-data="chatData"
         @send-message="sendMessage"
         @send-reaction="sendReaction"
