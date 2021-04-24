@@ -136,7 +136,6 @@ export default Vue.extend({
       },
       (res: any) => {
         // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
-        // TODO: 自分が送ったチャットデータは無視する
         // this.topics = res.topics
         this.messages = res.chatItems ?? []
       }
@@ -145,7 +144,12 @@ export default Vue.extend({
 
     // FIXME: サーバからデータが送られてこないので暫定的に対応 (yuta-ike)
     this.topics.push({ id: '0', title: 'タイトル', description: '説明' })
-    // this.messages.push(...CHAT_DUMMY_DATA) // コメントインするとチャットの初期値を入れれます
+
+    socket.on('PUB_CHAT_ITEM', (res: any) => {
+      if (!this.messages.find((message) => message.id === res.content.id)) {
+        this.messages.push(res.content)
+      }
+    })
   },
   methods: {
     sendMessage(text: string, topicId: string, isQuestion: boolean) {
