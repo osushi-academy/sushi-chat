@@ -11,37 +11,39 @@
         <h2>トピック作成</h2>
       </div>
       <div class="modal-body modal-scrollable">
-        <div v-for="(topic, index) in topicsAdmin" :key="index">
-          <h3 class="modal-index">{{ index + 1 }}</h3>
-          <input
-            v-model="topicsAdmin[index].title"
-            name="titleArea"
-            class="textarea"
-            contenteditable
-            placeholder="トピック名"
-          />
+        <div>
+          <div v-for="(topic, index) in topicsAdmin" :key="index">
+            <h3 class="modal-index">{{ index + 1 }}</h3>
+            <input
+              v-model="topicsAdmin[index].title"
+              name="titleArea"
+              class="textarea"
+              contenteditable
+              placeholder="トピック名"
+            />
+            <button
+              type="button"
+              class="secondary-button topic-remove"
+              @click="removeTopic(index)"
+            >
+              削除
+            </button>
+          </div>
           <button
             type="button"
-            class="secondary-button topic-remove"
-            @click="removeTopic(index)"
+            class="secondary-button topic-add"
+            @click="addTopic"
           >
-            削除
+            追加
+          </button>
+          <button
+            type="button"
+            class="secondary-button topic-start"
+            @click="startChat"
+          >
+            はじめる
           </button>
         </div>
-        <button
-          type="button"
-          class="secondary-button topic-add"
-          @click="addTopic"
-        >
-          追加
-        </button>
-        <button
-          type="button"
-          class="secondary-button topic-start"
-          @click="startChat"
-        >
-          はじめる
-        </button>
       </div>
     </modal>
     <modal v-if="!isAdmin" name="sushi-modal" :click-to-close="false">

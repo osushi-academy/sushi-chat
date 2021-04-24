@@ -433,16 +433,17 @@ $gray: rgb(228, 228, 228);
   }
 }
 /* モーダル */
+$modal-header-height: 48px;
 .modal-body {
   padding: 5px 25px;
-  overflow: hidden;
 
-  & > .modal-scrollable {
+  &.modal-scrollable {
     position: relative;
-    scroll-snap-type: y mandatory;
+    padding: 1em 1rem;
+    height: 100%;
+    padding-bottom: calc(#{$modal-header-height} + 1rem);
     overflow-y: scroll;
     overscroll-behavior: none;
-    padding: 1em 1rem;
   }
 
   & .modal-index {
@@ -465,6 +466,7 @@ $gray: rgb(228, 228, 228);
   border-bottom: 1px solid #ddd;
   padding: 5px 25px;
   overflow: hidden;
+  height: $modal-header-height;
 }
 .modal-actions {
   margin-top: 8px;
