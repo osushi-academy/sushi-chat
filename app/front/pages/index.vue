@@ -164,9 +164,8 @@ export default Vue.extend({
       })
     },
     sendFavorite(topicId: string) {
-      const id = getUUID()
       const socket = (this as any).socket
-      socket.emit('POST_STAMP', { topicId, id })
+      socket.emit('POST_STAMP', { topicId })
     },
     // スタンプが通知された時に実行されるコールバックの登録
     // NOTE: スタンプ周りのUI表示が複雑なため、少しややこしい実装を採用しています。
@@ -176,6 +175,7 @@ export default Vue.extend({
     ) {
       const socket = (this as any).socket
       socket.on('PUB_STAMP', (stamps: Stamp[]) => {
+        console.log(stamps)
         const stampsAboutTopicId = stamps.filter(
           // スタンプは自分が押したものも通知されるため省く処理を入れています
           (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id
