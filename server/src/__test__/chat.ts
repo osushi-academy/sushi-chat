@@ -215,7 +215,7 @@ describe("チャット部分のテスト", () => {
 
     const postChatItem = {
       type: "message",
-      id: "001",
+      id: "003",
       topicId,
       content: "今日はいい天気ですね",
       isQuestion: false,
@@ -223,7 +223,7 @@ describe("チャット部分のテスト", () => {
 
     const postChatItem2 = {
       type: "reaction",
-      id: "003",
+      id: "001",
       topicId,
       reactionToId: postChatItem.id,
     };

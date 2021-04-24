@@ -19,6 +19,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   const chatItems: { [key: string]: ChatItem } = {};
   let activeUserCount: number = 0;
   let stampCount: number = 0;
+  let firstCommentTime: number = 0;
 
   //本体
   io.on("connection", (socket) => {
@@ -30,6 +31,11 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 
       activeUserCount++;
       users[socket.id] = received.iconId.toString();
+      const sortedChatItem = Object.values(chatItems).sort(function (a, b) {
+        if (a.timestamp < b.timestamp) return 1;
+        if (a.timestamp > b.timestamp) return -1;
+        return 0;
+      });
       console.log(socket.id, received.iconId);
 
       io.sockets.emit("PUB_ENTER_ROOM", {
@@ -37,7 +43,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         activeUserCount,
       });
       callback({
-        chatItems: Object.values(chatItems),
+        chatItems: sortedChatItem,
         topics: Object.values(topics),
         activeUserCount,
       });
@@ -52,6 +58,10 @@ const createSocketIOServer = (httpServer: HttpServer) => {
     //messageで送られてきたときの処理
     socket.on("POST_CHAT_ITEM", (received: ChatItemReceive) => {
       console.log("message: " + received.id + " from " + socket.id);
+      const nowTime = new Date();
+      if (firstCommentTime === 0) {
+        firstCommentTime = nowTime.getTime();
+      }
       const returnItem: ChatItem =
         received.type === "message"
           ? {
@@ -59,7 +69,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
               topicId: received.topicId,
               type: "message",
               iconId: users[socket.id] ? users[socket.id] : "0",
-              timestamp: 0,
+              timestamp: firstCommentTime - nowTime.getTime(),
               content: received.content,
               isQuestion: received.isQuestion ? received.isQuestion : false,
             }
@@ -68,7 +78,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
               topicId: received.topicId,
               type: "reaction",
               iconId: users[socket.id] ? users[socket.id] : "0",
-              timestamp: 0,
+              timestamp: firstCommentTime - nowTime.getTime(),
               target: {
                 id: received.reactionToId,
                 content:
