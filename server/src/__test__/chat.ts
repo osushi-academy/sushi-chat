@@ -3,69 +3,70 @@ import { Server } from 'socket.io'
 import { io as Client, Socket as ClientSocket } from 'socket.io-client'
 import { ArrayRange } from '../utils/range'
 import delay from '../utils/delay'
+import createSocketIOServer from '../ioServer'
 
 // サーバーサイドの実装
 // ここはテストファイルなので`createCustomServer`関数はあとで別のファイルに切り出す予定
 // コメントアウト部分はOptionに移行した機能。とりあえずコメントアウトしている。
 
-const createCustomServer = (httpServer: HttpServer) => {
-  const io = new Server(httpServer)
-  const roomId = "room-id"
-  const topics = ArrayRange(10).map(id => ({
-    id: `00${id}`,
-    title: `タイトル-${id}`
-  }))
+// const createCustomServer = (httpServer: HttpServer) => {
+//   const io = new Server(httpServer)
+//   const roomId = "room-id"
+//   const topics = ArrayRange(10).map(id => ({
+//     id: `00${id}`,
+//     title: `タイトル-${id}`
+//   }))
 
-  io.on('connection', (socket) => {
-    let userCount = 0
+//   io.on('connection', (socket) => {
+//     let userCount = 0
     
-    // ユーザーがENTER_ROOMを送ったとき
-    socket.on("ENTER_ROOM", (_, callback) => {
-      socket.join(roomId)
-      callback({
-        chatItems: [],
-        topics,
-        activeUserCount: userCount++
-      })
-    })
+//     // ユーザーがENTER_ROOMを送ったとき
+//     socket.on("ENTER_ROOM", (_, callback) => {
+//       socket.join(roomId)
+//       callback({
+//         chatItems: [],
+//         topics,
+//         activeUserCount: userCount++
+//       })
+//     })
 
-    // ユーザーがPOST_CHAT_ITEMイベントを送信したとき
-    socket.on("POST_CHAT_ITEM", (data, callback) => {
-      socket.to(roomId).emit("PUB_CHAT_ITEM", {
-        actions: [
-          data.type === "message" ? {
-            type: "confirm-to-send",
-            content: {
-              "id": data.id,
-              "topicId": data.topicId,
-              "type": "message",
-              "iconId": '1',
-              "timestamp": 100,
-              "content": data.content,
-            　"isQuestion": data.isQuestion
-            }
-          } : {
-            type: "insert-chatitem",
-            content: {
-              "id": data.id,
-              "topicId": data.topicId,
-              "type": "reaction",
-              "iconId": '1',
-              "timestamp": 100,
-              "target": {
-                id: data.reactionToId,
-                content: '今日はいい天気ですね'
-              }
-            }
-          }
-        ]
-      })
-    })
+//     // ユーザーがPOST_CHAT_ITEMイベントを送信したとき
+//     socket.on("POST_CHAT_ITEM", (data, callback) => {
+//       socket.to(roomId).emit("PUB_CHAT_ITEM", {
+//         actions: [
+//           data.type === "message" ? {
+//             type: "confirm-to-send",
+//             content: {
+//               "id": data.id,
+//               "topicId": data.topicId,
+//               "type": "message",
+//               "iconId": '1',
+//               "timestamp": 100,
+//               "content": data.content,
+//             　"isQuestion": data.isQuestion
+//             }
+//           } : {
+//             type: "insert-chatitem",
+//             content: {
+//               "id": data.id,
+//               "topicId": data.topicId,
+//               "type": "reaction",
+//               "iconId": '1',
+//               "timestamp": 100,
+//               "target": {
+//                 id: data.reactionToId,
+//                 content: '今日はいい天気ですね'
+//               }
+//             }
+//           }
+//         ]
+//       })
+//     })
 
     
-  })
-  return io
-}
+//   })
+//   return io
+// }
 
 describe("チャット部分のテスト", () => {
   const CLIENTS_COUNT = 5
@@ -78,7 +79,7 @@ describe("チャット部分のテスト", () => {
   // テストのセットアップ
   beforeEach((done) => {
     const httpServer = createServer()
-    io = createCustomServer(httpServer)
+    io = createSocketIOServer(httpServer)
     httpServer.listen(async () => {
       const port = (httpServer as any).address().port
       clientSockets = ArrayRange(CLIENTS_COUNT).map(() => Client(`http://localhost:${port}`))
