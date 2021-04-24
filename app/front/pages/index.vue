@@ -24,11 +24,11 @@
         <h2>寿司を選んでね</h2>
       </div>
       <div class="modal-body">
-        <ul class="icon-list">
-          <li v-for="(icon,index) in icons" :key="index" class="icon-box">
+        <div class="icon-list">
+          <div v-for="(icon,index) in icons" :key="index" class="icon-box">
             <img :src="icon.url" alt="">
-          </li>
-        </ul> 
+          </div>
+        </div> 
         <button type="button" @click="hide">はじめる</button>
       </div>
     </modal>

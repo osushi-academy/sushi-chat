@@ -440,19 +440,20 @@ $gray: rgb(228, 228, 228);
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-auto-rows: 1fr;
-  grid-row-gap: 6px;
-  grid-column-gap: 6px;
+  //grid-row-gap: 6px;
+  //grid-column-gap: 6px;
+  //border: solid 1px;
   padding: 0;
   margin: 0;
   list-style-type: none;
-  place-items: center; 
 }
 
-.icon-list li {
-  padding: 10px;
-  margin-right: 2px;
-  margin-bottom: 2px;
+.icon-list .icon-box {
   box-sizing: border-box;
-  //display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;
+  //border: solid 1px;
 }
 
