@@ -2,6 +2,7 @@
   <article class="topic-block">
     <TopicHeader
       :title="Number(chatData.topic.id) + 1 + '. ' + chatData.topic.title"
+      :is-active-topic="true"
     />
     <div class="chat-area">
       <div class="text-zone">
@@ -24,7 +25,7 @@
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
-    <TextArea :topic="chatData.topic" @submit="clickSubmit" />
+    <TextArea :topic="chatData.topic" :my-icon="myIcon" @submit="clickSubmit" />
   </article>
 </template>
 <script lang="ts">
@@ -69,6 +70,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     } as PropOptions<FavoriteCallbackRegisterPropType>,
+    myIcon: {
+      type: Number,
+      required: true,
+    },
   },
   data(): DataType {
     return {

@@ -72,6 +72,7 @@ export default Vue.extend({
 })
 
 const ICONS = [
+  { icon: require('@/assets/img/tea.png') },
   { icon: require('@/assets/img/sushi_akami.png') },
   { icon: require('@/assets/img/sushi_ebi.png') },
   { icon: require('@/assets/img/sushi_harasu.png') },
@@ -80,8 +81,8 @@ const ICONS = [
   { icon: require('@/assets/img/sushi_kai_hokkigai.png') },
   { icon: require('@/assets/img/sushi_salmon.png') },
   { icon: require('@/assets/img/sushi_shirasu.png') },
-  { icon: require('@/assets/img/sushi_syari.png') },
   { icon: require('@/assets/img/sushi_tai.png') },
   { icon: require('@/assets/img/sushi_uni.png') },
+  { icon: require('@/assets/img/sushi_syari.png') },
 ]
 </script>

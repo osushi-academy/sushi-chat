@@ -59,7 +59,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       });
       console.log(socket.id, received.iconId);
 
-      io.sockets.emit("PUB_ENTER_ROOM", {
+      socket.broadcast.emit("PUB_ENTER_ROOM", {
         iconId: received.iconId,
         activeUserCount,
       });
@@ -109,7 +109,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
               },
             };
       chatItems[received.id] = returnItem;
-      io.sockets.emit("PUB_CHAT_ITEM", {
+      socket.broadcast.emit("PUB_CHAT_ITEM", {
         type: "confirm-to-send",
         content: returnItem,
       });
