@@ -28,7 +28,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       console.log("entered");
 
       activeUserCount++;
-      users[socket.id] = received.iconId;
+      users[socket.id] = received.iconId.toString();
       console.log(socket.id, received.iconId);
 
       // socket.emit("ENTER_ROOM", {
