@@ -1,4 +1,7 @@
 export default {
+  vue: {
+    devtools: true,
+  },
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
 
@@ -68,5 +71,9 @@ export default {
     google: {
       families: ['M PLUS 1p:100,400,700', 'Material Icons'],
     },
+  },
+
+  env: {
+    apiBaseUrl: process.env.API_BASE_URL || 'http://localhost:7000',
   },
 }
