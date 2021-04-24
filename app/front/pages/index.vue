@@ -22,14 +22,24 @@
           />
           <button
             type="button"
-            class="topic-remove"
+            class="secondary-button topic-remove"
             @click="removeTopic(index)"
           >
             削除
           </button>
         </div>
-        <button type="button" class="topic-add" @click="addTopic">追加</button>
-        <button type="button" class="topic-start" @click="startChat">
+        <button
+          type="button"
+          class="secondary-button topic-add"
+          @click="addTopic"
+        >
+          追加
+        </button>
+        <button
+          type="button"
+          class="secondary-button topic-start"
+          @click="startChat"
+        >
           はじめる
         </button>
       </div>
