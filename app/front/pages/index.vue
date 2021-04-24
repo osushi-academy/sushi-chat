@@ -1,6 +1,6 @@
 <template>
   <div class="container page">
-    <modal name="select-modal">
+    <modal v-if="isAdmin" name="topic-modal">
       <div class="modal-header">
         <h2>トピック作成</h2>
       </div>
@@ -16,6 +16,14 @@
           <button type="button" @click="removeTopic(index)">削除</button>
         </div>
         <button type="button" @click="addTopic">追加</button>
+        <button type="button" @click="hide">はじめる</button>
+      </div>
+    </modal>
+    <modal v-if="!isAdmin" name="sushi-modal">
+      <div class="modal-header">
+        <h2>寿司を選んでね</h2>
+      </div>
+      <div class="modal-body">
         <button type="button" @click="hide">はじめる</button>
       </div>
     </modal>
@@ -37,6 +45,7 @@ import ChatRoom from '@/components/ChatRoom.vue'
 type DataType = {
   topics: Model.Topic[]
   isNotify: boolean
+  isAdmin: boolean
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -59,10 +68,15 @@ export default Vue.extend({
         },
       ],
       isNotify: false,
+      isAdmin: false,
     }
   },
   mounted(): any {
-    this.$modal.show('select-modal')
+    if (this.isAdmin) {
+      this.$modal.show('topic-modal')
+    } else {
+      this.$modal.show('sushi-modal')
+    }
   },
   methods: {
     getId(): string {
@@ -71,7 +85,11 @@ export default Vue.extend({
     // modalを消し、topic作成
     hide(): any {
       this.topics.push()
-      this.$modal.hide('select-modal')
+      if (this.isAdmin) {
+        this.$modal.hide('topic-modal')
+      } else {
+        this.$modal.hide('sushi-modal')
+      }
     },
     // 該当するtopicを削除
     removeTopic(index: number) {
