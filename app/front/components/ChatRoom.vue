@@ -86,7 +86,9 @@ export default Vue.extend({
       // this.messages.push(m)
 
       // スクロール
-      const element: HTMLElement | null = document.getElementById(this.topic.id)
+      const element: HTMLElement | null = document.getElementById(
+        this.chatData.topic.id
+      )
       if (element) {
         // 下までスクロールされていなければ通知を出す
         // if (this.isScrollBottom(element)) {
@@ -109,7 +111,9 @@ export default Vue.extend({
     clickFavorite() {},
     // いちばん下までスクロール
     clickScroll() {
-      const element: HTMLElement | null = document.getElementById(this.topic.id)
+      const element: HTMLElement | null = document.getElementById(
+        this.chatData.topic.id
+      )
       if (element) {
         element.scrollTo({
           top: element.scrollHeight,
