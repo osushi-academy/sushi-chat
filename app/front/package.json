@@ -17,7 +17,8 @@
     "nuxt": "^2.15.3",
     "nuxt-webfontloader": "^1.1.0",
     "socket.io-client": "^4.0.1",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "vue-js-modal": "^2.0.0-rc.6"
   },
   "devDependencies": {
     "@nuxt/types": "^2.15.3",
