@@ -74,7 +74,10 @@ const createSocketIOServer = (httpServer: HttpServer) => {
               timestamp: 0,
               target: {
                 id: received.reactionToId,
-                content: "",
+                content:
+                  chatItems[received.reactionToId].type === "message"
+                    ? (chatItems[received.reactionToId] as Message).content
+                    : "",
               },
             };
       chatItems[received.id] = returnItem;
