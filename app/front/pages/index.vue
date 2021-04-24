@@ -1,5 +1,32 @@
 <template>
   <div class="container page">
+    <modal v-if="isAdmin" name="topic-modal">
+      <div class="modal-header">
+        <h2>トピック作成</h2>
+      </div>
+      <div class="modal-body">
+        <div v-for="(topic, index) in topics" :key="index">
+          <input
+            v-model="topic.content"
+            class="textarea"
+            contenteditable
+            placeholder="トピック名"
+            @keydown.enter.exact="addTopic"
+          />
+          <button type="button" @click="removeTopic(index)">削除</button>
+        </div>
+        <button type="button" @click="addTopic">追加</button>
+        <button type="button" @click="hide">はじめる</button>
+      </div>
+    </modal>
+    <modal v-if="!isAdmin" name="sushi-modal">
+      <div class="modal-header">
+        <h2>寿司を選んでね</h2>
+      </div>
+      <div class="modal-body">
+        <button type="button" @click="hide">はじめる</button>
+      </div>
+    </modal>
     <div v-for="topic in topics" :key="topic.id">
       <ChatRoom :topic="topic" />
     </div>
@@ -8,6 +35,9 @@
 
 <script lang="ts">
 import Vue from 'vue'
+// @ts-ignore
+import { v4 as uuidv4 } from 'uuid'
+import VModal from 'vue-js-modal'
 import * as Model from '@/models/contents'
 import ChatRoom from '@/components/ChatRoom.vue'
 
@@ -15,8 +45,9 @@ import ChatRoom from '@/components/ChatRoom.vue'
 type DataType = {
   topics: Model.Topic[]
   isNotify: boolean
+  isAdmin: boolean
 }
-
+Vue.use(VModal)
 export default Vue.extend({
   name: 'Index',
   components: {
@@ -37,7 +68,43 @@ export default Vue.extend({
         },
       ],
       isNotify: false,
+      isAdmin: false,
     }
+  },
+  mounted(): any {
+    if (this.isAdmin) {
+      this.$modal.show('topic-modal')
+    } else {
+      this.$modal.show('sushi-modal')
+    }
+  },
+  methods: {
+    getId(): string {
+      return uuidv4()
+    },
+    // modalを消し、topic作成
+    hide(): any {
+      this.topics.push()
+      if (this.isAdmin) {
+        this.$modal.hide('topic-modal')
+      } else {
+        this.$modal.hide('sushi-modal')
+      }
+    },
+    // 該当するtopicを削除
+    removeTopic(index: number) {
+      this.topics.splice(index, 1)
+    },
+    // topic追加
+    addTopic() {
+      // 新規topic
+      const t: Model.Topic = {
+        id: `${this.getId()}`,
+        title: '',
+        description: '',
+      }
+      this.topics.push(t)
+    },
   },
 })
 </script>
