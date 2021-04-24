@@ -76,7 +76,7 @@ export default Vue.extend({
       messages: [],
       activeUserCount: 0,
       isNotify: false,
-      isAdmin: false,
+      isAdmin: true,
     }
   },
   computed: {

@@ -298,6 +298,11 @@ $gray: rgb(228, 228, 228);
     margin-bottom: 0.5rem;
     text-align: end;
   }
+  @media screen and (max-width:768px) {
+    & > .key-instruct {
+      display: none;
+    }
+  }
 
   & > .question-checkbox {
     font-size: 85%;
