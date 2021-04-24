@@ -31,7 +31,12 @@
             :class="{ 'icon-selected': iconChecked == index }"
             class="icon-box"
           >
-            <img :src="icon.url" alt="" @click="clickIcon(index)" />
+            <img
+              :src="icon.url"
+              alt=""
+              class="sushi-fit"
+              @click="clickIcon(index)"
+            />
           </div>
         </div>
         <button v-if="iconChecked >= 0" type="button" @click="hide">
@@ -77,7 +82,7 @@ type DataType = {
   messages: ChatItem[]
   isAdmin: boolean
   icons: any
-  iconChecked: Number
+  iconChecked: number
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -101,9 +106,9 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_kai_hokkigai.png') },
         { url: require('@/assets/img/sushi_salmon.png') },
         { url: require('@/assets/img/sushi_shirasu.png') },
-        { url: require('@/assets/img/sushi_syari.png') },
         { url: require('@/assets/img/sushi_tai.png') },
         { url: require('@/assets/img/sushi_uni.png') },
+        { url: require('@/assets/img/sushi_syari.png') },
       ],
       iconChecked: -1,
     }
@@ -159,7 +164,7 @@ export default Vue.extend({
         id: params.id,
         topicId,
         type: 'message',
-        iconId: '0', // TODO: 自分のiconIdを指定する
+        iconId: String(this.iconChecked + 1), // 運営のお茶の分
         content: text,
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
         isQuestion,

@@ -436,6 +436,7 @@ $gray: rgb(228, 228, 228);
   border-bottom: 1px solid #ddd;
 }
 
+/* アイコン選択モーダル */
 .icon-list {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -443,24 +444,27 @@ $gray: rgb(228, 228, 228);
   padding: 0;
   margin: 0;
   list-style-type: none;
-}
 
-.icon-list .icon-box {
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  object-fit: contain;
-  position: relative;
+  & > .icon-box {
+    box-sizing: border-box;
+    display: flex;
+    border-radius: 100%;
+    align-items: center;
+    justify-content: center;
+    object-fit: contain;
+    position: relative;
+    & > .sushi-fit {
+      height: 80%;
+    }
+  }
+  & > .icon-box:hover {
+    background: rgb(235, 235, 235);
+  }
+  & > .icon-selected {
+    border: solid 5px;
+    border-color: #ae1f23;
+  }
 }
-
-.icon-list .icon-box:hover {
-  background: rgb(223, 223, 223);
-}
-
-.icon-list .icon-selected {
-  border: solid 5px;
-  border-color: rgb(240,96,96);
 
 /* ハートの共通スタイル */
 .heart-button::before,
