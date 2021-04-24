@@ -21,6 +21,8 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
+// @ts-ignore
+import { v4 as uuidv4 } from 'uuid'
 import * as Model from '@/models/contents'
 import KeyInstruction from '@/components/KeyInstruction.vue'
 
@@ -48,9 +50,9 @@ export default Vue.extend({
   },
   methods: {
     getId(): string {
-      return Math.random().toString(36).slice(-8)
+      return uuidv4()
     },
-    sendMessage() {
+    async sendMessage() {
       // 空なら何もしないでreturn
       if (!this.text.length) {
         return
@@ -67,8 +69,22 @@ export default Vue.extend({
       }
       // 入力を空に
       this.text = ''
-      this.$emit('submit', m)
+      // show uuid
+      console.log(m.id)
+      // submit
+      await this.$emit('submit', m)
+
+      // スクロール
+      const element: HTMLElement | null = document.getElementById(this.topic.id)
+      if (element) {
+        element.scrollTo({
+          top: element.scrollHeight,
+          left: 0,
+          behavior: 'smooth',
+        })
+      }
     },
+    // 質問フラグを立てる
     setQuestion() {
       this.isQuestion = !this.isQuestion
     },

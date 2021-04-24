@@ -428,6 +428,14 @@ $gray: rgb(228, 228, 228);
   }
 }
 
+.modal-header,
+.modal-body {
+  padding: 5px 25px;
+}
+.modal-header {
+  border-bottom: 1px solid #ddd;
+}
+
 /* ハートの共通スタイル */
 .heart-button::before,
 .heart-button::after {
