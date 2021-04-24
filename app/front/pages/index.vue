@@ -21,17 +21,17 @@
     </modal>
     <modal v-if="!isAdmin" name="sushi-modal" :click-to-close="false">
       <div class="modal-header">
-        <h2>寿司を選んでね</h2>
+        <h2>アイコンを選んでね</h2>
       </div>
       <div class="modal-body">
         <div class="icon-list">
-          <div v-for="(icon, index) in icons" :key="index" class="icon-box">
-            <img
-              :src="icon.url"
-              alt=""
-              :class="{ 'icon-selected': iconChecked == index }"
-              @click="clickIcon(index)"
-            />
+          <div
+            v-for="(icon, index) in icons"
+            :key="index"
+            :class="{ 'icon-selected': iconChecked == index }"
+            class="icon-box"
+          >
+            <img :src="icon.url" alt="" @click="clickIcon(index)" />
           </div>
         </div>
         <button v-if="iconChecked >= 0" type="button" @click="hide">
