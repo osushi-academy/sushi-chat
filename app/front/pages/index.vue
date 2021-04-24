@@ -84,7 +84,13 @@ export default Vue.extend({
   data(): DataType {
     return {
       topics: [],
-      topicsAdmin: [],
+      topicsAdmin: [
+        {
+          id: `${getUUID()}`,
+          title: '',
+          description: '',
+        },
+      ],
       messages: [],
       activeUserCount: 0,
       isNotify: false,
