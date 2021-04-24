@@ -27,6 +27,7 @@
         <div class="icon-list">
           <div v-for="(icon,index) in icons" :key="index" class="icon-box">
             <img :src="icon.url" alt="">
+            <input class="disable-checkbox" type="checkbox" checked />
           </div>
         </div> 
         <button type="button" @click="hide">はじめる</button>

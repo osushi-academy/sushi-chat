@@ -454,6 +454,13 @@ $gray: rgb(228, 228, 228);
   align-items: center;
   justify-content: center;
   object-fit: contain;
-  //border: solid 1px;
+  position: relative;
+  border: solid 1px;
+}
+
+.icon-list .disable-checkbox {
+  position: absolute;
+  top:5px;
+  right: 5px;
 }
 
