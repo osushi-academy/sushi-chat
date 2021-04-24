@@ -27,26 +27,30 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   let stampCount: number = 0;
   let firstCommentTime: number = 0;
 
-  //サーバー起こしておくため
-  setInterval(() => {
-    if (activeUserCount > 0) {
-      io.sockets.emit("");
-    }
-  }, 30000);
+  let serverAwakerTimer: NodeJS.Timeout;
+  let stampIntervalSenderTimer: NodeJS.Timeout;
 
-  //このこが2秒毎にスタンプを送る
-  stampIntervalSender(io, stamps, activeUserCount);
+  //サーバー起こしておくため
+  function serverAwaker() {
+    return setInterval(() => {
+      io.sockets.emit("");
+      console.log("awaker stamp", new Date());
+    }, 30000);
+  }
 
   //本体
   io.on("connection", (socket) => {
     console.log("user joined");
     activeUserCount++;
+    if (activeUserCount === 1) {
+      //サーバー起こしておくため
+      serverAwakerTimer = serverAwaker();
+      stampIntervalSenderTimer = stampIntervalSender(io, stamps);
+    }
 
     //ルーム参加
     socket.on("ENTER_ROOM", (received: EnterRoomReceive, callback: any) => {
       console.log("entered");
-
-      activeUserCount++;
       users[socket.id] = received.iconId.toString();
       const sortedChatItem = Object.values(chatItems).sort(function (a, b) {
         if (a.timestamp < b.timestamp) return 1;
@@ -123,6 +127,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
     socket.on("disconnect", (reason) => {
       console.log("disconnect: ", reason);
       activeUserCount--;
+      if (activeUserCount === 0) {
+        //サーバー起こしておくこ
+        clearInterval(serverAwakerTimer);
+        //このこが2秒毎にスタンプを送る
+        clearInterval(stampIntervalSenderTimer);
+      }
     });
   });
 
