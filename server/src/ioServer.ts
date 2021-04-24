@@ -119,6 +119,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
     socket.on("POST_STAMP", (received: Stamp) => {
       stampCount++;
       stamps.push({
+        userId: socket.id,
         topicId: received.topicId,
       });
     });

@@ -30,8 +30,10 @@
     <div v-for="chatData in chatDataList" :key="chatData.topic.id">
       <ChatRoom
         :chat-data="chatData"
+        :favorite-callback-register="favoriteCallbackRegister"
         @send-message="sendMessage"
         @send-reaction="sendReaction"
+        @send-stamp="sendFavorite"
       />
     </div>
   </div>
@@ -41,7 +43,7 @@
 import Vue from 'vue'
 // @ts-ignore
 import VModal from 'vue-js-modal'
-import { ChatItem, Message, Topic } from '@/models/contents'
+import { ChatItem, Message, Topic, Stamp } from '@/models/contents'
 import {
   PostChatItemMessageParams,
   PostChatItemReactionParams,
@@ -159,6 +161,28 @@ export default Vue.extend({
             (this.messages.find(({ id }) => id === message.id) as Message)
               ?.content ?? '',
         },
+      })
+    },
+    sendFavorite(topicId: string) {
+      const id = getUUID()
+      const socket = (this as any).socket
+      socket.emit('POST_STAMP', { topicId, id })
+    },
+    // スタンプが通知された時に実行されるコールバックの登録
+    // NOTE: スタンプ周りのUI表示が複雑なため、少しややこしい実装を採用しています。
+    favoriteCallbackRegister(
+      topicId: string,
+      callback: (count: number) => void
+    ) {
+      const socket = (this as any).socket
+      socket.on('PUB_STAMP', (stamps: Stamp[]) => {
+        const stampsAboutTopicId = stamps.filter(
+          // スタンプは自分が押したものも通知されるため省く処理を入れています
+          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id
+        )
+        if (stampsAboutTopicId.length > 0) {
+          callback(stampsAboutTopicId.length)
+        }
       })
     },
     // modalを消し、topic作成
