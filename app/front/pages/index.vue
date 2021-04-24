@@ -75,6 +75,7 @@ import {
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
+import { getSelectedIcon, setSelectedIcon } from '@/utils/reserveSelectIcon'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -130,14 +131,20 @@ export default Vue.extend({
     },
   },
   mounted(): any {
+    const socket = io(process.env.apiBaseUrl as string)
+    ;(this as any).socket = socket
+
     if (this.isAdmin) {
       this.$modal.show('topic-modal')
     } else {
-      this.$modal.show('sushi-modal')
+      const selectedIcon = getSelectedIcon()
+      if (selectedIcon == null) {
+        this.$modal.show('sushi-modal')
+      } else {
+        this.iconChecked = selectedIcon - 1
+        this.enterRoom(selectedIcon)
+      }
     }
-
-    const socket = io(process.env.apiBaseUrl as string)
-    ;(this as any).socket = socket
 
     // FIXME: サーバからデータが送られてこないので暫定的に対応 (yuta-ike)
     this.topics.push({ id: '0', title: 'タイトル', description: '説明' })
@@ -228,12 +235,14 @@ export default Vue.extend({
       } else {
         this.$modal.hide('sushi-modal')
       }
-
+      this.enterRoom(this.iconChecked + 1)
+    },
+    enterRoom(iconId: number) {
       const socket = (this as any).socket
       socket.emit(
         'ENTER_ROOM',
         {
-          iconId: this.iconChecked + 1,
+          iconId,
         },
         (res: any) => {
           // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
@@ -241,6 +250,7 @@ export default Vue.extend({
           this.messages = res.chatItems ?? []
         }
       )
+      setSelectedIcon(iconId)
     },
     // 該当するtopicを削除
     removeTopic(index: number) {
