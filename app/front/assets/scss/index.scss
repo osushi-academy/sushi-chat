@@ -156,7 +156,7 @@ $gray: rgb(228, 228, 228);
 }
 
 .chat-area {
-  height: 300px;
+  max-height: 450px;
   flex: 1;
   display: flex;
   border-top: 2px solid $gray;
