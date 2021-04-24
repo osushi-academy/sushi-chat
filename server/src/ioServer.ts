@@ -7,7 +7,7 @@ import {
   ReactionReceive,
 } from "./chatItem";
 import { Topic } from "./topic";
-import { Stamp } from "./stamp";
+import { Stamp, stampIntervalSender } from "./stamp";
 import { Server } from "socket.io";
 import { EnterRoomReceive, BuildRoomReceive } from "./room";
 import { Server as HttpServer } from "http";
@@ -16,11 +16,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
     cors: {
       origin: "*",
-      methods: ["GET", "POST"]
-    }
+      methods: ["GET", "POST"],
+    },
   });
   const users: { [key: string]: string } = {};
   const topics: { [key: string]: Topic } = {};
+  const stamps: Stamp[] = [];
   const chatItems: { [key: string]: ChatItem } = {};
   let activeUserCount: number = 0;
   let stampCount: number = 0;
@@ -102,10 +103,13 @@ const createSocketIOServer = (httpServer: HttpServer) => {
     //stampで送られてきたときの処理
     socket.on("POST_STAMP", (received: Stamp) => {
       stampCount++;
-      io.sockets.emit("PUB_STAMP", {
+      stamps.push({
         topicId: received.topicId,
       });
     });
+
+    //このこが2秒毎にスタンプを送る
+    stampIntervalSender(io, stamps);
 
     //接続解除時に行う処理
     socket.on("disconnect", (reason) => {
