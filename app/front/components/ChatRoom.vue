@@ -24,9 +24,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-// @ts-ignore
-import { v4 as uuidv4 } from 'uuid'
-import { Topic, ChatItem, Message, Reaction } from '@/models/contents'
+import { Topic, ChatItem, Message } from '@/models/contents'
 import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
@@ -66,28 +64,15 @@ export default Vue.extend({
     }
   },
   methods: {
-    getId(): string {
-      return uuidv4()
-    },
     // 送信ボタン
-    clickSubmit(message: Message) {
-      this.$emit('send-message', message)
+    async clickSubmit(text: string, isQuestion: boolean) {
+      await this.$emit('send-message', text, this.chatData.topic.id, isQuestion)
+      this.clickScroll()
     },
     // いいねボタン
-    clickGood(message: Message) {
-      const m: Reaction = {
-        id: `${this.getId()}`,
-        topicId: message.topicId,
-        type: 'reaction',
-        iconId: '0',
-        target: {
-          id: message.id,
-          content: message.content,
-        },
-        timestamp: 1100,
-      }
+    async clickGood(message: Message) {
       // submit
-      this.$emit('send-message', m)
+      await this.$emit('send-reaction', message)
 
       // スクロール
       const element: HTMLElement | null = document.getElementById(
