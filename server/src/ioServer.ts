@@ -14,9 +14,9 @@ import { Server as HttpServer } from "http";
 
 const createSocketIOServer = (httpServer: HttpServer) => {
   const io = new Server(httpServer);
-  const users = [];
-  const topics: Topic[] = [];
-  const chatItems: ChatItem[] = [];
+  const users: { [key: string]: string } = {};
+  const topics: { [key: string]: Topic } = {};
+  const chatItems: { [key: string]: ChatItem } = {};
   let activeUserCount: number = 0;
 
   //本体
@@ -28,7 +28,8 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       console.log("entered");
 
       activeUserCount++;
-      users.push({ id: socket.id, iconId: 0 });
+      users[socket.id] = received.iconId;
+      console.log(socket.id, received.iconId);
 
       // socket.emit("ENTER_ROOM", {
       //   chatItems: chatItems,
@@ -40,8 +41,8 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         activeUserCount: activeUserCount,
       });
       callback({
-        chatItems: chatItems,
-        topics: topics,
+        chatItems: Object.values(chatItems),
+        topics: Object.values(topics),
         activeUserCount: activeUserCount,
       });
     });
@@ -57,26 +58,26 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       const returnItem: ChatItem =
         received.type === "message"
           ? {
-            id: received.id,
-            topicId: received.topicId,
-            type: "message",
-            iconId: "1",
-            timestamp: 0,
-            content: received.content,
-            isQuestion: received.isQuestion,
-          }
+              id: received.id,
+              topicId: received.topicId,
+              type: "message",
+              iconId: users[socket.id],
+              timestamp: 0,
+              content: received.content,
+              isQuestion: received.isQuestion,
+            }
           : {
-            id: received.id,
-            topicId: received.topicId,
-            type: "reaction",
-            iconId: "1",
-            timestamp: 0,
-            target: {
-              id: received.reactionToId,
-              content: "",
-            },
-          };
-      chatItems.push(returnItem);
+              id: received.id,
+              topicId: received.topicId,
+              type: "reaction",
+              iconId: users[socket.id],
+              timestamp: 0,
+              target: {
+                id: received.reactionToId,
+                content: "",
+              },
+            };
+      chatItems[received.id] = returnItem;
       io.sockets.emit("PUB_CHAT_ITEM", {
         type: "confirm-to-send",
         content: returnItem,
@@ -97,7 +98,10 @@ const createSocketIOServer = (httpServer: HttpServer) => {
     });
   });
 
-  return io
-}
+  return io;
+};
 
-export default createSocketIOServer
+export default createSocketIOServer;
+function getArrayValues(chatItems: { [key: string]: ChatItem }) {
+  throw new Error("Function not implemented.");
+}
