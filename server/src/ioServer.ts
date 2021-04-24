@@ -124,6 +124,13 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       });
     });
 
+    //stampで送られてきたときの処理
+    socket.on("CHANGE_ACTIVE_TOPIC", (received: { topicId: string }) => {
+      io.sockets.emit("PUB_ACTIVE_TOPIC", {
+        topicId: received.topicId
+      })
+    });
+
     //接続解除時に行う処理
     socket.on("disconnect", (reason) => {
       console.log("disconnect: ", reason);
