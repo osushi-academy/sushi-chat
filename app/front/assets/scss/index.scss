@@ -102,18 +102,23 @@ $gray: rgb(228, 228, 228);
 .topic-block {
   white-space: normal;
   flex-shrink: 0;
-  width: 440px;
+  max-width: 440px;
   height: 100%;
   position: relative;
   border-radius: 5px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  margin: 0 2em;
+}
+
+@media screen and (min-width:768px) {
+  .topic-block {
+    margin: 0 2em;
+  }
 }
 
 .topic-header {
-  margin-right: 2rem;
+  //margin-right: 2rem;
   flex-shrink: 0;
   padding: 1em 0;
 
