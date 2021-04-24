@@ -9,7 +9,7 @@ import {
 import { Topic } from "./topic";
 import { Stamp } from "./stamp";
 import { Server } from "socket.io";
-import { EnterRoomReceive } from "./room";
+import { EnterRoomReceive, BuildRoomReceive } from "./room";
 import { Server as HttpServer } from "http";
 
 const createSocketIOServer = (httpServer: HttpServer) => {
@@ -31,11 +31,6 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       users[socket.id] = received.iconId.toString();
       console.log(socket.id, received.iconId);
 
-      // socket.emit("ENTER_ROOM", {
-      //   chatItems: chatItems,
-      //   topics: topics,
-      //   activeUserCount: activeUserCount,
-      // });
       io.sockets.emit("PUB_ENTER_ROOM", {
         iconId: received.iconId,
         activeUserCount: activeUserCount,
@@ -48,8 +43,9 @@ const createSocketIOServer = (httpServer: HttpServer) => {
     });
 
     //ルームを立てる
-    // socket.on("CREATE_ROOM", (received: RoomCreateReceive) => {
+    // socket.on("CREATE_ROOM", (received: BuildRoomReceive) => {
     //   console.log("room created");
+    //   received.topics.map((topic: Topic) => (topics[topic.id] = topic));
     // });
 
     //messageで送られてきたときの処理
@@ -61,16 +57,16 @@ const createSocketIOServer = (httpServer: HttpServer) => {
               id: received.id,
               topicId: received.topicId,
               type: "message",
-              iconId: users[socket.id],
+              iconId: users[socket.id] ? users[socket.id] : "0",
               timestamp: 0,
               content: received.content,
-              isQuestion: received.isQuestion,
+              isQuestion: received.isQuestion ? received.isQuestion : false,
             }
           : {
               id: received.id,
               topicId: received.topicId,
               type: "reaction",
-              iconId: users[socket.id],
+              iconId: users[socket.id] ? users[socket.id] : "0",
               timestamp: 0,
               target: {
                 id: received.reactionToId,
@@ -105,6 +101,3 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 };
 
 export default createSocketIOServer;
-function getArrayValues(chatItems: { [key: string]: ChatItem }) {
-  throw new Error("Function not implemented.");
-}
