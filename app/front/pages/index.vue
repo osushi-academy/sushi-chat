@@ -40,7 +40,11 @@
       </div>
     </modal>
     <div v-for="chatData in chatDataList" :key="chatData.topic.id">
-      <ChatRoom :chat-data="chatData" @send-message="sendMessage" />
+      <ChatRoom
+        :chat-data="chatData"
+        :my-icon="iconChecked"
+        @send-message="sendMessage"
+      />
     </div>
   </div>
 </template>

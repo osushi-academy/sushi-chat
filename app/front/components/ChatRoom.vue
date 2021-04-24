@@ -19,7 +19,7 @@
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
-    <TextArea :topic="chatData.topic" @submit="clickSubmit" />
+    <TextArea :topic="chatData.topic" :my-icon="myIcon" @submit="clickSubmit" />
   </article>
 </template>
 <script lang="ts">
@@ -55,6 +55,10 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<ChatDataPropType>,
+    myIcon: {
+      type: Number,
+      required: true,
+    },
   },
   data(): DataType {
     return {

@@ -41,6 +41,10 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<Model.TopicPropType>,
+    myIcon: {
+      type: Number,
+      required: true,
+    },
   },
   data(): DataType {
     return {
@@ -62,7 +66,7 @@ export default Vue.extend({
         id: `${this.getId()}`,
         topicId: this.topic.id,
         type: 'message',
-        iconId: '0',
+        iconId: this.myIcon,
         content: this.text,
         timestamp: 1100,
         isQuestion: this.isQuestion,
