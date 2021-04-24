@@ -25,23 +25,29 @@
       </div>
       <div class="modal-body">
         <div class="icon-list">
-          <div
+          <button
             v-for="(icon, index) in icons"
             :key="index"
-            :class="{ 'icon-selected': iconChecked == index }"
+            :class="{
+              'icon-selected': iconChecked == index,
+              'icon-shari': index === 10,
+            }"
             class="icon-box"
+            @click="clickIcon(index)"
           >
-            <img
-              :src="icon.url"
-              alt=""
-              class="sushi-fit"
-              @click="clickIcon(index)"
-            />
-          </div>
+            <img :src="icon.url" alt="" class="sushi-fit" />
+          </button>
         </div>
-        <button v-if="iconChecked >= 0" type="button" @click="hide">
-          はじめる
-        </button>
+        <div class="modal-actions">
+          <button
+            :disabled="iconChecked < 0"
+            type="button"
+            class="primary-button"
+            @click="hide"
+          >
+            はじめる
+          </button>
+        </div>
       </div>
     </modal>
     <div v-for="chatData in chatDataList" :key="chatData.topic.id">
@@ -129,17 +135,6 @@ export default Vue.extend({
     }
 
     const socket = io(process.env.apiBaseUrl as string)
-    socket.emit(
-      'ENTER_ROOM',
-      {
-        iconId: 0,
-      },
-      (res: any) => {
-        // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
-        // this.topics = res.topics
-        this.messages = res.chatItems ?? []
-      }
-    )
     ;(this as any).socket = socket
 
     // FIXME: サーバからデータが送られてこないので暫定的に対応 (yuta-ike)
@@ -209,6 +204,19 @@ export default Vue.extend({
       } else {
         this.$modal.hide('sushi-modal')
       }
+
+      const socket = (this as any).socket
+      socket.emit(
+        'ENTER_ROOM',
+        {
+          iconId: this.iconChecked + 1,
+        },
+        (res: any) => {
+          // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
+          // this.topics = res.topics
+          this.messages = res.chatItems ?? []
+        }
+      )
     },
     // 該当するtopicを削除
     removeTopic(index: number) {

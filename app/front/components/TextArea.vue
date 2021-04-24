@@ -5,7 +5,7 @@
         v-model="text"
         class="textarea"
         contenteditable
-        placeholder="コメントを入力して盛り上げよう!!"
+        placeholder="ここにコメントを入力して盛り上げよう!!"
         @keydown.enter.meta.exact="sendMessage"
       />
       <button type="submit" class="submit-button" @click="sendMessage">
