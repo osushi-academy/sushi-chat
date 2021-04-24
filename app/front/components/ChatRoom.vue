@@ -67,7 +67,7 @@ export default Vue.extend({
     },
     // 送信ボタン
     clickSubmit(message: Message) {
-      // this.messages.push(message)
+      this.$emit('send-message', message)
     },
     // いいねボタン
     clickGood(message: Message) {
@@ -83,7 +83,7 @@ export default Vue.extend({
         timestamp: 1100,
       }
       // submit
-      // this.messages.push(m)
+      this.$emit('send-message', m)
 
       // スクロール
       const element: HTMLElement | null = document.getElementById(

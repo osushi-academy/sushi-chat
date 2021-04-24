@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./dist/app.js",
     "build": "tsc -p .",
-    "start-dev": "ts-node-dev --transpile-only --rs ./src/app.ts",
+    "dev": "ts-node-dev --transpile-only --rs ./src/app.ts",
     "test": "jest"
   },
   "author": "Eri-0910",
