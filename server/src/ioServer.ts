@@ -13,7 +13,12 @@ import { EnterRoomReceive, BuildRoomReceive } from "./room";
 import { Server as HttpServer } from "http";
 
 const createSocketIOServer = (httpServer: HttpServer) => {
-  const io = new Server(httpServer);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
   const users: { [key: string]: string } = {};
   const topics: { [key: string]: Topic } = {};
   const chatItems: { [key: string]: ChatItem } = {};
