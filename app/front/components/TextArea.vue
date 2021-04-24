@@ -21,8 +21,6 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-// @ts-ignore
-import { v4 as uuidv4 } from 'uuid'
 import * as Model from '@/models/contents'
 import KeyInstruction from '@/components/KeyInstruction.vue'
 
@@ -49,16 +47,13 @@ export default Vue.extend({
     }
   },
   methods: {
-    getId(): string {
-      return uuidv4()
-    },
     sendMessage() {
       // 空なら何もしないでreturn
       if (!this.text.length) {
         return
       }
       // submit
-      this.$emit('submit', this.text)
+      this.$emit('submit', this.text, this.isQuestion)
       // 入力を空に
       this.text = ''
 

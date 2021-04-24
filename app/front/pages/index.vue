@@ -40,11 +40,12 @@
 <script lang="ts">
 import Vue from 'vue'
 // @ts-ignore
-import { v4 as uuidv4 } from 'uuid'
-// @ts-ignore
 import VModal from 'vue-js-modal'
 import { ChatItem, Message, Topic } from '@/models/contents'
-import { PostChatItemMessageParams, PostChatItemReactionParams } from '@/models/event'
+import {
+  PostChatItemMessageParams,
+  PostChatItemReactionParams,
+} from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
@@ -113,7 +114,7 @@ export default Vue.extend({
     // this.messages.push(...CHAT_DUMMY_DATA) // コメントインするとチャットの初期値を入れれます
   },
   methods: {
-    sendMessage(text: string, topicId: string) {
+    sendMessage(text: string, topicId: string, isQuestion: boolean) {
       const socket = (this as any).socket
       const params: PostChatItemMessageParams = {
         type: 'message',
@@ -131,13 +132,13 @@ export default Vue.extend({
         iconId: '0', // TODO: 自分のiconIdを指定する
         content: text,
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        isQuestion: false,
+        isQuestion,
       })
     },
     sendReaction(message: Message) {
       const socket = (this as any).socket
       const params: PostChatItemReactionParams = {
-        id: `${this.getId()}`,
+        id: `${getUUID()}`,
         topicId: message.topicId,
         type: 'reaction',
         reactionToId: message.id,
@@ -159,9 +160,6 @@ export default Vue.extend({
         },
       })
     },
-    getId(): string {
-      return uuidv4()
-    },
     // modalを消し、topic作成
     hide(): any {
       this.topics.push()
@@ -179,7 +177,7 @@ export default Vue.extend({
     addTopic() {
       // 新規topic
       const t: Topic = {
-        id: `${this.getId()}`,
+        id: `${getUUID()}`,
         title: '',
         description: '',
       }

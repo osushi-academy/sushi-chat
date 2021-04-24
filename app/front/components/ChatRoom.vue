@@ -24,8 +24,6 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-// @ts-ignore
-import { v4 as uuidv4 } from 'uuid'
 import { Topic, ChatItem, Message } from '@/models/contents'
 import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
@@ -62,12 +60,9 @@ export default Vue.extend({
     }
   },
   methods: {
-    getId(): string {
-      return uuidv4()
-    },
     // 送信ボタン
-    clickSubmit(text: string) {
-      this.$emit('send-message', text, this.chatData.topic.id)
+    clickSubmit(text: string, isQuestion: boolean) {
+      this.$emit('send-message', text, this.chatData.topic.id, isQuestion)
     },
     // いいねボタン
     clickGood(message: Message) {
