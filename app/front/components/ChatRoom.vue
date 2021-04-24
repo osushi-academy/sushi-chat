@@ -2,7 +2,8 @@
   <article class="topic-block">
     <TopicHeader
       :title="Number(chatData.topic.id) + 1 + '. ' + chatData.topic.title"
-      :is-active-topic="true"
+      :is-active-topic="isActiveTopic"
+      @topic-activate="clickTopicActivate"
     />
     <div class="chat-area">
       <div class="text-zone">
@@ -74,14 +75,15 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
+    isActiveTopic: {
+      type: Boolean,
+      required: true,
+    },
   },
   data(): DataType {
     return {
       isNotify: false,
     }
-  },
-  mounted() {
-    console.log(this.$props.favoriteCallbackRegister)
   },
   methods: {
     // 送信ボタン
@@ -139,6 +141,9 @@ export default Vue.extend({
       return (
         element.scrollHeight < element.scrollTop + element.offsetHeight + 200
       )
+    },
+    clickTopicActivate() {
+      this.$emit('topic-activate', this.chatData.topic.id)
     },
   },
 })

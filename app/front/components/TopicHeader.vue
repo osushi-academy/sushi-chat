@@ -2,7 +2,7 @@
   <div class="topic-header" :class="topicBackgroundColor(isActiveTopic)">
     <div class="main-line">
       <h1 class="title">{{ title }}</h1>
-      <button class="next-button" role="navigation">
+      <button class="next-button" role="navigation" @click="clickTopicActivate">
         <span class="material-icons"> arrow_forward </span>
       </button>
     </div>
@@ -30,6 +30,9 @@ export default Vue.extend({
       } else {
         return ''
       }
+    },
+    clickTopicActivate() {
+      this.$emit('topic-activate')
     },
   },
 })

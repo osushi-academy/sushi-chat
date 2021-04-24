@@ -126,7 +126,8 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 
     //stampで送られてきたときの処理
     socket.on("CHANGE_ACTIVE_TOPIC", (received: { topicId: string }) => {
-      io.sockets.emit("PUB_ACTIVE_TOPIC", {
+      console.log(received.topicId)
+      io.sockets.emit("PUB_CHANGE_ACTIVE_TOPIC", {
         topicId: received.topicId
       })
     });
