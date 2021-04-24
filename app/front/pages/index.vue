@@ -154,6 +154,7 @@ export default Vue.extend({
         type: 'message',
         id: getUUID(),
         topicId,
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
         isQuestion,
       }
@@ -164,7 +165,7 @@ export default Vue.extend({
         id: params.id,
         topicId,
         type: 'message',
-        iconId: String(this.iconChecked + 1), // 運営のお茶の分
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
         isQuestion,
@@ -175,6 +176,7 @@ export default Vue.extend({
       const params: PostChatItemReactionParams = {
         id: `${getUUID()}`,
         topicId: message.topicId,
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         type: 'reaction',
         reactionToId: message.id,
       }
@@ -185,7 +187,7 @@ export default Vue.extend({
         id: params.id,
         topicId: message.topicId,
         type: 'reaction',
-        iconId: '0', // TODO: 自分のiconIdを指定する
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
         target: {
           id: message.id,
