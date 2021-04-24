@@ -18,6 +18,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   const topics: { [key: string]: Topic } = {};
   const chatItems: { [key: string]: ChatItem } = {};
   let activeUserCount: number = 0;
+  let stampCount: number = 0;
 
   //本体
   io.on("connection", (socket) => {
@@ -85,6 +86,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 
     //stampで送られてきたときの処理
     socket.on("POST_STAMP", (received: Stamp) => {
+      stampCount++;
       io.sockets.emit("PUB_STAMP", {
         topicId: received.topicId,
       });
