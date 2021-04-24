@@ -19,7 +19,7 @@
         <button type="button" @click="hide">はじめる</button>
       </div>
     </modal>
-    <modal v-if="!isAdmin" name="sushi-modal">
+    <modal v-if="!isAdmin" name="sushi-modal" :clickToClose="false">
       <div class="modal-header">
         <h2>寿司を選んでね</h2>
       </div>
