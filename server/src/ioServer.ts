@@ -35,7 +35,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   }, 30000);
 
   //このこが2秒毎にスタンプを送る
-  stampIntervalSender(io, stamps);
+  stampIntervalSender(io, stamps, activeUserCount);
 
   //本体
   io.on("connection", (socket) => {
