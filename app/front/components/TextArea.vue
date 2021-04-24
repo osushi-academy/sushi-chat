@@ -39,6 +39,10 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<TopicPropType>,
+    myIcon: {
+      type: Number,
+      required: true,
+    },
   },
   data(): DataType {
     return {

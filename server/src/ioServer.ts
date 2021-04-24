@@ -27,15 +27,30 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   let stampCount: number = 0;
   let firstCommentTime: number = 0;
 
+  let serverAwakerTimer: NodeJS.Timeout;
+  let stampIntervalSenderTimer: NodeJS.Timeout;
+
+  //サーバー起こしておくため
+  function serverAwaker() {
+    return setInterval(() => {
+      io.sockets.emit("");
+      console.log("awaker stamp", new Date());
+    }, 30000);
+  }
+
   //本体
   io.on("connection", (socket) => {
     console.log("user joined");
+    activeUserCount++;
+    if (activeUserCount === 1) {
+      //サーバー起こしておくため
+      serverAwakerTimer = serverAwaker();
+      stampIntervalSenderTimer = stampIntervalSender(io, stamps);
+    }
 
     //ルーム参加
     socket.on("ENTER_ROOM", (received: EnterRoomReceive, callback: any) => {
       console.log("entered");
-
-      activeUserCount++;
       users[socket.id] = received.iconId.toString();
       const sortedChatItem = Object.values(chatItems).sort(function (a, b) {
         if (a.timestamp < b.timestamp) return 1;
@@ -44,7 +59,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       });
       console.log(socket.id, received.iconId);
 
-      io.sockets.emit("PUB_ENTER_ROOM", {
+      socket.broadcast.emit("PUB_ENTER_ROOM", {
         iconId: received.iconId,
         activeUserCount,
       });
@@ -94,7 +109,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
               },
             };
       chatItems[received.id] = returnItem;
-      io.sockets.emit("PUB_CHAT_ITEM", {
+      socket.broadcast.emit("PUB_CHAT_ITEM", {
         type: "confirm-to-send",
         content: returnItem,
       });
@@ -108,13 +123,16 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       });
     });
 
-    //このこが2秒毎にスタンプを送る
-    stampIntervalSender(io, stamps);
-
     //接続解除時に行う処理
     socket.on("disconnect", (reason) => {
       console.log("disconnect: ", reason);
       activeUserCount--;
+      if (activeUserCount === 0) {
+        //サーバー起こしておくこ
+        clearInterval(serverAwakerTimer);
+        //このこが2秒毎にスタンプを送る
+        clearInterval(stampIntervalSenderTimer);
+      }
     });
   });
 

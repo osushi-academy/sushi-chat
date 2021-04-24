@@ -35,12 +35,29 @@
         </button>
       </div>
     </modal>
-    <modal v-if="!isAdmin" name="sushi-modal">
+    <modal v-if="!isAdmin" name="sushi-modal" :click-to-close="false">
       <div class="modal-header">
-        <h2>寿司を選んでね</h2>
+        <h2>アイコンを選んでね</h2>
       </div>
       <div class="modal-body">
-        <button type="button" @click="hide">はじめる</button>
+        <div class="icon-list">
+          <div
+            v-for="(icon, index) in icons"
+            :key="index"
+            :class="{ 'icon-selected': iconChecked == index }"
+            class="icon-box"
+          >
+            <img
+              :src="icon.url"
+              alt=""
+              class="sushi-fit"
+              @click="clickIcon(index)"
+            />
+          </div>
+        </div>
+        <button v-if="iconChecked >= 0" type="button" @click="hide">
+          はじめる
+        </button>
       </div>
     </modal>
     <div v-for="(chatData, index) in chatDataList" :key="index">
@@ -48,6 +65,7 @@
         :topic-index="index"
         :is-admin="isAdmin"
         :chat-data="chatData"
+        :my-icon="iconChecked"
         @send-message="sendMessage"
         @send-reaction="sendReaction"
       />
@@ -82,6 +100,8 @@ type DataType = {
   topicsAdmin: Topic[]
   messages: ChatItem[]
   isAdmin: boolean
+  icons: any
+  iconChecked: number
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -103,6 +123,20 @@ export default Vue.extend({
       activeUserCount: 0,
       isNotify: false,
       isAdmin: false,
+      icons: [
+        { url: require('@/assets/img/sushi_akami.png') },
+        { url: require('@/assets/img/sushi_ebi.png') },
+        { url: require('@/assets/img/sushi_harasu.png') },
+        { url: require('@/assets/img/sushi_ikura.png') },
+        { url: require('@/assets/img/sushi_iwashi.png') },
+        { url: require('@/assets/img/sushi_kai_hokkigai.png') },
+        { url: require('@/assets/img/sushi_salmon.png') },
+        { url: require('@/assets/img/sushi_shirasu.png') },
+        { url: require('@/assets/img/sushi_tai.png') },
+        { url: require('@/assets/img/sushi_uni.png') },
+        { url: require('@/assets/img/sushi_syari.png') },
+      ],
+      iconChecked: -1,
     }
   },
   computed: {
@@ -127,12 +161,20 @@ export default Vue.extend({
       },
       (res: any) => {
         // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
-        // TODO: 自分が送ったチャットデータは無視する
         // this.topics = res.topics
         this.messages = res.chatItems ?? []
       }
     )
     ;(this as any).socket = socket
+
+    // FIXME: サーバからデータが送られてこないので暫定的に対応 (yuta-ike)
+    this.topics.push({ id: '0', title: 'タイトル', description: '説明' })
+
+    socket.on('PUB_CHAT_ITEM', (res: any) => {
+      if (!this.messages.find((message) => message.id === res.content.id)) {
+        this.messages.push(res.content)
+      }
+    })
   },
   methods: {
     sendMessage(text: string, topicId: string, isQuestion: boolean) {
@@ -141,6 +183,7 @@ export default Vue.extend({
         type: 'message',
         id: getUUID(),
         topicId,
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
         isQuestion,
       }
@@ -151,7 +194,7 @@ export default Vue.extend({
         id: params.id,
         topicId,
         type: 'message',
-        iconId: '0', // TODO: 自分のiconIdを指定する
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
         isQuestion,
@@ -162,6 +205,7 @@ export default Vue.extend({
       const params: PostChatItemReactionParams = {
         id: `${getUUID()}`,
         topicId: message.topicId,
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         type: 'reaction',
         reactionToId: message.id,
       }
@@ -172,7 +216,7 @@ export default Vue.extend({
         id: params.id,
         topicId: message.topicId,
         type: 'reaction',
-        iconId: '0', // TODO: 自分のiconIdを指定する
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
         target: {
           id: message.id,
@@ -211,6 +255,10 @@ export default Vue.extend({
       }
       // ルーム開始
       this.$modal.hide('sushi-modal')
+    },
+    // アイコン選択
+    clickIcon(index: number) {
+      this.iconChecked = index
     },
   },
 })
