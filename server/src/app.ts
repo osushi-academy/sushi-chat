@@ -1,6 +1,11 @@
 import express from "express";
+import http from "http";
+import createSocketIOServer from './ioServer'
 
 const app = express();
+const httpServer = new http.Server(app);
+
+createSocketIOServer(httpServer)
 
 const PORT = process.env.PORT || 7000;
 
