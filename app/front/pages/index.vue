@@ -112,7 +112,9 @@ export default Vue.extend({
     this.topics.push({ id: '0', title: 'タイトル', description: '説明' })
 
     socket.on('PUB_CHAT_ITEM', (res: any) => {
-      this.messages.push(res.content)
+      if (!this.messages.find((message) => message.id === res.content.id)) {
+        this.messages.push(res.content)
+      }
     })
   },
   methods: {
