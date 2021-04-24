@@ -27,9 +27,16 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   let stampCount: number = 0;
   let firstCommentTime: number = 0;
 
+  setInterval(() => {
+    if (activeUserCount > 0) {
+      io.sockets.emit("");
+    }
+  }, 30000);
+
   //本体
   io.on("connection", (socket) => {
     console.log("user joined");
+    activeUserCount++;
 
     //ルーム参加
     socket.on("ENTER_ROOM", (received: EnterRoomReceive, callback: any) => {
