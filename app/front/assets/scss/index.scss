@@ -455,12 +455,25 @@ $gray: rgb(228, 228, 228);
   justify-content: center;
   object-fit: contain;
   position: relative;
-  border: solid 1px;
+}
+
+.icon-list .icon-box:hover {
+  background: rgb(223, 223, 223);
+}
+
+.icon-list .icon-box .checked{
+  border: 5px solid blue;
+  box-sizing: border-box;
 }
 
 .icon-list .disable-checkbox {
   position: absolute;
   top:5px;
   right: 5px;
+ // display: none;
+}
+
+.icon-list .icon-box .checked + .disable-checkbox{
+  display: block;
 }
 

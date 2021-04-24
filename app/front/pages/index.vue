@@ -26,11 +26,11 @@
       <div class="modal-body">
         <div class="icon-list">
           <div v-for="(icon,index) in icons" :key="index" class="icon-box">
-            <img :src="icon.url" alt="">
-            <input class="disable-checkbox" type="checkbox" checked />
+            <img :src="icon.url" alt="" @click="clickIcon">
+            <input class="disable-checkbox" type="checkbox" />
           </div>
         </div> 
-        <button type="button" @click="hide">はじめる</button>
+        <button v-if="checked" type="button" @click="hide">はじめる</button>
       </div>
     </modal>
     <div v-for="topic in topics" :key="topic.id">
@@ -53,6 +53,7 @@ type DataType = {
   isNotify: boolean
   isAdmin: boolean
   icons: any
+  checked: boolean
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -89,6 +90,7 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_tai.png') },
         { url: require('@/assets/img/sushi_uni.png') },
       ],
+      checked: false,
     }
   },
   mounted(): any {
@@ -125,6 +127,11 @@ export default Vue.extend({
       }
       this.topics.push(t)
     },
+    // アイコン選択
+    clickIcon(){
+      this.checked = true
+    }
+
   },
 })
 </script>
