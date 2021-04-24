@@ -6,7 +6,6 @@
       :adaptive="true"
       height="auto"
       :click-to-close="false"
-      :scrollable="true"
     >
       <div class="modal-header">
         <h2>トピック作成</h2>
