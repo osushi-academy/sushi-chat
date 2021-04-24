@@ -434,3 +434,25 @@ $gray: rgb(228, 228, 228);
 .modal-header {
   border-bottom: 1px solid #ddd;
 }
+
+
+.icon-list{
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: 1fr;
+  grid-row-gap: 6px;
+  grid-column-gap: 6px;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+  place-items: center; 
+}
+
+.icon-list li {
+  padding: 10px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+  box-sizing: border-box;
+  //display: inline-block;
+}
+

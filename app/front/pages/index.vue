@@ -24,6 +24,11 @@
         <h2>寿司を選んでね</h2>
       </div>
       <div class="modal-body">
+        <ul class="icon-list">
+          <li v-for="(icon,index) in icons" :key="index" class="icon-box">
+            <img :src="icon.url" alt="">
+          </li>
+        </ul> 
         <button type="button" @click="hide">はじめる</button>
       </div>
     </modal>
@@ -46,6 +51,7 @@ type DataType = {
   topics: Model.Topic[]
   isNotify: boolean
   isAdmin: boolean
+  icons: any
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -69,6 +75,19 @@ export default Vue.extend({
       ],
       isNotify: false,
       isAdmin: false,
+      icons: [
+        { url: require('@/assets/img/sushi_akami.png') },
+        { url: require('@/assets/img/sushi_ebi.png') },
+        { url: require('@/assets/img/sushi_harasu.png') },
+        { url: require('@/assets/img/sushi_ikura.png') },
+        { url: require('@/assets/img/sushi_iwashi.png') },
+        { url: require('@/assets/img/sushi_kai_hokkigai.png') },
+        { url: require('@/assets/img/sushi_salmon.png') },
+        { url: require('@/assets/img/sushi_shirasu.png') },
+        { url: require('@/assets/img/sushi_syari.png') },
+        { url: require('@/assets/img/sushi_tai.png') },
+        { url: require('@/assets/img/sushi_uni.png') },
+      ],
     }
   },
   mounted(): any {
