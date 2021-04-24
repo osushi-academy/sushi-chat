@@ -113,7 +113,7 @@ $gray: rgb(228, 228, 228);
 }
 
 .active-topic {
-  background:  rgb(250,250,178);
+  background: rgb(250, 250, 178);
 }
 
 .topic-header {
@@ -231,6 +231,7 @@ $gray: rgb(228, 228, 228);
   padding: 0.5em 1em;
   background: white;
   border-top: 2px solid $gray;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 2px 4px 0px;
 
   & > .main-line {
     display: flex;
@@ -439,6 +440,31 @@ $gray: rgb(228, 228, 228);
 .modal-header {
   border-bottom: 1px solid #ddd;
 }
+.modal-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.primary-button {
+  background: white;
+  padding: 12px 20px;
+  border: 1.25px solid #444;
+  color: #333;
+  border-radius: 4px;
+  box-shadow: rgba(162, 162, 172, 0.2) 0px 2px 4px 0px;
+  transition: all 0.3s;
+
+  &:disabled {
+    box-shadow: none;
+    border-color: #ddd;
+    color: #aaa;
+  }
+
+  &:hover {
+    background: rgb(250, 250, 250);
+  }
+}
 
 /* アイコン選択モーダル */
 .icon-list {
@@ -457,16 +483,22 @@ $gray: rgb(228, 228, 228);
     justify-content: center;
     object-fit: contain;
     position: relative;
-    & > .sushi-fit {
-      height: 80%;
-    }
+    border: solid 5px transparent;
+    padding: 4px;
+    margin: 2px;
+    background: white;
+    transition: all 0.2s;
   }
+
   & > .icon-box:hover {
     background: rgb(235, 235, 235);
   }
+  & > .icon-shari {
+    opacity: 0.1;
+  }
   & > .icon-selected {
-    border: solid 5px;
     border-color: #ae1f23;
+    opacity: 1;
   }
 }
 
