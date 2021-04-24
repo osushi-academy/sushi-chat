@@ -34,12 +34,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 
       io.sockets.emit("PUB_ENTER_ROOM", {
         iconId: received.iconId,
-        activeUserCount: activeUserCount,
+        activeUserCount,
       });
       callback({
         chatItems: Object.values(chatItems),
         topics: Object.values(topics),
-        activeUserCount: activeUserCount,
+        activeUserCount,
       });
     });
 
