@@ -28,7 +28,11 @@
       </div>
     </modal>
     <div v-for="chatData in chatDataList" :key="chatData.topic.id">
-      <ChatRoom :chat-data="chatData" @send-message="sendMessage" />
+      <ChatRoom
+        :chat-data="chatData"
+        @send-message="sendMessage"
+        @send-reaction="sendReaction"
+      />
     </div>
   </div>
 </template>
@@ -39,9 +43,11 @@ import Vue from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 // @ts-ignore
 import VModal from 'vue-js-modal'
-import { ChatItem, Topic } from '@/models/contents'
+import { ChatItem, Message, Topic } from '@/models/contents'
+import { PostChatItemMessageParams, PostChatItemReactionParams } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
+import getUUID from '@/utils/getUUID'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -94,11 +100,10 @@ export default Vue.extend({
         iconId: 0,
       },
       (res: any) => {
-        console.log(res)
-        // FIXME: サーバから空のデータが送られてくるので暫定的に対応(yuta-ike)
+        // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
         // TODO: 自分が送ったチャットデータは無視する
         // this.topics = res.topics
-        // this.messages = res.messages
+        this.messages = res.chatItems ?? []
       }
     )
     ;(this as any).socket = socket
@@ -108,12 +113,51 @@ export default Vue.extend({
     // this.messages.push(...CHAT_DUMMY_DATA) // コメントインするとチャットの初期値を入れれます
   },
   methods: {
-    sendMessage(message: ChatItem) {
+    sendMessage(text: string, topicId: string) {
       const socket = (this as any).socket
+      const params: PostChatItemMessageParams = {
+        type: 'message',
+        id: getUUID(),
+        topicId,
+        content: text,
+      }
       // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', message)
+      socket.emit('POST_CHAT_ITEM', params)
       // ローカルに反映する
-      this.messages.push(message)
+      this.messages.push({
+        id: params.id,
+        topicId,
+        type: 'message',
+        iconId: '0', // TODO: 自分のiconIdを指定する
+        content: text,
+        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+        isQuestion: false,
+      })
+    },
+    sendReaction(message: Message) {
+      const socket = (this as any).socket
+      const params: PostChatItemReactionParams = {
+        id: `${this.getId()}`,
+        topicId: message.topicId,
+        type: 'reaction',
+        reactionToId: message.id,
+      }
+      // サーバーに反映する
+      socket.emit('POST_CHAT_ITEM', params)
+      // ローカルに反映する
+      this.messages.push({
+        id: params.id,
+        topicId: message.topicId,
+        type: 'reaction',
+        iconId: '0', // TODO: 自分のiconIdを指定する
+        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+        target: {
+          id: message.id,
+          content:
+            (this.messages.find(({ id }) => id === message.id) as Message)
+              ?.content ?? '',
+        },
+      })
     },
     getId(): string {
       return uuidv4()

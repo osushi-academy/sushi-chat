@@ -52,27 +52,15 @@ export default Vue.extend({
     getId(): string {
       return uuidv4()
     },
-    async sendMessage() {
+    sendMessage() {
       // 空なら何もしないでreturn
       if (!this.text.length) {
         return
       }
-      // 新規message
-      const m: Model.Message = {
-        id: `${this.getId()}`,
-        topicId: this.topic.id,
-        type: 'message',
-        iconId: '0',
-        content: this.text,
-        timestamp: 1100,
-        isQuestion: this.isQuestion,
-      }
+      // submit
+      this.$emit('submit', this.text)
       // 入力を空に
       this.text = ''
-      // show uuid
-      console.log(m.id)
-      // submit
-      await this.$emit('submit', m)
 
       // スクロール
       const element: HTMLElement | null = document.getElementById(this.topic.id)
