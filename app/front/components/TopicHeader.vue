@@ -1,5 +1,5 @@
 <template>
-  <div class="topic-header">
+  <div class="topic-header" :class="topicBackgroundColor(isActiveTopic)">
     <div class="main-line">
       <h1 class="title">{{ title }}</h1>
       <button class="next-button" role="navigation">
@@ -17,6 +17,19 @@ export default Vue.extend({
     title: {
       type: String,
       required: true,
+    },
+    isActiveTopic: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  methods: {
+    topicBackgroundColor(flag: Boolean): String {
+      if (flag) {
+        return 'active-topic'
+      } else {
+        return ''
+      }
     },
   },
 })

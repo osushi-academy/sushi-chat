@@ -2,6 +2,7 @@
   <article class="topic-block">
     <TopicHeader
       :title="Number(chatData.topic.id) + 1 + '. ' + chatData.topic.title"
+      :is-active-topic="true"
     />
     <div class="chat-area">
       <div class="text-zone">
