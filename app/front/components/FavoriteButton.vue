@@ -1,9 +1,7 @@
 <template>
   <button class="stamp-submit-button" @click="clickFavorite">
     <span class="material-icons"> favorite </span>
-    <transition name="heart-button-animation">
-      <span v-if="show" class="heart-button"></span>
-    </transition>
+    <span v-if="show" class="heart-button"></span>
   </button>
 </template>
 <script lang="ts">
@@ -15,13 +13,13 @@ export type DataType = {
 export default Vue.extend({
   data():DataType {
     return {
-      show: true
+      show: false,
     }
   },
   methods: {
     clickFavorite() {
-      this.show =!this.show;
-      this.$emit('favorite');
+      this.show =! this.show
+      this.$emit('favorite')
     },
   },
 })

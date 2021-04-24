@@ -430,9 +430,9 @@ $gray: rgb(228, 228, 228);
 
 
 /* ハートの共通スタイル */
-//.heart-button::before,
-//.heart-button::after {
-.heart-button{
+.heart-button::before,
+.heart-button::after {
+//.heart-button{
   content: "";
   background-size: contain;
   background-repeat: no-repeat;
@@ -443,28 +443,28 @@ $gray: rgb(228, 228, 228);
 }
 
 /* 左上のハートのスタイル */
-.heart-button {
+.heart-button::before {
   background-image: url('@/assets/img/heart.svg');
   top: 0;
   left: 2px;
+  animation: heart 1.5s 1 ease-out;
 }
 
-/* 右下のハートのスタイル *//*
+/* 右下のハートのスタイル */
 .heart-button::after {
   background-image: url('@/assets/img/heart-reverse.svg');
   bottom: -1px;
   right: 6px;
+  animation: heart 1.5s 0.2s 1 ease-out;
 }
 
-/* ========= ホバー時のスタイル ======== */
-/* ボタンホバー時の左上のハートのスタイル */
-//.heart-button:active::before {
-.heart-button-animation-enter-active{
-  animation: heart 1.5s infinite ease-out;
-}
+/* ========= ボタンクリック時のスタイル ======== */
+/* ボタンクリック時の左上のハートのスタイル */
+//.heart-button-animation-enter-active{
+//  animation: heart 1.5s infinite ease-out;
+//}
 
-/* ボタンホバー時の右下のハートのスタイル */
-//.heart-button:active::after {
+/* ボタンクリック時の右下のハートのスタイル */
 //.heart-button-animation-enter-active::after{
 //  animation: heart 1.5s 0.2s infinite ease-out;
 //}
