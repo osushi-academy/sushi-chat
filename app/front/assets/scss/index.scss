@@ -118,6 +118,10 @@ $gray: rgb(228, 228, 228);
   }
 }
 
+.active-topic {
+  background: rgb(250, 250, 178);
+}
+
 .topic-header {
   //margin-right: 2rem;
   flex-shrink: 0;
@@ -233,6 +237,7 @@ $gray: rgb(228, 228, 228);
   padding: 0.5em 1em;
   background: white;
   border-top: 2px solid $gray;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 2px 4px 0px;
 
   & > .main-line {
     display: flex;
@@ -438,13 +443,118 @@ $gray: rgb(228, 228, 228);
     }
   }
 }
-
-.modal-header,
+/* モーダル */
+$modal-header-height: 48px;
 .modal-body {
   padding: 5px 25px;
+  text-align: center;
+
+  &.modal-scrollable {
+    position: relative;
+    padding: 1em 1rem;
+    height: 100%;
+    padding-bottom: calc(#{$modal-header-height} + 1rem);
+    overflow-y: scroll;
+    overscroll-behavior: none;
+  }
+
+  & .modal-index {
+    display: inline;
+  }
+
+  & .secondary-textarea {
+    padding: 5px;
+    margin: 5px;
+  }
+
+  .topic-remove {
+    border: 2px solid rgb(238, 58, 58);
+  }
+
+  .topic-add {
+    border: 2px solid rgb(101, 247, 108);
+    margin: 10px;
+  }
+
+  .topic-start {
+    border: 2px solid;
+    margin: 10px;
+  }
 }
 .modal-header {
   border-bottom: 1px solid #ddd;
+  padding: 5px 25px;
+  overflow: hidden;
+  height: $modal-header-height;
+}
+.modal-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.primary-button {
+  background: white;
+  padding: 12px 20px;
+  border: 2px solid #444;
+  color: #333;
+  border-radius: 4px;
+  box-shadow: rgba(162, 162, 172, 0.2) 0px 2px 4px 0px;
+  transition: all 0.3s;
+
+  &:disabled {
+    box-shadow: none;
+    border-color: #ddd;
+    color: #aaa;
+  }
+
+  &:hover {
+    background: rgb(250, 250, 250);
+  }
+}
+
+.secondary-button {
+  background: white;
+  padding: 0px 12px;
+  border-radius: 4px;
+  box-shadow: rgba(162, 162, 172, 0.2) 0px 2px 4px 0px;
+  transition: all 0.3s;
+}
+
+/* アイコン選択モーダル */
+.icon-list {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-auto-rows: 1fr;
+  padding: 0;
+  margin: 0;
+  list-style-type: none;
+
+  & > .icon-box {
+    box-sizing: border-box;
+    display: flex;
+    border-radius: 100%;
+    align-items: center;
+    justify-content: center;
+    object-fit: contain;
+    position: relative;
+    border: solid 5px transparent;
+    padding: 4px;
+    margin: 2px;
+    background: white;
+    transition: all 0.2s;
+  }
+
+  & > .icon-box:hover {
+    background: rgb(235, 235, 235);
+  }
+  & > .icon-shari {
+    opacity: 0.1;
+  }
+  & > .icon-selected {
+    border-color: #ae1f23;
+    opacity: 1;
+  }
 }
 
 /* ハートの共通スタイル */

@@ -1,37 +1,94 @@
 <template>
   <div class="container page">
-    <modal v-if="isAdmin" name="topic-modal">
+    <modal
+      v-if="isAdmin"
+      name="sushi-modal"
+      :adaptive="true"
+      height="auto"
+      :click-to-close="false"
+    >
       <div class="modal-header">
         <h2>トピック作成</h2>
       </div>
-      <div class="modal-body">
-        <div v-for="(topic, index) in topics" :key="index">
-          <input
-            v-model="topic.content"
-            class="textarea"
-            contenteditable
-            placeholder="トピック名"
-            @keydown.enter.exact="addTopic"
-          />
-          <button type="button" @click="removeTopic(index)">削除</button>
+      <div class="modal-body modal-scrollable">
+        <div>
+          <div v-for="(topic, index) in topicsAdmin" :key="index">
+            <h3 class="modal-index">{{ index + 1 }}</h3>
+            <input
+              v-model="topicsAdmin[index].title"
+              :tabindex="index"
+              name="titleArea"
+              class="secondary-textarea text-input"
+              contenteditable
+              placeholder="トピック名"
+              @keydown.enter.exact="clickAddTopic"
+            />
+            <button
+              type="button"
+              class="secondary-button topic-remove"
+              @click="removeTopic(index)"
+            >
+              削除
+            </button>
+          </div>
+          <button
+            type="button"
+            class="secondary-button topic-add"
+            @click="addTopic"
+          >
+            追加
+          </button>
+          <button
+            type="button"
+            class="secondary-button topic-start"
+            @click="startChat"
+          >
+            はじめる
+          </button>
         </div>
-        <button type="button" @click="addTopic">追加</button>
-        <button type="button" @click="hide">はじめる</button>
       </div>
     </modal>
-    <modal v-if="!isAdmin" name="sushi-modal">
+    <modal v-if="!isAdmin" name="sushi-modal" :click-to-close="false">
       <div class="modal-header">
-        <h2>寿司を選んでね</h2>
+        <h2>アイコンを選んでね</h2>
       </div>
       <div class="modal-body">
-        <button type="button" @click="hide">はじめる</button>
+        <div class="icon-list">
+          <button
+            v-for="(icon, index) in icons"
+            :key="index"
+            :class="{
+              'icon-selected': iconChecked == index,
+              'icon-shari': index === 10,
+            }"
+            class="icon-box"
+            @click="clickIcon(index)"
+          >
+            <img :src="icon.url" alt="" class="sushi-fit" />
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button
+            :disabled="iconChecked < 0"
+            type="button"
+            class="primary-button"
+            @click="hide"
+          >
+            はじめる
+          </button>
+        </div>
       </div>
     </modal>
-    <div v-for="chatData in chatDataList" :key="chatData.topic.id">
+    <div v-for="(chatData, index) in chatDataList" :key="index">
       <ChatRoom
+        :topic-index="index"
+        :is-admin="isAdmin"
         :chat-data="chatData"
+        :favorite-callback-register="favoriteCallbackRegister"
+        :my-icon="iconChecked"
         @send-message="sendMessage"
         @send-reaction="sendReaction"
+        @send-stamp="sendFavorite"
       />
     </div>
   </div>
@@ -41,7 +98,7 @@
 import Vue from 'vue'
 // @ts-ignore
 import VModal from 'vue-js-modal'
-import { ChatItem, Message, Topic } from '@/models/contents'
+import { ChatItem, Message, Topic, Stamp } from '@/models/contents'
 import {
   PostChatItemMessageParams,
   PostChatItemReactionParams,
@@ -49,6 +106,7 @@ import {
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
+import { getSelectedIcon, setSelectedIcon } from '@/utils/reserveSelectIcon'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -61,8 +119,11 @@ type DataType = {
   activeUserCount: number
   isNotify: boolean
   topics: Topic[]
+  topicsAdmin: Topic[]
   messages: ChatItem[]
   isAdmin: boolean
+  icons: any
+  iconChecked: number
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -73,10 +134,31 @@ export default Vue.extend({
   data(): DataType {
     return {
       topics: [],
+      topicsAdmin: [
+        {
+          id: `${getUUID()}`,
+          title: '',
+          description: '',
+        },
+      ],
       messages: [],
       activeUserCount: 0,
       isNotify: false,
-      isAdmin: true,
+      isAdmin: false,
+      icons: [
+        { url: require('@/assets/img/sushi_akami.png') },
+        { url: require('@/assets/img/sushi_ebi.png') },
+        { url: require('@/assets/img/sushi_harasu.png') },
+        { url: require('@/assets/img/sushi_ikura.png') },
+        { url: require('@/assets/img/sushi_iwashi.png') },
+        { url: require('@/assets/img/sushi_kai_hokkigai.png') },
+        { url: require('@/assets/img/sushi_salmon.png') },
+        { url: require('@/assets/img/sushi_shirasu.png') },
+        { url: require('@/assets/img/sushi_tai.png') },
+        { url: require('@/assets/img/sushi_uni.png') },
+        { url: require('@/assets/img/sushi_syari.png') },
+      ],
+      iconChecked: -1,
     }
   },
   computed: {
@@ -88,30 +170,32 @@ export default Vue.extend({
     },
   },
   mounted(): any {
-    if (this.isAdmin) {
-      this.$modal.show('topic-modal')
-    } else {
-      this.$modal.show('sushi-modal')
+    if (this.$route.query.user === 'admin') {
+      this.isAdmin = true
     }
 
     const socket = io(process.env.apiBaseUrl as string)
-    socket.emit(
-      'ENTER_ROOM',
-      {
-        iconId: 0,
-      },
-      (res: any) => {
-        // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
-        // TODO: 自分が送ったチャットデータは無視する
-        // this.topics = res.topics
-        this.messages = res.chatItems ?? []
-      }
-    )
     ;(this as any).socket = socket
+
+    if (!this.isAdmin) {
+      const selectedIcon = getSelectedIcon()
+      if (selectedIcon == null) {
+        this.$modal.show('sushi-modal')
+      } else {
+        this.iconChecked = selectedIcon - 1
+        this.enterRoom(selectedIcon)
+      }
+    }
+    this.$modal.show('sushi-modal')
 
     // FIXME: サーバからデータが送られてこないので暫定的に対応 (yuta-ike)
     this.topics.push({ id: '0', title: 'タイトル', description: '説明' })
-    // this.messages.push(...CHAT_DUMMY_DATA) // コメントインするとチャットの初期値を入れれます
+
+    socket.on('PUB_CHAT_ITEM', (res: any) => {
+      if (!this.messages.find((message) => message.id === res.content.id)) {
+        this.messages.push(res.content)
+      }
+    })
   },
   methods: {
     sendMessage(text: string, topicId: string, isQuestion: boolean) {
@@ -120,6 +204,7 @@ export default Vue.extend({
         type: 'message',
         id: getUUID(),
         topicId,
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
         isQuestion,
       }
@@ -130,7 +215,7 @@ export default Vue.extend({
         id: params.id,
         topicId,
         type: 'message',
-        iconId: '0', // TODO: 自分のiconIdを指定する
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
         isQuestion,
@@ -141,6 +226,7 @@ export default Vue.extend({
       const params: PostChatItemReactionParams = {
         id: `${getUUID()}`,
         topicId: message.topicId,
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         type: 'reaction',
         reactionToId: message.id,
       }
@@ -151,7 +237,7 @@ export default Vue.extend({
         id: params.id,
         topicId: message.topicId,
         type: 'reaction',
-        iconId: '0', // TODO: 自分のiconIdを指定する
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
         target: {
           id: message.id,
@@ -161,28 +247,85 @@ export default Vue.extend({
         },
       })
     },
+    sendFavorite(topicId: string) {
+      const socket = (this as any).socket
+      socket.emit('POST_STAMP', { topicId })
+    },
+    // スタンプが通知された時に実行されるコールバックの登録
+    // NOTE: スタンプ周りのUI表示が複雑なため、少しややこしい実装を採用しています。
+    favoriteCallbackRegister(
+      topicId: string,
+      callback: (count: number) => void
+    ) {
+      const socket = (this as any).socket
+      socket.on('PUB_STAMP', (stamps: Stamp[]) => {
+        console.log(stamps)
+        const stampsAboutTopicId = stamps.filter(
+          // スタンプは自分が押したものも通知されるため省く処理を入れています
+          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id
+        )
+        if (stampsAboutTopicId.length > 0) {
+          callback(stampsAboutTopicId.length)
+        }
+      })
+    },
     // modalを消し、topic作成
     hide(): any {
       this.topics.push()
-      if (this.isAdmin) {
-        this.$modal.hide('topic-modal')
-      } else {
-        this.$modal.hide('sushi-modal')
-      }
+      this.$modal.hide('sushi-modal')
+      this.enterRoom(this.iconChecked + 1)
+    },
+    enterRoom(iconId: number) {
+      const socket = (this as any).socket
+      socket.emit(
+        'ENTER_ROOM',
+        {
+          iconId,
+        },
+        (res: any) => {
+          // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
+          // this.topics = res.topics
+          this.messages = res.chatItems ?? []
+        }
+      )
+      setSelectedIcon(iconId)
     },
     // 該当するtopicを削除
     removeTopic(index: number) {
-      this.topics.splice(index, 1)
+      this.topicsAdmin.splice(index, 1)
     },
     // topic追加
     addTopic() {
-      // 新規topic
+      // 新規仮topic
       const t: Topic = {
         id: `${getUUID()}`,
         title: '',
         description: '',
       }
-      this.topics.push(t)
+      this.topicsAdmin.push(t)
+    },
+    // topic反映
+    startChat() {
+      // 仮topicから空でないものをtopicsに
+      for (const t in this.topicsAdmin) {
+        if (this.topicsAdmin[t].title) {
+          this.topics.push(this.topicsAdmin[t])
+        }
+      }
+      // TODO: this.topicsをサーバに反映
+
+      // ルーム開始
+      this.$modal.hide('sushi-modal')
+    },
+    // アイコン選択
+    clickIcon(index: number) {
+      this.iconChecked = index
+    },
+    // エンターキーでaddTopic呼び出し
+    clickAddTopic(e: any) {
+      // 日本語入力中のeventnterキー操作は無効にする
+      if (e.keyCode !== 13) return
+      this.addTopic()
     },
   },
 })

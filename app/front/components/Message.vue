@@ -40,7 +40,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import * as Model from '@/models/contents'
+import { ChatItemPropType } from '@/models/contents'
 
 export default Vue.extend({
   name: 'Message',
@@ -57,7 +57,7 @@ export default Vue.extend({
         isQuestion: false,
         timestamp: 100,
       }),
-    } as PropOptions<Model.ChatItemPropType>,
+    } as PropOptions<ChatItemPropType>,
   },
   computed: {
     icon(): { icon: unknown } {
@@ -72,6 +72,7 @@ export default Vue.extend({
 })
 
 const ICONS = [
+  { icon: require('@/assets/img/tea.png') },
   { icon: require('@/assets/img/sushi_akami.png') },
   { icon: require('@/assets/img/sushi_ebi.png') },
   { icon: require('@/assets/img/sushi_harasu.png') },
@@ -80,8 +81,8 @@ const ICONS = [
   { icon: require('@/assets/img/sushi_kai_hokkigai.png') },
   { icon: require('@/assets/img/sushi_salmon.png') },
   { icon: require('@/assets/img/sushi_shirasu.png') },
-  { icon: require('@/assets/img/sushi_syari.png') },
   { icon: require('@/assets/img/sushi_tai.png') },
   { icon: require('@/assets/img/sushi_uni.png') },
+  { icon: require('@/assets/img/sushi_syari.png') },
 ]
 </script>

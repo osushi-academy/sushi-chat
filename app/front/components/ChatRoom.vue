@@ -1,7 +1,9 @@
 <template>
   <article class="topic-block">
     <TopicHeader
-      :title="Number(chatData.topic.id) + 1 + '. ' + chatData.topic.title"
+      :title="topicIndex + 1 + '. ' + chatData.topic.title"
+      :is-admin="isAdmin"
+      :is-active-topic="true"
     />
     <div class="chat-area">
       <div class="text-zone">
@@ -12,14 +14,19 @@
         </div>
       </div>
       <div class="stamp-zone">
-        <FavoriteButton @favorite="clickFavorite" />
+        <FavoriteButton
+          :favorite-callback-register="
+            (callback) => favoriteCallbackRegister(chatData.topic.id, callback)
+          "
+          @favorite="clickFavorite"
+        />
       </div>
       <button v-show="isNotify" class="message-badge" @click="clickScroll">
         最新のコメント
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
-    <TextArea :topic="chatData.topic" @submit="clickSubmit" />
+    <TextArea :topic="chatData.topic" :my-icon="myIcon" @submit="clickSubmit" />
   </article>
 </template>
 <script lang="ts">
@@ -33,6 +40,13 @@ import FavoriteButton from '@/components/FavoriteButton.vue'
 type ChatDataPropType = {
   topic: Topic
   message: ChatItem[]
+}
+
+type FavoriteCallbackRegisterPropType = {
+  favoriteCallbackRegister: (
+    topicId: string,
+    callback: (count: number) => void
+  ) => void
 }
 
 // Data型
@@ -53,11 +67,32 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<ChatDataPropType>,
+    topicIndex: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
+    favoriteCallbackRegister: {
+      type: Function,
+      required: true,
+    } as PropOptions<FavoriteCallbackRegisterPropType>,
+    myIcon: {
+      type: Number,
+      required: true,
+    },
   },
   data(): DataType {
     return {
       isNotify: false,
     }
+  },
+  mounted() {
+    console.log(this.$props.favoriteCallbackRegister)
   },
   methods: {
     // 送信ボタン
@@ -93,7 +128,9 @@ export default Vue.extend({
       }
     },
     // ハートボタン
-    clickFavorite() {},
+    clickFavorite() {
+      this.$emit('send-stamp', this.chatData.topic.id)
+    },
     // いちばん下までスクロール
     clickScroll() {
       const element: HTMLElement | null = document.getElementById(
