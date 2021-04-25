@@ -1,5 +1,11 @@
 <template>
-  <div class="topic-header" :class="topicBackgroundColor(isActiveTopic)">
+  <div
+    class="topic-header"
+    :class="{
+      'finished-topic': isFinishedTopic,
+      'active-topic': isActiveTopic,
+    }"
+  >
     <div class="main-line">
       <h1 class="title">{{ title }}</h1>
       <button class="next-button" role="navigation" @click="clickTopicActivate">
@@ -22,15 +28,12 @@ export default Vue.extend({
       type: Boolean,
       required: true,
     },
+    isFinishedTopic: {
+      type: Boolean,
+      required: true,
+    },
   },
   methods: {
-    topicBackgroundColor(flag: Boolean): String {
-      if (flag) {
-        return 'active-topic'
-      } else {
-        return ''
-      }
-    },
     clickTopicActivate() {
       this.$emit('topic-activate')
     },

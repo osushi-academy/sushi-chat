@@ -56,6 +56,10 @@
         :favorite-callback-register="favoriteCallbackRegister"
         :my-icon="iconChecked"
         :is-active-topic="activeTopicId == chatData.topic.id"
+        :is-finished-topic="
+          topics.findIndex(({ id }) => id === chatData.topic.id) <
+          topics.findIndex(({ id }) => id === activeTopicId)
+        "
         @send-message="sendMessage"
         @send-reaction="sendReaction"
         @send-stamp="sendFavorite"
@@ -122,7 +126,7 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_syari.png') },
       ],
       iconChecked: -1,
-      activeTopicId: '0',
+      activeTopicId: null,
     }
   },
   computed: {
