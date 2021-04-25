@@ -174,6 +174,22 @@ $gray: rgb(228, 228, 228);
       overscroll-behavior: none;
       padding: 1em 1rem;
     }
+
+    .list-complete {
+      display: flex;
+      flex-direction: column;
+    }
+    .list-complete-item {
+      transition: all 0.3s;
+      transform: translateX(0);
+    }
+    .list-complete-enter,
+    .list-complete-leave-to {
+      opacity: 0;
+    }
+    .list-complete-leave-active {
+      position: absolute;
+    }
   }
 
   & > .stamp-zone {
@@ -316,6 +332,7 @@ $gray: rgb(228, 228, 228);
     display: flex;
     padding: 0.75em 0.5em;
     border: 1.5px solid rgb(185, 185, 185);
+    background: white;
     border-radius: 5px;
     box-shadow: $gray 0px 2px 5px -1px, $gray 0px 1px 3px -1px;
     overflow: hidden;
