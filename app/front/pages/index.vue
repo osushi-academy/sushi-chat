@@ -177,9 +177,7 @@ export default Vue.extend({
     const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
 
-    if (this.isAdmin) {
-      this.$modal.show('sushi-modal')
-    } else {
+    if (!this.isAdmin) {
       const selectedIcon = getSelectedIcon()
       if (selectedIcon == null) {
         this.$modal.show('sushi-modal')
