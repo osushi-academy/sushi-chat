@@ -84,9 +84,11 @@
         :topic-index="index"
         :is-admin="isAdmin"
         :chat-data="chatData"
+        :favorite-callback-register="favoriteCallbackRegister"
         :my-icon="iconChecked"
         @send-message="sendMessage"
         @send-reaction="sendReaction"
+        @send-stamp="sendFavorite"
       />
     </div>
   </div>
@@ -96,7 +98,7 @@
 import Vue from 'vue'
 // @ts-ignore
 import VModal from 'vue-js-modal'
-import { ChatItem, Message, Topic } from '@/models/contents'
+import { ChatItem, Message, Topic, Stamp } from '@/models/contents'
 import {
   PostChatItemMessageParams,
   PostChatItemReactionParams,
@@ -104,6 +106,7 @@ import {
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
+import { getSelectedIcon, setSelectedIcon } from '@/utils/reserveSelectIcon'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -169,11 +172,22 @@ export default Vue.extend({
   mounted(): any {
     if (this.$route.query.user === 'admin') {
       this.isAdmin = true
-    }
-    this.$modal.show('sushi-modal')
-
+  
     const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
+
+    if (this.isAdmin) {
+      this.$modal.show('sushi-modal')
+    } else {
+      const selectedIcon = getSelectedIcon()
+      if (selectedIcon == null) {
+        this.$modal.show('sushi-modal')
+      } else {
+        this.iconChecked = selectedIcon - 1
+        this.enterRoom(selectedIcon)
+      }
+    }
+    this.$modal.show('sushi-modal')
 
     // FIXME: サーバからデータが送られてこないので暫定的に対応 (yuta-ike)
     this.topics.push({ id: '0', title: 'タイトル', description: '説明' })
@@ -234,15 +248,41 @@ export default Vue.extend({
         },
       })
     },
+    sendFavorite(topicId: string) {
+      const socket = (this as any).socket
+      socket.emit('POST_STAMP', { topicId })
+    },
+    // スタンプが通知された時に実行されるコールバックの登録
+    // NOTE: スタンプ周りのUI表示が複雑なため、少しややこしい実装を採用しています。
+    favoriteCallbackRegister(
+      topicId: string,
+      callback: (count: number) => void
+    ) {
+      const socket = (this as any).socket
+      socket.on('PUB_STAMP', (stamps: Stamp[]) => {
+        console.log(stamps)
+        const stampsAboutTopicId = stamps.filter(
+          // スタンプは自分が押したものも通知されるため省く処理を入れています
+          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id
+        )
+        if (stampsAboutTopicId.length > 0) {
+          callback(stampsAboutTopicId.length)
+        }
+      })
+    },
     // modalを消し、topic作成
     hide(): any {
+      
+      this.topics.push()
       this.$modal.hide('sushi-modal')
-
+      this.enterRoom(this.iconChecked + 1)
+    },
+    enterRoom(iconId: number) {
       const socket = (this as any).socket
       socket.emit(
         'ENTER_ROOM',
         {
-          iconId: this.iconChecked + 1,
+          iconId,
         },
         (res: any) => {
           // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
@@ -250,6 +290,7 @@ export default Vue.extend({
           this.messages = res.chatItems ?? []
         }
       )
+      setSelectedIcon(iconId)
     },
     // 該当するtopicを削除
     removeTopic(index: number) {

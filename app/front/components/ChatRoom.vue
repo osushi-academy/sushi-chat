@@ -13,7 +13,12 @@
         </div>
       </div>
       <div class="stamp-zone">
-        <FavoriteButton @favorite="clickFavorite" />
+        <FavoriteButton
+          :favorite-callback-register="
+            (callback) => favoriteCallbackRegister(chatData.topic.id, callback)
+          "
+          @favorite="clickFavorite"
+        />
       </div>
       <button v-show="isNotify" class="message-badge" @click="clickScroll">
         最新のコメント
@@ -34,6 +39,13 @@ import FavoriteButton from '@/components/FavoriteButton.vue'
 type ChatDataPropType = {
   topic: Topic
   message: ChatItem[]
+}
+
+type FavoriteCallbackRegisterPropType = {
+  favoriteCallbackRegister: (
+    topicId: string,
+    callback: (count: number) => void
+  ) => void
 }
 
 // Data型
@@ -64,6 +76,10 @@ export default Vue.extend({
       required: true,
       default: false,
     },
+    favoriteCallbackRegister: {
+      type: Function,
+      required: true,
+    } as PropOptions<FavoriteCallbackRegisterPropType>,
     myIcon: {
       type: Number,
       required: true,
@@ -73,6 +89,9 @@ export default Vue.extend({
     return {
       isNotify: false,
     }
+  },
+  mounted() {
+    console.log(this.$props.favoriteCallbackRegister)
   },
   methods: {
     // 送信ボタン
@@ -108,7 +127,9 @@ export default Vue.extend({
       }
     },
     // ハートボタン
-    clickFavorite() {},
+    clickFavorite() {
+      this.$emit('send-stamp', this.chatData.topic.id)
+    },
     // いちばん下までスクロール
     clickScroll() {
       const element: HTMLElement | null = document.getElementById(
