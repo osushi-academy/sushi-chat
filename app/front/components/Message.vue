@@ -25,6 +25,7 @@
     >
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
+        <div class="admin-badge">運 営</div>
       </div>
       <div class="baloon">{{ message.content }}</div>
     </article>
@@ -38,6 +39,7 @@
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
         <div class="question-badge">Q</div>
+        <div v-if="message.iconId == 0" class="admin-badge">運 営</div>
       </div>
       <div class="baloon">{{ message.content }}</div>
       <div class="bg-good-icon">
