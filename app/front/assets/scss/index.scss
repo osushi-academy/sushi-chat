@@ -111,7 +111,7 @@ $gray: rgb(228, 228, 228);
   width: 100vw;
 }
 
-@media screen and (min-width:551px) {
+@media screen and (min-width: 551px) {
   .topic-block {
     margin: 0 2em;
     width: 440px;
@@ -182,7 +182,6 @@ $gray: rgb(228, 228, 228);
     & > .scrollable {
       scroll-snap-type: y mandatory;
       overflow-y: scroll;
-      overscroll-behavior: none;
       padding: 1em 1rem;
     }
 
@@ -341,7 +340,7 @@ $gray: rgb(228, 228, 228);
     margin-bottom: 0.5rem;
     text-align: end;
   }
-  @media screen and (max-width:768px) {
+  @media screen and (max-width: 768px) {
     & > .key-instruct {
       display: none;
     }
@@ -383,7 +382,7 @@ $gray: rgb(228, 228, 228);
       border: none;
       box-shadow: none;
       pointer-events: none;
-    }    
+    }
 
     & > .bg-good-icon {
       position: absolute;
@@ -423,8 +422,6 @@ $gray: rgb(228, 228, 228);
     &.question:hover {
       background: rgb(206, 234, 255);
     }
-
-
 
     & > .icon-wrapper {
       flex-shrink: 0;
@@ -564,7 +561,7 @@ $modal-header-height: 48px;
 
   &:hover {
     background: rgb(250, 250, 250);
-  }  
+  }
 }
 
 .modal-body input {
