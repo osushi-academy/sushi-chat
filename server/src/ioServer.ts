@@ -11,7 +11,7 @@ import { Stamp, stampIntervalSender } from "./stamp";
 import { Server } from "socket.io";
 import { EnterRoomReceive, BuildRoomReceive } from "./room";
 import { Server as HttpServer } from "http";
-import { v4 as uuid } from 'uuid'
+import { v4 as uuid } from "uuid";
 
 const createSocketIOServer = (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
@@ -37,14 +37,13 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   function serverAwaker() {
     return setInterval(() => {
       io.sockets.emit("");
-      console.log("awaker stamp", new Date());
     }, 30000);
   }
 
   //本体
   io.on("connection", (socket) => {
-    console.log("user joined");
     activeUserCount++;
+    console.log("user joined, now", activeUserCount);
     if (activeUserCount === 1) {
       //サーバー起こしておくため
       serverAwakerTimer = serverAwaker();
@@ -53,14 +52,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 
     //ルーム参加
     socket.on("ENTER_ROOM", (received: EnterRoomReceive, callback: any) => {
-      console.log("entered");
       users[socket.id] = received.iconId.toString();
       const sortedChatItem = Object.values(chatItems).sort(function (a, b) {
         if (a.timestamp < b.timestamp) return 1;
         if (a.timestamp > b.timestamp) return -1;
         return 0;
       });
-      console.log(socket.id, received.iconId);
 
       socket.broadcast.emit("PUB_ENTER_ROOM", {
         iconId: received.iconId,
@@ -81,11 +78,16 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 
     //messageで送られてきたときの処理
     socket.on("POST_CHAT_ITEM", (received: ChatItemReceive) => {
-      console.log("message: " + received.id + " from " + socket.id);
+      console.log(
+        received.type === "message"
+          ? "message: " + received.content + " (id: " + received.id + ")"
+          : "reaction: to" + received.reactionToId
+      );
       const nowTime = new Date();
-      const timestamp = startTimes[received.topicId] == null
-        ? 0
-        : nowTime.getTime() - startTimes[received.topicId].getTime()
+      const timestamp =
+        startTimes[received.topicId] == null
+          ? 0
+          : nowTime.getTime() - startTimes[received.topicId].getTime();
       const returnItem: ChatItem =
         received.type === "message"
           ? {
@@ -121,69 +123,76 @@ const createSocketIOServer = (httpServer: HttpServer) => {
     //stampで送られてきたときの処理
     socket.on("POST_STAMP", (received: Stamp) => {
       const nowTime = new Date();
-      const timestamp = startTimes[received.topicId] == null
-        ? 0
-        : nowTime.getTime() - startTimes[received.topicId].getTime()
+      const timestamp =
+        startTimes[received.topicId] == null
+          ? 0
+          : nowTime.getTime() - startTimes[received.topicId].getTime();
       stampCount++;
       const stamp: Stamp = {
         userId: socket.id,
         topicId: received.topicId,
-        timestamp
-      }
+        timestamp,
+      };
       stockedStamps.push(stamp);
-      stamps.push(stamp)
+      stamps.push(stamp);
     });
 
     //アクティブなトピックの変更
     socket.on("CHANGE_ACTIVE_TOPIC", (received: { topicId: string }) => {
-      const prevActiveTopicId = activeTopicId
+      const prevActiveTopicId = activeTopicId;
 
       if (prevActiveTopicId) {
         // 終了メッセージを配信
-        const messageId = uuid()
+        const messageId = uuid();
         const message: ChatItem = {
           id: messageId,
           topicId: prevActiveTopicId,
           type: "message",
           iconId: "0",
           timestamp: 0,
-          content: '【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）',
+          content:
+            "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
           isQuestion: false,
-        }
+        };
         io.sockets.emit("PUB_CHAT_ITEM", {
           type: "confirm-to-send",
-          content: message
-        })
+          content: message,
+        });
         // ルーム閉じを配信する処理（yuta-ike）
         io.sockets.emit("PUB_FINISH_TOPIC", {
           topicId: prevActiveTopicId,
           startTime: startTimes[prevActiveTopicId],
           endTime: new Date(),
           content: {
-            chatItems: Object.values(chatItems).filter(chatItem => chatItem.topicId === prevActiveTopicId),
-            stamps: Object.values(stamps).filter(stamp => stamp.topicId === prevActiveTopicId),
-          }
-        })
+            chatItems: Object.values(chatItems).filter(
+              (chatItem) => chatItem.topicId === prevActiveTopicId
+            ),
+            stamps: Object.values(stamps).filter(
+              (stamp) => stamp.topicId === prevActiveTopicId
+            ),
+          },
+        });
       }
 
-      activeTopicId = received.topicId
+      activeTopicId = received.topicId;
       io.sockets.emit("PUB_CHANGE_ACTIVE_TOPIC", {
-        topicId: received.topicId
-      })
-      const messageId = uuid()
+        topicId: received.topicId,
+      });
+      const messageId = uuid();
       const message: ChatItem = {
         id: messageId,
         topicId: received.topicId,
         type: "message",
         iconId: "0",
         timestamp: 0,
-        content: '【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n',
+        content:
+          "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n",
         isQuestion: false,
-      }
+      };
       io.sockets.emit("PUB_CHAT_ITEM", {
         type: "confirm-to-send",
-        content: message
-      })
+        content: message,
+      });
       chatItems[messageId] = message;
 
       startTimes[activeTopicId] = new Date();
@@ -191,7 +200,6 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 
     //接続解除時に行う処理
     socket.on("disconnect", (reason) => {
-      console.log("disconnect: ", reason);
       activeUserCount--;
       if (activeUserCount === 0) {
         //サーバー起こしておくこ
