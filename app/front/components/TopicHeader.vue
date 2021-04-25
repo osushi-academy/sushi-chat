@@ -29,6 +29,11 @@ export default Vue.extend({
       type: String,
       required: true,
     },
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     isActiveTopic: {
       type: Boolean,
       required: true,
