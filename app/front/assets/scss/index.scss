@@ -510,7 +510,11 @@ $modal-header-height: 48px;
 
   &:hover {
     background: rgb(250, 250, 250);
-  }
+  }  
+}
+
+.modal-body input {
+  width: 70%;
 }
 
 .secondary-button {
