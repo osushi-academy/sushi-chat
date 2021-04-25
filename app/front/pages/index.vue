@@ -91,7 +91,6 @@
           topics.findIndex(({ id }) => id === chatData.topic.id) <
           topics.findIndex(({ id }) => id === activeTopicId)
         "
-        :is-admin="isAdmin"
         @send-message="sendMessage"
         @send-reaction="sendReaction"
         @send-stamp="sendFavorite"

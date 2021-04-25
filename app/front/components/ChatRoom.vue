@@ -100,10 +100,6 @@ export default Vue.extend({
       type: Boolean,
       required: true,
     },
-    isAdmin: {
-      type: Boolean,
-      required: true,
-    },
   },
   data(): DataType {
     return {
