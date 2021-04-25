@@ -130,18 +130,21 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       io.sockets.emit("PUB_CHANGE_ACTIVE_TOPIC", {
         topicId: received.topicId
       })
+      const messageId = uuid()
+      const message: ChatItem = {
+        id: messageId,
+        topicId: received.topicId,
+        type: "message",
+        iconId: "0",
+        timestamp: 0,
+        content: '【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n',
+        isQuestion: false,
+      }
       io.sockets.emit("PUB_CHAT_ITEM", {
         type: "confirm-to-send",
-        content: {
-          id: uuid(),
-          topicId: received.topicId,
-          type: "message",
-          iconId: "0",
-          timestamp: 0,
-          content: '【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n',
-          isQuestion: false,
-        }
+        content: message
       })
+      chatItems[messageId] = message;
     });
 
     //接続解除時に行う処理
