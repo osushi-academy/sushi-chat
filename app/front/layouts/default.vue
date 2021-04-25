@@ -18,29 +18,6 @@ export default {
       },
     ],
     title: 'SUSHI CHAT',
-    meta: [
-      {
-        property: 'og:url',
-        content: 'https://sushi-chat-liart.vercel.app/',
-      },
-      {
-        property: 'og:type',
-        content: 'website',
-      },
-      {
-        property: 'og:title',
-        content: 'sushi-chat',
-      },
-      {
-        property: 'og:description',
-        content: 'プレゼンテーションをもっとおいしく。',
-      },
-      {
-        property: 'og:site_name',
-        content: 'sushi-chat',
-      },
-      { property: 'twitter:card', content: 'summary' },
-    ],
   },
 }
 </script>
