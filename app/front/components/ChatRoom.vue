@@ -3,6 +3,7 @@
     <TopicHeader
       :title="Number(chatData.topic.id) + 1 + '. ' + chatData.topic.title"
       :is-active-topic="isActiveTopic"
+      :is-finished-topic="isFinishedTopic"
       @topic-activate="clickTopicActivate"
     />
     <div class="chat-area">
@@ -26,7 +27,12 @@
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
-    <TextArea :topic="chatData.topic" :my-icon="myIcon" @submit="clickSubmit" />
+    <TextArea
+      :topic="chatData.topic"
+      :my-icon="myIcon"
+      :disabled="isNotStartedTopic"
+      @submit="clickSubmit"
+    />
   </article>
 </template>
 <script lang="ts">
@@ -79,48 +85,58 @@ export default Vue.extend({
       type: Boolean,
       required: true,
     },
+    isFinishedTopic: {
+      type: Boolean,
+      required: true,
+    },
   },
   data(): DataType {
     return {
       isNotify: false,
     }
   },
+  computed: {
+    isNotStartedTopic() {
+      return !this.isActiveTopic && !this.isFinishedTopic
+    },
+  },
+  watch: {
+    chatData() {
+      Vue.nextTick(() => {
+        this.scrollToBottomOrShowModal()
+      })
+    },
+  },
   methods: {
     // 送信ボタン
-    async clickSubmit(text: string, isQuestion: boolean) {
-      await this.$emit('send-message', text, this.chatData.topic.id, isQuestion)
+    clickSubmit(text: string, isQuestion: boolean) {
+      this.$emit('send-message', text, this.chatData.topic.id, isQuestion)
       this.clickScroll()
     },
     // いいねボタン
-    async clickGood(message: Message) {
+    clickGood(message: Message) {
       // submit
-      await this.$emit('send-reaction', message)
-
-      // スクロール
+      this.$emit('send-reaction', message)
+    },
+    // ハートボタン
+    clickFavorite() {
+      this.$emit('send-stamp', this.chatData.topic.id)
+    },
+    scrollToBottomOrShowModal() {
+      // 下までスクロールされていなければ通知を出す
       const element: HTMLElement | null = document.getElementById(
         this.chatData.topic.id
       )
-      if (element) {
-        // 下までスクロールされていなければ通知を出す
-        // if (this.isScrollBottom(element)) {
-        //   element.scrollTo({
-        //     top: element.scrollHeight,
-        //     left: 0,
-        //     behavior: 'smooth',
-        //   })
-        // } else {
-        //   this.isNotify = true
-        // }
+      if (element == null) return
+      if (this.isScrollBottom(element)) {
         element.scrollTo({
           top: element.scrollHeight,
           left: 0,
           behavior: 'smooth',
         })
+      } else {
+        this.isNotify = true
       }
-    },
-    // ハートボタン
-    clickFavorite() {
-      this.$emit('send-stamp', this.chatData.topic.id)
     },
     // いちばん下までスクロール
     clickScroll() {
