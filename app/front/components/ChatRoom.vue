@@ -28,6 +28,7 @@
           :favorite-callback-register="
             (callback) => favoriteCallbackRegister(chatData.topic.id, callback)
           "
+          :disabled="!isActiveTopic"
           @favorite="clickFavorite"
         />
       </div>

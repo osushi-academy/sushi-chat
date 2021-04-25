@@ -157,7 +157,7 @@ export default Vue.extend({
       messages: [],
       activeUserCount: 0,
       isNotify: false,
-      isAdmin: false,
+      isAdmin: true,
       icons: [
         { url: require('@/assets/img/sushi_akami.png') },
         { url: require('@/assets/img/sushi_ebi.png') },
