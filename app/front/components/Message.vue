@@ -40,7 +40,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import * as Model from '@/models/contents'
+import { ChatItemPropType } from '@/models/contents'
 
 export default Vue.extend({
   name: 'Message',
@@ -57,7 +57,7 @@ export default Vue.extend({
         isQuestion: false,
         timestamp: 100,
       }),
-    } as PropOptions<Model.ChatItemPropType>,
+    } as PropOptions<ChatItemPropType>,
   },
   computed: {
     icon(): { icon: unknown } {

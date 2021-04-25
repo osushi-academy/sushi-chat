@@ -1,22 +1,51 @@
 <template>
   <div class="container page">
-    <modal v-if="isAdmin" name="topic-modal">
+    <modal
+      v-if="isAdmin"
+      name="sushi-modal"
+      :adaptive="true"
+      height="auto"
+      :click-to-close="false"
+    >
       <div class="modal-header">
         <h2>トピック作成</h2>
       </div>
-      <div class="modal-body">
-        <div v-for="(topic, index) in topics" :key="index">
-          <input
-            v-model="topic.content"
-            class="textarea"
-            contenteditable
-            placeholder="トピック名"
-            @keydown.enter.exact="addTopic"
-          />
-          <button type="button" @click="removeTopic(index)">削除</button>
+      <div class="modal-body modal-scrollable">
+        <div>
+          <div v-for="(topic, index) in topicsAdmin" :key="index">
+            <h3 class="modal-index">{{ index + 1 }}</h3>
+            <input
+              v-model="topicsAdmin[index].title"
+              :tabindex="index"
+              name="titleArea"
+              class="secondary-textarea text-input"
+              contenteditable
+              placeholder="トピック名"
+              @keydown.enter.exact="clickAddTopic"
+            />
+            <button
+              type="button"
+              class="secondary-button topic-remove"
+              @click="removeTopic(index)"
+            >
+              削除
+            </button>
+          </div>
+          <button
+            type="button"
+            class="secondary-button topic-add"
+            @click="addTopic"
+          >
+            追加
+          </button>
+          <button
+            type="button"
+            class="secondary-button topic-start"
+            @click="startChat"
+          >
+            はじめる
+          </button>
         </div>
-        <button type="button" @click="addTopic">追加</button>
-        <button type="button" @click="hide">はじめる</button>
       </div>
     </modal>
     <modal v-if="!isAdmin" name="sushi-modal" :click-to-close="false">
@@ -50,8 +79,10 @@
         </div>
       </div>
     </modal>
-    <div v-for="chatData in chatDataList" :key="chatData.topic.id">
+    <div v-for="(chatData, index) in chatDataList" :key="index">
       <ChatRoom
+        :topic-index="index"
+        :is-admin="isAdmin"
         :chat-data="chatData"
         :favorite-callback-register="favoriteCallbackRegister"
         :my-icon="iconChecked"
@@ -82,6 +113,7 @@ import {
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
+import { getSelectedIcon, setSelectedIcon } from '@/utils/reserveSelectIcon'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -94,6 +126,7 @@ type DataType = {
   activeUserCount: number
   isNotify: boolean
   topics: Topic[]
+  topicsAdmin: Topic[]
   messages: ChatItem[]
   isAdmin: boolean
   icons: any
@@ -109,6 +142,13 @@ export default Vue.extend({
   data(): DataType {
     return {
       topics: [],
+      topicsAdmin: [
+        {
+          id: `${getUUID()}`,
+          title: '',
+          description: '',
+        },
+      ],
       messages: [],
       activeUserCount: 0,
       isNotify: false,
@@ -139,14 +179,23 @@ export default Vue.extend({
     },
   },
   mounted(): any {
-    if (this.isAdmin) {
-      this.$modal.show('topic-modal')
-    } else {
-      this.$modal.show('sushi-modal')
+    if (this.$route.query.user === 'admin') {
+      this.isAdmin = true
     }
 
     const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
+
+    if (!this.isAdmin) {
+      const selectedIcon = getSelectedIcon()
+      if (selectedIcon == null) {
+        this.$modal.show('sushi-modal')
+      } else {
+        this.iconChecked = selectedIcon - 1
+        this.enterRoom(selectedIcon)
+      }
+    }
+    this.$modal.show('sushi-modal')
 
     // FIXME: サーバからデータが送られてこないので暫定的に対応 (yuta-ike)
     this.topics.push({ id: '0', title: 'タイトル', description: '説明' })
@@ -243,17 +292,15 @@ export default Vue.extend({
     // modalを消し、topic作成
     hide(): any {
       this.topics.push()
-      if (this.isAdmin) {
-        this.$modal.hide('topic-modal')
-      } else {
-        this.$modal.hide('sushi-modal')
-      }
-
+      this.$modal.hide('sushi-modal')
+      this.enterRoom(this.iconChecked + 1)
+    },
+    enterRoom(iconId: number) {
       const socket = (this as any).socket
       socket.emit(
         'ENTER_ROOM',
         {
-          iconId: this.iconChecked + 1,
+          iconId,
         },
         (res: any) => {
           // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
@@ -261,24 +308,44 @@ export default Vue.extend({
           this.messages = res.chatItems ?? []
         }
       )
+      setSelectedIcon(iconId)
     },
     // 該当するtopicを削除
     removeTopic(index: number) {
-      this.topics.splice(index, 1)
+      this.topicsAdmin.splice(index, 1)
     },
     // topic追加
     addTopic() {
-      // 新規topic
+      // 新規仮topic
       const t: Topic = {
         id: `${getUUID()}`,
         title: '',
         description: '',
       }
-      this.topics.push(t)
+      this.topicsAdmin.push(t)
+    },
+    // topic反映
+    startChat() {
+      // 仮topicから空でないものをtopicsに
+      for (const t in this.topicsAdmin) {
+        if (this.topicsAdmin[t].title) {
+          this.topics.push(this.topicsAdmin[t])
+        }
+      }
+      // TODO: this.topicsをサーバに反映
+
+      // ルーム開始
+      this.$modal.hide('sushi-modal')
     },
     // アイコン選択
     clickIcon(index: number) {
       this.iconChecked = index
+    },
+    // エンターキーでaddTopic呼び出し
+    clickAddTopic(e: any) {
+      // 日本語入力中のeventnterキー操作は無効にする
+      if (e.keyCode !== 13) return
+      this.addTopic()
     },
   },
 })
