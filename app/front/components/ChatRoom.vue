@@ -4,6 +4,7 @@
       :title="Number(chatData.topic.id) + 1 + '. ' + chatData.topic.title"
       :is-active-topic="isActiveTopic"
       :is-finished-topic="isFinishedTopic"
+      :is-admin="isAdmin"
       @topic-activate="clickTopicActivate"
     />
     <div class="chat-area">
@@ -86,6 +87,10 @@ export default Vue.extend({
       required: true,
     },
     isFinishedTopic: {
+      type: Boolean,
+      required: true,
+    },
+    isAdmin: {
       type: Boolean,
       required: true,
     },
