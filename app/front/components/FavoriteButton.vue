@@ -1,5 +1,9 @@
 <template>
-  <button class="stamp-submit-button" @click="clickFavorite">
+  <button
+    class="stamp-submit-button"
+    :disabled="disabled"
+    @click="clickFavorite"
+  >
     <span class="material-icons"> favorite </span>
     <div v-for="c of count" :key="c">
       <span class="heart-button"></span>
@@ -26,6 +30,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     } as PropOptions<FavoriteCallbackRegisterPropType>,
+    disabled: {
+      type: Boolean,
+      required: true,
+    },
   },
   data(): DataType {
     return {
@@ -47,6 +55,7 @@ export default Vue.extend({
   },
   methods: {
     clickFavorite() {
+      if (this.disabled) return
       // 最後の要素に1足した値を配列に加える
       this.count.push((this.count.slice(-1)?.[0] ?? 0) + 1)
       // 配列の要素が50を超えたら25個消す（ハートは最大25個のみ表示する）
