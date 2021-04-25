@@ -157,7 +157,7 @@ export default Vue.extend({
       messages: [],
       activeUserCount: 0,
       isNotify: false,
-      isAdmin: true,
+      isAdmin: false,
       icons: [
         { url: require('@/assets/img/sushi_akami.png') },
         { url: require('@/assets/img/sushi_ebi.png') },
@@ -213,8 +213,38 @@ export default Vue.extend({
     })
 
     socket.on('PUB_FINISH_TOPIC', (res: any) => {
-      // TODO: 解析など（yuta-ike）
-      console.log(res)
+      const messageAdmin: Message = {
+        id: `${getUUID()}`,
+        topicId: res.topicId,
+        type: 'message',
+        iconId: '0',
+        timestamp: 0,
+        content: '【運営Bot】\n 以下、質問一覧です！',
+        isQuestion: false,
+      }
+      this.messages.push(messageAdmin)
+      for (const i in this.messages) {
+        // 閉じたトピックのmessageについて
+        if (
+          this.messages[i].topicId === res.topicId &&
+          this.messages[i].type === 'message'
+        ) {
+          // @ts-ignore
+          if (this.messages[i].isQuestion) {
+            const m: Message = {
+              id: `${getUUID()}`,
+              topicId: res.topicId,
+              type: 'message',
+              iconId: '0',
+              timestamp: 0,
+              // @ts-ignore
+              content: this.messages[i].content,
+              isQuestion: true,
+            }
+            this.messages.push(m)
+          }
+        }
+      }
     })
   },
   methods: {
