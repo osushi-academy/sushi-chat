@@ -48,11 +48,6 @@ type FavoriteCallbackRegisterPropType = {
   ) => void
 }
 
-// Data型
-type DataType = {
-  isNotify: boolean
-}
-
 export default Vue.extend({
   name: 'ChatRoom',
   components: {
@@ -74,15 +69,17 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
+    isNotify: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    readNotify: {
+      type: Function,
+      required: true,
+    },
   },
-  data(): DataType {
-    return {
-      isNotify: false,
-    }
-  },
-  mounted() {
-    console.log(this.$props.favoriteCallbackRegister)
-  },
+  mounted() {},
   methods: {
     // 送信ボタン
     async clickSubmit(text: string, isQuestion: boolean) {
@@ -99,16 +96,6 @@ export default Vue.extend({
         this.chatData.topic.id
       )
       if (element) {
-        // 下までスクロールされていなければ通知を出す
-        // if (this.isScrollBottom(element)) {
-        //   element.scrollTo({
-        //     top: element.scrollHeight,
-        //     left: 0,
-        //     behavior: 'smooth',
-        //   })
-        // } else {
-        //   this.isNotify = true
-        // }
         element.scrollTo({
           top: element.scrollHeight,
           left: 0,
@@ -131,14 +118,9 @@ export default Vue.extend({
           left: 0,
           behavior: 'smooth',
         })
-        this.isNotify = false
       }
-    },
-    // いちばん下までスクロールしてあるか
-    isScrollBottom(element: HTMLElement): Boolean {
-      return (
-        element.scrollHeight < element.scrollTop + element.offsetHeight + 200
-      )
+      // 通知を既読
+      this.readNotify()
     },
   },
 })

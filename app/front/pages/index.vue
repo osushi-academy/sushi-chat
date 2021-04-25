@@ -55,6 +55,8 @@
         :chat-data="chatData"
         :favorite-callback-register="favoriteCallbackRegister"
         :my-icon="iconChecked"
+        :is-notify="isNotify"
+        :read-notify="readNotify"
         @send-message="sendMessage"
         @send-reaction="sendReaction"
         @send-stamp="sendFavorite"
@@ -152,6 +154,20 @@ export default Vue.extend({
     socket.on('PUB_CHAT_ITEM', (res: any) => {
       if (!this.messages.find((message) => message.id === res.content.id)) {
         this.messages.push(res.content)
+        const e = document.getElementById(res.content.topicId)
+        if (e) {
+          if (this.isScrollBottom(e)) {
+            // 下までスクロールされている→自動スクロール
+            e.scrollTo({
+              top: e.scrollHeight,
+              left: 0,
+              behavior: 'smooth',
+            })
+          } else {
+            // 下までスクロールされていない→通知を出す
+            this.isNotify = true
+          }
+        }
       }
     })
   },
@@ -269,6 +285,16 @@ export default Vue.extend({
     // アイコン選択
     clickIcon(index: number) {
       this.iconChecked = index
+    },
+    // いちばん下までスクロールしてあるか
+    isScrollBottom(element: HTMLElement): Boolean {
+      return (
+        element.scrollHeight < element.scrollTop + element.offsetHeight + 400
+      )
+    },
+    // 最新のコメントを読んだ
+    readNotify() {
+      this.isNotify = false
     },
   },
 })
