@@ -48,7 +48,13 @@
         </div>
       </div>
     </modal>
-    <modal v-if="!isAdmin" name="sushi-modal" :click-to-close="false">
+    <modal
+      v-if="!isAdmin"
+      name="sushi-modal"
+      :adaptive="true"
+      height="auto"
+      :click-to-close="false"
+    >
       <div class="modal-header">
         <h2>アイコンを選んでね</h2>
       </div>
@@ -91,7 +97,6 @@
           topics.findIndex(({ id }) => id === chatData.topic.id) <
           topics.findIndex(({ id }) => id === activeTopicId)
         "
-        :is-admin="isAdmin"
         @send-message="sendMessage"
         @send-reaction="sendReaction"
         @send-stamp="sendFavorite"

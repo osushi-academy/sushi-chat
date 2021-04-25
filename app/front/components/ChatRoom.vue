@@ -9,11 +9,19 @@
     />
     <div class="chat-area">
       <div class="text-zone">
-        <div :id="chatData.topic.id" class="scrollable">
-          <div v-for="message in chatData.message" :key="message.id">
+        <transition-group
+          :id="chatData.topic.id"
+          class="scrollable list-complete"
+          tag="div"
+        >
+          <div
+            v-for="message in chatData.message"
+            :key="message.id"
+            class="list-complete-item"
+          >
             <MessageComponent :message="message" @good="clickGood" />
           </div>
-        </div>
+        </transition-group>
       </div>
       <div class="stamp-zone">
         <FavoriteButton
@@ -98,10 +106,6 @@ export default Vue.extend({
       required: true,
     },
     isFinishedTopic: {
-      type: Boolean,
-      required: true,
-    },
-    isAdmin: {
       type: Boolean,
       required: true,
     },
