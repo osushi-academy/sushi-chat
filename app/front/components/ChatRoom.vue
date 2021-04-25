@@ -3,6 +3,7 @@
     <TopicHeader
       :title="topicIndex + 1 + '. ' + chatData.topic.title"
       :is-admin="isAdmin"
+      :is-active-topic="true"
     />
     <div class="chat-area">
       <div class="text-zone">
