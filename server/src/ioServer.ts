@@ -26,6 +26,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   const stockedStamps: Stamp[] = [];
   const chatItems: { [key: string]: ChatItem } = {};
   const startTimes: { [key: string]: Date } = {};
+  const finishedTopics: string[] = [];
   let activeUserCount: number = 0;
   let stampCount: number = 0;
   let activeTopicId: string | null = null;
@@ -137,8 +138,9 @@ const createSocketIOServer = (httpServer: HttpServer) => {
     //アクティブなトピックの変更
     socket.on("CHANGE_ACTIVE_TOPIC", (received: { topicId: string }) => {
       const prevActiveTopicId = activeTopicId
-
-      if (prevActiveTopicId) {
+      
+      if (prevActiveTopicId && finishedTopics.includes(prevActiveTopicId) != null) {
+        finishedTopics.push(prevActiveTopicId)
         // 終了メッセージを配信
         const messageId = uuid()
         const message: ChatItem = {
@@ -166,27 +168,29 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         })
       }
 
-      activeTopicId = received.topicId
-      io.sockets.emit("PUB_CHANGE_ACTIVE_TOPIC", {
-        topicId: received.topicId
-      })
-      const messageId = uuid()
-      const message: ChatItem = {
-        id: messageId,
-        topicId: received.topicId,
-        type: "message",
-        iconId: "0",
-        timestamp: 0,
-        content: '【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n',
-        isQuestion: false,
-      }
-      io.sockets.emit("PUB_CHAT_ITEM", {
-        type: "confirm-to-send",
-        content: message
-      })
-      chatItems[messageId] = message;
+      if (finishedTopics.includes(received.topicId) != null) {
+        activeTopicId = received.topicId
+        io.sockets.emit("PUB_CHANGE_ACTIVE_TOPIC", {
+          topicId: received.topicId
+        })
+        const messageId = uuid()
+        const message: ChatItem = {
+          id: messageId,
+          topicId: received.topicId,
+          type: "message",
+          iconId: "0",
+          timestamp: 0,
+          content: '【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n',
+          isQuestion: false,
+        }
+        io.sockets.emit("PUB_CHAT_ITEM", {
+          type: "confirm-to-send",
+          content: message
+        })
+        chatItems[messageId] = message;
 
-      startTimes[activeTopicId] = new Date();
+        startTimes[activeTopicId] = new Date();
+      }
     });
 
     //接続解除時に行う処理

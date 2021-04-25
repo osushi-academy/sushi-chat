@@ -186,6 +186,8 @@ export default Vue.extend({
   mounted(): any {
     if (this.$route.query.user === 'admin') {
       this.isAdmin = true
+    } else {
+      this.isAdmin = false
     }
 
     const socket = io(process.env.apiBaseUrl as string)
@@ -213,16 +215,7 @@ export default Vue.extend({
     })
 
     socket.on('PUB_FINISH_TOPIC', (res: any) => {
-      const messageAdmin: Message = {
-        id: `${getUUID()}`,
-        topicId: res.topicId,
-        type: 'message',
-        iconId: '0',
-        timestamp: 0,
-        content: '【運営Bot】\n 以下、質問一覧です！',
-        isQuestion: false,
-      }
-      this.messages.push(messageAdmin)
+      let content: string = ''
       for (const i in this.messages) {
         // 閉じたトピックのmessageについて
         if (
@@ -231,20 +224,21 @@ export default Vue.extend({
         ) {
           // @ts-ignore
           if (this.messages[i].isQuestion) {
-            const m: Message = {
-              id: `${getUUID()}`,
-              topicId: res.topicId,
-              type: 'message',
-              iconId: '0',
-              timestamp: 0,
-              // @ts-ignore
-              content: this.messages[i].content,
-              isQuestion: true,
-            }
-            this.messages.push(m)
+            // @ts-ignore
+            content += '\n・' + this.messages[i].content
           }
         }
       }
+      const messageAdmin: Message = {
+        id: `${getUUID()}`,
+        topicId: res.topicId,
+        type: 'message',
+        iconId: '0',
+        timestamp: 0,
+        content: '【運営Bot】\n 以下、質問一覧です！' + content,
+        isQuestion: false,
+      }
+      this.messages.push(messageAdmin)
     })
   },
   methods: {
