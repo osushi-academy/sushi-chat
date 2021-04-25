@@ -48,7 +48,13 @@
         </div>
       </div>
     </modal>
-    <modal v-if="!isAdmin" name="sushi-modal" :click-to-close="false">
+    <modal
+      v-if="!isAdmin"
+      name="sushi-modal"
+      :adaptive="true"
+      height="auto"
+      :click-to-close="false"
+    >
       <div class="modal-header">
         <h2>アイコンを選んでね</h2>
       </div>
@@ -144,7 +150,7 @@ export default Vue.extend({
       messages: [],
       activeUserCount: 0,
       isNotify: false,
-      isAdmin: true,
+      isAdmin: false,
       icons: [
         { url: require('@/assets/img/sushi_akami.png') },
         { url: require('@/assets/img/sushi_ebi.png') },
