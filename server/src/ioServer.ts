@@ -11,6 +11,7 @@ import { Stamp, stampIntervalSender } from "./stamp";
 import { Server } from "socket.io";
 import { EnterRoomReceive, BuildRoomReceive } from "./room";
 import { Server as HttpServer } from "http";
+import { v4 as uuid } from 'uuid'
 
 const createSocketIOServer = (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
@@ -103,7 +104,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
               target: {
                 id: received.reactionToId,
                 content:
-                  chatItems[received.reactionToId].type === "message"
+                  chatItems[received.reactionToId]?.type === "message"
                     ? (chatItems[received.reactionToId] as Message).content
                     : "",
               },
@@ -122,6 +123,28 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         userId: socket.id,
         topicId: received.topicId,
       });
+    });
+
+    //アクティブなトピックの変更
+    socket.on("CHANGE_ACTIVE_TOPIC", (received: { topicId: string }) => {
+      io.sockets.emit("PUB_CHANGE_ACTIVE_TOPIC", {
+        topicId: received.topicId
+      })
+      const messageId = uuid()
+      const message: ChatItem = {
+        id: messageId,
+        topicId: received.topicId,
+        type: "message",
+        iconId: "0",
+        timestamp: 0,
+        content: '【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n',
+        isQuestion: false,
+      }
+      io.sockets.emit("PUB_CHAT_ITEM", {
+        type: "confirm-to-send",
+        content: message
+      })
+      chatItems[messageId] = message;
     });
 
     //接続解除時に行う処理

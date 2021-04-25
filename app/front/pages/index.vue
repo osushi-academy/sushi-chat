@@ -92,9 +92,15 @@
         :chat-data="chatData"
         :favorite-callback-register="favoriteCallbackRegister"
         :my-icon="iconChecked"
+        :is-active-topic="activeTopicId == chatData.topic.id"
+        :is-finished-topic="
+          topics.findIndex(({ id }) => id === chatData.topic.id) <
+          topics.findIndex(({ id }) => id === activeTopicId)
+        "
         @send-message="sendMessage"
         @send-reaction="sendReaction"
         @send-stamp="sendFavorite"
+        @topic-activate="changeActiveTopic"
       />
     </div>
   </div>
@@ -130,6 +136,7 @@ type DataType = {
   isAdmin: boolean
   icons: any
   iconChecked: number
+  activeTopicId: string | null
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -165,6 +172,7 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_syari.png') },
       ],
       iconChecked: -1,
+      activeTopicId: null,
     }
   },
   computed: {
@@ -196,11 +204,17 @@ export default Vue.extend({
 
     // FIXME: サーバからデータが送られてこないので暫定的に対応 (yuta-ike)
     this.topics.push({ id: '0', title: 'タイトル', description: '説明' })
+    this.topics.push({ id: '1', title: 'タイトル1', description: '説明' })
+    this.topics.push({ id: '2', title: 'タイトル2', description: '説明' })
 
     socket.on('PUB_CHAT_ITEM', (res: any) => {
       if (!this.messages.find((message) => message.id === res.content.id)) {
         this.messages.push(res.content)
       }
+    })
+
+    socket.on('PUB_CHANGE_ACTIVE_TOPIC', (res: any) => {
+      this.activeTopicId = `${res.topicId}`
     })
   },
   methods: {
@@ -274,6 +288,11 @@ export default Vue.extend({
           callback(stampsAboutTopicId.length)
         }
       })
+    },
+    changeActiveTopic(topicId: string) {
+      console.log(topicId)
+      const socket = (this as any).socket
+      socket.emit('CHANGE_ACTIVE_TOPIC', { topicId })
     },
     // modalを消し、topic作成
     hide(): any {

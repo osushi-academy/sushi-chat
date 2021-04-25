@@ -119,7 +119,12 @@ $gray: rgb(228, 228, 228);
 }
 
 .active-topic {
-  background: rgb(250, 250, 178);
+  background: rgb(240, 240, 172);
+}
+
+.finished-topic {
+  background: rgb(238, 238, 238);
+  color: rgb(158, 158, 158);
 }
 
 .topic-header {
@@ -240,10 +245,16 @@ $gray: rgb(228, 228, 228);
     border-radius: 999px;
     border: 2px solid rgb(56, 137, 230);
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    border: none;
+    border: 1px solid rgb(212, 212, 212);
     display: grid;
     align-items: center;
     z-index: 30;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgb(250, 250, 250);
+      transform: translateX(-50%) scale(1.05);
+    }
   }
 }
 
@@ -296,6 +307,10 @@ $gray: rgb(228, 228, 228);
       border-radius: 10px;
       display: grid;
       align-items: center;
+
+      &:disabled {
+        color: rgb(172, 172, 172);
+      }
 
       & > .question-badge {
         position: absolute;

@@ -1,8 +1,19 @@
 <template>
-  <div class="topic-header" :class="topicBackgroundColor(isActiveTopic)">
+  <div
+    class="topic-header"
+    :class="{
+      'finished-topic': isFinishedTopic,
+      'active-topic': isActiveTopic,
+    }"
+  >
     <div class="main-line">
       <h1 class="title">{{ title }}</h1>
-      <button v-if="isAdmin" class="next-button" role="navigation">
+      <button
+        v-show="isAdmin"
+        class="next-button"
+        role="navigation"
+        @click="clickTopicActivate"
+      >
         <span class="material-icons"> arrow_forward </span>
       </button>
     </div>
@@ -27,14 +38,14 @@ export default Vue.extend({
       type: Boolean,
       required: true,
     },
+    isFinishedTopic: {
+      type: Boolean,
+      required: true,
+    },
   },
   methods: {
-    topicBackgroundColor(flag: Boolean): String {
-      if (flag) {
-        return 'active-topic'
-      } else {
-        return ''
-      }
+    clickTopicActivate() {
+      this.$emit('topic-activate')
     },
   },
 })

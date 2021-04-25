@@ -3,12 +3,18 @@
     <div class="main-line">
       <textarea
         v-model="text"
+        :disabled="disabled"
         class="textarea"
         contenteditable
-        placeholder="ここにコメントを入力して盛り上げよう!!"
+        :placeholder="placeholder"
         @keydown.enter.meta.exact="sendMessage"
       />
-      <button type="submit" class="submit-button" @click="sendMessage">
+      <button
+        type="submit"
+        class="submit-button"
+        :disabled="disabled"
+        @click="sendMessage"
+      >
         <span class="material-icons"> send </span>
         <div v-show="isQuestion" class="question-badge">Q</div>
       </button>
@@ -43,12 +49,23 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
+    disabled: {
+      type: Boolean,
+      required: true,
+    },
   },
   data(): DataType {
     return {
       isQuestion: false,
       text: '',
     }
+  },
+  computed: {
+    placeholder(): string {
+      return this.$props.disabled
+        ? '※ まだコメントはオープンしていません'
+        : 'ここにコメントを入力して盛り上げよう 🎉🎉'
+    },
   },
   methods: {
     sendMessage() {
