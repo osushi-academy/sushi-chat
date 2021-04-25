@@ -67,6 +67,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         chatItems: sortedChatItem,
         topics: Object.values(topics),
         activeUserCount,
+        activeTopicId,
       });
     });
 

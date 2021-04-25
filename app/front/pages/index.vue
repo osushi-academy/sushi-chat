@@ -338,6 +338,7 @@ export default Vue.extend({
         (res: any) => {
           this.topics = res.topics
           this.messages = res.chatItems ?? []
+          this.activeTopicId = res.activeTopicId
         }
       )
       setSelectedIcon(iconId)
