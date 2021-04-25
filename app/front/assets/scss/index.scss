@@ -454,6 +454,13 @@ $gray: rgb(228, 228, 228);
         bottom: 0;
         right: 0;
       }
+      & > .admin-badge {
+        font-size: 10px;
+        font-weight: bold;
+        text-align: center;
+        color: gray;
+        padding-top: 3px;
+      }
     }
 
     &.reaction {
