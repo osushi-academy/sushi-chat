@@ -36,7 +36,7 @@ export default {
       {
         hid: 'og:description',
         property: 'og:description',
-        content: 'プレゼンテーションをもっとおいしく。',
+        content: 'プレゼンテーションはもっとおいしくなる。',
       },
       {
         hid: 'og:site_name',
