@@ -17,7 +17,7 @@
             <input
               v-model="topicsAdmin[index].title"
               name="titleArea"
-              class="textarea"
+              class="secondary-textarea"
               contenteditable
               placeholder="トピック名"
             />
@@ -271,6 +271,8 @@ export default Vue.extend({
           this.topics.push(this.topicsAdmin[t])
         }
       }
+      // TODO: サーバに反映
+
       // ルーム開始
       this.$modal.hide('sushi-modal')
     },

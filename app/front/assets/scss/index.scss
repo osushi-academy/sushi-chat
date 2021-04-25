@@ -436,6 +436,7 @@ $gray: rgb(228, 228, 228);
 $modal-header-height: 48px;
 .modal-body {
   padding: 5px 25px;
+  text-align: center;
 
   &.modal-scrollable {
     position: relative;
@@ -450,16 +451,23 @@ $modal-header-height: 48px;
     display: inline;
   }
 
+  & .secondary-textarea {
+    padding: 5px;
+    margin: 5px;
+  }
+
   .topic-remove {
-    border: 1.25px solid rgb(238, 58, 58);
+    border: 2px solid rgb(238, 58, 58);
   }
 
-  & > .topic-add {
-    border: 1.25px solid rgb(101, 247, 108);
+  .topic-add {
+    border: 2px solid rgb(101, 247, 108);
+    margin: 10px;
   }
 
-  & > .topic-start {
-    border: 1.25px solid rgb(238, 58, 58);
+  .topic-start {
+    border: 2px solid;
+    margin: 10px;
   }
 }
 .modal-header {
@@ -477,7 +485,7 @@ $modal-header-height: 48px;
 .primary-button {
   background: white;
   padding: 12px 20px;
-  border: 1.25px solid #444;
+  border: 2px solid #444;
   color: #333;
   border-radius: 4px;
   box-shadow: rgba(162, 162, 172, 0.2) 0px 2px 4px 0px;
