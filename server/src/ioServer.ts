@@ -11,6 +11,7 @@ import { Stamp, stampIntervalSender } from "./stamp";
 import { Server } from "socket.io";
 import { EnterRoomReceive, BuildRoomReceive } from "./room";
 import { Server as HttpServer } from "http";
+import { v4 as uuid } from 'uuid'
 
 const createSocketIOServer = (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
@@ -103,7 +104,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
               target: {
                 id: received.reactionToId,
                 content:
-                  chatItems[received.reactionToId].type === "message"
+                  chatItems[received.reactionToId]?.type === "message"
                     ? (chatItems[received.reactionToId] as Message).content
                     : "",
               },
@@ -124,11 +125,22 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       });
     });
 
-    //stampで送られてきたときの処理
+    //アクティブなトピックの変更
     socket.on("CHANGE_ACTIVE_TOPIC", (received: { topicId: string }) => {
-      console.log(received.topicId)
       io.sockets.emit("PUB_CHANGE_ACTIVE_TOPIC", {
         topicId: received.topicId
+      })
+      io.sockets.emit("PUB_CHAT_ITEM", {
+        type: "confirm-to-send",
+        content: {
+          id: uuid(),
+          topicId: received.topicId,
+          type: "message",
+          iconId: "0",
+          timestamp: 0,
+          content: '【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n',
+          isQuestion: false,
+        }
       })
     });
 
