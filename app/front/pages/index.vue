@@ -16,10 +16,12 @@
             <h3 class="modal-index">{{ index + 1 }}</h3>
             <input
               v-model="topicsAdmin[index].title"
+              :tabindex="index"
               name="titleArea"
-              class="secondary-textarea"
+              class="secondary-textarea text-input"
               contenteditable
               placeholder="トピック名"
+              @keydown.enter.exact="clickAddTopic"
             />
             <button
               type="button"
@@ -265,13 +267,13 @@ export default Vue.extend({
     },
     // topic反映
     startChat() {
-      // 仮topicから空でないものをtopicに
+      // 仮topicから空でないものをtopicsに
       for (const t in this.topicsAdmin) {
         if (this.topicsAdmin[t].title) {
           this.topics.push(this.topicsAdmin[t])
         }
       }
-      // TODO: サーバに反映
+      // TODO: this.topicsをサーバに反映
 
       // ルーム開始
       this.$modal.hide('sushi-modal')
@@ -279,6 +281,12 @@ export default Vue.extend({
     // アイコン選択
     clickIcon(index: number) {
       this.iconChecked = index
+    },
+    // エンターキーでaddTopic呼び出し
+    clickAddTopic(e: any) {
+      // 日本語入力中のeventnterキー操作は無効にする
+      if (e.keyCode !== 13) return
+      this.addTopic()
     },
   },
 })
