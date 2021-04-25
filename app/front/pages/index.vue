@@ -202,11 +202,6 @@ export default Vue.extend({
     }
     this.$modal.show('sushi-modal')
 
-    // FIXME: サーバからデータが送られてこないので暫定的に対応 (yuta-ike)
-    this.topics.push({ id: '0', title: 'タイトル', description: '説明' })
-    this.topics.push({ id: '1', title: 'タイトル1', description: '説明' })
-    this.topics.push({ id: '2', title: 'タイトル2', description: '説明' })
-
     socket.on('PUB_CHAT_ITEM', (res: any) => {
       if (!this.messages.find((message) => message.id === res.content.id)) {
         this.messages.push(res.content)
@@ -215,6 +210,11 @@ export default Vue.extend({
 
     socket.on('PUB_CHANGE_ACTIVE_TOPIC', (res: any) => {
       this.activeTopicId = `${res.topicId}`
+    })
+
+    socket.on('PUB_FINISH_TOPIC', (res: any) => {
+      // TODO: 解析など（yuta-ike）
+      console.log(res)
     })
   },
   methods: {
@@ -279,7 +279,6 @@ export default Vue.extend({
     ) {
       const socket = (this as any).socket
       socket.on('PUB_STAMP', (stamps: Stamp[]) => {
-        console.log(stamps)
         const stampsAboutTopicId = stamps.filter(
           // スタンプは自分が押したものも通知されるため省く処理を入れています
           (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id
@@ -290,7 +289,6 @@ export default Vue.extend({
       })
     },
     changeActiveTopic(topicId: string) {
-      console.log(topicId)
       const socket = (this as any).socket
       socket.emit('CHANGE_ACTIVE_TOPIC', { topicId })
     },
@@ -308,8 +306,7 @@ export default Vue.extend({
           iconId,
         },
         (res: any) => {
-          // FIXME: サーバから空のデータが送られてくるので暫定的にコメントアウト(yuta-ike)
-          // this.topics = res.topics
+          this.topics = res.topics
           this.messages = res.chatItems ?? []
         }
       )
@@ -337,7 +334,12 @@ export default Vue.extend({
           this.topics.push(this.topicsAdmin[t])
         }
       }
-      // TODO: this.topicsをサーバに反映
+
+      // this.topicsをサーバに反映
+      const socket = (this as any).socket
+      socket.emit('CREATE_ROOM', {
+        topics: this.topics,
+      })
 
       // ルーム開始
       this.$modal.hide('sushi-modal')

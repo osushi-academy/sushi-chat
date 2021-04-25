@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 export type Stamp = {
   userId: string;
   topicId: string;
+  timestamp: number;
 };
 
 export function stampIntervalSender(io: Server, stamps: Stamp[]) {
