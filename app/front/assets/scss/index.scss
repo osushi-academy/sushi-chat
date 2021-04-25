@@ -340,6 +340,13 @@ $gray: rgb(228, 228, 228);
       border-color: rgb(89, 179, 243);
     }
 
+    &.admin {
+      background: rgb(235, 235, 235);
+      border: none;
+      box-shadow: none;
+      pointer-events: none;
+    }    
+
     & > .bg-good-icon {
       position: absolute;
       bottom: 0;
@@ -378,6 +385,8 @@ $gray: rgb(228, 228, 228);
     &.question:hover {
       background: rgb(206, 234, 255);
     }
+
+
 
     & > .icon-wrapper {
       flex-shrink: 0;

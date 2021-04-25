@@ -1,7 +1,9 @@
 <template>
   <div class="chatitem-wrapper">
     <article
-      v-if="message.type == 'message' && !message.isQuestion"
+      v-if="
+        message.type == 'message' && !message.isQuestion && message.iconId > 0
+      "
       class="comment"
       @click="clickGood"
     >
@@ -14,6 +16,20 @@
       </div>
     </article>
 
+    <!--Admin Message-->
+    <article
+      v-if="
+        message.type == 'message' && !message.isQuestion && message.iconId == 0
+      "
+      class="comment admin"
+    >
+      <div class="icon-wrapper">
+        <img :src="icon" alt="" />
+      </div>
+      <div class="baloon">{{ message.content }}</div>
+    </article>
+
+    <!--Question Message-->
     <article
       v-if="message.type == 'message' && message.isQuestion"
       class="comment question"
