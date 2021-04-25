@@ -2,7 +2,7 @@
   <div class="topic-header" :class="topicBackgroundColor(isActiveTopic)">
     <div class="main-line">
       <h1 class="title">{{ title }}</h1>
-      <button class="next-button" role="navigation">
+      <button v-if="isAdmin" class="next-button" role="navigation">
         <span class="material-icons"> arrow_forward </span>
       </button>
     </div>
@@ -17,6 +17,11 @@ export default Vue.extend({
     title: {
       type: String,
       required: true,
+    },
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     isActiveTopic: {
       type: Boolean,

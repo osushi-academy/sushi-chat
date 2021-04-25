@@ -21,7 +21,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import * as Model from '@/models/contents'
+import { TopicPropType } from '@/models/contents'
 import KeyInstruction from '@/components/KeyInstruction.vue'
 
 // Data型
@@ -38,7 +38,7 @@ export default Vue.extend({
     topic: {
       type: Object,
       required: true,
-    } as PropOptions<Model.TopicPropType>,
+    } as PropOptions<TopicPropType>,
     myIcon: {
       type: Number,
       required: true,

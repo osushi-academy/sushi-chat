@@ -1,7 +1,8 @@
 <template>
   <article class="topic-block">
     <TopicHeader
-      :title="Number(chatData.topic.id) + 1 + '. ' + chatData.topic.title"
+      :title="topicIndex + 1 + '. ' + chatData.topic.title"
+      :is-admin="isAdmin"
       :is-active-topic="true"
     />
     <div class="chat-area">
@@ -66,6 +67,16 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<ChatDataPropType>,
+    topicIndex: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
+    isAdmin: {
+      type: Boolean,
+      required: true,
+      default: false,
+    },
     favoriteCallbackRegister: {
       type: Function,
       required: true,
