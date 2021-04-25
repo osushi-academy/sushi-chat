@@ -172,7 +172,8 @@ export default Vue.extend({
   mounted(): any {
     if (this.$route.query.user === 'admin') {
       this.isAdmin = true
-  
+    }
+
     const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
 
@@ -272,7 +273,6 @@ export default Vue.extend({
     },
     // modalを消し、topic作成
     hide(): any {
-      
       this.topics.push()
       this.$modal.hide('sushi-modal')
       this.enterRoom(this.iconChecked + 1)
