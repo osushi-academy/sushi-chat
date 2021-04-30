@@ -7,7 +7,7 @@
         class="textarea"
         contenteditable
         :placeholder="placeholder"
-        @keydown.enter.meta.exact="sendMessage"
+        @keydown.enter="enterSendMessage"
       />
       <button
         type="submit"
@@ -91,6 +91,9 @@ export default Vue.extend({
     // 質問フラグを立てる
     setQuestion() {
       this.isQuestion = !this.isQuestion
+    },
+    enterSendMessage(e: any) {
+      if (e.ctrlKey || e.metaKey) this.sendMessage()
     },
   },
 })
