@@ -18,7 +18,9 @@ docker-compose.yml があるパスで`$ docker-compose up`
 #### リモート
 
 /serverで
+
 `npm install`で必要なもの入れる
+
 `npm run dev`して適当なところにアクセス
 
 #### heroku
