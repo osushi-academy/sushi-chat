@@ -1,11 +1,14 @@
 import express from "express";
 import { createServer } from "http";
-import createSocketIOServer from './ioServer'
+import { clientCheck } from "./database";
+import createSocketIOServer from "./ioServer";
 
-const app = express()
-const httpServer = createServer(app)
+const app = express();
+const httpServer = createServer(app);
 
-createSocketIOServer(httpServer)
+createSocketIOServer(httpServer);
+
+clientCheck();
 
 const PORT = process.env.PORT || 7000;
 // サーバーをたてる
