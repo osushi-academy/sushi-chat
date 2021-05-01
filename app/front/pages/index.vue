@@ -368,6 +368,10 @@ export default Vue.extend({
           title: topicTitle,
           description: '',
         }
+        // すでに反映されてるトピックが１つかつそれが空白なら削除
+        if (this.topicsAdmin.length === 1 && this.topicsAdmin[0].title === '') {
+          this.topicsAdmin.pop()
+        }
         this.topicsAdmin.push(t)
       }
       this.inputText = ''
