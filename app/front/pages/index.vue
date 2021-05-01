@@ -8,11 +8,14 @@
       :click-to-close="false"
     >
       <div class="modal-header">
-        <h2>トピック作成</h2>
+        <h2>ルーム作成</h2>
       </div>
       <div class="modal-body modal-scrollable">
+        <h3>ルーム名</h3>
+        <input v-model="roomName" />
+        <h3>トピック名</h3>
         <div>
-          <div v-for="(topic, index) in topicsAdmin" :key="index">
+          <div v-for="(topic, index) in topicsAdmin" :key="topic.id">
             <h3 class="modal-index">{{ index + 1 }}</h3>
             <input
               v-model="topicsAdmin[index].title"
@@ -31,6 +34,7 @@
               削除
             </button>
           </div>
+          <textarea v-model="inputText"></textarea>
           <button
             type="button"
             class="secondary-button topic-add"
@@ -119,6 +123,7 @@ import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
 import { getSelectedIcon, setSelectedIcon } from '@/utils/reserveSelectIcon'
+import TextArea from '../components/TextArea.vue'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -137,15 +142,20 @@ type DataType = {
   icons: any
   iconChecked: number
   activeTopicId: string | null
+  roomName: string
+  inputText: string
 }
 Vue.use(VModal)
 export default Vue.extend({
   name: 'Index',
   components: {
     ChatRoom,
+    TextArea,
   },
   data(): DataType {
     return {
+      roomName: '',
+      inputText: '',
       topics: [],
       topicsAdmin: [
         {
@@ -349,13 +359,20 @@ export default Vue.extend({
     },
     // topic追加
     addTopic() {
-      // 新規仮topic
-      const t: Topic = {
-        id: `${getUUID()}`,
-        title: '',
-        description: '',
+      // textareaに入力された文字を改行で区切ってtopic追加
+      console.log(this.inputText)
+      const titles = this.inputText.split('¥n')
+      console.log(titles)
+      for (const topicTitle of titles) {
+        if (topicTitle === '') continue
+        const t: Topic = {
+          id: `${getUUID()}`,
+          title: topicTitle,
+          description: '',
+        }
+        this.topicsAdmin.push(t)
       }
-      this.topicsAdmin.push(t)
+      this.inputText = ''
     },
     // topic反映
     startChat() {
