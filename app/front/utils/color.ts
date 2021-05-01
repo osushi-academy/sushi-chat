@@ -9,7 +9,7 @@ export type HSLColor = {
 //   return { h: h < 50 ? h : 100 - h, s: 80, l: 60 }
 // }
 
-export const getRandomColor = (colorSequence: number): HSLColor => {
-  const h = (colorSequence * 8) % 360
+export const getRandomColor = (): HSLColor => {
+  const h = Math.random() * 360
   return { h, s: 80, l: 60 }
 }
