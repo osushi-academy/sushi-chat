@@ -9,6 +9,7 @@
     >
       <div class="modal-header">
         <h2>ルーム作成</h2>
+        {{ topicSet }}
       </div>
       <div class="modal-body modal-scrollable">
         <h3>ルーム名</h3>
@@ -144,6 +145,7 @@ type DataType = {
   activeTopicId: string | null
   roomName: string
   inputText: string
+  topicSet: Set<string>
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -157,13 +159,15 @@ export default Vue.extend({
       roomName: '',
       inputText: '',
       topics: [],
-      topicsAdmin: [
+      topicSet: new Set<string>(),
+      /*      topicsAdmin: [
         {
           id: `${getUUID()}`,
           title: '',
           description: '',
         },
-      ],
+      ], */
+      topicsAdmin: [],
       messages: [],
       activeUserCount: 0,
       isNotify: false,
@@ -355,6 +359,7 @@ export default Vue.extend({
     },
     // 該当するtopicを削除
     removeTopic(index: number) {
+      this.topicSet.delete(this.topicsAdmin[index].title)
       this.topicsAdmin.splice(index, 1)
     },
     // topic追加
@@ -362,17 +367,18 @@ export default Vue.extend({
       // textareaに入力された文字を改行で区切ってtopic追加
       const titles = this.inputText.split('\n')
       for (const topicTitle of titles) {
+        // 空白はカウントしない
         if (topicTitle === '') continue
+        // 重複してるトピックはカウントしない
+        if (this.topicSet.has(topicTitle)) continue
+
         const t: Topic = {
           id: `${getUUID()}`,
           title: topicTitle,
           description: '',
         }
-        // すでに反映されてるトピックが１つかつそれが空白なら削除
-        if (this.topicsAdmin.length === 1 && this.topicsAdmin[0].title === '') {
-          this.topicsAdmin.pop()
-        }
         this.topicsAdmin.push(t)
+        this.topicSet.add(topicTitle)
       }
       this.inputText = ''
     },
