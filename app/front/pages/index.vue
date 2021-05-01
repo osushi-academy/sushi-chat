@@ -378,11 +378,28 @@ export default Vue.extend({
     },
     // topic反映
     startChat() {
+      let alertmessage: string = ''
+      // ルーム名絶対入れないとだめ
+      if (this.roomName === '') {
+        alertmessage = 'ルーム名を入力してください\n'
+      }
+
       // 仮topicから空でないものをtopicsに
       for (const t in this.topicsAdmin) {
         if (this.topicsAdmin[t].title) {
           this.topics.push(this.topicsAdmin[t])
         }
+      }
+
+      // トピック0はだめ
+      if (this.topics.length === 0) {
+        alertmessage += 'トピック名を入力してください\n'
+      }
+
+      // ルーム名かトピック名が空ならアラート出して終了
+      if (alertmessage !== '') {
+        alert(alertmessage)
+        return
       }
 
       // this.topicsをサーバに反映
