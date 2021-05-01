@@ -360,9 +360,7 @@ export default Vue.extend({
     // topic追加
     addTopic() {
       // textareaに入力された文字を改行で区切ってtopic追加
-      console.log(this.inputText)
-      const titles = this.inputText.split('¥n')
-      console.log(titles)
+      const titles = this.inputText.split('\n')
       for (const topicTitle of titles) {
         if (topicTitle === '') continue
         const t: Topic = {
