@@ -9,7 +9,6 @@
     >
       <div class="modal-header">
         <h2>ルーム作成</h2>
-        {{ topicSet }}
       </div>
       <div class="modal-body modal-scrollable">
         <h3>ルーム名</h3>
@@ -145,7 +144,6 @@ type DataType = {
   activeTopicId: string | null
   roomName: string
   inputText: string
-  topicSet: Set<string>
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -159,14 +157,6 @@ export default Vue.extend({
       roomName: '',
       inputText: '',
       topics: [],
-      topicSet: new Set<string>(),
-      /*      topicsAdmin: [
-        {
-          id: `${getUUID()}`,
-          title: '',
-          description: '',
-        },
-      ], */
       topicsAdmin: [],
       messages: [],
       activeUserCount: 0,
@@ -359,18 +349,22 @@ export default Vue.extend({
     },
     // 該当するtopicを削除
     removeTopic(index: number) {
-      this.topicSet.delete(this.topicsAdmin[index].title)
       this.topicsAdmin.splice(index, 1)
     },
-    // topic追加
+    // textareaに入力された文字を改行で区切ってtopic追加
     addTopic() {
-      // textareaに入力された文字を改行で区切ってtopic追加
+      // 追加済みtopic名リスト作成
+      const set = new Set<string>()
+      for (const topic of this.topicsAdmin) {
+        set.add(topic.title)
+      }
+      // 入力を空白で区切る
       const titles = this.inputText.split('\n')
       for (const topicTitle of titles) {
         // 空白はカウントしない
         if (topicTitle === '') continue
         // 重複してるトピックはカウントしない
-        if (this.topicSet.has(topicTitle)) continue
+        if (set.has(topicTitle)) continue
 
         const t: Topic = {
           id: `${getUUID()}`,
@@ -378,7 +372,7 @@ export default Vue.extend({
           description: '',
         }
         this.topicsAdmin.push(t)
-        this.topicSet.add(topicTitle)
+        set.add(topicTitle)
       }
       this.inputText = ''
     },
