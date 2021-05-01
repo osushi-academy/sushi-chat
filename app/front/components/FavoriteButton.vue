@@ -17,11 +17,11 @@
       <span
         class="heart-button material-icons"
         :class="{
-          'hheart-button-animation': stampAnimationFinished[c.id] === false,
+          'heart-button-animation': stampAnimationFinished[c.id] === false,
         }"
         :style="{
           color: `hsla(${c.color.h}, ${c.color.s}%, ${c.color.l}%, 0.5)`,
-          top: `${c.y + 10}%`,
+          top: `${c.y + 20}%`,
           left: `${c.x + 10}%`,
         }"
       >

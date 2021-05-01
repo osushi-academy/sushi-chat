@@ -11,5 +11,5 @@ export type HSLColor = {
 
 export const getRandomColor = (): HSLColor => {
   const h = Math.random() * 360
-  return { h, s: 80, l: 60 }
+  return { h, s: 60, l: 60 }
 }
