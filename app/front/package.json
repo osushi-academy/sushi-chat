@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.1",
+    "chart.js": "^3.2.0",
     "core-js": "^3.9.1",
     "nuxt": "^2.15.3",
     "nuxt-webfontloader": "^1.1.0",
     "socket.io-client": "^4.0.1",
+    "vue-chartjs": "^3.5.1",
     "vue-js-modal": "^2.0.0-rc.6"
   },
   "devDependencies": {
