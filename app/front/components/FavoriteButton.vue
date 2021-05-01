@@ -108,9 +108,19 @@ export default Vue.extend({
 
       if (key) {
         this.$set(this.stampAnimationFinished, key, false)
+        const index = this.count.findIndex(({ id }) => id == key)
+        this.count.splice(index, 1, {
+          id: this.count[index].id,
+          color: getRandomColor(colorSequence),
+          x: this.count[index].x,
+          y: this.count[index].y,
+          colorSequence,
+        })
         setTimeout(() => {
           this.$set(this.stampAnimationFinished, key, true)
         }, 1800)
+        this.colorSequence = colorSequence
+        this.lastClicked = new Date().getTime()
         return
       }
 

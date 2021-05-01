@@ -4,7 +4,12 @@ export type HSLColor = {
   l: number
 }
 
+// export const getRandomColor = (colorSequence: number): HSLColor => {
+//   const h = (colorSequence * 4) % 100
+//   return { h: h < 50 ? h : 100 - h, s: 80, l: 60 }
+// }
+
 export const getRandomColor = (colorSequence: number): HSLColor => {
-  const h = (colorSequence * 4) % 100
-  return { h: h < 50 ? h : 100 - h, s: 80, l: 60 }
+  const h = (colorSequence * 8) % 360
+  return { h, s: 80, l: 60 }
 }
