@@ -101,7 +101,7 @@ export default Vue.extend({
           ? this.colorSequence + 1
           : 0
 
-      let key = null
+      let key: any = null
       Object.entries(this.stampAnimationFinished).forEach(([k, v]) => {
         if (v) key = k
       })
