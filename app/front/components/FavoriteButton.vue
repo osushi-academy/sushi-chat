@@ -111,7 +111,7 @@ export default Vue.extend({
         const index = this.count.findIndex(({ id }) => id == key)
         this.count.splice(index, 1, {
           id: this.count[index].id,
-          color: getRandomColor(colorSequence),
+          color: getRandomColor(),
           x: this.count[index].x,
           y: this.count[index].y,
           colorSequence,
@@ -129,7 +129,7 @@ export default Vue.extend({
       // 最後の要素に1足した値を配列に加える
       this.count.push({
         id,
-        color: getRandomColor(colorSequence),
+        color: getRandomColor(),
         x: Math.floor(Math.random() * 40),
         y: Math.floor(Math.random() * 0),
         colorSequence,
