@@ -2,7 +2,7 @@
   <div class="container page">
     <header>
       <button @click="clickDrawerMenu">
-        <span class="material-icons"> menu </span>
+        <span class="material-icons"> {{ hamburgerMenu }} </span>
       </button>
     </header>
     <main>
@@ -154,6 +154,7 @@ type DataType = {
   roomName: string
   inputText: string
   isDrawer: boolean
+  hamburger: string
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -188,6 +189,7 @@ export default Vue.extend({
       ],
       iconChecked: -1,
       activeTopicId: null,
+      hamburgerMenu: 'menu',
     }
   },
   computed: {
@@ -434,6 +436,11 @@ export default Vue.extend({
     },
     clickDrawerMenu() {
       this.isDrawer = !this.isDrawer
+      if (this.isDrawer) {
+        this.hamburgerMenu = 'close'
+      } else {
+        this.hamburgerMenu = 'menu'
+      }
     },
   },
 })
