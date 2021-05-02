@@ -154,7 +154,7 @@ type DataType = {
   roomName: string
   inputText: string
   isDrawer: boolean
-  hamburger: string
+  hamburger: boolean
 }
 Vue.use(VModal)
 export default Vue.extend({

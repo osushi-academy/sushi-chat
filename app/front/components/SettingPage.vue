@@ -4,16 +4,19 @@
       <div class="header">
         <p class="room-title">技育CAMPハッカソンvol.114514</p>
         <div class="room-url">
-          <p>
-            htpps://www.sushi-chat.com
-            <button class="material-icons">content_copy</button>
-          </p>
-        </div>
-        <button>次のトピックに遷移</button>
-        <div class="my-icon icon-wrapper">
-          <img src="@/assets/img/sushi_akami.png" alt="" />
+          <input v-model="test" readonly />
+          <button class="material-icons" @click="writeToClipboard">
+            content_copy
+          </button>
         </div>
       </div>
+      <button>
+        <span class="material-icons"> fast_forward </span>次のトピックに遷移
+      </button>
+      <div class="my-icon icon-wrapper">
+        <img src="@/assets/img/sushi_akami.png" alt="" />
+      </div>
+
       <div class="topic-list">
         <ol>
           <li>チームA</li>
@@ -54,3 +57,28 @@
     </div>
   </div>
 </template>
+
+<script lang="ts">
+import Vue from 'vue'
+
+type DataType = {
+  test: string
+}
+
+export default Vue.extend({
+  name: 'SettingPage',
+  props: {},
+  data(): DataType {
+    return {
+      test: 'https://sushi-chat.com',
+    }
+  },
+  methods: {
+    writeToClipboard() {
+      navigator.clipboard.writeText(this.test).catch((e) => {
+        console.error(e)
+      })
+    },
+  },
+})
+</script>
