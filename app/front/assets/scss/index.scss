@@ -1,5 +1,6 @@
 body {
   font-family: 'M PLUS 1p', sans-serif;
+  overflow: hidden; // 縦方向は１画面に収める（スクロールさせない）
 }
 
 button {
@@ -92,20 +93,28 @@ $gray: rgb(228, 228, 228);
 
 .page {
   display: flex;
-  overflow-x: scroll;
+  flex-direction: column;
   white-space: nowrap;
-  flex-wrap: nowrap;
   height: 100vh;
   min-width: 0;
+  
+  header {
+    width: 100vw;
+  }
+  
+  main {
+    display: flex;
+    flex: 1;
+    overflow-x: scroll;
+  }
+
 }
 
 .topic-block {
   white-space: normal;
-  flex-shrink: 0;
-  height: 100vh;
+  height: 100%;
   position: relative;
   border-radius: 5px;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   width: 100vw;
@@ -128,7 +137,6 @@ $gray: rgb(228, 228, 228);
 }
 
 .topic-header {
-  //margin-right: 2rem;
   flex-shrink: 0;
   padding: 1em 0;
 
@@ -166,11 +174,11 @@ $gray: rgb(228, 228, 228);
 }
 
 .chat-area {
-  height: 300px;
-  flex: 1;
+  flex: 1 1 0;
   display: flex;
   border-top: 2px solid $gray;
   position: relative;
+  overflow-y: scroll;
 
   & > .text-zone {
     flex: 1;
@@ -264,7 +272,8 @@ $gray: rgb(228, 228, 228);
 }
 
 .input-area {
-  position: sticky;
+  //position: sticky;
+  height: 150px;
   bottom: 0;
   padding: 0.5em 1em;
   background: white;
