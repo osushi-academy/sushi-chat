@@ -153,7 +153,7 @@ type DataType = {
   activeTopicId: string | null
   roomName: string
   inputText: string
-  isDrawer: false
+  isDrawer: boolean
 }
 Vue.use(VModal)
 export default Vue.extend({
