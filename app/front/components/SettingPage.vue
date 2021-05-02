@@ -1,3 +1,3 @@
 <template>
-  <div><p>管理者画面</p></div>
+  <div class="drawer-menu-wrapper">管理画面だよ</div>
 </template>

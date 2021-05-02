@@ -100,6 +100,12 @@ $gray: rgb(228, 228, 228);
   
   header {
     width: 100vw;
+    button {
+      float: right;
+      border:none;
+      color: rgb(110, 110, 110);
+      background-color: white;
+    }
   }
   
   main {
@@ -667,5 +673,21 @@ $modal-header-height: 48px;
   100% {
     transform: translateY(-300px) scale(1.4);
     opacity: 0;
+  }
+}
+
+/*管理画面*/
+.drawer-menu-wrapper {
+  position:absolute;
+  z-index: 10;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+}
+
+@media screen and (min-width: 551px) {
+  .drawer-menu-wrapper {
+    width: 65%;
   }
 }
