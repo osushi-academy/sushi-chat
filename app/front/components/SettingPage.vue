@@ -2,20 +2,25 @@
   <div class="drawer-menu-wrapper">
     <div class="drawer-menu">
       <div class="header">
-        <p class="room-title">技育CAMPハッカソンvol.114514</p>
-        <div class="room-url">
-          <input v-model="test" readonly />
-          <button class="material-icons" @click="writeToClipboard">
-            content_copy
-          </button>
+        <div class="icon-space">
+          <img class="icon-wrapper" src="@/assets/img/sushi_akami.png" alt="" />
+        </div>
+        <div class="room-info">
+          <div class="room-title">
+            <p>ハッカソンvol.1</p>
+          </div>
+          <div class="room-url">
+            <input v-model="test" readonly />
+            <button class="material-icons" @click="writeToClipboard">
+              content_copy
+            </button>
+          </div>
         </div>
       </div>
-      <button>
+
+      <button class="seni">
         <span class="material-icons"> fast_forward </span>次のトピックに遷移
       </button>
-      <div class="my-icon icon-wrapper">
-        <img src="@/assets/img/sushi_akami.png" alt="" />
-      </div>
 
       <div class="topic-list">
         <ol>
