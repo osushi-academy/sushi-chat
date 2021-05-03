@@ -39,3 +39,14 @@
    ```
    npm run test -- ./src/__test__/chat.ts
    ```
+
+## デプロイ
+
+main に pull-request すれば以下にデプロイされるはず
+
+<https://sushi-chat-server.herokuapp.com>
+
+手動のデプロイは一番上のディレクトリで
+```
+git subtree --prefix server push heroku main
+```
