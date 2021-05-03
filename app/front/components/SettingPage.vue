@@ -18,8 +18,9 @@
         </div>
       </div>
 
-      <button class="seni">
-        <span class="material-icons"> fast_forward </span>次のトピックに遷移
+      <button class="next-topic-button">
+        <span class="material-icons"> fast_forward </span>
+        次のトピックに遷移
       </button>
 
       <div class="topic-list">

@@ -734,12 +734,20 @@ $modal-header-height: 48px;
       }
 
     }
-    .seni{
+    .next-topic-button{
       border: none;
       background-color: #F6666E;
       color:white;
-      margin-top: 15px;
-      margin-bottom: 15px;
+      margin: 15px 0;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 6px;
+      font-size: 150%;
+      .material-icons{
+        font-size: 36px;
+      }
     }
     .topic-list{
       flex: 1 1 0;
