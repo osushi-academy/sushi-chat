@@ -13,7 +13,7 @@ export const getRandomColor = (): HSLColor => {
   const h = Math.random() * 360 * 2 - 360
   return {
     h,
-    s: 50,
+    s: 70,
     l: 65,
   }
 }
