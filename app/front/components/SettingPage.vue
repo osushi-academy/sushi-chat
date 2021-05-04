@@ -7,10 +7,10 @@
         </div>
         <div class="room-info">
           <div class="room-title">
-            <p>ハッカソンvol.1</p>
+            <p>ハッカソンvol.12345678901234567890</p>
           </div>
           <div class="room-url">
-            <input v-model="test" readonly />
+            <span>{{ test }}</span>
             <button class="material-icons" @click="writeToClipboard">
               content_copy
             </button>
@@ -25,39 +25,13 @@
 
       <div class="topic-list">
         <ol>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
-          <li>チームA</li>
-          <li>チームB</li>
-          <li>チームC</li>
+          <li>
+            <span class="topic"
+              ><span>チームA</span>
+              <span class="material-icons">play_arrow</span>
+              <span class="material-icons">stop</span></span
+            >
+          </li>
         </ol>
       </div>
     </div>
@@ -76,7 +50,7 @@ export default Vue.extend({
   props: {},
   data(): DataType {
     return {
-      test: 'https://sushi-chat.com',
+      test: 'https://www.sushi-chat.comcomcomcomcomcomcomcomcomcomcomcom',
     }
   },
   methods: {
