@@ -87,9 +87,9 @@
     </modal>
     <div v-for="(chatData, index) in chatDataList" :key="index">
       <ChatRoom
+        :chat-data="chatData"
         :topic-index="index"
         :is-admin="isAdmin"
-        :chat-data="chatData"
         :favorite-callback-register="favoriteCallbackRegister"
         :my-icon="iconChecked"
         :is-active-topic="activeTopicId == chatData.topic.id"
@@ -129,7 +129,6 @@ type ChatData = {
 // Data型
 type DataType = {
   activeUserCount: number
-  isNotify: boolean
   topics: Topic[]
   topicsAdmin: Topic[]
   messages: ChatItem[]
@@ -156,7 +155,6 @@ export default Vue.extend({
       ],
       messages: [],
       activeUserCount: 0,
-      isNotify: false,
       isAdmin: false,
       icons: [
         { url: require('@/assets/img/sushi_akami.png') },

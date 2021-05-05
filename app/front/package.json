@@ -13,7 +13,8 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.1",
-    "chart.js": "^3.2.0",
+    "@types/chart.js": "^2.9.32",
+    "chart.js": "2",
     "core-js": "^3.9.1",
     "nuxt": "^2.15.3",
     "nuxt-webfontloader": "^1.1.0",
