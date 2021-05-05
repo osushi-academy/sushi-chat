@@ -24,15 +24,30 @@
       </button>
 
       <div class="topic-list">
-        <ol>
-          <li>
-            <span class="topic"
-              ><span>チームA</span>
-              <span class="material-icons">play_arrow</span>
-              <span class="material-icons">stop</span></span
-            >
-          </li>
-        </ol>
+        <div class="topic">
+          <div class="topic-number">1</div>
+          <div class="topic-name">チーム名</div>
+          <div class="buttons">
+            <button><span class="material-icons">play_arrow</span></button>
+            <button><span class="material-icons">stop</span></button>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-number">10</div>
+          <div class="topic-name">チーム名</div>
+          <div class="buttons">
+            <button><span class="material-icons">play_arrow</span></button>
+            <button><span class="material-icons">stop</span></button>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-number">100</div>
+          <div class="topic-name">チーム名</div>
+          <div class="buttons">
+            <button><span class="material-icons">play_arrow</span></button>
+            <button><span class="material-icons">stop</span></button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -50,7 +65,7 @@ export default Vue.extend({
   props: {},
   data(): DataType {
     return {
-      test: 'https://www.sushi-chat.comcomcomcomcomcomcomcomcomcomcomcom',
+      test: 'https://sushi-chat-cyan.vercel.app/hogehogehoge',
     }
   },
   methods: {
