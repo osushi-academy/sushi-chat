@@ -22,11 +22,7 @@
             <MessageComponent :message="message" @good="clickGood" />
           </div>
           <div v-if="isFinishedTopic" :key="1" class="list-complete-item">
-            <ChartLine
-              :chart-data="chartData"
-              :options="chartOption"
-              :styles="chartStyles"
-            />
+            <AnalysisGraph />
           </div>
         </transition-group>
       </div>
@@ -59,8 +55,7 @@ import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
 import FavoriteButton from '@/components/FavoriteButton.vue'
-import { ChartData, ChartOptions } from 'chart.js'
-import ChartLine from '~/components/ChartLine.vue'
+import AnalysisGraph from './AnalysisGraph.vue'
 
 type ChatDataPropType = {
   topic: Topic
@@ -77,9 +72,6 @@ type FavoriteCallbackRegisterPropType = {
 // Data型
 type DataType = {
   isNotify: boolean
-  chartData: ChartData
-  chartOption: ChartOptions
-  chartStyles: any
 }
 
 export default Vue.extend({
@@ -89,7 +81,7 @@ export default Vue.extend({
     MessageComponent,
     TextArea,
     FavoriteButton,
-    ChartLine,
+    AnalysisGraph,
   },
   props: {
     chatData: {
@@ -126,38 +118,6 @@ export default Vue.extend({
   data(): DataType {
     return {
       isNotify: false,
-      chartData: {
-        // 横軸のラベル
-        labels: ['0', '1', '2', '3', '4'],
-        // データのリスト
-        datasets: [
-          {
-            // データのラベル
-            label: 'コメント数',
-            // データの値。labelsと同じサイズ
-            data: [1, 5, 3, 4, 3],
-            backgroundColor: 'rgba(0, 0, 255, 0.3)',
-            hoverRadius: 10,
-          },
-          {
-            label: 'いいね数',
-            data: [10, 50, 30, 40, 30],
-            backgroundColor: 'rgba(255, 0, 0, 0.3)',
-            hoverRadius: 10,
-          },
-        ],
-      },
-      // チャートのオプション
-      chartOption: {
-        // アスペクト比を固定しないように変更
-        maintainAspectRatio: false,
-      },
-
-      // チャートのスタイル: <canvas>のstyle属性として設定
-      chartStyles: {
-        height: 'auto',
-        width: '100%',
-      },
     }
   },
   computed: {

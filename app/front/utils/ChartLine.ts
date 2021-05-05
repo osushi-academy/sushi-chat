@@ -1,4 +1,3 @@
-<script lang="ts">
 import Vue, { PropOptions } from 'vue'
 import { ChartData, ChartOptions } from 'chart.js'
 import { Line } from 'vue-chartjs'
@@ -21,4 +20,3 @@ export default Vue.extend({
     this.renderChart(this.chartData, this.options)
   },
 })
-</script>
