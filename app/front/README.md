@@ -1,20 +1,11 @@
 # front
 
-## Build Setup
+## 起動
 
-```bash
-# install dependencies
-$ yarn install
+1. Docker コンテナ立ち上げ
 
-# serve with hot reload at localhost:3000
-$ yarn dev
+    docker-compose.yml があるパスで`$ docker-compose up`
 
-# build for production and launch server
-$ yarn build
-$ yarn start
-
-# generate static project
-$ yarn generate
-```
-
-For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
+2. ブラウザでアクセス
+   
+   `http://localhost:3000`
