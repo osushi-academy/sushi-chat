@@ -700,7 +700,7 @@ $modal-header-height: 48px;
         min-width: 0;
 
         .room-title{          
-          font-size: 150%;   
+          font-size: 150%;  
         }
         .room-url{
           display: flex;
@@ -738,6 +738,7 @@ $modal-header-height: 48px;
       align-items: center;
       border-radius: 6px;
       font-size: 150%;
+      font-weight: bold;
       .material-icons{
         font-size: 36px;
       }
@@ -752,22 +753,34 @@ $modal-header-height: 48px;
         background-color: #FFF8B4;
         align-items: center;
         border-bottom: 2px solid rgb(192, 192, 192);
+        padding: 6px 0;
 
         &:first-child{
-          border-top: 2px solid rgb(192, 192, 192);;
+          border-top: 2px solid rgb(192, 192, 192);
         }
       }
 
       .topic-number{
-        padding-right: 20px;
         padding-left: 10px;
-        min-width: 3.5em;
-        width: 10%;
+        min-width: 3em;
+        width: 5%;
         font-weight: bold;
       }
 
       .topic-name{
         flex: 1 1 0;
+        
+        .label{
+          font-size: 70%;
+          font-weight: bold;
+          background-color: #F6666E;
+          color: white;
+          padding: 3px 10px;
+          border-radius: 24px;
+          margin-left: 10px;
+          display: inline-block;
+          vertical-align: middle
+        }
       }
 
       .buttons{
@@ -784,7 +797,7 @@ $modal-header-height: 48px;
           border-radius: 100%;
           border: none;
           background-color: rgba(255,0,0,0);
-          color:rgb(110, 110, 110);
+          color: gray;
 
           .material-icons{
             font-size: 250%;

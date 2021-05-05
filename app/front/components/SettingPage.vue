@@ -26,7 +26,11 @@
       <div class="topic-list">
         <div class="topic">
           <div class="topic-number">1</div>
-          <div class="topic-name">チーム名</div>
+          <div class="topic-name">
+            チーム名long long long long long long long<span class="label"
+              >進行中</span
+            >
+          </div>
           <div class="buttons">
             <button><span class="material-icons">play_arrow</span></button>
             <button><span class="material-icons">stop</span></button>
