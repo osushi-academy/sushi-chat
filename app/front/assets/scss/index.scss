@@ -3,6 +3,10 @@ body {
   //overflow: hidden; // 縦方向は１画面に収める（スクロールさせない）
 }
 
+.material-icons {
+  user-select: none;
+}
+
 button {
   cursor: pointer;
 
@@ -223,7 +227,7 @@ $gray: rgb(228, 228, 228);
     margin-bottom: 1em;
     position: relative;
 
-    & > .stamp-submit-button {
+    & .stamp-submit-button {
       border: none;
       width: 3.2rem;
       height: 3.2rem;
@@ -626,51 +630,40 @@ $modal-header-height: 48px;
   }
 }
 
-/* ハートの共通スタイル */
-.heart-button::before,
-.heart-button::after {
-  //.heart-button{
-  content: '';
-  background-size: contain;
-  background-repeat: no-repeat;
-  width: 30px;
-  height: 30px;
+.heart-button-wraper {
+  position: relative;
+  display: grid;
+  justify-content: center;
+}
+
+.heart-button {
   position: absolute;
-  opacity: 1;
+  opacity: 0;
+  user-select: none;
+  pointer-events: none;
+  font-size: 30px;
 }
 
-/* 左上のハートのスタイル */
-.heart-button::before {
-  background-image: url('@/assets/img/heart.svg');
-  top: 0;
-  left: 2px;
-  opacity: 0;
-  animation: heart 1.5s 1 ease-out;
-}
-
-/* 右下のハートのスタイル */
-.heart-button::after {
-  background-image: url('@/assets/img/heart-reverse.svg');
-  bottom: -1px;
-  right: 6px;
-  opacity: 0;
+.heart-button-animation {
   animation: heart 1.5s 0.2s 1 ease-out;
 }
 
 /* ========= アニメーションの設定 ======== */
 @keyframes heart {
   0% {
-    transform: translateY(0) scale(1);
+    transform: translateX(-50%) translateY(0) scale(1);
     opacity: 0;
+    left: 50%;
+    top: 0;
   }
-  25% {
+  20% {
     opacity: 1;
   }
   75% {
     opacity: 1;
   }
   100% {
-    transform: translateY(-300px) scale(1.4);
+    transform: translateY(-300px) scale(1.6);
     opacity: 0;
   }
 }
