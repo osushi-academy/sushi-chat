@@ -10,7 +10,6 @@
         v-if="isAdmin"
         name="sushi-modal"
         :adaptive="true"
-        height="auto"
         :click-to-close="false"
       >
         <div class="modal-header">
@@ -62,7 +61,6 @@
         v-if="!isAdmin"
         name="sushi-modal"
         :adaptive="true"
-        height="auto"
         :click-to-close="false"
       >
         <div class="modal-header">
