@@ -785,15 +785,12 @@ $modal-header-height: 48px;
 
       .buttons{
         display: flex;
-        padding-left: 20px;
         button{
-          margin-right: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
           min-width: 60px;
           min-height: 60px;
-          padding: 0;
           border-radius: 100%;
           border: none;
           background-color: rgba(255,0,0,0);

@@ -45,6 +45,39 @@
           </div>
         </div>
         <div class="topic">
+          <div class="topic-number">10</div>
+          <div class="topic-name">チーム名</div>
+          <div class="buttons">
+            <button><span class="material-icons">play_arrow</span></button>
+            <button><span class="material-icons">stop</span></button>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-number">10</div>
+          <div class="topic-name">チーム名</div>
+          <div class="buttons">
+            <button><span class="material-icons">play_arrow</span></button>
+            <button><span class="material-icons">stop</span></button>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-number">10</div>
+          <div class="topic-name">チーム名</div>
+          <div class="buttons">
+            <button><span class="material-icons">play_arrow</span></button>
+            <button><span class="material-icons">stop</span></button>
+          </div>
+        </div>
+        <div class="topic">
+          <div class="topic-number">10</div>
+          <div class="topic-name">チーム名</div>
+          <div class="buttons">
+            <button><span class="material-icons">play_arrow</span></button>
+            <button><span class="material-icons">stop</span></button>
+          </div>
+        </div>
+
+        <div class="topic">
           <div class="topic-number">100</div>
           <div class="topic-name">チーム名</div>
           <div class="buttons">
