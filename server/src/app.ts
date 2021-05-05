@@ -1,6 +1,6 @@
 import express from "express";
 import { createServer } from "http";
-import { clientCheck } from "./database";
+import { clientCheck } from "./database/database";
 import createSocketIOServer from "./ioServer";
 
 const app = express();
