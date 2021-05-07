@@ -2,10 +2,11 @@
   <article class="topic-block">
     <TopicHeader
       :title="topicIndex + 1 + '. ' + chatData.topic.title"
+      :is-admin="isAdmin"
       :is-active-topic="isActiveTopic"
       :is-finished-topic="isFinishedTopic"
-      :is-admin="isAdmin"
       @topic-activate="clickTopicActivate"
+      @download="clickDownload"
     />
     <div class="chat-area">
       <div class="text-zone">
@@ -56,6 +57,7 @@ import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
 import FavoriteButton from '@/components/FavoriteButton.vue'
 import AnalysisGraph from './AnalysisGraph.vue'
+import exportText from '@/utils/textExports'
 
 type ChatDataPropType = {
   topic: Topic
@@ -93,11 +95,6 @@ export default Vue.extend({
       required: true,
       default: 0,
     },
-    isAdmin: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
     favoriteCallbackRegister: {
       type: Function,
       required: true,
@@ -107,6 +104,10 @@ export default Vue.extend({
       required: true,
     },
     isActiveTopic: {
+      type: Boolean,
+      required: true,
+    },
+    isAdmin: {
       type: Boolean,
       required: true,
     },
@@ -185,6 +186,19 @@ export default Vue.extend({
     },
     clickTopicActivate() {
       this.$emit('topic-activate', this.chatData.topic.id)
+    },
+    clickDownload() {
+      const messages = this.chatData.message
+        .filter(({ type }) => type === 'message')
+        .filter(({ iconId }) => iconId !== '0')
+        .map(
+          (message) =>
+            '🍣: ' + (message as Message).content.replaceAll('\n', '\n') + '\n'
+        )
+      exportText(`${this.chatData.topic.title}_comments`, [
+        this.chatData.topic.title + '\n',
+        ...messages,
+      ])
     },
   },
 })

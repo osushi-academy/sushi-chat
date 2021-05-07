@@ -1,108 +1,118 @@
 <template>
   <div class="container page">
-    <modal
-      v-if="isAdmin"
-      name="sushi-modal"
-      :adaptive="true"
-      height="auto"
-      :click-to-close="false"
-    >
-      <div class="modal-header">
-        <h2>トピック作成</h2>
-      </div>
-      <div class="modal-body modal-scrollable">
-        <div>
-          <div v-for="(topic, index) in topicsAdmin" :key="index">
-            <h3 class="modal-index">{{ index + 1 }}</h3>
-            <input
-              v-model="topicsAdmin[index].title"
-              :tabindex="index"
-              name="titleArea"
-              class="secondary-textarea text-input"
-              contenteditable
-              placeholder="トピック名"
-              @keydown.enter.exact="clickAddTopic"
-            />
+    <header>
+      <button @click="clickDrawerMenu">
+        <span class="material-icons"> {{ hamburgerMenu }} </span>
+      </button>
+    </header>
+    <main>
+      <modal
+        v-if="isAdmin"
+        name="sushi-modal"
+        :adaptive="true"
+        :click-to-close="false"
+      >
+        <div class="modal-header">
+          <h2>ルーム作成</h2>
+        </div>
+        <div class="modal-body modal-scrollable">
+          <h3>ルーム名</h3>
+          <input v-model="roomName" />
+          <h3>トピック名</h3>
+          <div>
+            <div v-for="(topic, index) in topicsAdmin" :key="topic.id">
+              <h3 class="modal-index">{{ index + 1 }}</h3>
+              <input
+                v-model="topicsAdmin[index].title"
+                :tabindex="index"
+                name="titleArea"
+                class="secondary-textarea text-input"
+                contenteditable
+                placeholder="トピック名"
+                @keydown.enter.exact="clickAddTopic"
+              />
+              <button
+                type="button"
+                class="secondary-button topic-remove"
+                @click="removeTopic(index)"
+              >
+                削除
+              </button>
+            </div>
+            <textarea v-model="inputText"></textarea>
             <button
               type="button"
-              class="secondary-button topic-remove"
-              @click="removeTopic(index)"
+              class="secondary-button topic-add"
+              @click="addTopic"
             >
-              削除
+              追加
+            </button>
+            <button
+              type="button"
+              class="secondary-button topic-start"
+              @click="startChat"
+            >
+              はじめる
             </button>
           </div>
-          <button
-            type="button"
-            class="secondary-button topic-add"
-            @click="addTopic"
-          >
-            追加
-          </button>
-          <button
-            type="button"
-            class="secondary-button topic-start"
-            @click="startChat"
-          >
-            はじめる
-          </button>
         </div>
-      </div>
-    </modal>
-    <modal
-      v-if="!isAdmin"
-      name="sushi-modal"
-      :adaptive="true"
-      height="auto"
-      :click-to-close="false"
-    >
-      <div class="modal-header">
-        <h2>アイコンを選んでね</h2>
-      </div>
-      <div class="modal-body">
-        <div class="icon-list">
-          <button
-            v-for="(icon, index) in icons"
-            :key="index"
-            :class="{
-              'icon-selected': iconChecked == index,
-              'icon-shari': index === 10,
-            }"
-            class="icon-box"
-            @click="clickIcon(index)"
-          >
-            <img :src="icon.url" alt="" class="sushi-fit" />
-          </button>
+      </modal>
+      <modal
+        v-if="!isAdmin"
+        name="sushi-modal"
+        :adaptive="true"
+        :click-to-close="false"
+      >
+        <div class="modal-header">
+          <h2>アイコンを選んでね</h2>
         </div>
-        <div class="modal-actions">
-          <button
-            :disabled="iconChecked < 0"
-            type="button"
-            class="primary-button"
-            @click="hide"
-          >
-            はじめる
-          </button>
+        <div class="modal-body">
+          <div class="icon-list">
+            <button
+              v-for="(icon, index) in icons"
+              :key="index"
+              :class="{
+                'icon-selected': iconChecked == index,
+                'icon-shari': index === 10,
+              }"
+              class="icon-box"
+              @click="clickIcon(index)"
+            >
+              <img :src="icon.url" alt="" class="sushi-fit" />
+            </button>
+          </div>
+          <div class="modal-actions">
+            <button
+              :disabled="iconChecked < 0"
+              type="button"
+              class="primary-button"
+              @click="hide"
+            >
+              はじめる
+            </button>
+          </div>
         </div>
+      </modal>
+      <SettingPage v-if="isDrawer" />
+      <div v-for="(chatData, index) in chatDataList" :key="index">
+        <ChatRoom
+          :topic-index="index"
+          :is-admin="isAdmin"
+          :chat-data="chatData"
+          :favorite-callback-register="favoriteCallbackRegister"
+          :my-icon="iconChecked"
+          :is-active-topic="activeTopicId == chatData.topic.id"
+          :is-finished-topic="
+            topics.findIndex(({ id }) => id === chatData.topic.id) <
+            topics.findIndex(({ id }) => id === activeTopicId)
+          "
+          @send-message="sendMessage"
+          @send-reaction="sendReaction"
+          @send-stamp="sendFavorite"
+          @topic-activate="changeActiveTopic"
+        />
       </div>
-    </modal>
-    <div v-for="(chatData, index) in chatDataList" :key="index">
-      <ChatRoom
-        :chat-data="chatData"
-        :topic-index="index"
-        :is-admin="isAdmin"
-        :favorite-callback-register="favoriteCallbackRegister"
-        :my-icon="iconChecked"
-        :is-active-topic="activeTopicId == chatData.topic.id"
-        :is-finished-topic="
-          topics.findIndex(({ id }) => id === chatData.topic.id) <
-          topics.findIndex(({ id }) => id === activeTopicId)
-        "
-        @send-message="sendMessage"
-        @send-reaction="sendReaction"
-        @send-stamp="sendFavorite"
-        @topic-activate="changeActiveTopic"
-      />
-    </div>
+    </main>
   </div>
 </template>
 
@@ -115,6 +125,7 @@ import {
   PostChatItemMessageParams,
   PostChatItemReactionParams,
 } from '@/models/event'
+import SettingPage from '@/components/SettingPage.vue'
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
@@ -136,6 +147,10 @@ type DataType = {
   icons: any
   iconChecked: number
   activeTopicId: string | null
+  roomName: string
+  inputText: string
+  isDrawer: boolean
+  hamburgerMenu: string
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -145,17 +160,14 @@ export default Vue.extend({
   },
   data(): DataType {
     return {
+      roomName: '',
+      inputText: '',
       topics: [],
-      topicsAdmin: [
-        {
-          id: `${getUUID()}`,
-          title: '',
-          description: '',
-        },
-      ],
+      topicsAdmin: [],
       messages: [],
       activeUserCount: 0,
       isAdmin: false,
+      isDrawer: false,
       icons: [
         { url: require('@/assets/img/sushi_akami.png') },
         { url: require('@/assets/img/sushi_ebi.png') },
@@ -171,6 +183,7 @@ export default Vue.extend({
       ],
       iconChecked: -1,
       activeTopicId: null,
+      hamburgerMenu: 'menu',
     }
   },
   computed: {
@@ -345,23 +358,55 @@ export default Vue.extend({
     removeTopic(index: number) {
       this.topicsAdmin.splice(index, 1)
     },
-    // topic追加
+    // textareaに入力された文字を改行で区切ってtopic追加
     addTopic() {
-      // 新規仮topic
-      const t: Topic = {
-        id: `${getUUID()}`,
-        title: '',
-        description: '',
+      // 追加済みtopic名リスト作成
+      const set = new Set<string>()
+      for (const topic of this.topicsAdmin) {
+        set.add(topic.title)
       }
-      this.topicsAdmin.push(t)
+      // 入力を空白で区切る
+      const titles = this.inputText.split('\n')
+      for (const topicTitle of titles) {
+        // 空白はカウントしない
+        if (topicTitle === '') continue
+        // 重複してるトピックはカウントしない
+        if (set.has(topicTitle)) continue
+
+        const t: Topic = {
+          id: `${getUUID()}`,
+          title: topicTitle,
+          description: '',
+        }
+        this.topicsAdmin.push(t)
+        set.add(topicTitle)
+      }
+      this.inputText = ''
     },
     // topic反映
     startChat() {
+      let alertmessage: string = ''
+      // ルーム名絶対入れないとだめ
+      if (this.roomName === '') {
+        alertmessage = 'ルーム名を入力してください\n'
+      }
+
       // 仮topicから空でないものをtopicsに
       for (const t in this.topicsAdmin) {
         if (this.topicsAdmin[t].title) {
           this.topics.push(this.topicsAdmin[t])
         }
+      }
+
+      // トピック0はだめ
+      if (this.topics.length === 0) {
+        alertmessage += 'トピック名を入力してください\n'
+      }
+
+      // ルーム名かトピック名が空ならアラート出して終了
+      if (alertmessage !== '') {
+        alert(alertmessage)
+        return
       }
 
       // this.topicsをサーバに反映
@@ -382,6 +427,14 @@ export default Vue.extend({
       // 日本語入力中のeventnterキー操作は無効にする
       if (e.keyCode !== 13) return
       this.addTopic()
+    },
+    clickDrawerMenu() {
+      this.isDrawer = !this.isDrawer
+      if (this.isDrawer) {
+        this.hamburgerMenu = 'close'
+      } else {
+        this.hamburgerMenu = 'menu'
+      }
     },
   },
 })

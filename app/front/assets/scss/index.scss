@@ -1,5 +1,10 @@
 body {
   font-family: 'M PLUS 1p', sans-serif;
+  //overflow: hidden; // 縦方向は１画面に収める（スクロールさせない）
+}
+
+.material-icons {
+  user-select: none;
 }
 
 button {
@@ -89,20 +94,32 @@ span.key-span {
 
 .page {
   display: flex;
-  overflow-x: scroll;
-  white-space: nowrap;
-  flex-wrap: nowrap;
+  flex-direction: column;
   height: 100vh;
   min-width: 0;
+
+  header {
+    width: 100vw;
+    button {
+      float: right;
+      border: none;
+      color: rgb(110, 110, 110);
+      background-color: white;
+    }
+  }
+
+  main {
+    display: flex;
+    flex: 1;
+    overflow-x: scroll;
+  }
 }
 
 .topic-block {
   white-space: normal;
-  flex-shrink: 0;
-  height: 100vh;
+  height: 100%;
   position: relative;
   border-radius: 5px;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   width: 100vw;
@@ -125,9 +142,9 @@ span.key-span {
 }
 
 .topic-header {
-  //margin-right: 2rem;
   flex-shrink: 0;
-  padding: 1em 0;
+  padding: 0.75em 0;
+  position: relative;
 
   & > .top-line {
     & > .prefix {
@@ -149,25 +166,35 @@ span.key-span {
       flex: 1;
     }
 
-    & > .next-button {
+    & > .download-button {
       width: 3em;
       height: 3em;
       border-radius: 100%;
       border: none;
       color: $black;
       background: transparent;
-      display: grid;
+      display: flex;
       align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+
+      &:hover {
+        background: rgba(214, 214, 214, 0.3);
+      }
+
+      &:active {
+        background: rgba(187, 187, 187, 0.3);
+      }
     }
   }
 }
 
 .chat-area {
-  height: 300px;
-  flex: 1;
+  flex: 1 1 0;
   display: flex;
   border-top: 2px solid $gray;
   position: relative;
+  overflow-y: scroll;
 
   & > .text-zone {
     flex: 1;
@@ -207,7 +234,7 @@ span.key-span {
     margin-bottom: 1em;
     position: relative;
 
-    & > .stamp-submit-button {
+    & .stamp-submit-button {
       border: none;
       width: 3.2rem;
       height: 3.2rem;
@@ -261,12 +288,13 @@ span.key-span {
 }
 
 .input-area {
-  position: sticky;
+  //position: sticky;
+  height: 150px;
   bottom: 0;
   padding: 0.5em 1em;
   background: white;
   border-top: 2px solid $gray;
-  box-shadow: rgba(100, 100, 111, 0.2) 0px 2px 4px 0px;
+  // box-shadow: rgba(100, 100, 111, 0.2) 0px 2px 4px 0px;
 
   & > .main-line {
     display: flex;
@@ -609,51 +637,179 @@ $modal-header-height: 48px;
   }
 }
 
-/* ハートの共通スタイル */
-.heart-button::before,
-.heart-button::after {
-  //.heart-button{
-  content: '';
-  background-size: contain;
-  background-repeat: no-repeat;
-  width: 30px;
-  height: 30px;
+.heart-button-wraper {
+  position: relative;
+  display: grid;
+  justify-content: center;
+}
+
+.heart-button {
   position: absolute;
-  opacity: 1;
+  opacity: 0;
+  user-select: none;
+  pointer-events: none;
+  font-size: 30px;
 }
 
-/* 左上のハートのスタイル */
-.heart-button::before {
-  background-image: url('@/assets/img/heart.svg');
-  top: 0;
-  left: 2px;
-  opacity: 0;
-  animation: heart 1.5s 1 ease-out;
-}
-
-/* 右下のハートのスタイル */
-.heart-button::after {
-  background-image: url('@/assets/img/heart-reverse.svg');
-  bottom: -1px;
-  right: 6px;
-  opacity: 0;
+.heart-button-animation {
   animation: heart 1.5s 0.2s 1 ease-out;
 }
 
 /* ========= アニメーションの設定 ======== */
 @keyframes heart {
   0% {
-    transform: translateY(0) scale(1);
+    transform: translateX(-50%) translateY(0) scale(1);
     opacity: 0;
+    left: 50%;
+    top: 0;
   }
-  25% {
+  20% {
     opacity: 1;
   }
   75% {
     opacity: 1;
   }
   100% {
-    transform: translateY(-300px) scale(1.4);
+    transform: translateY(-300px) scale(1.6);
     opacity: 0;
+  }
+}
+
+/*管理画面*/
+.drawer-menu-wrapper {
+  position: absolute;
+  z-index: 40;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  word-break: break-all;
+
+  .drawer-menu {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+
+    .header {
+      display: flex;
+
+      .room-info {
+        flex: 1;
+        min-width: 0;
+
+        .room-title {
+          font-size: 150%;
+        }
+        .room-url {
+          display: flex;
+          button {
+            border: none;
+            background: none;
+            color: rgb(110, 110, 110);
+          }
+        }
+      }
+      .icon-space {
+        min-width: 100px;
+        min-height: 100px;
+        word-break: break-all;
+        .icon-wrapper {
+          width: 100px;
+          height: 100px;
+          border-radius: 100%;
+          margin-right: 1em;
+          margin-bottom: 0.5rem;
+          padding: 3px;
+          background: rgb(223, 223, 223);
+        }
+      }
+    }
+    .next-topic-button {
+      border: none;
+      background-color: #f6666e;
+      color: white;
+      margin-top: 15px;
+      margin-bottom: 30px;
+      min-height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 6px;
+      font-size: 150%;
+      font-weight: bold;
+      .material-icons {
+        font-size: 36px;
+      }
+    }
+    .topic-list {
+      flex: 1 1 0;
+      overflow-y: scroll;
+      font-size: 120%;
+
+      .topic {
+        display: flex;
+        background-color: #fff8b4;
+        align-items: center;
+        border-bottom: 2px solid rgb(192, 192, 192);
+        padding: 6px 0;
+
+        &:first-child {
+          border-top: 2px solid rgb(192, 192, 192);
+        }
+      }
+
+      .topic-number {
+        padding-left: 10px;
+        min-width: 3em;
+        width: 5%;
+        font-weight: bold;
+      }
+
+      .topic-name {
+        flex: 1 1 0;
+
+        .label {
+          font-size: 70%;
+          font-weight: bold;
+          background-color: #f6666e;
+          color: white;
+          padding: 3px 10px;
+          border-radius: 24px;
+          margin-left: 10px;
+          display: inline-block;
+          vertical-align: middle;
+        }
+      }
+
+      .buttons {
+        display: flex;
+        button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 60px;
+          min-height: 60px;
+          border-radius: 100%;
+          border: none;
+          background-color: rgba(255, 0, 0, 0);
+          color: gray;
+
+          .material-icons {
+            font-size: 250%;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 880px) {
+  .drawer-menu-wrapper {
+    width: calc(100% - 440px - 2em);
+  }
+  .room-info {
+    padding: 0px 3%;
   }
 }
