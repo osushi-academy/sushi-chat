@@ -2,6 +2,7 @@
   <article class="topic-block">
     <TopicHeader
       :title="topicIndex + 1 + '. ' + chatData.topic.title"
+      :is-admin="isAdmin"
       :is-active-topic="isActiveTopic"
       :is-finished-topic="isFinishedTopic"
       @topic-activate="clickTopicActivate"
@@ -98,6 +99,10 @@ export default Vue.extend({
       required: true,
     },
     isActiveTopic: {
+      type: Boolean,
+      required: true,
+    },
+    isAdmin: {
       type: Boolean,
       required: true,
     },

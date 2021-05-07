@@ -8,20 +8,28 @@
   >
     <div class="main-line">
       <h1 class="title">{{ title }}</h1>
+      <button
+        v-show="isAdmin"
+        class="download-button"
+        @click="clickTopicActivate"
+      >
+        <zap-icon size="18"></zap-icon>
+      </button>
       <button class="download-button" @click="clickDownload">
-        <download-icon class="" size="18"></download-icon>
+        <download-icon size="18"></download-icon>
       </button>
     </div>
   </div>
 </template>
 <script lang="ts">
 import Vue from 'vue'
-import { DownloadIcon } from 'vue-feather-icons'
+import { DownloadIcon, ZapIcon } from 'vue-feather-icons'
 
 export default Vue.extend({
   name: 'TopicHeader',
   components: {
     DownloadIcon,
+    ZapIcon,
   },
   props: {
     title: {
@@ -29,6 +37,10 @@ export default Vue.extend({
       required: true,
     },
     isActiveTopic: {
+      type: Boolean,
+      required: true,
+    },
+    isAdmin: {
       type: Boolean,
       required: true,
     },
