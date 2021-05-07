@@ -18,9 +18,7 @@
 
     <!--Admin Message-->
     <article
-      v-if="
-        message.type == 'message' && !message.isQuestion && message.iconId == 0
-      "
+      v-if="message.type == 'message' && message.iconId == 0"
       class="comment admin"
     >
       <div class="icon-wrapper">
@@ -32,7 +30,7 @@
 
     <!--Question Message-->
     <article
-      v-if="message.type == 'message' && message.isQuestion"
+      v-if="message.type == 'question'"
       class="comment question"
       @click="clickGood"
     >
@@ -72,8 +70,8 @@ export default Vue.extend({
         type: 'message',
         iconId: '0',
         content: '画像処理どうなってんの→独自実装!!?????',
-        isQuestion: false,
         timestamp: 100,
+        creadtedAt: new Date(),
       }),
     } as PropOptions<ChatItemPropType>,
   },

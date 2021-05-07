@@ -229,7 +229,23 @@ export default Vue.extend({
 
     socket.on('PUB_CHAT_ITEM', (res: any) => {
       if (!this.messages.find((message) => message.id === res.content.id)) {
-        this.messages.push(res.content)
+        let messageType: string
+        if (res.content.isQuestion) {
+          messageType = 'question'
+        } else {
+          messageType = 'message'
+        }
+        const m: Message = {
+          id: res.content.id,
+          topicId: res.content.topicId,
+          type: messageType,
+          iconId: res.content.iconId,
+          timestamp: res.content.timestamp,
+          createdAt: new Date(),
+          content: res.content.content,
+          target: null,
+        }
+        this.messages.push(m)
       }
     })
 
@@ -257,7 +273,6 @@ export default Vue.extend({
           this.messages[i].type === 'question'
         ) {
           // @ts-ignore
-          // if (this.messages[i].isQuestion) {
           const m: Message = {
             id: `${getUUID()}`,
             topicId: res.topicId,
@@ -269,7 +284,6 @@ export default Vue.extend({
             content: this.messages[i].content,
           }
           this.messages.push(m)
-          // }
         }
       }
     })
@@ -394,6 +408,12 @@ export default Vue.extend({
     // チャット関連
     sendMessage(text: string, topicId: string, isQuestion: boolean) {
       const socket = (this as any).socket
+      let messageType: string
+      if (isQuestion) {
+        messageType = 'question'
+      } else {
+        messageType = 'message'
+      }
       const params: PostChatItemMessageParams = {
         type: 'message',
         id: getUUID(),
@@ -408,7 +428,7 @@ export default Vue.extend({
       this.messages.push({
         id: params.id,
         topicId,
-        type: 'message',
+        type: messageType,
         iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
         createdAt: new Date(),
