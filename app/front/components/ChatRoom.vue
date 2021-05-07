@@ -54,6 +54,7 @@ import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
 import FavoriteButton from '@/components/FavoriteButton.vue'
 import exportText from '@/utils/textExports'
+import AnalysisGraph from './AnalysisGraph.vue'
 
 type ChatDataPropType = {
   topic: Topic

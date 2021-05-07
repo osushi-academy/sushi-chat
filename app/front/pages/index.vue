@@ -158,6 +158,7 @@ export default Vue.extend({
   name: 'Index',
   components: {
     ChatRoom,
+    SettingPage,
   },
   data(): DataType {
     return {

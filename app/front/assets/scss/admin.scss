@@ -1,0 +1,138 @@
+/*管理画面*/
+.drawer-menu-wrapper {
+  position: absolute;
+  z-index: 40;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  word-break: break-all;
+
+  .drawer-menu {
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+
+    .header {
+      display: flex;
+
+      .room-info {
+        flex: 1;
+        min-width: 0;
+
+        .room-title {
+          font-size: 150%;
+        }
+        .room-url {
+          display: flex;
+          button {
+            border: none;
+            background: none;
+            color: rgb(110, 110, 110);
+          }
+        }
+      }
+      .icon-space {
+        min-width: 100px;
+        min-height: 100px;
+        word-break: break-all;
+        .icon-wrapper {
+          width: 100px;
+          height: 100px;
+          border-radius: 100%;
+          margin-right: 1em;
+          margin-bottom: 0.5rem;
+          padding: 3px;
+          background: rgb(223, 223, 223);
+        }
+      }
+    }
+    .next-topic-button {
+      border: none;
+      background-color: #f6666e;
+      color: white;
+      margin-top: 15px;
+      margin-bottom: 30px;
+      min-height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 6px;
+      font-size: 150%;
+      font-weight: bold;
+      .material-icons {
+        font-size: 36px;
+      }
+    }
+    .topic-list {
+      flex: 1 1 0;
+      overflow-y: scroll;
+      font-size: 120%;
+
+      .topic {
+        display: flex;
+        background-color: #fff8b4;
+        align-items: center;
+        border-bottom: 2px solid rgb(192, 192, 192);
+        padding: 6px 0;
+
+        &:first-child {
+          border-top: 2px solid rgb(192, 192, 192);
+        }
+      }
+
+      .topic-number {
+        padding-left: 10px;
+        min-width: 3em;
+        width: 5%;
+        font-weight: bold;
+      }
+
+      .topic-name {
+        flex: 1 1 0;
+
+        .label {
+          font-size: 70%;
+          font-weight: bold;
+          background-color: #f6666e;
+          color: white;
+          padding: 3px 10px;
+          border-radius: 24px;
+          margin-left: 10px;
+          display: inline-block;
+          vertical-align: middle;
+        }
+      }
+
+      .buttons {
+        display: flex;
+        button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 60px;
+          min-height: 60px;
+          border-radius: 100%;
+          border: none;
+          background-color: rgba(255, 0, 0, 0);
+          color: gray;
+
+          .material-icons {
+            font-size: 250%;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 880px) {
+  .drawer-menu-wrapper {
+    width: calc(100% - 440px - 2em);
+  }
+  .room-info {
+    padding: 0px 3%;
+  }
+}
