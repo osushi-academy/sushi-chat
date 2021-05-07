@@ -130,7 +130,6 @@ import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
 import { getSelectedIcon, setSelectedIcon } from '@/utils/reserveSelectIcon'
-import TextArea from '../components/TextArea.vue'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -159,7 +158,6 @@ export default Vue.extend({
   name: 'Index',
   components: {
     ChatRoom,
-    TextArea,
   },
   data(): DataType {
     return {
