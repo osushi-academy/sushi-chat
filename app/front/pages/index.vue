@@ -17,7 +17,7 @@
         </div>
         <div class="modal-body modal-scrollable">
           <h3>ルーム名</h3>
-          <input v-model="roomName" />
+          <input v-model="room.title" />
           <h3>トピック名</h3>
           <div>
             <div v-for="(topic, index) in topicsAdmin" :key="topic.id">
@@ -120,7 +120,7 @@
 import Vue from 'vue'
 // @ts-ignore
 import VModal from 'vue-js-modal'
-import { ChatItem, Message, Topic, Stamp } from '@/models/contents'
+import { Room, ChatItem, Message, Topic, Stamp } from '@/models/contents'
 import {
   PostChatItemMessageParams,
   PostChatItemReactionParams,
@@ -145,11 +145,11 @@ type DataType = {
   isDrawer: boolean
   inputText: string
   // ルーム情報
-  roomName: string
   topics: Topic[]
   topicsAdmin: Topic[]
   activeUserCount: number
   activeTopicId: string | null
+  room: Room
   // ユーザー関連
   isAdmin: boolean
   icons: any
@@ -172,11 +172,11 @@ export default Vue.extend({
       isDrawer: false,
       inputText: '',
       // ルーム情報
-      roomName: '',
       topics: [],
       topicsAdmin: [],
       activeUserCount: 0,
       activeTopicId: null,
+      room: {},
       // ユーザー関連
       isAdmin: false,
       icons: [
@@ -321,7 +321,7 @@ export default Vue.extend({
     startChat() {
       let alertmessage: string = ''
       // ルーム名絶対入れないとだめ
-      if (this.roomName === '') {
+      if (this.room.title === '') {
         alertmessage = 'ルーム名を入力してください\n'
       }
 

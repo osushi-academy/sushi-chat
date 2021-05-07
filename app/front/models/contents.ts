@@ -32,6 +32,14 @@ export type TopicPropType = Topic
 // PropのChatItemの型（今回はChatItemをそのまま）
 export type ChatItemPropType = ChatItem
 
+// ルーム型
+export type Room = {
+  id: string
+  roomKey: string
+  title: string
+  topics: Topic[]
+}
+
 export type Stamp = {
   userId: string
   topicId: string
