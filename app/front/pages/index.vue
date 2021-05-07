@@ -101,11 +101,8 @@
           :chat-data="chatData"
           :favorite-callback-register="favoriteCallbackRegister"
           :my-icon="iconChecked"
-          :is-active-topic="activeTopicId == chatData.topic.id"
-          :is-finished-topic="
-            topics.findIndex(({ id }) => id === chatData.topic.id) <
-            topics.findIndex(({ id }) => id === activeTopicId)
-          "
+          :is-active-topic="topicStates[chatData.topic.id] === 'ongoing'"
+          :is-finished-topic="topicStates[chatData.topic.id] === 'finished'"
           @send-message="sendMessage"
           @send-reaction="sendReaction"
           @send-stamp="sendFavorite"
@@ -120,7 +117,14 @@
 import Vue from 'vue'
 // @ts-ignore
 import VModal from 'vue-js-modal'
-import { Room, ChatItem, Message, Topic, Stamp } from '@/models/contents'
+import {
+  Room,
+  ChatItem,
+  Message,
+  Topic,
+  TopicState,
+  Stamp,
+} from '@/models/contents'
 import {
   PostChatItemMessageParams,
   PostChatItemReactionParams,
@@ -148,7 +152,8 @@ type DataType = {
   topics: Topic[]
   topicsAdmin: Topic[]
   activeUserCount: number
-  activeTopicId: string | null
+  // activeTopicId: string | null
+  topicStates: { [key: string]: TopicState }
   room: Room
   // ユーザー関連
   isAdmin: boolean
@@ -175,7 +180,8 @@ export default Vue.extend({
       topics: [],
       topicsAdmin: [],
       activeUserCount: 0,
-      activeTopicId: null,
+      // activeTopicId: null,
+      topicStates: {},
       room: {},
       // ユーザー関連
       isAdmin: false,
@@ -232,10 +238,13 @@ export default Vue.extend({
     })
 
     socket.on('PUB_CHANGE_ACTIVE_TOPIC', (res: any) => {
-      this.activeTopicId = `${res.topicId}`
+      // this.activeTopicId = `${res.topicId}`
+      this.topicStates[`${res.topicId}`] = 'ongoing'
+      console.log('CHANGEuketori')
     })
 
     socket.on('PUB_FINISH_TOPIC', (res: any) => {
+      this.topicStates[res.topicId] = 'finished'
       const messageAdmin: Message = {
         id: `${getUUID()}`,
         topicId: res.topicId,
@@ -305,6 +314,7 @@ export default Vue.extend({
           id: `${getUUID()}`,
           title: topicTitle,
           description: '',
+          urls: {},
         }
         this.topicsAdmin.push(t)
         set.add(topicTitle)
@@ -329,6 +339,7 @@ export default Vue.extend({
       for (const t in this.topicsAdmin) {
         if (this.topicsAdmin[t].title) {
           this.topics.push(this.topicsAdmin[t])
+          this.topicStates[this.topicsAdmin[t].id] = 'not-started'
         }
       }
 
@@ -351,10 +362,14 @@ export default Vue.extend({
 
       // ルーム開始
       this.$modal.hide('sushi-modal')
+      console.log(this.topics)
+      console.log(this.topicStates)
     },
     // アクティブトピックが変わる
     changeActiveTopic(topicId: string) {
       const socket = (this as any).socket
+      console.log('CHANGE')
+      console.log(this.topicStates)
       socket.emit('CHANGE_ACTIVE_TOPIC', { topicId })
     },
 
@@ -375,7 +390,7 @@ export default Vue.extend({
         (res: any) => {
           this.topics = res.topics
           this.messages = res.chatItems ?? []
-          this.activeTopicId = res.activeTopicId
+          this.topicStates[res.activeTopicId] = 'on-going'
         }
       )
       setSelectedIcon(iconId)

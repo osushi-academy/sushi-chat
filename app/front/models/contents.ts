@@ -1,9 +1,13 @@
 // Topic型
+export type TopicLinkType = 'github' | 'slide' | 'product'
 export type Topic = {
   id: string
   title: string
   description: string
+  urls: Record<TopicLinkType, string>
 }
+export type TopicState = 'not-started' | 'ongoing' | 'paused' | 'finished'
+
 // ChatItem型
 export type ChatItemBase = {
   id: string
