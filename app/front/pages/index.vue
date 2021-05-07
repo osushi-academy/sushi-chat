@@ -140,19 +140,23 @@ type ChatData = {
 
 // Data型
 type DataType = {
-  activeUserCount: number
-  isNotify: boolean
+  // 管理画面
+  hamburgerMenu: string
+  isDrawer: boolean
+  inputText: string
+  // ルーム情報
+  roomName: string
   topics: Topic[]
   topicsAdmin: Topic[]
-  messages: ChatItem[]
+  activeUserCount: number
+  activeTopicId: string | null
+  // ユーザー関連
   isAdmin: boolean
   icons: any
   iconChecked: number
-  activeTopicId: string | null
-  roomName: string
-  inputText: string
-  isDrawer: boolean
-  hamburgerMenu: string
+  // チャット関連
+  messages: ChatItem[]
+  // isNotify: boolean
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -163,15 +167,18 @@ export default Vue.extend({
   },
   data(): DataType {
     return {
-      roomName: '',
+      // 管理画面
+      hamburgerMenu: 'menu',
+      isDrawer: false,
       inputText: '',
+      // ルーム情報
+      roomName: '',
       topics: [],
       topicsAdmin: [],
-      messages: [],
       activeUserCount: 0,
-      isNotify: false,
+      activeTopicId: null,
+      // ユーザー関連
       isAdmin: false,
-      isDrawer: false,
       icons: [
         { url: require('@/assets/img/sushi_akami.png') },
         { url: require('@/assets/img/sushi_ebi.png') },
@@ -186,8 +193,9 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_syari.png') },
       ],
       iconChecked: -1,
-      activeTopicId: null,
-      hamburgerMenu: 'menu',
+      // チャット関連
+      messages: [],
+      // isNotify: false,
     }
   },
   computed: {
@@ -263,6 +271,121 @@ export default Vue.extend({
     })
   },
   methods: {
+    // 管理画面の開閉
+    clickDrawerMenu() {
+      this.isDrawer = !this.isDrawer
+      if (this.isDrawer) {
+        this.hamburgerMenu = 'close'
+      } else {
+        this.hamburgerMenu = 'menu'
+      }
+    },
+
+    // ルーム情報
+    // 該当するtopicを削除
+    removeTopic(index: number) {
+      this.topicsAdmin.splice(index, 1)
+    },
+    // textareaに入力された文字を改行で区切ってtopic追加
+    addTopic() {
+      // 追加済みtopic名リスト作成
+      const set = new Set<string>()
+      for (const topic of this.topicsAdmin) {
+        set.add(topic.title)
+      }
+      // 入力を空白で区切る
+      const titles = this.inputText.split('\n')
+      for (const topicTitle of titles) {
+        // 空白はカウントしない
+        if (topicTitle === '') continue
+        // 重複してるトピックはカウントしない
+        if (set.has(topicTitle)) continue
+
+        const t: Topic = {
+          id: `${getUUID()}`,
+          title: topicTitle,
+          description: '',
+        }
+        this.topicsAdmin.push(t)
+        set.add(topicTitle)
+      }
+      this.inputText = ''
+    },
+    // エンターキーでaddTopic呼び出し
+    clickAddTopic(e: any) {
+      // 日本語入力中のeventnterキー操作は無効にする
+      if (e.keyCode !== 13) return
+      this.addTopic()
+    },
+    // topic反映
+    startChat() {
+      let alertmessage: string = ''
+      // ルーム名絶対入れないとだめ
+      if (this.roomName === '') {
+        alertmessage = 'ルーム名を入力してください\n'
+      }
+
+      // 仮topicから空でないものをtopicsに
+      for (const t in this.topicsAdmin) {
+        if (this.topicsAdmin[t].title) {
+          this.topics.push(this.topicsAdmin[t])
+        }
+      }
+
+      // トピック0はだめ
+      if (this.topics.length === 0) {
+        alertmessage += 'トピック名を入力してください\n'
+      }
+
+      // ルーム名かトピック名が空ならアラート出して終了
+      if (alertmessage !== '') {
+        alert(alertmessage)
+        return
+      }
+
+      // this.topicsをサーバに反映
+      const socket = (this as any).socket
+      socket.emit('CREATE_ROOM', {
+        topics: this.topics,
+      })
+
+      // ルーム開始
+      this.$modal.hide('sushi-modal')
+    },
+    // アクティブトピックが変わる
+    changeActiveTopic(topicId: string) {
+      const socket = (this as any).socket
+      socket.emit('CHANGE_ACTIVE_TOPIC', { topicId })
+    },
+
+    // ユーザ関連
+    // modalを消し、topic作成
+    hide(): any {
+      this.$modal.hide('sushi-modal')
+      this.enterRoom(this.iconChecked + 1)
+    },
+    // ルーム入室
+    enterRoom(iconId: number) {
+      const socket = (this as any).socket
+      socket.emit(
+        'ENTER_ROOM',
+        {
+          iconId,
+        },
+        (res: any) => {
+          this.topics = res.topics
+          this.messages = res.chatItems ?? []
+          this.activeTopicId = res.activeTopicId
+        }
+      )
+      setSelectedIcon(iconId)
+    },
+    // アイコン選択
+    clickIcon(index: number) {
+      this.iconChecked = index
+    },
+
+    // チャット関連
     sendMessage(text: string, topicId: string, isQuestion: boolean) {
       const socket = (this as any).socket
       const params: PostChatItemMessageParams = {
@@ -332,113 +455,6 @@ export default Vue.extend({
           callback(stampsAboutTopicId.length)
         }
       })
-    },
-    changeActiveTopic(topicId: string) {
-      const socket = (this as any).socket
-      socket.emit('CHANGE_ACTIVE_TOPIC', { topicId })
-    },
-    // modalを消し、topic作成
-    hide(): any {
-      this.topics.push()
-      this.$modal.hide('sushi-modal')
-      this.enterRoom(this.iconChecked + 1)
-    },
-    enterRoom(iconId: number) {
-      const socket = (this as any).socket
-      socket.emit(
-        'ENTER_ROOM',
-        {
-          iconId,
-        },
-        (res: any) => {
-          this.topics = res.topics
-          this.messages = res.chatItems ?? []
-          this.activeTopicId = res.activeTopicId
-        }
-      )
-      setSelectedIcon(iconId)
-    },
-    // 該当するtopicを削除
-    removeTopic(index: number) {
-      this.topicsAdmin.splice(index, 1)
-    },
-    // textareaに入力された文字を改行で区切ってtopic追加
-    addTopic() {
-      // 追加済みtopic名リスト作成
-      const set = new Set<string>()
-      for (const topic of this.topicsAdmin) {
-        set.add(topic.title)
-      }
-      // 入力を空白で区切る
-      const titles = this.inputText.split('\n')
-      for (const topicTitle of titles) {
-        // 空白はカウントしない
-        if (topicTitle === '') continue
-        // 重複してるトピックはカウントしない
-        if (set.has(topicTitle)) continue
-
-        const t: Topic = {
-          id: `${getUUID()}`,
-          title: topicTitle,
-          description: '',
-        }
-        this.topicsAdmin.push(t)
-        set.add(topicTitle)
-      }
-      this.inputText = ''
-    },
-    // topic反映
-    startChat() {
-      let alertmessage: string = ''
-      // ルーム名絶対入れないとだめ
-      if (this.roomName === '') {
-        alertmessage = 'ルーム名を入力してください\n'
-      }
-
-      // 仮topicから空でないものをtopicsに
-      for (const t in this.topicsAdmin) {
-        if (this.topicsAdmin[t].title) {
-          this.topics.push(this.topicsAdmin[t])
-        }
-      }
-
-      // トピック0はだめ
-      if (this.topics.length === 0) {
-        alertmessage += 'トピック名を入力してください\n'
-      }
-
-      // ルーム名かトピック名が空ならアラート出して終了
-      if (alertmessage !== '') {
-        alert(alertmessage)
-        return
-      }
-
-      // this.topicsをサーバに反映
-      const socket = (this as any).socket
-      socket.emit('CREATE_ROOM', {
-        topics: this.topics,
-      })
-
-      // ルーム開始
-      this.$modal.hide('sushi-modal')
-    },
-    // アイコン選択
-    clickIcon(index: number) {
-      this.iconChecked = index
-    },
-    // エンターキーでaddTopic呼び出し
-    clickAddTopic(e: any) {
-      // 日本語入力中のeventnterキー操作は無効にする
-      if (e.keyCode !== 13) return
-      this.addTopic()
-    },
-    clickDrawerMenu() {
-      this.isDrawer = !this.isDrawer
-      if (this.isDrawer) {
-        this.hamburgerMenu = 'close'
-      } else {
-        this.hamburgerMenu = 'menu'
-      }
     },
   },
 })
