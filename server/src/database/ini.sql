@@ -3,7 +3,7 @@ CREATE TABLE Rooms (
   roomKey VARCHAR(50) NOT NULL,
   title VARCHAR(20) NOT NULL,
   status INT NOT NULL
-)
+);
 
 CREATE TABLE Topics (
     id UUID NOT NULL PRIMARY KEY,
@@ -15,7 +15,7 @@ CREATE TABLE Topics (
     githubUrl TEXT,
     slideUrl TEXT,
     productUrl TEXT
-)
+);
 
 CREATE TABLE Messages (
   id UUID NOT NULL PRIMARY KEY,
@@ -23,10 +23,10 @@ CREATE TABLE Messages (
   topicId UUID NOT NULL REFERENCES Topics(id),
   iconId VARCHAR(10) NOT NULL,
   timestamp INT NOT NULL,
-  createdAt DATE NOT NULL,
+  createdAt TIMESTAMP NOT NULL,
   content TEXT NOT NULL,
   targetId UUID
-)
+);
 
 CREATE TABLE Reactions (
   id UUID NOT NULL PRIMARY KEY,
@@ -34,9 +34,9 @@ CREATE TABLE Reactions (
   topicId UUID NOT NULL REFERENCES Topics(id),
   iconId VARCHAR(10) NOT NULL,
   timestamp INT NOT NULL,
-  createdAt DATE NOT NULL,
+  createdAt TIMESTAMP NOT NULL,
   targetId UUID NOT NULL REFERENCES Messages(id)
-)
+);
 
 CREATE TABLE Questions (
   id UUID NOT NULL PRIMARY KEY,
@@ -44,9 +44,9 @@ CREATE TABLE Questions (
   topicId UUID NOT NULL REFERENCES Topics(id),
   iconId VARCHAR(10) NOT NULL,
   timestamp INT NOT NULL,
-  createdAt DATE NOT NULL,
+  createdAt TIMESTAMP NOT NULL,
   content TEXT NOT NULL
-)
+);
 
 CREATE TABLE Answers (
   id UUID NOT NULL PRIMARY KEY,
@@ -54,7 +54,7 @@ CREATE TABLE Answers (
   topicId UUID NOT NULL REFERENCES Topics(id),
   iconId VARCHAR(10) NOT NULL,
   timestamp INT NOT NULL,
-  createdAt DATE NOT NULL,
+  createdAt TIMESTAMP NOT NULL,
   content TEXT NOT NULL,
   targetId UUID REFERENCES Questions(id)
-)
+);
