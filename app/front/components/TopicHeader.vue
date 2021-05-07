@@ -8,17 +8,21 @@
   >
     <div class="main-line">
       <h1 class="title">{{ title }}</h1>
-      <button class="next-button" role="navigation" @click="clickDownload">
-        <span class="material-icons"> arrow_forward </span>
+      <button class="download-button" @click="clickDownload">
+        <download-icon class="" size="18"></download-icon>
       </button>
     </div>
   </div>
 </template>
 <script lang="ts">
 import Vue from 'vue'
+import { DownloadIcon } from 'vue-feather-icons'
 
 export default Vue.extend({
   name: 'TopicHeader',
+  components: {
+    DownloadIcon,
+  },
   props: {
     title: {
       type: String,
@@ -39,7 +43,7 @@ export default Vue.extend({
     },
     clickDownload() {
       this.$emit('download')
-    }
+    },
   },
 })
 </script>
