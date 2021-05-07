@@ -8,12 +8,7 @@
   >
     <div class="main-line">
       <h1 class="title">{{ title }}</h1>
-      <button
-        v-show="isAdmin"
-        class="next-button"
-        role="navigation"
-        @click="clickTopicActivate"
-      >
+      <button class="next-button" role="navigation" @click="clickDownload">
         <span class="material-icons"> arrow_forward </span>
       </button>
     </div>
@@ -29,11 +24,6 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    isAdmin: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
     isActiveTopic: {
       type: Boolean,
       required: true,
@@ -47,6 +37,9 @@ export default Vue.extend({
     clickTopicActivate() {
       this.$emit('topic-activate')
     },
+    clickDownload() {
+      this.$emit('download')
+    }
   },
 })
 </script>
