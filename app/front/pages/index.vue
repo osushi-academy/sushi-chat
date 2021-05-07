@@ -152,7 +152,6 @@ type DataType = {
   topics: Topic[]
   topicsAdmin: Topic[]
   activeUserCount: number
-  // activeTopicId: string | null
   topicStates: { [key: string]: TopicState }
   room: Room
   // ユーザー関連
@@ -161,7 +160,6 @@ type DataType = {
   iconChecked: number
   // チャット関連
   messages: ChatItem[]
-  // isNotify: boolean
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -180,7 +178,6 @@ export default Vue.extend({
       topics: [],
       topicsAdmin: [],
       activeUserCount: 0,
-      // activeTopicId: null,
       topicStates: {},
       room: {},
       // ユーザー関連
@@ -201,7 +198,6 @@ export default Vue.extend({
       iconChecked: -1,
       // チャット関連
       messages: [],
-      // isNotify: false,
     }
   },
   computed: {
@@ -238,9 +234,7 @@ export default Vue.extend({
     })
 
     socket.on('PUB_CHANGE_ACTIVE_TOPIC', (res: any) => {
-      // this.activeTopicId = `${res.topicId}`
       this.topicStates[`${res.topicId}`] = 'ongoing'
-      console.log('CHANGEuketori')
     })
 
     socket.on('PUB_FINISH_TOPIC', (res: any) => {
@@ -251,30 +245,31 @@ export default Vue.extend({
         type: 'message',
         iconId: '0',
         timestamp: 0,
+        createdAt: new Date(),
         content: '【運営Bot】\n 以下、質問一覧です！',
-        isQuestion: false,
+        target: null,
       }
       this.messages.push(messageAdmin)
       for (const i in this.messages) {
         // 閉じたトピックのmessageについて
         if (
           this.messages[i].topicId === res.topicId &&
-          this.messages[i].type === 'message'
+          this.messages[i].type === 'question'
         ) {
           // @ts-ignore
-          if (this.messages[i].isQuestion) {
-            const m: Message = {
-              id: `${getUUID()}`,
-              topicId: res.topicId,
-              type: 'message',
-              iconId: '0',
-              timestamp: 0,
-              // @ts-ignore
-              content: this.messages[i].content,
-              isQuestion: true,
-            }
-            this.messages.push(m)
+          // if (this.messages[i].isQuestion) {
+          const m: Message = {
+            id: `${getUUID()}`,
+            topicId: res.topicId,
+            type: 'question',
+            iconId: '0',
+            timestamp: 0,
+            createdAt: new Date(),
+            // @ts-ignore
+            content: this.messages[i].content,
           }
+          this.messages.push(m)
+          // }
         }
       }
     })
@@ -362,14 +357,10 @@ export default Vue.extend({
 
       // ルーム開始
       this.$modal.hide('sushi-modal')
-      console.log(this.topics)
-      console.log(this.topicStates)
     },
     // アクティブトピックが変わる
     changeActiveTopic(topicId: string) {
       const socket = (this as any).socket
-      console.log('CHANGE')
-      console.log(this.topicStates)
       socket.emit('CHANGE_ACTIVE_TOPIC', { topicId })
     },
 
@@ -420,8 +411,9 @@ export default Vue.extend({
         type: 'message',
         iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
+        createdAt: new Date(),
+        target: null,
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        isQuestion,
       })
     },
     sendReaction(message: Message) {
