@@ -129,7 +129,6 @@ import {
   PostChatItemMessageParams,
   PostChatItemReactionParams,
 } from '@/models/event'
-import SettingPage from '@/components/SettingPage.vue'
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
@@ -179,7 +178,7 @@ export default Vue.extend({
       topicsAdmin: [],
       activeUserCount: 0,
       topicStates: {},
-      room: {},
+      room: {} as Room,
       // ユーザー関連
       isAdmin: false,
       icons: [
@@ -323,7 +322,7 @@ export default Vue.extend({
           id: `${getUUID()}`,
           title: topicTitle,
           description: '',
-          urls: {},
+          urls: { github: '', slide: '', product: '' },
         }
         this.topicsAdmin.push(t)
         set.add(topicTitle)
@@ -395,7 +394,7 @@ export default Vue.extend({
         (res: any) => {
           this.topics = res.topics
           this.messages = res.chatItems ?? []
-          this.topicStates[res.activeTopicId] = 'on-going'
+          this.topicStates[res.activeTopicId] = 'ongoing'
         }
       )
       setSelectedIcon(iconId)
@@ -454,12 +453,7 @@ export default Vue.extend({
         type: 'reaction',
         iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        target: {
-          id: message.id,
-          content:
-            (this.messages.find(({ id }) => id === message.id) as Message)
-              ?.content ?? '',
-        },
+        target: message,
       })
     },
     sendFavorite(topicId: string) {
