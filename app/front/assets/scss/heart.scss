@@ -1,0 +1,37 @@
+.heart-button-wraper {
+  position: relative;
+  display: grid;
+  justify-content: center;
+}
+
+.heart-button {
+  position: absolute;
+  opacity: 0;
+  user-select: none;
+  pointer-events: none;
+  font-size: 30px;
+}
+
+.heart-button-animation {
+  animation: heart 1.5s 0.2s 1 ease-out;
+}
+
+/* ========= アニメーションの設定 ======== */
+@keyframes heart {
+  0% {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 0;
+    left: 50%;
+    top: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-300px) scale(1.6);
+    opacity: 0;
+  }
+}
