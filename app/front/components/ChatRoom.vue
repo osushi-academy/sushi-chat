@@ -56,7 +56,6 @@ import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
 import FavoriteButton from '@/components/FavoriteButton.vue'
-import AnalysisGraph from './AnalysisGraph.vue'
 import exportText from '@/utils/textExports'
 import AnalysisGraph from './AnalysisGraph.vue'
 
