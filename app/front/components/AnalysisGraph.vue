@@ -14,7 +14,8 @@
   </div>
 </template>
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropOptions } from 'vue'
+import { Topic, ChatItem } from '@/models/contents'
 import { ChartData, ChartOptions } from 'chart.js'
 import ChartLine from '~/utils/ChartLine'
 
@@ -26,31 +27,40 @@ type DataType = {
   icon: any
 }
 
+type ChatDataPropType = {
+  topic: Topic
+  message: ChatItem[]
+}
+
 export default Vue.extend({
   name: 'ChatRoom',
   components: {
     ChartLine,
   },
+  props: {
+    chatData: {
+      type: Object,
+      required: true,
+    } as PropOptions<ChatDataPropType>,
+  },
   data(): DataType {
     return {
       chartData: {
-        // 横軸のラベル
-        labels: ['0', '1', '2', '3', '4'],
         // データのリスト
         datasets: [
           {
             // データのラベル
             label: 'コメント数',
             // データの値。labelsと同じサイズ
-            data: [1, 5, 3, 4, 3],
+            data: [],
+            borderColor: 'rgba(0, 0, 255, 0.3)',
             backgroundColor: 'rgba(0, 0, 255, 0.3)',
-            hoverRadius: 10,
           },
           {
             label: 'いいね数',
-            data: [10, 50, 30, 40, 30],
+            data: [],
+            borderColor: 'rgba(255, 0, 0, 0.3)',
             backgroundColor: 'rgba(255, 0, 0, 0.3)',
-            hoverRadius: 10,
           },
         ],
       },
@@ -68,6 +78,10 @@ export default Vue.extend({
       },
       icon: require('@/assets/img/tea.png'),
     }
+  },
+  watch: {
+    // グラフの描画
+    drawGraph() {},
   },
 })
 </script>

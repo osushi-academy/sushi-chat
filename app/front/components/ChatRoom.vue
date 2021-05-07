@@ -23,7 +23,7 @@
             <MessageComponent :message="message" @good="clickGood" />
           </div>
           <div v-if="isFinishedTopic" :key="1" class="list-complete-item">
-            <AnalysisGraph />
+            <AnalysisGraph :messages="chatData.message" />
           </div>
         </transition-group>
       </div>
