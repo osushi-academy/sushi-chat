@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import {
   Answer,
   ChatItem,
-  ChatItemBase,
+  ChatItemStore,
   Message,
   Question,
   User,
@@ -16,30 +16,6 @@ import {
 import { IServerSocket } from "../serverSocket";
 import { Stamp, stampIntervalSender } from "../stamp";
 import { Topic, TopicState } from "../topic";
-
-type MessageStore = ChatItemBase & {
-  type: "message";
-  content: string;
-  target: string | null;
-};
-
-type ReactionStore = ChatItemBase & {
-  type: "reaction";
-  target: string;
-};
-
-type QuestionStore = ChatItemBase & {
-  type: "question";
-  content: string;
-};
-
-type AnswerStore = ChatItemBase & {
-  type: "answer";
-  content: string;
-  target: string;
-};
-
-type ChatItemStore = MessageStore | ReactionStore | QuestionStore | AnswerStore;
 
 type StampStore = Stamp & {
   createdAt: Date;
