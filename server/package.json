@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "server of sushi chat",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "start": "node ./dist/app.js",
     "build": "tsc -p .",

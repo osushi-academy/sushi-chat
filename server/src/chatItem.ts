@@ -1,40 +1,56 @@
-export type ChatItem = Message | Reaction;
-
-export type Message = {
-  id: string; // アイテムID
-  topicId: string; // トピックID
-  type: "message"; // コメントタイプ
-  iconId: string; // アイコンID
-  timestamp: number; // 経過時間のタイムスタンプ（単位: 秒、整数表記）
-  content: string; // メッセージの内容
-  isQuestion: boolean; // 質問コメントかどうか
+export type Room = {
+  id: string;
+  title: string;
+  topics: Topic[];
 };
 
-export type Reaction = {
-  id: string; // アイテムID
-  topicId: string; // トピックID
-  type: "reaction"; // コメントタイプ
-  iconId: string; // アイコンID
-  timestamp: number; // 経過時間のタイムスタンプ（単位: 秒、整数表記）
-  target: {
-    id: string; // リアクションを行なった対象のメッセージID
-    content: string; // リアクションを行なった対象のメッセージの内容
-  };
+export type Topic = {
+  id: string;
+  title: string;
+  description: string;
+  urls: Partial<Record<TopicLinkType, string | undefined>>;
 };
 
-export type ChatItemReceive = MessageReceive | ReactionReceive;
+export type TopicLinkType = "github" | "slide" | "product";
 
-export type MessageReceive = {
-  type: "message"; // アイテムタイプ
-  id: string; // フロントで生成したアイテムID
-  topicId: string; // トピックID
-  content: string; // コメントの中身
-  isQuestion: boolean; // 質問コメントか
+export type TopicState = "not-started" | "active" | "paused" | "finished";
+
+export type ChatItemBase = {
+  id: string;
+  topicId: string;
+  type: string;
+  iconId: string;
+  timestamp: number;
+  createdAt: Date;
 };
 
-export type ReactionReceive = {
-  type: "reaction"; // アイテムタイプ
-  id: string; // フロントで生成したアイテムID
-  topicId: string; // トピックID
-  reactionToId: string; // リアクションを送るメッセージのID
+export type ChatItemType = "message" | "reaction" | "question" | "answer";
+
+export type Message = ChatItemBase & {
+  type: "message";
+  content: string;
+  target: Message | Answer | null;
+};
+
+export type Reaction = ChatItemBase & {
+  type: "reaction";
+  target: Message | Question | Answer;
+};
+
+export type Question = ChatItemBase & {
+  type: "question";
+  content: string;
+};
+
+export type Answer = ChatItemBase & {
+  type: "answer";
+  content: string;
+  target: Question;
+};
+
+export type ChatItem = Message | Reaction | Question | Answer;
+
+export type User = {
+  id: string;
+  iconId: string;
 };
