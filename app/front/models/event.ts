@@ -1,4 +1,4 @@
-import { ChatItem, Topic, TopicState } from './contents'
+import { ChatItem, Room, Topic, TopicState } from './contents'
 
 /**
  * WebSocketのイベント名
@@ -113,8 +113,6 @@ export type EventParams<
   EventName extends EventType
 > = EventName extends 'POST_CHAT_ITEM'
   ? PostChatItemParams
-  : EventName extends 'PUB_CHAT_ITEM'
-  ? PubChatItemParams
   : EventName extends 'START_EDIT'
   ? StartEditParams
   : EventName extends 'END_EDIT'
