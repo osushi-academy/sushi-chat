@@ -10,11 +10,13 @@
       <h1 class="title">{{ title }}</h1>
       <button
         v-show="isAdmin"
-        class="next-button"
-        role="navigation"
+        class="download-button"
         @click="clickTopicActivate"
       >
-        <span class="material-icons"> arrow_forward </span>
+        <zap-icon size="18"></zap-icon>
+      </button>
+      <button class="download-button" @click="clickDownload">
+        <download-icon size="18"></download-icon>
       </button>
     </div>
   </div>
@@ -22,18 +24,22 @@
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
 import { TopicState } from '@/models/contents'
+import { DownloadIcon, ZapIcon } from 'vue-feather-icons'
 
 export default Vue.extend({
   name: 'TopicHeader',
+  components: {
+    DownloadIcon,
+    ZapIcon,
+  },
   props: {
     title: {
       type: String,
       required: true,
     },
-    isAdmin: {
+    isActiveTopic: {
       type: Boolean,
       required: true,
-      default: false,
     },
     topicState: {
       type: String,
@@ -43,6 +49,9 @@ export default Vue.extend({
   methods: {
     clickTopicActivate() {
       this.$emit('topic-activate')
+    },
+    clickDownload() {
+      this.$emit('download')
     },
   },
 })

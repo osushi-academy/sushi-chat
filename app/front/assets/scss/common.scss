@@ -1,0 +1,116 @@
+body {
+  font-family: 'M PLUS 1p', sans-serif;
+  //overflow: hidden; // 縦方向は１画面に収める（スクロールさせない）
+}
+
+.material-icons {
+  user-select: none;
+}
+
+button {
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: auto;
+  }
+}
+
+label {
+  position: relative;
+  cursor: pointer;
+  padding-left: 0px;
+
+  & > input[type='checkbox'] {
+    outline: none;
+    margin: 0.2rem;
+    width: 12px;
+    height: 12px;
+    cursor: pointer;
+
+    &:focus-visible::before {
+      outline: auto;
+      outline-offset: 2px;
+      outline-color: blue;
+    }
+
+    &::before {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      opacity: 1;
+      content: '';
+      display: inline-block;
+      height: 16px;
+      width: 16px;
+      background: #fff;
+      border: 1px solid #231815;
+      border-radius: 1px;
+    }
+
+    &:checked::before {
+      background: rgb(59, 183, 255);
+      border-color: transparent;
+    }
+
+    &::after {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      opacity: 0;
+      content: '';
+      display: inline-block;
+      height: 16px;
+      width: 16px;
+      background: white;
+      clip-path: polygon(10% 50%, 20% 40%, 45% 60%, 80% 20%, 90% 30%, 45% 83%);
+    }
+
+    &:checked::after {
+      opacity: 1;
+    }
+  }
+}
+
+textarea {
+  &:focus {
+    outline: none;
+  }
+}
+
+span.key-span {
+  background: rgb(110, 110, 110);
+  color: rgb(243, 243, 243);
+  border-radius: 1px;
+  padding: 0 0.4em;
+  margin: 0 0.2em;
+  font-weight: bold;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  min-width: 0;
+
+  header {
+    width: 100vw;
+    button {
+      float: right;
+      border: none;
+      color: rgb(110, 110, 110);
+      background-color: white;
+    }
+  }
+
+  main {
+    display: flex;
+    flex: 1;
+    overflow-x: scroll;
+  }
+}
