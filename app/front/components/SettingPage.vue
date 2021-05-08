@@ -21,7 +21,11 @@
         </div>
       </div>
 
-      <button v-if="MyIconId === '0'" class="next-topic-button">
+      <button
+        v-if="myIconId === '0'"
+        class="next-topic-button"
+        @click="clickNextTopicButton"
+      >
         <span class="material-icons"> fast_forward </span>
         次のトピックに遷移
       </button>
@@ -43,15 +47,15 @@
               >一時停止</span
             >
           </div>
-          <div v-if="MyIconId === '0'" class="buttons">
-            <button>
+          <div v-if="myIconId === '0'" class="buttons">
+            <button @click="clickPlayPauseButton(topic.id)">
               <span
                 v-if="topicStates[topic.id] != 'finished'"
                 class="material-icons"
                 >{{ playOrPause(topicStates[topic.id]) }}</span
               >
             </button>
-            <button>
+            <button @click="clickFinishButton(topic.id)">
               <span
                 v-if="
                   topicStates[topic.id] === 'ongoing' ||
@@ -90,7 +94,7 @@ type Room = {
 type DataType = {
   room: Room
   topicStates: { [key: string]: TopicState }
-  MyIconId: string
+  myIconId: string
 }
 
 export default Vue.extend({
@@ -105,19 +109,19 @@ export default Vue.extend({
         topics: DUMMY_TOPICS,
       },
       topicStates: DUMMY_TOPIC_STATES,
-      MyIconId: '0',
+      myIconId: '0',
     }
   },
   computed: {
     icon(): { icon: string } {
-      return ICONS[this.MyIconId]?.icon ?? ICONS[0].icon
+      return ICONS[this.myIconId]?.icon ?? ICONS[0].icon
     },
     playOrPause(): {} {
-      return function (type: string) {
-        if (type === 'ongoing' || type === 'not-started') {
-          return 'play_arrow'
-        } else if (type === 'paused') {
+      return function (topicState: string) {
+        if (topicState === 'ongoing') {
           return 'pause'
+        } else if (topicState === 'paused' || topicState === 'not-started') {
+          return 'play_arrow'
         } else {
           return null
         }
@@ -127,6 +131,28 @@ export default Vue.extend({
   methods: {
     writeToClipboard() {
       navigator.clipboard.writeText(this.test)
+    },
+    clickPlayPauseButton(topicId: string) {
+      if (this.topicStates[topicId] === 'ongoing') {
+        this.topicStates[topicId] = 'paused'
+      } else if (this.topicStates[topicId] === 'paused') {
+        this.topicStates[topicId]! = 'ongoing'
+      } else if (this.topicStates[topicId] === 'not-started') {
+        this.topicStates[topicId]! = 'ongoing'
+      }
+    },
+    clickFinishButton(topicId: string) {
+      if (
+        confirm('本当にこのトピックを終了しますか？この操作は取り消せません')
+      ) {
+        this.topicStates[topicId] = 'finished'
+      }
+    },
+    clickNextTopicButton() {
+      const topic = this.room.topics.find(
+        (t) => this.topicStates[t.id] === 'not-started'
+      )
+      if (typeof topic !== 'undefined') this.topicStates[topic.id] = 'ongoing'
     },
   },
 })
