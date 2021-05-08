@@ -15,7 +15,7 @@ export type ChatItemBase = {
   type: string
   iconId: string
   timestamp: number
-  createdAt: string
+  createdAt: Date
 }
 export type Question = ChatItemBase & {
   content: string // 質問の内容

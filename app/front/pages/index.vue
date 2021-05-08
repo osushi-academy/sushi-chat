@@ -123,15 +123,22 @@ import {
   Topic,
   TopicState,
   Stamp,
+  Answer,
+  Question,
 } from '@/models/contents'
 import {
+  PostChatItemAnswerParams,
   PostChatItemMessageParams,
+  PostChatItemQuestionParams,
   PostChatItemReactionParams,
 } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
-import { getSelectedIcon, setSelectedIcon } from '@/utils/reserveSelectIcon'
+import {
+  getSelectedIconFromJSON,
+  setSelectedIconToJSON,
+} from '@/utils/reserveSelectIcon'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -213,7 +220,7 @@ export default Vue.extend({
     ;(this as any).socket = socket
 
     if (!this.isAdmin) {
-      const selectedIcon = getSelectedIcon()
+      const selectedIcon = getSelectedIconFromJSON()
       if (selectedIcon == null) {
         this.$modal.show('sushi-modal')
       } else {
@@ -223,66 +230,62 @@ export default Vue.extend({
     }
     this.$modal.show('sushi-modal')
 
-    socket.on('PUB_CHAT_ITEM', (res: any) => {
-      if (!this.messages.find((message) => message.id === res.content.id)) {
-        let messageType: string
-        if (res.content.isQuestion) {
-          messageType = 'question'
-        } else {
-          messageType = 'message'
-        }
-        const m: Message = {
-          id: res.content.id,
-          topicId: res.content.topicId,
-          type: messageType,
-          iconId: res.content.iconId,
-          timestamp: res.content.timestamp,
-          createdAt: new Date(),
-          content: res.content.content,
-          target: null,
-        }
-        this.messages.push(m)
-      }
+    // SocketIOのコールバックの登録
+    socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
+      this.messages.push(chatItem)
     })
 
     socket.on('PUB_CHANGE_ACTIVE_TOPIC', (res: any) => {
-      this.topicStates[`${res.topicId}`] = 'active'
+      if (res.type === 'OPEN') {
+        // 現在activeなトピックがあればfinishedにする
+        this.topicStates = Object.fromEntries(
+          Object.entries(this.topicStates).map(([topicId, topicState]) => [
+            topicId,
+            topicState === 'active' ? 'finished' : topicState,
+          ])
+        )
+        this.topicStates[res.topicId] = 'active'
+      } else if (res.type === 'PAUSE') {
+        this.topicStates[res.topicId] = 'paused'
+      } else if (res.type === 'CLOSE') {
+        this.topicStates[res.topicId] = 'finished'
+      }
     })
 
-    socket.on('PUB_FINISH_TOPIC', (res: any) => {
-      this.topicStates[res.topicId] = 'finished'
-      const messageAdmin: Message = {
-        id: `${getUUID()}`,
-        topicId: res.topicId,
-        type: 'message',
-        iconId: '0',
-        timestamp: 0,
-        createdAt: new Date(),
-        content: '【運営Bot】\n 以下、質問一覧です！',
-        target: null,
-      }
-      this.messages.push(messageAdmin)
-      for (const i in this.messages) {
-        // 閉じたトピックのmessageについて
-        if (
-          this.messages[i].topicId === res.topicId &&
-          this.messages[i].type === 'question'
-        ) {
-          // @ts-ignore
-          const m: Message = {
-            id: `${getUUID()}`,
-            topicId: res.topicId,
-            type: 'question',
-            iconId: '0',
-            timestamp: 0,
-            createdAt: new Date(),
-            // @ts-ignore
-            content: this.messages[i].content,
-          }
-          this.messages.push(m)
-        }
-      }
-    })
+    // socket.on('PUB_FINISH_TOPIC', (res: any) => {
+    //   this.topicStates[res.topicId] = 'finished'
+    //   const messageAdmin: Message = {
+    //     id: `${getUUID()}`,
+    //     topicId: res.topicId,
+    //     type: 'message',
+    //     iconId: '0',
+    //     timestamp: 0,
+    //     createdAt: new Date(),
+    //     content: '【運営Bot】\n 以下、質問一覧です！',
+    //     target: null,
+    //   }
+    //   this.messages.push(messageAdmin)
+    //   for (const i in this.messages) {
+    //     // 閉じたトピックのmessageについて
+    //     if (
+    //       this.messages[i].topicId === res.topicId &&
+    //       this.messages[i].type === 'question'
+    //     ) {
+    //       // @ts-ignore
+    //       const m: Message = {
+    //         id: `${getUUID()}`,
+    //         topicId: res.topicId,
+    //         type: 'question',
+    //         iconId: '0',
+    //         timestamp: 0,
+    //         createdAt: new Date(),
+    //         // @ts-ignore
+    //         content: this.messages[i].content,
+    //       }
+    //       this.messages.push(m)
+    //     }
+    //   }
+    // })
   },
   methods: {
     // 管理画面の開閉
@@ -318,7 +321,7 @@ export default Vue.extend({
         const t: Topic = {
           id: `${getUUID()}`,
           title: topicTitle,
-          description: '',
+          // description: '',
           urls: { github: '', slide: '', product: '' },
         }
         this.topicsAdmin.push(t)
@@ -401,7 +404,7 @@ export default Vue.extend({
           this.topicStates[1] = 'active'
         }
       )
-      setSelectedIcon(iconId)
+      setSelectedIconToJSON(iconId)
     },
     // アイコン選択
     clickIcon(index: number) {
@@ -409,42 +412,61 @@ export default Vue.extend({
     },
 
     // チャット関連
-    sendMessage(text: string, topicId: string, isQuestion: boolean) {
+    sendMessage(
+      text: string,
+      topicId: string,
+      target: Message | Answer | null
+    ) {
       const socket = (this as any).socket
-      let messageType: string
-      if (isQuestion) {
-        messageType = 'question'
-      } else {
-        messageType = 'message'
-      }
       const params: PostChatItemMessageParams = {
         type: 'message',
         id: getUUID(),
         topicId,
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
-        isQuestion,
+        target: target?.id ?? null,
       }
       // サーバーに反映する
       socket.emit('POST_CHAT_ITEM', params)
+      // NOTE: サーバと処理を共通化したい
       // ローカルに反映する
       this.messages.push({
         id: params.id,
+        type: 'message',
         topicId,
-        type: messageType,
         iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
         createdAt: new Date(),
-        target: null,
-        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+        target,
+        timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
+      })
+    },
+    sendQuestion(text: string, topicId: string) {
+      const socket = (this as any).socket
+      const params: PostChatItemQuestionParams = {
+        type: 'question',
+        id: getUUID(),
+        topicId,
+        content: text,
+      }
+      // サーバーに反映する
+      socket.emit('POST_CHAT_ITEM', params)
+      // NOTE: サーバと処理を共通化したい
+      // ローカルに反映する
+      this.messages.push({
+        id: params.id,
+        type: 'question',
+        topicId,
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
+        content: text,
+        createdAt: new Date(),
+        timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
       })
     },
     sendReaction(message: Message) {
       const socket = (this as any).socket
       const params: PostChatItemReactionParams = {
-        id: `${getUUID()}`,
+        id: getUUID(),
         topicId: message.topicId,
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         type: 'reaction',
         reactionToId: message.id,
       }
@@ -457,7 +479,31 @@ export default Vue.extend({
         type: 'reaction',
         iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+        createdAt: new Date(),
         target: message,
+      })
+    },
+    sendAnswer(text: string, question: Question) {
+      const socket = (this as any).socket
+      const params: PostChatItemAnswerParams = {
+        id: getUUID(),
+        topicId: question.topicId,
+        type: 'answer',
+        target: question.id,
+        content: text,
+      }
+      // サーバーに反映する
+      socket.emit('POST_CHAT_ITEM', params)
+      // ローカルに反映する
+      this.messages.push({
+        id: params.id,
+        topicId: question.topicId,
+        type: 'question',
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
+        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+        createdAt: new Date(),
+        target: question,
+        content: text,
       })
     },
     sendFavorite(topicId: string) {
@@ -508,7 +554,7 @@ const CHAT_DUMMY_DATA: ChatItem[] = [
   {
     timestamp: 60,
     iconId: '2',
-    createdAt: '2021-05-08T00:00:00.000Z',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
     id: '001',
     topicId: '1',
     type: 'message',
@@ -518,14 +564,14 @@ const CHAT_DUMMY_DATA: ChatItem[] = [
   {
     timestamp: 0,
     iconId: '3',
-    createdAt: '2021-05-08T00:00:00.000Z',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
     target: {
       id: '001',
       topicId: '0',
       type: 'message',
       iconId: '2',
       timestamp: 0,
-      createdAt: '2021-05-08T00:00:00.000Z',
+      createdAt: new Date('2021-05-08T00:00:00.000Z'),
       content: 'コメント',
       target: null,
     },
@@ -536,7 +582,7 @@ const CHAT_DUMMY_DATA: ChatItem[] = [
   {
     timestamp: 0,
     iconId: '2',
-    createdAt: '2021-05-08T00:00:00.000Z',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
     id: '003',
     topicId: '1',
     type: 'question',
@@ -545,7 +591,7 @@ const CHAT_DUMMY_DATA: ChatItem[] = [
   {
     timestamp: 0,
     iconId: '3',
-    createdAt: '2021-05-08T00:00:00.000Z',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
     id: '004',
     topicId: '1',
     type: 'answer',
@@ -556,21 +602,21 @@ const CHAT_DUMMY_DATA: ChatItem[] = [
       type: 'question',
       iconId: '2',
       timestamp: 0,
-      createdAt: '2021-05-08T00:00:00.000Z',
+      createdAt: new Date('2021-05-08T00:00:00.000Z'),
       content: '質問',
     },
   },
   {
     timestamp: 0,
     iconId: '4',
-    createdAt: '2021-05-08T00:00:00.000Z',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
     target: {
       id: '001',
       topicId: '0',
       type: 'message',
       iconId: '2',
       timestamp: 0,
-      createdAt: '2021-05-08T00:00:00.000Z',
+      createdAt: new Date('2021-05-08T00:00:00.000Z'),
       content: 'コメント',
       target: null,
     },
