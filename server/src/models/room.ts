@@ -5,8 +5,6 @@ import {
   ChatItemBase,
   Message,
   Question,
-  Topic,
-  TopicState,
   User,
 } from "../chatItem";
 import {
@@ -17,6 +15,7 @@ import {
 } from "../events";
 import { IServerSocket } from "../serverSocket";
 import { Stamp, stampIntervalSender } from "../stamp";
+import { Topic, TopicState } from "../topic";
 
 type MessageStore = ChatItemBase & {
   type: "message";
