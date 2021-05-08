@@ -3,10 +3,9 @@ export type TopicLinkType = 'github' | 'slide' | 'product'
 export type Topic = {
   id: string
   title: string
-  description: string
-  urls: Record<TopicLinkType, string>
+  urls: Partial<Record<TopicLinkType, string>>
 }
-export type TopicState = 'not-started' | 'ongoing' | 'paused' | 'finished'
+export type TopicState = 'not-started' | 'active' | 'paused' | 'finished'
 
 // ChatItem型
 export type ChatItemType = 'message' | 'reaction' | 'question' | 'answer'
@@ -16,7 +15,7 @@ export type ChatItemBase = {
   type: string
   iconId: string
   timestamp: number
-  createdAt: Date
+  createdAt: string
 }
 export type Question = ChatItemBase & {
   content: string // 質問の内容
@@ -32,20 +31,16 @@ export type Message = ChatItemBase & {
 }
 export type Reaction = ChatItemBase & {
   type: 'reaction'
-  target: Message // リアクション先のChatItem
+  target: Message | Question | Answer // リアクション先のChatItem
 }
 export type ChatItem = Message | Reaction | Question | Answer
 
 // Propのtopicの型（今回はTopicをそのまま）
 export type TopicPropType = Topic
 
-// PropのChatItemの型（今回はChatItemをそのまま）
-export type ChatItemPropType = ChatItem
-
 // ルーム型
 export type Room = {
   id: string
-  roomKey: string
   title: string
   topics: Topic[]
 }
