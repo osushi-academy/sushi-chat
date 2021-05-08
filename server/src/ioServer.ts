@@ -35,7 +35,6 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   let activeTopicId: string | null = null;
 
   let serverAwakerTimer: NodeJS.Timeout;
-  let stampIntervalSenderTimer: NodeJS.Timeout;
 
   //サーバー起こしておくため
   function serverAwaker() {
@@ -63,7 +62,6 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       if (activeUserCount === 1) {
         //サーバー起こしておくため
         serverAwakerTimer = serverAwaker();
-        stampIntervalSenderTimer = stampIntervalSender(io, stockedStamps);
       }
 
       // ルームをたてる
@@ -271,8 +269,6 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         if (activeUserCount === 0) {
           //サーバー起こしておくこ
           clearInterval(serverAwakerTimer);
-          //このこが2秒毎にスタンプを送る
-          clearInterval(stampIntervalSenderTimer);
         }
       });
     }
