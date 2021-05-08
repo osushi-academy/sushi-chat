@@ -130,7 +130,9 @@ export default Vue.extend({
   },
   methods: {
     writeToClipboard() {
-      navigator.clipboard.writeText(this.test)
+      navigator.clipboard.writeText(
+        'https://sushi-chat-cyan.vercel.app/' + this.room.roomKey
+      )
     },
     clickPlayPauseButton(topicId: string) {
       if (this.topicStates[topicId] === 'ongoing') {
