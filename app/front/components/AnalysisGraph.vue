@@ -55,6 +55,18 @@ export default Vue.extend({
           display: true,
           text: this.chatData.topic.title + 'の解析グラフ',
         },
+        scales: {
+          xAxes: [
+            {
+              display: false,
+            },
+          ],
+          yAxes: [
+            {
+              display: false,
+            },
+          ],
+        },
       },
       // チャートのスタイル: <canvas>のstyle属性として設定
       chartStyles: {
@@ -72,7 +84,8 @@ export default Vue.extend({
     // タイムスタンプを辞書式にカウント
     toCountStamp(array: Array<number>, m: number) {
       const dict: { [key: number]: number } = {}
-      for (let i = 0; i < m; i++) {
+      // 0埋め
+      for (let i = 0; i <= m; i++) {
         dict[i] = 0
       }
       for (const key of array) {
@@ -82,11 +95,11 @@ export default Vue.extend({
       }
       return dict
     },
-    // コメントといいねのデータを埋める
+    // 運営を弾いたコメント数といいね数のデータを埋める
     fillData() {
-      const commentStamp: Array<number> = this.chatData.message.map((message) =>
-        Math.floor(message.timestamp / 10000)
-      )
+      const commentStamp: Array<number> = this.chatData.message
+        .filter(({ iconId }) => iconId !== '0')
+        .map((message) => Math.floor(message.timestamp / 10000))
       const maxStamp: number = Math.max(...commentStamp)
       const commentNum: { [key: number]: number } = this.toCountStamp(
         commentStamp,
@@ -98,24 +111,21 @@ export default Vue.extend({
         datasets: [
           {
             // データのラベル
-            label: 'コメント数',
+            label: 'コメント',
             // データの値。labelsと同じサイズ
             // @ts-ignore
             data: Object.values(commentNum),
             borderColor: 'rgba(0, 0, 255, 0.3)',
             backgroundColor: 'rgba(0, 0, 255, 0.3)',
           },
-          {
-            label: 'いいね数',
-            data: [],
-            borderColor: 'rgba(255, 0, 0, 0.3)',
-            backgroundColor: 'rgba(255, 0, 0, 0.3)',
-          },
+          // {
+          //   label: 'いいね',
+          //   data: [],
+          //   borderColor: 'rgba(255, 0, 0, 0.3)',
+          //   backgroundColor: 'rgba(255, 0, 0, 0.3)',
+          // },
         ],
       }
-    },
-    getRandomInt(): any {
-      return Math.floor(Math.random() * (50 - 5 + 1)) + 5
     },
   },
 })
