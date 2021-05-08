@@ -37,7 +37,7 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    isActiveTopic: {
+    isAdmin: {
       type: Boolean,
       required: true,
     },

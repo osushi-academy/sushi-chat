@@ -395,17 +395,17 @@ export default Vue.extend({
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (res: any) => {
-          // this.topics = res.topics
-          // this.messages = res.chatItems ?? []
-          // this.topicStates[res.activeTopicId] = 'ongoing'
-          this.topics = TOPICS
-          this.messages = CHAT_DUMMY_DATA
-          this.topics.forEach(({ id }) => {
-            this.topicStates[id] = 'not-started'
-          })
-          this.topicStates[1] = 'active'
+          this.topics = res.topics
+          this.messages = res.chatItems ?? []
+          this.topicStates[res.activeTopicId] = 'active'
         }
       )
+      this.topics = TOPICS
+      this.messages = CHAT_DUMMY_DATA
+      this.topics.forEach(({ id }) => {
+        this.topicStates[id] = 'not-started'
+      })
+      this.topicStates[1] = 'active'
       setSelectedIconToJSON(iconId)
     },
     // アイコン選択
