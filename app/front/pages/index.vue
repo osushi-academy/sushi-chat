@@ -1,13 +1,16 @@
 <template>
   <div class="container page">
-    <header>
+    <header :v-show="isAdmin">
       <button @click="clickDrawerMenu">
         <span class="material-icons"> {{ hamburgerMenu }} </span>
+      </button>
+      <button v-show="!isRoomStarted" @click="startRoom">
+        ルームをオープンする
       </button>
     </header>
     <main>
       <modal
-        v-if="isAdmin"
+        v-if="isAdmin && room.id == null"
         name="sushi-modal"
         :adaptive="true"
         :click-to-close="false"
@@ -129,6 +132,7 @@ import {
   Question,
 } from '@/models/contents'
 import {
+  AdminBuildRoomResponse,
   PostChatItemAnswerParams,
   PostChatItemMessageParams,
   PostChatItemQuestionParams,
@@ -156,10 +160,11 @@ type DataType = {
   inputText: string
   // ルーム情報
   topics: Topic[]
-  topicsAdmin: Topic[]
+  topicsAdmin: Omit<Topic, 'id'>[]
   activeUserCount: number
   topicStates: { [key: string]: TopicState }
   room: Room
+  isRoomStarted: boolean
   // ユーザー関連
   isAdmin: boolean
   icons: any
@@ -185,6 +190,7 @@ export default Vue.extend({
       activeUserCount: 0,
       topicStates: {},
       room: {} as Room,
+      isRoomStarted: false,
       // ユーザー関連
       isAdmin: false,
       icons: [
@@ -218,15 +224,18 @@ export default Vue.extend({
       this.isAdmin = true
     }
 
+    if (this.$route.query.roomId != null) {
+      // TODO: redirect
+    }
+
     const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
-
     if (!this.isAdmin) {
       const selectedIcon = getSelectedIconFromJSON()
       if (selectedIcon == null) {
         this.$modal.show('sushi-modal')
       } else {
-        this.iconChecked = selectedIcon - 1
+        this.iconChecked = selectedIcon
         this.enterRoom(selectedIcon)
       }
     }
@@ -237,7 +246,7 @@ export default Vue.extend({
       this.messages.push(chatItem)
     })
 
-    socket.on('PUB_CHANGE_ACTIVE_TOPIC', (res: any) => {
+    socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
       if (res.type === 'OPEN') {
         // 現在activeなトピックがあればfinishedにする
         this.topicStates = Object.fromEntries(
@@ -253,41 +262,6 @@ export default Vue.extend({
         this.topicStates[res.topicId] = 'finished'
       }
     })
-
-    // socket.on('PUB_FINISH_TOPIC', (res: any) => {
-    //   this.topicStates[res.topicId] = 'finished'
-    //   const messageAdmin: Message = {
-    //     id: `${getUUID()}`,
-    //     topicId: res.topicId,
-    //     type: 'message',
-    //     iconId: '0',
-    //     timestamp: 0,
-    //     createdAt: new Date(),
-    //     content: '【運営Bot】\n 以下、質問一覧です！',
-    //     target: null,
-    //   }
-    //   this.messages.push(messageAdmin)
-    //   for (const i in this.messages) {
-    //     // 閉じたトピックのmessageについて
-    //     if (
-    //       this.messages[i].topicId === res.topicId &&
-    //       this.messages[i].type === 'question'
-    //     ) {
-    //       // @ts-ignore
-    //       const m: Message = {
-    //         id: `${getUUID()}`,
-    //         topicId: res.topicId,
-    //         type: 'question',
-    //         iconId: '0',
-    //         timestamp: 0,
-    //         createdAt: new Date(),
-    //         // @ts-ignore
-    //         content: this.messages[i].content,
-    //       }
-    //       this.messages.push(m)
-    //     }
-    //   }
-    // })
   },
   methods: {
     // 管理画面の開閉
@@ -320,8 +294,7 @@ export default Vue.extend({
         // 重複してるトピックはカウントしない
         if (set.has(topicTitle)) continue
 
-        const t: Topic = {
-          id: `${getUUID()}`,
+        const t: Omit<Topic, 'id'> = {
           title: topicTitle,
           // description: '',
           urls: { github: '', slide: '', product: '' },
@@ -346,15 +319,16 @@ export default Vue.extend({
       }
 
       // 仮topicから空でないものをtopicsに
+      const topics: Omit<Topic, 'id'>[] = []
       for (const t in this.topicsAdmin) {
         if (this.topicsAdmin[t].title) {
-          this.topics.push(this.topicsAdmin[t])
-          this.topicStates[this.topicsAdmin[t].id] = 'not-started'
+          topics.push(this.topicsAdmin[t])
+          // this.topicStates[this.topicsAdmin[t].id] = 'not-started'
         }
       }
 
       // トピック0はだめ
-      if (this.topics.length === 0) {
+      if (topics.length === 0) {
         alertmessage += 'トピック名を入力してください\n'
       }
 
@@ -364,19 +338,53 @@ export default Vue.extend({
         return
       }
 
-      // this.topicsをサーバに反映
+      // ルームを作成
       const socket = (this as any).socket
-      socket.emit('CREATE_ROOM', {
-        topics: this.topics,
-      })
+      socket.emit(
+        'ADMIN_BUILD_ROOM',
+        {
+          title: this.room.title,
+          topics,
+        },
+        (room: AdminBuildRoomResponse) => {
+          this.room = room
+          console.log(room)
+          socket.emit(
+            'ADMIN_ENTER_ROOM',
+            {
+              roomId: room.id,
+            },
+            ({ chatItems, topics, activeUserCount }: any) => {
+              topics.forEach((topic: any) => {
+                this.topicStates[topic.id] = 'not-started'
+              })
+              this.messages = chatItems
+              this.topics = topics
+              this.activeUserCount = activeUserCount
+            }
+          )
+        }
+      )
 
       // ルーム開始
       this.$modal.hide('sushi-modal')
     },
+
+    startRoom() {
+      const socket = (this as any).socket
+      socket.emit('ADMIN_START_ROOM', { roomId: this.room.id })
+      this.isRoomStarted = true
+    },
+
     // アクティブトピックが変わる
     changeActiveTopic(topicId: string) {
       const socket = (this as any).socket
-      socket.emit('CHANGE_ACTIVE_TOPIC', { topicId })
+      console.log(topicId)
+      socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
+        roomId: this.room.id,
+        topicId,
+        type: 'OPEN',
+      })
     },
 
     // ユーザ関連
@@ -388,24 +396,23 @@ export default Vue.extend({
     // ルーム入室
     enterRoom(iconId: number) {
       const socket = (this as any).socket
+
+      const roomId = this.$route.query.roomId as string
       socket.emit(
         'ENTER_ROOM',
         {
           iconId,
+          roomId,
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (res: any) => {
           this.topics = res.topics
           this.messages = res.chatItems ?? []
-          this.topicStates[res.activeTopicId] = 'active'
+          res.topics.forEach((topic: any) => {
+            this.topicStates[topic.id] = topic.state
+          })
         }
       )
-      this.topics = TOPICS
-      this.messages = CHAT_DUMMY_DATA
-      this.topics.forEach(({ id }) => {
-        this.topicStates[id] = 'not-started'
-      })
-      this.topicStates[1] = 'active'
       setSelectedIconToJSON(iconId)
     },
     // アイコン選択

@@ -69,6 +69,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       // ルームをたてる
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
         const roomId = uuid();
+        console.log(roomId);
         const newRoom = new RoomClass(roomId, received.title, received.topics);
         rooms[roomId] = newRoom;
         callback({
@@ -124,6 +125,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         if (roomId == null) {
           throw new Error("[sushi-chat-server] You do not joined in any room");
         }
+        console.log(roomId);
         const room = rooms[roomId];
         room.startRoom();
       });
