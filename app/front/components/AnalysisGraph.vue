@@ -58,7 +58,10 @@ export default Vue.extend({
         scales: {
           xAxes: [
             {
-              display: false,
+              scaleLabel: {
+                display: true, // ラベルの表示・非表示
+                labelString: '経過時間(/10秒)',
+              },
             },
           ],
           yAxes: [
