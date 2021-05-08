@@ -2,6 +2,7 @@ import { Server, Socket } from "socket.io";
 import { Server as HttpServer } from "http";
 import { v4 as uuid } from "uuid";
 import RoomClass from "./models/room";
+import SaveChatItemClass from "./saveChatItem";
 import { ReceiveEventParams, ReceiveEventResponses } from "./events";
 import ServerSocket from "./serverSocket";
 import { clientCreate, insertRoom, insertTopics } from "./database/database";
@@ -18,8 +19,11 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 
   const rooms: Record<string, RoomClass> = {};
   const client: Client = clientCreate();
+  SaveChatItemClass.client = client;
+
   let activeUserCount: number = 0;
   let serverAwakerTimer: NodeJS.Timeout;
+  let chatItemIntervalSaverTimer: NodeJS.Timeout;
 
   //サーバー起こしておくため
   function serverAwaker() {
@@ -43,17 +47,20 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       >
     ) => {
       activeUserCount++;
-
       console.log("user joined, now", activeUserCount);
       if (activeUserCount === 1) {
         //サーバー起こしておくため
         serverAwakerTimer = serverAwaker();
+        //1分ごとにchatItemをDBに保存するため
+        chatItemIntervalSaverTimer = SaveChatItemClass.chatItemIntervalSaver();
       }
 
       // ルームをたてる
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
         try {
+          console.log("build");
           const roomId = uuid();
+          console.log(roomId);
           const newRoom = new RoomClass(
             roomId,
             received.title,
@@ -257,7 +264,10 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         activeUserCount--;
         if (activeUserCount === 0) {
           //サーバー起こしておくこ
-          clearInterval(serverAwakerTimer);
+          clearInterval(serverAwakerTimer); //DBに保存する子
+          clearInterval(chatItemIntervalSaverTimer);
+          //残っているものをセーブしておく
+          SaveChatItemClass.saveChatItem();
         }
       });
     }

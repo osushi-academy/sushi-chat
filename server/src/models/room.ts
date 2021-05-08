@@ -13,6 +13,7 @@ import {
   PostStampParams,
   PubStampParams,
 } from "../events";
+import SaveChatItemClass from "../saveChatItem";
 import { IServerSocket } from "../serverSocket";
 import { Stamp, stampIntervalSender } from "../stamp";
 import { Topic, TopicState } from "../topic";
@@ -198,6 +199,8 @@ class RoomClass {
     const chatItem = this.addServerInfo(userId, chatItemParams);
     // 配列に保存
     this.chatItems.push(chatItem);
+    // DBに保存
+    SaveChatItemClass.pushQueue(chatItem, this.id);
     // サーバでの保存形式をフロントに返すレスポンスの形式に変換して配信する
     this.getSocketByUserId(userId).broadcast(
       "PUB_CHAT_ITEM",
