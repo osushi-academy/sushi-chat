@@ -47,6 +47,7 @@
       </div>
     </article>
 
+    <!--Reaction Message-->
     <article v-if="message.type == 'reaction'" class="reaction">
       <div class="icon-wrapper">
         <img :src="icon" alt="" />

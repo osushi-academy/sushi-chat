@@ -11,7 +11,10 @@
           </div>
           <div class="room-url">
             <span>{{ test }}</span>
-            <button class="material-icons" @click="writeToClipboard">
+            <button
+              class="material-icons copy-button"
+              @click="writeToClipboard"
+            >
               content_copy
             </button>
           </div>
