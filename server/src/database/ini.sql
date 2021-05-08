@@ -6,28 +6,28 @@ CREATE TABLE Rooms (
 );
 
 CREATE TABLE Topics (
-    id UUID NOT NULL PRIMARY KEY,
-    topicOrder INT NOT NULL,
+    id INT NOT NULL,
     roomId UUID NOT NULL REFERENCES Rooms(id),
     title VARCHAR(20) NOT NULL,
     description TEXT NOT NULL,
     state INT NOT NULL,
     githubUrl TEXT,
     slideUrl TEXT,
-    productUrl TEXT
+    productUrl TEXT,
+    PRIMARY KEY (id, roomId)
 );
 
 CREATE TABLE ChatItems (
   id UUID NOT NULL PRIMARY KEY,
   type INT NOT NULL,
   roomId UUID NOT NULL REFERENCES Rooms(id),
-  topicId UUID NOT NULL REFERENCES Topics(id),
+  topicId INT NOT NULL,
   iconId VARCHAR(10) NOT NULL,
   timestamp INT NOT NULL,
   createdAt TIMESTAMP NOT NULL,
   content TEXT,
   targetId UUID REFERENCES ChatItems(id)
-)
+);
 
 -- CREATE TABLE Messages (
 --   id UUID NOT NULL PRIMARY KEY,

@@ -48,10 +48,8 @@ export function insertTopics(client: Client, roomId: string, topics: Topic[]) {
     .map(
       (topic) =>
         "('" +
-        /* id */ uuid() +
-        "'," +
-        /* topicOrder */ topic.id +
-        ",'" +
+        /* id */ topic.id +
+        "','" +
         /* roomId */ roomId.toString() +
         "','" +
         /* title */ topic.title +
@@ -70,7 +68,7 @@ export function insertTopics(client: Client, roomId: string, topics: Topic[]) {
     .join(",");
 
   const query =
-    "INSERT INTO Topics (id, topicOrder, roomId, title, description, state, githubUrl, slideUrl, productUrl) VALUES" +
+    "INSERT INTO Topics (id, roomId, title, description, state, githubUrl, slideUrl, productUrl) VALUES" +
     values +
     ";";
 
