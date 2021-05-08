@@ -16,24 +16,24 @@
     <article
       v-else-if="message.type == 'message'"
       class="comment"
-      @click="clickGood"
+      @click="clickCard"
     >
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
       </div>
       <!-- eslint-disable-next-line prettier/prettier -->
-      <div class="baloon">{{message.target != null? `> ${message.target.content}\n${message.content}`: message.content}}
-      </div>
+      <div class="baloon">{{message.target != null? `> ${message.target.content}\n${message.content}`: message.content}}</div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
+      <button @click="clickReply">REPLY</button>
     </article>
 
     <!--Question Message-->
     <article
       v-else-if="message.type == 'question'"
       class="comment question"
-      @click="clickGood"
+      @click="clickCard"
     >
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
@@ -44,6 +44,7 @@
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
+      <button @click="clickReply">REPLY</button>
     </article>
 
     <!--Answer Message-->
@@ -51,17 +52,19 @@
       v-else-if="message.type == 'answer'"
       class="comment question"
       :style="{ background: 'red' }"
-      @click="clickGood"
+      @click="clickCard"
     >
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
         <div class="question-badge">A</div>
         <div v-if="message.iconId == 0" class="admin-badge">運 営</div>
       </div>
-      <div class="baloon">{{ message.content }}</div>
+      <!-- eslint-disable-next-line prettier/prettier -->
+      <div class="baloon">{{`Q. ${message.target.content}\nA. ${message.content}`}}</div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
+      <button @click="clickReply">REPLY</button>
     </article>
 
     <!-- Reaction -->
@@ -95,8 +98,11 @@ export default Vue.extend({
     },
   },
   methods: {
-    clickGood() {
-      this.$emit('good', this.message)
+    clickCard() {
+      this.$emit('click-card', this.message)
+    },
+    clickReply() {
+      this.$emit('click-reply')
     },
   },
 })

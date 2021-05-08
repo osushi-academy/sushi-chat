@@ -104,6 +104,8 @@
           :topic-state="topicStates[chatData.topic.id]"
           @send-message="sendMessage"
           @send-reaction="sendReaction"
+          @send-question="sendQuestion"
+          @send-answer="sendAnswer"
           @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
         />
@@ -417,6 +419,7 @@ export default Vue.extend({
       topicId: string,
       target: Message | Answer | null
     ) {
+      console.log('send message: ', text)
       const socket = (this as any).socket
       const params: PostChatItemMessageParams = {
         type: 'message',
@@ -440,7 +443,30 @@ export default Vue.extend({
         timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
       })
     },
+    sendReaction(message: Message) {
+      console.log('send reaction: ', message.content)
+      const socket = (this as any).socket
+      const params: PostChatItemReactionParams = {
+        id: getUUID(),
+        topicId: message.topicId,
+        type: 'reaction',
+        reactionToId: message.id,
+      }
+      // サーバーに反映する
+      socket.emit('POST_CHAT_ITEM', params)
+      // ローカルに反映する
+      this.messages.push({
+        id: params.id,
+        topicId: message.topicId,
+        type: 'reaction',
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
+        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+        createdAt: new Date(),
+        target: message,
+      })
+    },
     sendQuestion(text: string, topicId: string) {
+      console.log('send question: ', text)
       const socket = (this as any).socket
       const params: PostChatItemQuestionParams = {
         type: 'question',
@@ -462,28 +488,8 @@ export default Vue.extend({
         timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
       })
     },
-    sendReaction(message: Message) {
-      const socket = (this as any).socket
-      const params: PostChatItemReactionParams = {
-        id: getUUID(),
-        topicId: message.topicId,
-        type: 'reaction',
-        reactionToId: message.id,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        topicId: message.topicId,
-        type: 'reaction',
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        createdAt: new Date(),
-        target: message,
-      })
-    },
     sendAnswer(text: string, question: Question) {
+      console.log('send answer: ', text)
       const socket = (this as any).socket
       const params: PostChatItemAnswerParams = {
         id: getUUID(),
@@ -497,8 +503,8 @@ export default Vue.extend({
       // ローカルに反映する
       this.messages.push({
         id: params.id,
-        topicId: question.topicId,
-        type: 'question',
+        topicId: params.topicId,
+        type: 'answer',
         iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
         createdAt: new Date(),

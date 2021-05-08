@@ -18,7 +18,11 @@
             :key="message.id"
             class="list-complete-item"
           >
-            <MessageComponent :message="message" @good="clickGood" />
+            <MessageComponent
+              :message="message"
+              @click-card="clickReaction"
+              @click-reply="selectedChatItem = message"
+            />
           </div>
         </transition-group>
       </div>
@@ -67,6 +71,7 @@ type FavoriteCallbackRegisterPropType = {
 // Data型
 type DataType = {
   isNotify: boolean
+  selectedChatItem: ChatItem | null
 }
 
 export default Vue.extend({
@@ -108,6 +113,7 @@ export default Vue.extend({
   data(): DataType {
     return {
       isNotify: false,
+      selectedChatItem: null,
     }
   },
   computed: {
@@ -125,12 +131,33 @@ export default Vue.extend({
   methods: {
     // 送信ボタン
     clickSubmit(text: string, isQuestion: boolean) {
-      this.$emit('send-message', text, this.chatData.topic.id, isQuestion)
+      if (this.selectedChatItem == null) {
+        if (isQuestion) {
+          // 質問
+          this.$emit('send-question', text, this.chatData.topic.id)
+        } else {
+          // 通常メッセージ
+          this.$emit('send-message', text, this.chatData.topic.id, null)
+        }
+      } else if (
+        this.selectedChatItem.type === 'message' ||
+        this.selectedChatItem.type === 'answer'
+      ) {
+        // リプライ
+        this.$emit(
+          'send-message',
+          text,
+          this.chatData.topic.id,
+          this.selectedChatItem
+        )
+      } else if (this.selectedChatItem.type === 'question') {
+        // 回答
+        this.$emit('send-answer', text, this.selectedChatItem)
+      }
       this.clickScroll()
+      this.selectedChatItem = null
     },
-    // いいねボタン
-    clickGood(message: Message) {
-      // submit
+    clickReaction(message: Message) {
       this.$emit('send-reaction', message)
     },
     // ハートボタン
