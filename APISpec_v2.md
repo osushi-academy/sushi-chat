@@ -31,7 +31,7 @@ type TopicLinkType = "github" | "slide" | "product"
 [変更] activate or not の2状態から4状態へ変更
 ```ts
 type TopicState =
-      "not-started" | "ongoing" | "paused" | "finished"
+      "not-started" | "active" | "paused" | "finished"
 ```
 
 ## ChatItem
@@ -65,7 +65,7 @@ type Message = ChatItemBase & {
 [変更] targetの型を変更
 ```ts
 type Reaction = ChatItemBase & {
-  target: Message                  // リアクション先のChatItem
+  target: Message | Question | Answer // リアクション先のChatItem
 }
 ```
 
@@ -182,15 +182,9 @@ server → client
 client → server
 ```ts
 {
-  roomId: string     // 変更対象のroomId
-  type: 'NORMAL'     // 変更の種別（topicの状態変更を行う）
-  topicId: string    // 変更対象のtopicId
-  state: TopicState  // 変更"後"のトピックの状態
-}
-  |
-{
-  roomId: string
-  type: 'GO_NEXT'    // 変更の種別（今ongoingなトピックの終了と次のトピックの開始を同時に行う）
+  roomId: string                   // 変更対象のroomId
+  type: 'OPEN' | 'PAUSE' | 'CLOSE' // 変更の種別
+  topicId: string                  // 変更対象のtopicId
 }
 ```
 
@@ -198,13 +192,8 @@ client → server
 server → client
 ```ts
 {
-  type: 'NORMAL'    // 変更の種別（topicの状態変更を行う）
-  topicId: string   // 変更対象のtopicId
-  state: TopicState // 変更"後"のトピックの状態
-}
- |
-{
-  type: 'GO_NEXT'   // 変更の種別（今ongoingなトピックの終了と次のトピックの開始を同時に行う）
+  type: 'OPEN' | 'PAUSE' | 'CLOSE' // 変更の種別
+  topicId: string                  // 変更対象のtopicId
 }
 ```
 

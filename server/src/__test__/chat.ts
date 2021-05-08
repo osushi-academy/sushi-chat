@@ -2,285 +2,414 @@ import { createServer, Server as HttpServer } from "http";
 import { Server } from "socket.io";
 import { io as Client, Socket as ClientSocket } from "socket.io-client";
 import { ArrayRange } from "../utils/range";
-import delay from "../utils/delay";
 import createSocketIOServer from "../ioServer";
+import { Topic } from "../chatItem";
+import { AdminBuildRoomParams } from "../events";
 
-// サーバーサイドの実装
-// ここはテストファイルなので`createCustomServer`関数はあとで別のファイルに切り出す予定
-// コメントアウト部分はOptionに移行した機能。とりあえずコメントアウトしている。
-
-// const createCustomServer = (httpServer: HttpServer) => {
-//   const io = new Server(httpServer)
-//   const roomId = "room-id"
-//   const topics = ArrayRange(10).map(id => ({
-//     id: `00${id}`,
-//     title: `タイトル-${id}`
-//   }))
-
-//   io.on('connection', (socket) => {
-//     let userCount = 0
-
-//     // ユーザーがENTER_ROOMを送ったとき
-//     socket.on("ENTER_ROOM", (_, callback) => {
-//       socket.join(roomId)
-//       callback({
-//         chatItems: [],
-//         topics,
-//         activeUserCount: userCount++
-//       })
-//     })
-
-//     // ユーザーがPOST_CHAT_ITEMイベントを送信したとき
-//     socket.on("POST_CHAT_ITEM", (data, callback) => {
-//       socket.to(roomId).emit("PUB_CHAT_ITEM", {
-//         actions: [
-//           data.type === "message" ? {
-//             type: "confirm-to-send",
-//             content: {
-//               "id": data.id,
-//               "topicId": data.topicId,
-//               "type": "message",
-//               "iconId": '1',
-//               "timestamp": 100,
-//               "content": data.content,
-//             　"isQuestion": data.isQuestion
-//             }
-//           } : {
-//             type: "insert-chatitem",
-//             content: {
-//               "id": data.id,
-//               "topicId": data.topicId,
-//               "type": "reaction",
-//               "iconId": '1',
-//               "timestamp": 100,
-//               "target": {
-//                 id: data.reactionToId,
-//                 content: '今日はいい天気ですね'
-//               }
-//             }
-//           }
-//         ]
-//       })
-//     })
-
-//   })
-//   return io
-// }
-
-describe("チャット部分のテスト", () => {
-  const CLIENTS_COUNT = 5;
-
+describe("機能テスト", () => {
   let io: Server;
+  let adminSocket: ClientSocket;
   let clientSockets: ClientSocket[];
-  const topics = ArrayRange(10).map((i) => ({
-    id: i,
-    title: `タイトル${i}`,
-    description: `説明${i}`,
-  }));
-  const roomId = "room-id";
 
   // テストのセットアップ
-  beforeEach((done) => {
+  beforeAll((done) => {
     const httpServer = createServer();
     io = createSocketIOServer(httpServer);
     httpServer.listen(async () => {
       const port = (httpServer as any).address().port;
-      clientSockets = ArrayRange(CLIENTS_COUNT).map(() =>
-        Client(`http://localhost:${port}`)
-      );
-      await Promise.all(
-        clientSockets.map(
-          (socket) =>
-            new Promise((resolve) => socket.on("connect", () => resolve("FIN")))
-        )
-      );
-      // 部屋に入る
-      clientSockets.map((socket, i) => {
-        if (i !== 4) {
-          socket.emit("ENTER_ROOM", { roomId, iconId: i }, () => {});
-        }
-      });
+      [adminSocket, ...clientSockets] = ArrayRange(5).map(() => Client(`http://localhost:${port}`));
       done();
     });
   });
 
   // テストの終了処理
-  afterEach(() => {
+  afterAll(() => {
     io.close();
+    adminSocket.close();
     clientSockets.forEach((socket) => socket.close());
   });
 
-  test("チャットの入力と送信のテスト", async () => {
-    // テストのストーリー（[Option]はオプション機能になった部分。コメントアウトしている）
-    // 1. ユーザー1が入力を開始 [Option]
-    // 2. ユーザー1がチャットを送信
-    // 3. ユーザー2が入力を開始 [Option]
-    // 4. ユーザー2がチャット（質問）を送信
-    // 3. ユーザー3がリアクションを送信
+  let roomId: string;
+  let topics: Topic[];
+  const roomDataParams: AdminBuildRoomParams = {
+    title: "TEST_ROOM_TITLE",
+    topics: ArrayRange(10).map((i) => ({
+      title: `TEST_TOPIC_TITLE-${i}`,
+      description: `TEST_TOPIC_DESCRIPTION-${i}`,
+      urls: {
+        github: `https://example.com/github/${i}`,
+        slide: `https://example.com/slide/${i}`,
+        product: `https://example.com/our-product/${i}`,
+      },
+    })),
+  };
 
-    const topicId = "topic-001";
-    const postChatItem = {
-      type: "message",
-      id: "001",
-      topicId,
-      content: "今日はいい天気ですね",
-      isQuestion: false,
-    };
-    const postChatItem2 = {
-      type: "message",
-      id: "002",
-      topicId,
-      content: "本日は雨ではないでしょうか？",
-      isQuestion: true,
-    };
-    const postChatItem3 = {
-      type: "reaction",
-      id: "003",
-      topicId,
-      reactionToId: postChatItem.id,
-    };
+  const expectedTopics = roomDataParams.topics.map((topic) => ({
+    ...topic,
+    id: expect.any(String),
+    state: "not-started",
+  }));
 
-    const receiveEvent = jest.fn();
+  describe("ルームを立てる", () => {
+    test("管理者がルームを立てる", async (resolve) => {
+      adminSocket.emit("ADMIN_BUILD_ROOM", roomDataParams, (res: any) => {
+        roomId = res.id;
+        topics = res.topics;
+        expect(res).toStrictEqual({
+          id: expect.any(String),
+          title: roomDataParams.title,
+          topics: expectedTopics,
+        });
+        resolve();
+      });
+    });
+  });
 
-    // イベントの受信を設定する
-    let count = 0;
-    const tasks = new Promise((resolve) => {
-      console.log("#1");
-      clientSockets[0].on("PUB_CHAT_ITEM", (...params) => {
-        console.log("#2");
-        receiveEvent(...params);
-        count++;
-        if (count === 3) resolve(null);
+  describe("ユーザーがルームに入る", () => {
+    afterAll(() => {
+      clientSockets[0].off("PUB_ENTER_ROOM");
+    });
+    test("管理者がルームに入る", async (resolve) => {
+      // 管理者がルームに入る
+      adminSocket.emit("ADMIN_ENTER_ROOM", { roomId }, (res: any) => {
+        expect(res).toStrictEqual({
+          chatItems: [],
+          topics: expectedTopics,
+          activeUserCount: 1,
+        });
+        resolve();
+      });
+    });
+    test("ユーザーがルームに入る", async (resolve) => {
+      clientSockets[0].emit("ENTER_ROOM", { roomId, iconId: "1" }, (res: any) => {
+        expect(res).toStrictEqual({
+          chatItems: [],
+          topics: expectedTopics,
+          activeUserCount: 2,
+        });
+        resolve();
+      });
+    });
+    test("ユーザーの入室が配信される", async (resolve) => {
+      clientSockets[0].on("PUB_ENTER_ROOM", (res) => {
+        expect(res).toStrictEqual({
+          iconId: "2",
+          activeUserCount: 3,
+        });
+        resolve();
+      });
+      clientSockets[1].emit("ENTER_ROOM", { roomId, iconId: "2" }, (res: any) => {});
+    });
+    test.skip("存在しない部屋には入れない", async (resolve) => {
+      // TODO: エラー発生の確認がうまくできない
+      clientSockets[2].on("error", (res: any) => {
+        console.log(res);
+      });
+      clientSockets[2].emit("ENTER_ROOM", { roomId: "dasldksamk", iconId: "2" }, () => {});
+    });
+  });
+
+  describe("ルームの開始・トピックの遷移", () => {
+    afterEach(() => {
+      clientSockets[0].off("PUB_CHANGE_TOPIC_STATE");
+    });
+
+    test("ルームの開始", (resolve) => {
+      clientSockets[0].on("PUB_START_ROOM", () => {
+        resolve();
+      });
+      adminSocket.emit("ADMIN_START_ROOM", {});
+    });
+
+    test("0番目のトピックのオープン", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual({
+          type: "OPEN",
+          topicId: topics[0].id,
+        });
+        resolve();
+      });
+      adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
+        roomId,
+        type: "OPEN",
+        topicId: topics[0].id,
       });
     });
 
-    // イベントを送信する
-    clientSockets[1].emit("POST_CHAT_ITEM", postChatItem);
-    await delay(2.5);
-    clientSockets[2].emit("POST_CHAT_ITEM", postChatItem2);
-    await delay(2.5);
-    clientSockets[3].emit("POST_CHAT_ITEM", postChatItem3);
-    await tasks;
-
-    // テスト
-    expect(receiveEvent).nthCalledWith(1, {
-      type: "confirm-to-send",
-      content: {
-        id: postChatItem.id,
-        topicId: postChatItem.topicId,
-        type: postChatItem.type,
-        iconId: "1",
-        timestamp: expect.any(Number),
-        content: postChatItem.content,
-        isQuestion: postChatItem.isQuestion,
-      },
-    });
-
-    expect(receiveEvent).nthCalledWith(2, {
-      type: "confirm-to-send",
-      content: {
-        id: postChatItem2.id,
-        topicId: postChatItem2.topicId,
-        type: postChatItem2.type,
-        iconId: "2",
-        timestamp: expect.any(Number),
-        content: postChatItem2.content,
-        isQuestion: postChatItem2.isQuestion,
-      },
-    });
-
-    expect(receiveEvent).nthCalledWith(3, {
-      type: "confirm-to-send",
-      content: {
-        id: postChatItem3.id,
-        topicId: postChatItem3.topicId,
-        type: postChatItem3.type,
-        iconId: "3",
-        timestamp: expect.any(Number),
-        target: {
-          id: postChatItem.id,
-          content: postChatItem.content,
-        },
-      },
-    });
-  }, 10000);
-
-  test("途中から参加した参加者に履歴が送信される", async (done) => {
-    // テストのストーリー
-    // 1. ユーザー1がチャットを送信
-    // 2. ユーザー3がリアクションを送信（=> ユーザー2は入力中）
-    // 3. ユーザー4が参加
-
-    const topicId = "topic-001";
-
-    const postChatItem = {
-      type: "message",
-      id: "003",
-      topicId,
-      content: "今日はいい天気ですね",
-      isQuestion: false,
-    };
-
-    const postChatItem2 = {
-      type: "reaction",
-      id: "001",
-      topicId,
-      reactionToId: postChatItem.id,
-    };
-
-    const receiveEvent = jest.fn();
-
-    // イベントの受信を設定する
-    let count = 0;
-    const tasks = new Promise((resolve) => {
-      clientSockets[0].on("PUB_CHAT_ITEM", (...params) => {
-        receiveEvent(...params);
-        count++;
-        if (count === 2) resolve(null);
+    test("1番目のトピックをオープン", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual({
+          type: "OPEN",
+          topicId: topics[1].id,
+        });
+        resolve();
+      });
+      adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
+        roomId,
+        type: "OPEN",
+        topicId: topics[1].id,
       });
     });
 
-    // イベントを送信する
-    clientSockets[1].emit("POST_CHAT_ITEM", postChatItem);
-    clientSockets[3].emit("POST_CHAT_ITEM", postChatItem2);
-    await tasks;
+    test("2番目のトピックをオープン", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual({
+          type: "OPEN",
+          topicId: topics[2].id,
+        });
+        resolve();
+      });
+      adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
+        roomId,
+        type: "OPEN",
+        topicId: topics[2].id,
+      });
+    });
 
-    clientSockets[4].emit(
-      "ENTER_ROOM",
-      { roomId, iconId: "4" },
-      (data: any) => {
-        // テスト
-        expect(data.chatItems).toEqual([
-          {
-            id: postChatItem.id,
-            topicId: postChatItem.topicId,
-            type: postChatItem.type,
-            iconId: "1",
+    test("2番目のトピックを一時停止", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual({
+          type: "PAUSE",
+          topicId: topics[2].id,
+        });
+        resolve();
+      });
+      adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
+        roomId,
+        type: "PAUSE",
+        topicId: topics[2].id,
+      });
+    });
+
+    test("0番目のトピックをオープン", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual({
+          type: "OPEN",
+          topicId: topics[0].id,
+        });
+        resolve();
+      });
+      adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
+        roomId,
+        type: "OPEN",
+        topicId: topics[0].id,
+      });
+    });
+  });
+
+  describe("コメントを投稿する", () => {
+    beforeAll(() => {
+      clientSockets[2].emit("ENTER_ROOM", { roomId, iconId: "3" }, (res: any) => {});
+    });
+    afterEach(() => {
+      clientSockets[0].off("PUB_CHAT_ITEM");
+    });
+
+    test("Messageの投稿", (resolve) => {
+      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
+        expect(res).toStrictEqual({
+          id: "001",
+          topicId: topics[0].id,
+          type: "message",
+          iconId: "2",
+          timestamp: expect.any(Number),
+          createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+          content: "コメント",
+          target: null,
+        });
+        resolve();
+      });
+      clientSockets[1].emit("POST_CHAT_ITEM", {
+        id: "001",
+        topicId: topics[0].id,
+        type: "message",
+        content: "コメント",
+      });
+    });
+
+    test("Reactionの投稿", (resolve) => {
+      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
+        expect(res).toStrictEqual({
+          id: "002",
+          topicId: topics[0].id,
+          type: "reaction",
+          iconId: "3",
+          timestamp: expect.any(Number),
+          createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+          target: {
+            id: "001",
+            topicId: topics[0].id,
+            type: "message",
+            iconId: "2",
             timestamp: expect.any(Number),
-            content: postChatItem.content,
-            isQuestion: postChatItem.isQuestion,
+            createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+            content: "コメント",
+            target: null,
           },
-          {
-            id: postChatItem2.id,
-            topicId: postChatItem2.topicId,
-            type: postChatItem2.type,
-            iconId: "3",
+        });
+        resolve();
+      });
+      clientSockets[2].emit("POST_CHAT_ITEM", {
+        id: "002",
+        topicId: topics[0].id,
+        type: "reaction",
+        reactionToId: "001",
+      });
+    });
+
+    test("Questionの投稿", (resolve) => {
+      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
+        expect(res).toStrictEqual({
+          id: "003",
+          topicId: topics[0].id,
+          type: "question",
+          iconId: "2",
+          timestamp: expect.any(Number),
+          createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+          content: "質問",
+        });
+        resolve();
+      });
+      clientSockets[1].emit("POST_CHAT_ITEM", {
+        id: "003",
+        topicId: topics[0].id,
+        type: "question",
+        content: "質問",
+      });
+    });
+
+    test("Answerの投稿", (resolve) => {
+      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
+        expect(res).toStrictEqual({
+          id: "004",
+          topicId: topics[0].id,
+          type: "answer",
+          iconId: "3",
+          timestamp: expect.any(Number),
+          createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+          content: "回答",
+          target: {
+            id: "003",
+            topicId: topics[0].id,
+            type: "question",
+            iconId: "2",
             timestamp: expect.any(Number),
-            target: {
-              id: postChatItem.id,
-              content: postChatItem.content,
+            createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+            content: "質問",
+          },
+        });
+        resolve();
+      });
+      clientSockets[2].emit("POST_CHAT_ITEM", {
+        id: "004",
+        topicId: topics[0].id,
+        type: "answer",
+        content: "回答",
+        target: "003",
+      });
+    });
+  });
+
+  describe("スタンプの投稿", () => {
+    test("スタンプを投稿する", (resolve) => {
+      clientSockets[0].on("PUB_STAMP", (res) => {
+        expect(res).toStrictEqual({
+          iconId: "3",
+          topicId: topics[0].id,
+        });
+        resolve();
+      });
+      clientSockets[2].emit("POST_STAMP", { topicId: topics[0].id });
+    });
+  });
+
+  describe("途中から入室した場合", () => {
+    test("途中から入室した場合に履歴が見れる", (resolve) => {
+      clientSockets[3].emit("ENTER_ROOM", { roomId, iconId: "4" }, (res: any) => {
+        expect(res).toStrictEqual({
+          chatItems: [
+            {
+              timestamp: expect.any(Number),
+              iconId: "2",
+              createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+              id: "001",
+              topicId: "1",
+              type: "message",
+              content: "コメント",
+              target: null,
             },
-          },
-        ]);
+            {
+              timestamp: expect.any(Number),
+              iconId: "3",
+              createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+              target: {
+                id: "001",
+                topicId: topics[0].id,
+                type: "message",
+                iconId: "2",
+                timestamp: expect.any(Number),
+                createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+                content: "コメント",
+                target: null,
+              },
+              id: "002",
+              topicId: "1",
+              type: "reaction",
+            },
+            {
+              timestamp: expect.any(Number),
+              iconId: "2",
+              createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+              id: "003",
+              topicId: "1",
+              type: "question",
+              content: "質問",
+            },
+            {
+              timestamp: expect.any(Number),
+              iconId: "3",
+              createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+              id: "004",
+              topicId: "1",
+              type: "answer",
+              content: "回答",
+              target: {
+                id: "003",
+                topicId: topics[0].id,
+                type: "question",
+                iconId: "2",
+                timestamp: expect.any(Number),
+                createdAt: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+                content: "質問",
+              },
+            },
+          ],
+          topics: [
+            { ...topics[0], state: "active" },
+            { ...topics[1], state: "finished" },
+            { ...topics[2], state: "paused" },
+            ...topics.slice(3),
+          ],
+          activeUserCount: 5,
+        });
+        resolve();
+      });
+    });
+  });
 
-        // expect(data.topics).toEqual(topics);
+  describe("ルームの終了・閉じる", () => {
+    test("ルームを終了する", (resolve) => {
+      clientSockets[0].on("PUB_FINISH_ROOM", () => {
+        resolve();
+      });
+      adminSocket.emit("ADMIN_FINISH_ROOM", {});
+    });
 
-        done();
-      }
-    );
-  }, 10000);
-
-  // TODO: 部屋の入室退室のテスト
-  // TODO: スタンプのテスト
-  // TODO: 次のトピックへ進むテスト
+    test("ルームを閉じる", (resolve) => {
+      clientSockets[0].on("PUB_CLOSE_ROOM", () => {
+        resolve();
+      });
+      adminSocket.emit("ADMIN_CLOSE_ROOM", {});
+    });
+  });
 });
