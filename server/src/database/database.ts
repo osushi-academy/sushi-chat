@@ -1,4 +1,4 @@
-import uuid from "node-uuid";
+import { v4 as uuid } from "uuid";
 import { Client } from "pg";
 import { Message, Reaction } from "../chatItem";
 import { Topic } from "../topic";
@@ -28,7 +28,7 @@ export function insertRoom(
     {
       text:
         "INSERT INTO Rooms (id, roomKey, title, status) VALUES ($1, $2, $3, $4);",
-      values: [roomId, roomKey, title, status],
+      values: [roomId.toString(), roomKey, title, status],
     },
     (err) => {
       if (err) throw err;
@@ -36,41 +36,28 @@ export function insertRoom(
   );
 }
 
-// export function insertRoom(client: Client, room: Room) {
-//   client.query(
-//     {
-//       text:
-//         "INSERT INTO Rooms (id, roomKey, title, status) VALUES ($1, $2, $3, $4);",
-//       values: [room.roomId, room.roomKey, room.title, room.status],
-//     },
-//     (err) => {
-//       if (err) throw err;
-//     }
-//   );
-// }
-
-export function insertTopics(client: Client, topics: Topic[]) {
+export function insertTopics(client: Client, roomId: string, topics: Topic[]) {
   const values = topics
     .map(
       (topic) =>
         "('" +
-        /* id */ topic.id.toString() +
+        /* id */ uuid() +
         "'," +
-        /* topicOrder */ 0 +
+        /* topicOrder */ topic.id +
         ",'" +
-        /* roomId */ topic.roomid.toString() +
+        /* roomId */ roomId.toString() +
         "','" +
         /* title */ topic.title +
         "','" +
-        /* description */ "" +
+        /* description */ topic.description +
         "'," +
         /* state */ 0 +
         ",'" +
-        /* githubUrl */ "" +
+        /* githubUrl */ topic.urls.github +
         "','" +
-        /* slideUrl */ "" +
+        /* slideUrl */ topic.urls.slide +
         "','" +
-        /* productUrl */ "" +
+        /* productUrl */ topic.urls.product +
         "')"
     )
     .join(",");
@@ -92,7 +79,7 @@ export function insertMessages(client: Client, messages: Message[]) {
         "('" +
         /* id */ message.id +
         "','" +
-        /* roomId */ message.roomId +
+        /* roomId */ "" +
         "','" +
         /* topicId */ message.topicId +
         "','" +
@@ -129,7 +116,7 @@ export function insertReactions(client: Client, reactions: Reaction[]) {
         "('" +
         /* id */ reaction.id +
         "','" +
-        /* roomId */ reaction.roomId +
+        /* roomId */ "" +
         "','" +
         /* topicId */ reaction.topicId +
         "','" +
@@ -231,37 +218,43 @@ export function insertReactions(client: Client, reactions: Reaction[]) {
 
 export function db_check() {
   const client = clientCreate();
-  const roomid = uuid.v4();
-  const topicid = uuid.v4();
-  const messageid = uuid.v4();
+  const roomid = uuid();
+  const topicid = uuid();
+  const messageid = uuid();
   insertRoom(client, roomid, "test", "title", 0);
-  insertTopics(client, [
-    { id: topicid, title: "a", roomid: roomid },
-    { id: uuid.v4(), title: "b", roomid: roomid },
+  insertTopics(client, roomid, [
+    { id: topicid, title: "a", description: "", urls: {} },
+    { id: uuid(), title: "b", description: "", urls: {} },
   ]);
   insertMessages(client, [
     {
       id: messageid,
-      roomId: roomid,
       topicId: topicid,
       iconId: "0",
       type: "message",
       timestamp: 0,
+      createdAt: new Date(),
       content: "test message",
-      isQuestion: true,
+      target: null,
     },
   ]);
   insertReactions(client, [
     {
-      id: uuid.v4(),
-      roomId: roomid,
+      id: uuid(),
       topicId: topicid,
       type: "reaction",
       iconId: "1",
       timestamp: 5,
+      createdAt: new Date(),
       target: {
         id: messageid,
-        content: "",
+        topicId: topicid,
+        iconId: "0",
+        type: "message",
+        timestamp: 0,
+        createdAt: new Date(),
+        content: "test message",
+        target: null,
       },
     },
   ]);

@@ -4,6 +4,8 @@ import { v4 as uuid } from "uuid";
 import RoomClass from "./models/room";
 import { ReceiveEventParams, ReceiveEventResponses } from "./events";
 import ServerSocket from "./serverSocket";
+import { clientCreate, insertRoom, insertTopics } from "./database/database";
+import { Client } from "pg";
 
 const createSocketIOServer = (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
@@ -15,6 +17,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
   RoomClass.globalSocket = io;
 
   const rooms: Record<string, RoomClass> = {};
+  const client: Client = clientCreate();
   let activeUserCount: number = 0;
   let serverAwakerTimer: NodeJS.Timeout;
 
@@ -58,6 +61,9 @@ const createSocketIOServer = (httpServer: HttpServer) => {
           );
           rooms[roomId] = newRoom;
           console.log(`new room build: ${roomId}`);
+          //DBにセーブ
+          insertRoom(client, newRoom.id, "", newRoom.title, 0);
+          insertTopics(client, roomId, newRoom.topics);
           callback({
             id: newRoom.id,
             title: newRoom.title,
