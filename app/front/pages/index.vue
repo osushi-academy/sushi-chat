@@ -29,7 +29,6 @@
                 class="secondary-textarea text-input"
                 contenteditable
                 placeholder="トピック名"
-                @keydown.enter.exact="clickAddTopic"
               />
               <button
                 type="button"
@@ -422,12 +421,6 @@ export default Vue.extend({
     // アイコン選択
     clickIcon(index: number) {
       this.iconChecked = index
-    },
-    // エンターキーでaddTopic呼び出し
-    clickAddTopic(e: any) {
-      // 日本語入力中のeventnterキー操作は無効にする
-      if (e.keyCode !== 13) return
-      this.addTopic()
     },
     clickDrawerMenu() {
       this.isDrawer = !this.isDrawer

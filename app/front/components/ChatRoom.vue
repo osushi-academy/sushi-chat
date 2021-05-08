@@ -22,8 +22,12 @@
           >
             <MessageComponent :message="message" @good="clickGood" />
           </div>
-          <div v-if="isFinishedTopic" :key="1" class="list-complete-item">
-            <AnalysisGraph :messages="chatData.message" />
+          <div
+            v-if="isFinishedTopic"
+            :key="chatData.topic.id"
+            class="list-complete-item"
+          >
+            <AnalysisGraph :chat-data="chatData" />
           </div>
         </transition-group>
       </div>
