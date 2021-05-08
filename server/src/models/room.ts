@@ -159,7 +159,8 @@ class RoomClass {
     if (this.activeTopic != null && this.stampIntervalSenderTimer == null) {
       // 何か開いたならセット
       this.stampIntervalSenderTimer = stampIntervalSender(
-        RoomClass.globalSocket.to(this.id),
+        RoomClass.globalSocket,
+        this.id,
         this.stampsQueue
       );
     } else if (

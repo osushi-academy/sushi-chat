@@ -1,4 +1,4 @@
-import { BroadcastOperator } from "socket.io";
+import { BroadcastOperator, Server } from "socket.io";
 
 export type Stamp = {
   userId: string;
@@ -7,12 +7,13 @@ export type Stamp = {
 };
 
 export function stampIntervalSender(
-  socket: BroadcastOperator<any>,
+  socket: Server,
+  roomId: string,
   stamps: Stamp[]
 ) {
   return setInterval(() => {
     if (stamps.length > 0) {
-      socket.emit("PUB_STAMP", stamps);
+      socket.to(roomId).emit("PUB_STAMP", stamps);
       stamps.length = 0;
     }
   }, 2000);
