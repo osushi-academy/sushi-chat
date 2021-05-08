@@ -101,8 +101,7 @@
           :chat-data="chatData"
           :favorite-callback-register="favoriteCallbackRegister"
           :my-icon="iconChecked"
-          :is-active-topic="topicStates[chatData.topic.id] === 'ongoing'"
-          :is-finished-topic="topicStates[chatData.topic.id] === 'finished'"
+          :topic-state="topicStates[chatData.topic.id]"
           @send-message="sendMessage"
           @send-reaction="sendReaction"
           @send-stamp="sendFavorite"
@@ -133,7 +132,6 @@ import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
 import { getSelectedIcon, setSelectedIcon } from '@/utils/reserveSelectIcon'
-import TextArea from '../components/TextArea.vue'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -165,7 +163,6 @@ export default Vue.extend({
   name: 'Index',
   components: {
     ChatRoom,
-    TextArea,
   },
   data(): DataType {
     return {
@@ -249,7 +246,7 @@ export default Vue.extend({
     })
 
     socket.on('PUB_CHANGE_ACTIVE_TOPIC', (res: any) => {
-      this.topicStates[`${res.topicId}`] = 'ongoing'
+      this.topicStates[`${res.topicId}`] = 'active'
     })
 
     socket.on('PUB_FINISH_TOPIC', (res: any) => {
@@ -391,10 +388,17 @@ export default Vue.extend({
         {
           iconId,
         },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (res: any) => {
-          this.topics = res.topics
-          this.messages = res.chatItems ?? []
-          this.topicStates[res.activeTopicId] = 'ongoing'
+          // this.topics = res.topics
+          // this.messages = res.chatItems ?? []
+          // this.topicStates[res.activeTopicId] = 'ongoing'
+          this.topics = TOPICS
+          this.messages = CHAT_DUMMY_DATA
+          this.topics.forEach(({ id }) => {
+            this.topicStates[id] = 'not-started'
+          })
+          this.topicStates[1] = 'active'
         }
       )
       setSelectedIcon(iconId)
@@ -481,111 +485,99 @@ export default Vue.extend({
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const CHAT_DUMMY_DATA = [
-  {
-    id: '0',
-    topicId: '0',
-    type: 'message',
-    iconId: '0',
-    content: '画像処理どうなってんの→独自実装!!?????',
-    isQuestion: false,
-    timestamp: 100,
-  },
+const TOPICS = [
   {
     id: '1',
-    topicId: '0',
-    type: 'message',
-    iconId: '1',
-    content:
-      '背景切り抜きまでしてくれるんか、すごいな。画像処理を独自実装...!すご！すご！',
-    isQuestion: false,
-    timestamp: 200,
+    title: 'TITLE 0',
+    urls: {},
   },
   {
     id: '2',
-    topicId: '0',
-    type: 'message',
-    iconId: '2',
-    content: 'デザイン期間中に作ったのか！',
-    isQuestion: false,
-    timestamp: 300,
+    title: 'TITLE 0',
+    urls: {},
   },
   {
     id: '3',
-    topicId: '0',
+    title: 'TITLE 0',
+    urls: {},
+  },
+]
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const CHAT_DUMMY_DATA: ChatItem[] = [
+  {
+    timestamp: 60,
+    iconId: '2',
+    createdAt: '2021-05-08T00:00:00.000Z',
+    id: '001',
+    topicId: '1',
     type: 'message',
+    content: 'コメント',
+    target: null,
+  },
+  {
+    timestamp: 0,
     iconId: '3',
-    content: 'バックエンドはどんな技術を使ったんですか？',
-    isQuestion: true,
-    timestamp: 400,
+    createdAt: '2021-05-08T00:00:00.000Z',
+    target: {
+      id: '001',
+      topicId: '0',
+      type: 'message',
+      iconId: '2',
+      timestamp: 0,
+      createdAt: '2021-05-08T00:00:00.000Z',
+      content: 'コメント',
+      target: null,
+    },
+    id: '002',
+    topicId: '1',
+    type: 'reaction',
   },
   {
-    id: '4',
-    topicId: '0',
-    type: 'message',
+    timestamp: 0,
+    iconId: '2',
+    createdAt: '2021-05-08T00:00:00.000Z',
+    id: '003',
+    topicId: '1',
+    type: 'question',
+    content: '質問',
+  },
+  {
+    timestamp: 0,
+    iconId: '3',
+    createdAt: '2021-05-08T00:00:00.000Z',
+    id: '004',
+    topicId: '1',
+    type: 'answer',
+    content: '回答',
+    target: {
+      id: '003',
+      topicId: '0',
+      type: 'question',
+      iconId: '2',
+      timestamp: 0,
+      createdAt: '2021-05-08T00:00:00.000Z',
+      content: '質問',
+    },
+  },
+  {
+    timestamp: 0,
     iconId: '4',
-    content: 'チーム名の圧がすごいwwwwwwwwwww',
-    isQuestion: false,
-    timestamp: 500,
-  },
-  {
-    id: '5',
-    topicId: '0',
-    type: 'message',
-    iconId: '5',
-    content: 'なんか始まった笑笑',
-    isQuestion: false,
-    timestamp: 600,
-  },
-  {
-    id: '6',
-    topicId: '0',
-    type: 'message',
-    iconId: '6',
-    content: '既存のモデルそのままじゃなく独自改良してるのいいね',
-    isQuestion: false,
-    timestamp: 700,
-  },
-  {
-    id: '7',
-    topicId: '0',
-    type: 'message',
-    iconId: '7',
-    content: 'チーム名からのフリとオチ面白い笑笑',
-    isQuestion: false,
-    timestamp: 800,
-  },
-  {
-    id: '8',
-    topicId: '0',
-    type: 'reaction',
-    iconId: '0',
-    timestamp: 900,
+    createdAt: '2021-05-08T00:00:00.000Z',
     target: {
-      id: '1',
-      content:
-        '背景切り抜きまでしてくれるんか、すごいな。画像処理を独自実装...!すご！すご！',
+      id: '001',
+      topicId: '0',
+      type: 'message',
+      iconId: '2',
+      timestamp: 0,
+      createdAt: '2021-05-08T00:00:00.000Z',
+      content: 'コメント',
+      target: null,
     },
-  },
-  {
-    id: '9',
-    topicId: '0',
-    type: 'reaction',
-    iconId: '1',
-    timestamp: 1000,
-    target: {
-      id: '2',
-      content: 'デザイン期間中に作ったのか！',
-    },
-  },
-  {
-    id: '10',
-    topicId: '0',
+    id: '005',
+    topicId: '1',
     type: 'message',
-    iconId: '10',
-    content: 'UIきれい!',
-    isQuestion: false,
-    timestamp: 100,
+    content: 'リプライ',
   },
-] as const
+]
 </script>

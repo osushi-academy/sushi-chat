@@ -2,8 +2,8 @@
   <div
     class="topic-header"
     :class="{
-      'finished-topic': isFinishedTopic,
-      'active-topic': isActiveTopic,
+      'finished-topic': topicState === 'finished',
+      'active-topic': topicState === 'active',
     }"
   >
     <div class="main-line">
@@ -20,7 +20,8 @@
   </div>
 </template>
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropOptions } from 'vue'
+import { TopicState } from '@/models/contents'
 
 export default Vue.extend({
   name: 'TopicHeader',
@@ -34,14 +35,10 @@ export default Vue.extend({
       required: true,
       default: false,
     },
-    isActiveTopic: {
-      type: Boolean,
+    topicState: {
+      type: String,
       required: true,
-    },
-    isFinishedTopic: {
-      type: Boolean,
-      required: true,
-    },
+    } as PropOptions<TopicState>,
   },
   methods: {
     clickTopicActivate() {

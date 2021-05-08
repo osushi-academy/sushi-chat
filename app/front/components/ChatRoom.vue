@@ -2,8 +2,7 @@
   <article class="topic-block">
     <TopicHeader
       :title="topicIndex + 1 + '. ' + chatData.topic.title"
-      :is-active-topic="isActiveTopic"
-      :is-finished-topic="isFinishedTopic"
+      :topic-state="topicState"
       :is-admin="isAdmin"
       @topic-activate="clickTopicActivate"
     />
@@ -28,7 +27,7 @@
           :favorite-callback-register="
             (callback) => favoriteCallbackRegister(chatData.topic.id, callback)
           "
-          :disabled="!isActiveTopic"
+          :disabled="topicState !== 'active'"
           @favorite="clickFavorite"
         />
       </div>
@@ -47,7 +46,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { Topic, ChatItem, Message } from '@/models/contents'
+import { Topic, ChatItem, Message, TopicState } from '@/models/contents'
 import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
@@ -101,14 +100,10 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
-    isActiveTopic: {
-      type: Boolean,
+    topicState: {
+      type: String,
       required: true,
-    },
-    isFinishedTopic: {
-      type: Boolean,
-      required: true,
-    },
+    } as PropOptions<TopicState>,
   },
   data(): DataType {
     return {
@@ -117,7 +112,7 @@ export default Vue.extend({
   },
   computed: {
     isNotStartedTopic() {
-      return !this.isActiveTopic && !this.isFinishedTopic
+      return this.topicState === 'not-started'
     },
   },
   watch: {
