@@ -1,7 +1,7 @@
 <template>
   <article class="topic-block">
     <TopicHeader
-      :title="topicIndex + 1 + '. ' + chatData.topic.title"
+      :title="topicIndex + '. ' + chatData.topic.title"
       :topic-state="topicState"
       :is-admin="isAdmin"
       @topic-activate="clickTopicActivate"
