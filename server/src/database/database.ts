@@ -133,7 +133,7 @@ function messagesConverter(messages: (MessageStore & { roomId: string })[]) {
         "'," +
         /* timestamp */ message.timestamp +
         ",'" +
-        /* createdAt */ new Date()
+        /* createdAt */ message.createdAt
           .toISOString()
           .replace(/T/, " ")
           .replace(/\..+/, "") +
@@ -163,7 +163,7 @@ function reactionsConverter(reactions: (ReactionStore & { roomId: string })[]) {
         "'," +
         /* timestamp */ reaction.timestamp +
         ",'" +
-        /* createdAt */ new Date()
+        /* createdAt */ reaction.createdAt
           .toISOString()
           .replace(/T/, " ")
           .replace(/\..+/, "") +
@@ -193,7 +193,7 @@ function questionsConverter(questions: (QuestionStore & { roomId: string })[]) {
         "'," +
         /* timestamp */ question.timestamp +
         ",'" +
-        /* createdAt */ new Date()
+        /* createdAt */ question.createdAt
           .toISOString()
           .replace(/T/, " ")
           .replace(/\..+/, "") +
@@ -223,7 +223,7 @@ function answersConverter(answers: (AnswerStore & { roomId: string })[]) {
         "'," +
         /* timestamp */ answer.timestamp +
         ",'" +
-        /* createdAt */ new Date()
+        /* createdAt */ answer.createdAt
           .toISOString()
           .replace(/T/, " ")
           .replace(/\..+/, "") +
