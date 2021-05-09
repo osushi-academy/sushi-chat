@@ -73,7 +73,6 @@ class SaveChatItemClass {
 
   public static chatItemIntervalSaver(): NodeJS.Timeout {
     return setInterval(() => {
-      console.log("runned");
       this.saveChatItem();
     }, 60000);
   }

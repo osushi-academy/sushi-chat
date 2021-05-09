@@ -106,19 +106,8 @@ export function insertChatItems(
     .filter((v) => v != "")
     .join(",");
 
-  console.log(
-    [
-      convertedMessages,
-      convertedReactions,
-      convertedQuestions,
-      convertedAnswers,
-    ]
-      .filter((v) => v != "")
-      .join(",")
-  );
-
   const query =
-    "INSERT INTO Messages (id, type, roomId, topicId, iconId, timestamp, createdAt, content, targetId) VALUES" +
+    "INSERT INTO chatItems (id, type, roomId, topicId, iconId, timestamp, createdAt, content, targetId) VALUES" +
     values +
     ";";
 
@@ -151,7 +140,7 @@ function messagesConverter(messages: (MessageStore & { roomId: string })[]) {
         "','" +
         /* content */ message.content +
         "'," +
-        /* targetId */ message.target +
+        (message.target ? "'" + message.target + "'" : null) +
         ")"
     )
     .join(",");
@@ -178,11 +167,11 @@ function reactionsConverter(reactions: (ReactionStore & { roomId: string })[]) {
           .toISOString()
           .replace(/T/, " ")
           .replace(/\..+/, "") +
-        "','" +
-        /* content */ null +
         "'," +
+        /* content */ null +
+        ",'" +
         /* targetId */ reaction.target +
-        ")"
+        "')"
     )
     .join(",");
 }
@@ -230,7 +219,7 @@ function answersConverter(answers: (AnswerStore & { roomId: string })[]) {
         "','" +
         /* topicId */ answer.topicId +
         "','" +
-        /* iconId */ answer.iconId +
+        /* iconId */ answer.iconId.toString() +
         "'," +
         /* timestamp */ answer.timestamp +
         ",'" +
@@ -240,9 +229,9 @@ function answersConverter(answers: (AnswerStore & { roomId: string })[]) {
           .replace(/\..+/, "") +
         "','" +
         /* content */ answer.content +
-        "'," +
+        "','" +
         /* targetId */ answer.target +
-        ")"
+        "')"
     )
     .join(",");
 }
