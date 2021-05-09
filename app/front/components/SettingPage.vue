@@ -76,7 +76,7 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { TopicStatesPropType, Room, TopicState } from '@/models/contents'
+import { TopicStatesPropType, Room, Topic, TopicState } from '@/models/contents'
 
 export default Vue.extend({
   name: 'SettingPage',
@@ -118,11 +118,11 @@ export default Vue.extend({
     },
     clickPlayPauseButton(topicId: string) {
       if (this.topicStates[topicId] === 'active') {
-        this.topicStates[topicId] = 'paused'
+        this.$emit('change-topic-state', topicId, 'paused')
       } else if (this.topicStates[topicId] === 'paused') {
-        this.topicStates[topicId] = 'active'
+        this.$emit('change-topic-state', topicId, 'active')
       } else if (this.topicStates[topicId] === 'not-started') {
-        this.topicStates[topicId] = 'active'
+        this.$emit('change-topic-state', topicId, 'active')
       }
     },
     clickFinishButton(topicId: string) {
@@ -143,22 +143,25 @@ export default Vue.extend({
       )
 
       let alertMessage = '以下の操作を実行しますか？\n'
-      if (typeof closeTopic !== 'undefined' && typeof topic !== 'undefined') {
-        alertMessage += 'トピックを閉じる：' + closeTopic.title + '\n↓\n'
-        alertMessage += 'トピックを開く：' + topic.title + '\n'
-        if (confirm(alertMessage)) {
-          this.topicStates[closeTopic.id] = 'finished'
-          this.topicStates[topic.id] = 'active'
+      let closeFlag = false
+      let openFlag = false
+      if (typeof closeTopic !== 'undefined') closeFlag = true
+      if (typeof topic !== 'undefined') openFlag = true
+
+      if (closeFlag) {
+        alertMessage += 'トピックを閉じる：' + closeTopic.title
+        if (openFlag) {
+          alertMessage += '\n↓\n'
         }
-      } else if (typeof closeTopic !== 'undefined') {
-        alertMessage += 'トピックを閉じる：' + closeTopic.title + '\n'
-        if (confirm(alertMessage)) {
-          this.topicStates[closeTopic.id] = 'finished'
-        }
-      } else if (typeof topic !== 'undefined') {
+      }
+      if (openFlag) {
         alertMessage += 'トピックを開く：' + topic.title + '\n'
+      }
+      console.log(topic)
+      if (openFlag || closeFlag) {
         if (confirm(alertMessage)) {
-          this.topicStates[topic.id] = 'active'
+          this.$emit('change-topic-state', topic.id!, 'active')
+          this.$emit('change-topic-state', closeTopic.id!, 'finished')
         }
       }
     },

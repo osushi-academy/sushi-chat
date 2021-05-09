@@ -100,6 +100,7 @@
         :room="room"
         :topic-states="topicStates"
         :my-icon-id="iconChecked + 1"
+        @change-topic-state="changeTopicState"
       />
       <div v-for="(chatData, index) in chatDataList" :key="index">
         <ChatRoom
@@ -277,7 +278,9 @@ export default Vue.extend({
         this.hamburgerMenu = 'menu'
       }
     },
-
+    changeTopicState(topicId: string, state: string) {
+      this.topicStates[topicId] = state
+    },
     // ルーム情報
     // 該当するtopicを削除
     removeTopic(index: number) {
