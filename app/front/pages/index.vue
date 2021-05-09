@@ -347,7 +347,7 @@ export default Vue.extend({
         },
         (room: AdminBuildRoomResponse) => {
           this.room = room
-          console.log(room)
+          console.log(`ルームID: ${room.id}`)
           socket.emit(
             'ADMIN_ENTER_ROOM',
             {
