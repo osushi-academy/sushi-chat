@@ -25,6 +25,13 @@
               @click-reply="selectedChatItem = message"
             />
           </div>
+          <div
+            v-if="isFinishedTopic"
+            :key="chatData.topic.id"
+            class="list-complete-item"
+          >
+            <AnalysisGraph :chat-data="chatData" />
+          </div>
         </transition-group>
       </div>
       <div class="stamp-zone">
@@ -83,6 +90,7 @@ export default Vue.extend({
     MessageComponent,
     TextArea,
     FavoriteButton,
+    AnalysisGraph,
   },
   props: {
     chatData: {
