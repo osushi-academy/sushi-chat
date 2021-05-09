@@ -472,13 +472,16 @@
 }
 
 .reply-bar {
-  display: inline-block;
   background-color: $gray;
+  display: flex;
+  justify-content: flex-end;
   & > .reply-content {
+    display: inline;
     color: $text-gray;
     font-size: 80%;
   }
   & > .material-icons {
+    display: inline;
     font-size: 20px;
     color: $text-gray;
     &:hover {
