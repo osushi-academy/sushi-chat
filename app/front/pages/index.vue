@@ -1,10 +1,10 @@
 <template>
   <div class="container page">
-    <header :v-show="isAdmin">
+    <header v-if="isAdmin">
       <button @click="clickDrawerMenu">
         <span class="material-icons"> {{ hamburgerMenu }} </span>
       </button>
-      <button v-show="!isRoomStarted" @click="startRoom">
+      <button v-if="!isRoomStarted" @click="startRoom">
         ルームをオープンする
       </button>
     </header>
@@ -95,7 +95,7 @@
           </div>
         </div>
       </modal>
-      <SettingPage v-if="isDrawer" />
+      <SettingPage v-if="isDrawer && isAdmin" />
       <div v-for="(chatData, index) in chatDataList" :key="index">
         <ChatRoom
           :topic-index="index"
@@ -347,7 +347,7 @@ export default Vue.extend({
         },
         (room: AdminBuildRoomResponse) => {
           this.room = room
-          console.log(room)
+          console.log(`ルームID: ${room.id}`)
           socket.emit(
             'ADMIN_ENTER_ROOM',
             {
