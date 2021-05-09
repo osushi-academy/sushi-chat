@@ -10,7 +10,9 @@
         <div class="admin-badge">運 営</div>
       </div>
       <div class="baloon">{{ message.content }}</div>
-      <div class="timestamp">{{ showTimestamp(message.timestamp) }}</div>
+      <div class="comment-timestamp">
+        {{ showTimestamp(message.timestamp) }}
+      </div>
     </article>
 
     <!-- Message -->
@@ -29,7 +31,9 @@
             : message.content
         }}
       </div>
-      <div class="timestamp">{{ showTimestamp(message.timestamp) }}</div>
+      <div class="comment-timestamp">
+        {{ showTimestamp(message.timestamp) }}
+      </div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
@@ -48,7 +52,9 @@
         <div v-if="message.iconId == 0" class="admin-badge">運 営</div>
       </div>
       <div class="baloon">{{ message.content }}</div>
-      <div class="timestamp">{{ showTimestamp(message.timestamp) }}</div>
+      <div class="comment-timestamp">
+        {{ showTimestamp(message.timestamp) }}
+      </div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
@@ -69,7 +75,9 @@
       </div>
       <!-- eslint-disable-next-line prettier/prettier -->
       <div class="baloon">{{`Q. ${message.target.content}\nA. ${message.content}`}}</div>
-      <div class="timestamp">{{ showTimestamp(message.timestamp) }}</div>
+      <div class="comment-timestamp">
+        {{ showTimestamp(message.timestamp) }}
+      </div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
@@ -83,7 +91,9 @@
       </div>
       <span class="material-icons"> thumb_up </span>
       <div class="text">{{ message.target.content }}</div>
-      <div class="timestamp">{{ showTimestamp(message.timestamp) }}</div>
+      <div class="comment-timestamp">
+        {{ showTimestamp(message.timestamp) }}
+      </div>
     </article>
   </div>
 </template>
