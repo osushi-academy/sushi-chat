@@ -22,7 +22,7 @@
       </div>
 
       <button
-        v-if="myIconId === '0'"
+        v-if="myIconId === 0"
         class="next-topic-button"
         @click="clickNextTopicButton"
       >
@@ -47,7 +47,7 @@
               >一時停止</span
             >
           </div>
-          <div v-if="myIconId === '0'" class="buttons">
+          <div v-if="myIconId === 0" class="buttons">
             <button @click="clickPlayPauseButton(topic.id)">
               <span
                 v-if="topicStates[topic.id] != 'finished'"
@@ -94,7 +94,7 @@ type Room = {
 type DataType = {
   room: Room
   topicStates: { [key: string]: TopicState }
-  myIconId: string
+  myIconId: number
 }
 
 export default Vue.extend({
@@ -109,7 +109,7 @@ export default Vue.extend({
         topics: DUMMY_TOPICS,
       },
       topicStates: DUMMY_TOPIC_STATES,
-      myIconId: '0',
+      myIconId: 0,
     }
   },
   computed: {
