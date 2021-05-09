@@ -42,7 +42,7 @@
           <div class="topic-number">{{ index }}</div>
           <div class="topic-name">
             {{ topic.title
-            }}<span v-if="topicStates[topic.id] === 'ongoing'" class="label"
+            }}<span v-if="topicStates[topic.id] === 'active'" class="label"
               >進行中</span
             >
             <span v-if="topicStates[topic.id] === 'paused'" class="label"
@@ -60,7 +60,7 @@
             </button>
             <button
               v-if="
-                topicStates[topic.id] === 'ongoing' ||
+                topicStates[topic.id] === 'active' ||
                 topicStates[topic.id] === 'paused'
               "
               @click="clickFinishButton(topic.id)"
@@ -76,7 +76,7 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { TopicStatesPropType, Room } from '@/models/contents'
+import { TopicStatesPropType, Room, TopicState } from '@/models/contents'
 
 export default Vue.extend({
   name: 'SettingPage',
@@ -100,7 +100,7 @@ export default Vue.extend({
     },
     playOrPause(): {} {
       return function (topicState: string) {
-        if (topicState === 'ongoing') {
+        if (topicState === 'active') {
           return 'pause'
         } else if (topicState === 'paused' || topicState === 'not-started') {
           return 'play_arrow'
@@ -115,15 +115,14 @@ export default Vue.extend({
       navigator.clipboard.writeText(
         'https://sushi-chat-cyan.vercel.app/?roomId=' + this.room.id
       )
-      console.log(this.room)
     },
     clickPlayPauseButton(topicId: string) {
-      if (this.topicStates[topicId] === 'ongoing') {
+      if (this.topicStates[topicId] === 'active') {
         this.topicStates[topicId] = 'paused'
       } else if (this.topicStates[topicId] === 'paused') {
-        this.topicStates[topicId] = 'ongoing'
+        this.topicStates[topicId] = 'active'
       } else if (this.topicStates[topicId] === 'not-started') {
-        this.topicStates[topicId] = 'ongoing'
+        this.topicStates[topicId] = 'active'
       }
     },
     clickFinishButton(topicId: string) {
@@ -136,7 +135,7 @@ export default Vue.extend({
     clickNextTopicButton() {
       // クローズにするトピックを探す
       const closeTopic = this.room.topics.find(
-        (t) => this.topicStates[t.id] === 'ongoing'
+        (t) => this.topicStates[t.id] === 'active'
       )
       // アクティブにするトピックを探す
       const topic = this.room.topics.find(
@@ -149,7 +148,7 @@ export default Vue.extend({
         alertMessage += 'トピックを開く：' + topic.title + '\n'
         if (confirm(alertMessage)) {
           this.topicStates[closeTopic.id] = 'finished'
-          this.topicStates[topic.id] = 'ongoing'
+          this.topicStates[topic.id] = 'active'
         }
       } else if (typeof closeTopic !== 'undefined') {
         alertMessage += 'トピックを閉じる：' + closeTopic.title + '\n'
@@ -159,7 +158,7 @@ export default Vue.extend({
       } else if (typeof topic !== 'undefined') {
         alertMessage += 'トピックを開く：' + topic.title + '\n'
         if (confirm(alertMessage)) {
-          this.topicStates[topic.id] = 'ongoing'
+          this.topicStates[topic.id] = 'active'
         }
       }
     },
@@ -225,7 +224,7 @@ const DUMMY_TOPICS = [
 const DUMMY_TOPIC_STATES: { [key: string]: TopicState } = {
   a: 'finished',
   b: 'finished',
-  c: 'ongoing',
+  c: 'active',
   d: 'paused',
   e: 'not-started',
   f: 'not-started',
