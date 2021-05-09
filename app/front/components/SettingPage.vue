@@ -37,7 +37,7 @@
           class="topic"
           :class="topicStates[topic.id]"
         >
-          <div class="topic-number">{{ index + 1 }}</div>
+          <div class="topic-number">{{ index }}</div>
           <div class="topic-name">
             {{ topic.title
             }}<span v-if="topicStates[topic.id] === 'ongoing'" class="label"
