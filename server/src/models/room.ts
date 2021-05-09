@@ -276,7 +276,7 @@ class RoomClass {
     // 配列に保存
     this.chatItems.push(chatItem);
     // サーバでの保存形式をフロントに返すレスポンスの形式に変換して配信する
-    this.getSocketByUserId(userId).broadcast(
+    RoomClass.globalSocket.emit(
       "PUB_CHAT_ITEM",
       this.chatItemStoreToChatItem(chatItem)
     );
