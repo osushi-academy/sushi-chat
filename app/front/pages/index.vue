@@ -243,10 +243,12 @@ export default Vue.extend({
     // SocketIOのコールバックの登録
     socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
       if (this.messages.find(({ id }) => id === chatItem.id)) {
+        // 自分が送信したコメント
         this.messages = this.messages.map((item) =>
           item.id === chatItem.id ? chatItem : item
         )
       } else {
+        // 自分以外のユーザーが送信したコメント
         this.messages.push(chatItem)
       }
     })
@@ -452,7 +454,7 @@ export default Vue.extend({
         content: text,
         createdAt: new Date(),
         target,
-        timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
+        timestamp: 0, // TODO: 正しいタイムスタンプを設定する
       })
     },
     sendReaction(message: Message) {
