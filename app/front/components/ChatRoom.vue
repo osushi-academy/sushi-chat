@@ -26,7 +26,7 @@
             />
           </div>
           <div
-            v-if="isFinishedTopic"
+            v-if="topicState === 'finished'"
             :key="chatData.topic.id"
             class="list-complete-item"
           >
@@ -64,6 +64,7 @@ import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
 import FavoriteButton from '@/components/FavoriteButton.vue'
 import exportText from '@/utils/textExports'
+import AnalysisGraph from './AnalysisGraph.vue'
 
 type ChatDataPropType = {
   topic: Topic
