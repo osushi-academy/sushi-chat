@@ -155,13 +155,33 @@ export default Vue.extend({
       const closeTopic = this.room.topics.find(
         (t) => this.topicStates[t.id] === 'ongoing'
       )
-      if (typeof closeTopic !== 'undefined')
-        this.topicStates[closeTopic.id] = 'finished'
       // アクティブにするトピックを探す
       const topic = this.room.topics.find(
         (t) => this.topicStates[t.id] === 'not-started'
       )
-      if (typeof topic !== 'undefined') this.topicStates[topic.id] = 'ongoing'
+
+      let alertMessage = '以下の操作を実行しますか？\n'
+      let closeFlag = false
+      let openFlag = false
+      if (typeof closeTopic !== 'undefined') {
+        closeFlag = true
+      }
+      if (typeof topic !== 'undefined') {
+        openFlag = true
+      }
+
+      if (closeFlag) {
+        alertMessage += 'トピックを閉じる：' + closeTopic.title + '\n'
+        if (openFlag) alertMessage += '↓\n'
+      }
+      if (openFlag) {
+        alertMessage += 'トピックを開く：' + topic.title + '\n'
+      }
+
+      if ((closeFlag || openFlag) && confirm(alertMessage)) {
+        if (closeFlag) this.topicStates[closeTopic.id] = 'finished'
+        if (openFlag) this.topicStates[topic.id] = 'ongoing'
+      }
     },
   },
 })
