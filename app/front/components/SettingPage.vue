@@ -151,6 +151,13 @@ export default Vue.extend({
       }
     },
     clickNextTopicButton() {
+      // クローズにするトピックを探す
+      const closeTopic = this.room.topics.find(
+        (t) => this.topicStates[t.id] === 'ongoing'
+      )
+      if (typeof closeTopic !== 'undefined')
+        this.topicStates[closeTopic.id] = 'finished'
+      // アクティブにするトピックを探す
       const topic = this.room.topics.find(
         (t) => this.topicStates[t.id] === 'not-started'
       )
