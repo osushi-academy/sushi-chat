@@ -26,7 +26,14 @@
       </div>
       <div class="baloon">
         <!-- eslint-disable-next-line prettier/prettier -->
-        <div class="baloon">{{message.target != null? `> ${message.target.content}\n${message.content}`: message.content}}</div>
+        <div v-if="message.target == null" class="baloon">{{ message.content }}
+        </div>
+        <div v-else class="baloon">
+          <span :style="{ color: 'gray', fontSize: '80%' }"
+            >> {{ message.target.content }}</span
+          >
+          {{ message.content }}
+        </div>
       </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
