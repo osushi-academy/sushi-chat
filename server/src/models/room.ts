@@ -4,6 +4,7 @@ import {
   ChatItem,
   ChatItemStore,
   Message,
+  MessageStore,
   Question,
   User,
 } from "../chatItem";
@@ -16,6 +17,7 @@ import SaveChatItemClass from "../saveChatItem";
 import { IServerSocket } from "../serverSocket";
 import { Stamp, stampIntervalSender } from "../stamp";
 import { Topic, TopicState } from "../topic";
+import { v4 as getUUID } from "uuid";
 
 type StampStore = Stamp & {
   createdAt: Date;

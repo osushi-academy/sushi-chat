@@ -1,4 +1,6 @@
-import { ChatItem, Room, Topic, TopicLinkType, TopicState } from "./chatItem";
+import { ChatItem } from "./chatItem";
+import { Room } from "./room";
+import { Topic, TopicLinkType, TopicState } from "./topic";
 
 /**
  * クライアントからサーバに送られるイベント名
