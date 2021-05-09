@@ -58,9 +58,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       // ルームをたてる
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
         try {
-          console.log("build");
           const roomId = uuid();
-          console.log(roomId);
           const newRoom = new RoomClass(
             roomId,
             received.title,
