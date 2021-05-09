@@ -140,10 +140,6 @@ import {
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
-import {
-  getSelectedIconFromJSON,
-  setSelectedIconToJSON,
-} from '@/utils/reserveSelectIcon'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -229,15 +225,6 @@ export default Vue.extend({
 
     const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
-    if (!this.isAdmin) {
-      const selectedIcon = getSelectedIconFromJSON()
-      if (selectedIcon == null) {
-        this.$modal.show('sushi-modal')
-      } else {
-        this.iconChecked = selectedIcon
-        this.enterRoom(selectedIcon)
-      }
-    }
     this.$modal.show('sushi-modal')
 
     // SocketIOのコールバックの登録
@@ -420,7 +407,6 @@ export default Vue.extend({
           })
         }
       )
-      setSelectedIconToJSON(iconId)
     },
     // アイコン選択
     clickIcon(index: number) {

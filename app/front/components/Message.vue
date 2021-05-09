@@ -10,6 +10,9 @@
         <div class="admin-badge">運 営</div>
       </div>
       <div class="baloon">{{ message.content }}</div>
+      <div class="comment-timestamp">
+        {{ showTimestamp(message.timestamp) }}
+      </div>
     </article>
 
     <!-- Message -->
@@ -21,12 +24,23 @@
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
       </div>
-      <!-- eslint-disable-next-line prettier/prettier -->
-      <div class="baloon">{{message.target != null? `> ${message.target.content}\n${message.content}`: message.content}}</div>
+      <div class="baloon">
+        <!-- eslint-disable-next-line prettier/prettier -->
+        <div v-if="message.target == null" class="baloon">{{ message.content }}
+        </div>
+        <div v-else class="baloon">
+          <span :style="{ color: 'gray', fontSize: '80%' }"
+            >> {{ message.target.content }}</span
+          >
+          {{ message.content }}
+        </div>
+      </div>
+      <div class="comment-timestamp">
+        {{ showTimestamp(message.timestamp) }}
+      </div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
-      <button @click="clickReply">REPLY</button>
     </article>
 
     <!--Question Message-->
@@ -41,30 +55,33 @@
         <div v-if="message.iconId == 0" class="admin-badge">運 営</div>
       </div>
       <div class="baloon">{{ message.content }}</div>
+      <div class="comment-timestamp">
+        {{ showTimestamp(message.timestamp) }}
+      </div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
-      <button @click="clickReply">REPLY</button>
     </article>
 
     <!--Answer Message-->
     <article
       v-else-if="message.type == 'answer'"
-      class="comment question"
-      :style="{ background: 'red' }"
+      class="comment answer"
       @click="clickCard"
     >
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
-        <div class="question-badge">A</div>
+        <div class="answer-badge">A</div>
         <div v-if="message.iconId == 0" class="admin-badge">運 営</div>
       </div>
       <!-- eslint-disable-next-line prettier/prettier -->
       <div class="baloon">{{`Q. ${message.target.content}\nA. ${message.content}`}}</div>
+      <div class="comment-timestamp">
+        {{ showTimestamp(message.timestamp) }}
+      </div>
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
-      <button @click="clickReply">REPLY</button>
     </article>
 
     <!--Reaction Message-->
@@ -74,7 +91,23 @@
       </div>
       <span class="material-icons"> thumb_up </span>
       <div class="text">{{ message.target.content }}</div>
+      <div class="comment-timestamp">
+        {{ showTimestamp(message.timestamp) }}
+      </div>
     </article>
+    <!--Reply Badge-->
+    <div
+      v-if="message.type != 'reaction' && message.iconId != 0"
+      class="reply-icon"
+      @click="clickReply"
+    >
+      <span
+        class="material-icons"
+        :class="{ 'answer-reply': message.type === 'question' }"
+      >
+        reply
+      </span>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -103,6 +136,17 @@ export default Vue.extend({
     },
     clickReply() {
       this.$emit('click-reply')
+    },
+    // タイムスタンプを分、秒単位に変換
+    showTimestamp(timeStamp: number): string {
+      let sec: number = Math.floor(timeStamp / 1000)
+      const min: number = Math.floor(sec / 60)
+      sec %= 60
+      if (sec < 10) {
+        return String(min) + ':0' + String(sec)
+      } else {
+        return String(min) + ':' + String(sec)
+      }
     },
   },
 })

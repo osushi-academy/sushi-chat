@@ -53,14 +53,14 @@ export default Vue.extend({
       chartOption: {
         title: {
           display: true,
-          text: this.chatData.topic.title + 'の解析グラフ',
+          text: this.chatData.topic.title + 'の盛り上がり度',
         },
         scales: {
           xAxes: [
             {
               scaleLabel: {
                 display: true, // ラベルの表示・非表示
-                labelString: '経過時間(/10秒)',
+                labelString: '時間(/10秒)',
               },
             },
           ],

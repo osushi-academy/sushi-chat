@@ -52,7 +52,7 @@ $modal-header-height: 48px;
   background: white;
   padding: 12px 20px;
   border: 2px solid #444;
-  color: #333;
+  color: $black;
   border-radius: 4px;
   box-shadow: rgba(162, 162, 172, 0.2) 0px 2px 4px 0px;
   transition: all 0.3s;
@@ -105,7 +105,7 @@ $modal-header-height: 48px;
   }
 
   & > .icon-box:hover {
-    background: rgb(235, 235, 235);
+    background: rgb(245, 245, 245);
   }
   & > .icon-shari {
     opacity: 0.1;
