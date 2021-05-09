@@ -1,13 +1,16 @@
 <template>
   <div class="container page">
-    <header>
+    <header :v-show="isAdmin">
       <button @click="clickDrawerMenu">
         <span class="material-icons"> {{ hamburgerMenu }} </span>
+      </button>
+      <button v-show="!isRoomStarted" @click="startRoom">
+        ルームをオープンする
       </button>
     </header>
     <main>
       <modal
-        v-if="isAdmin"
+        v-if="isAdmin && room.id == null"
         name="sushi-modal"
         :adaptive="true"
         :click-to-close="false"
@@ -17,7 +20,7 @@
         </div>
         <div class="modal-body modal-scrollable">
           <h3>ルーム名</h3>
-          <input v-model="roomName" />
+          <input v-model="room.title" />
           <h3>トピック名</h3>
           <div>
             <div v-for="(topic, index) in topicsAdmin" :key="topic.id">
@@ -100,13 +103,11 @@
           :chat-data="chatData"
           :favorite-callback-register="favoriteCallbackRegister"
           :my-icon="iconChecked"
-          :is-active-topic="activeTopicId == chatData.topic.id"
-          :is-finished-topic="
-            topics.findIndex(({ id }) => id === chatData.topic.id) <
-            topics.findIndex(({ id }) => id === activeTopicId)
-          "
+          :topic-state="topicStates[chatData.topic.id]"
           @send-message="sendMessage"
           @send-reaction="sendReaction"
+          @send-question="sendQuestion"
+          @send-answer="sendAnswer"
           @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
         />
@@ -119,16 +120,30 @@
 import Vue from 'vue'
 // @ts-ignore
 import VModal from 'vue-js-modal'
-import { ChatItem, Message, Topic, Stamp } from '@/models/contents'
 import {
+  Room,
+  ChatItem,
+  Message,
+  Topic,
+  TopicState,
+  Stamp,
+  Answer,
+  Question,
+} from '@/models/contents'
+import {
+  AdminBuildRoomResponse,
+  PostChatItemAnswerParams,
   PostChatItemMessageParams,
+  PostChatItemQuestionParams,
   PostChatItemReactionParams,
 } from '@/models/event'
-import SettingPage from '@/components/SettingPage.vue'
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
-import { getSelectedIcon, setSelectedIcon } from '@/utils/reserveSelectIcon'
+import {
+  getSelectedIconFromJSON,
+  setSelectedIconToJSON,
+} from '@/utils/reserveSelectIcon'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -138,36 +153,45 @@ type ChatData = {
 
 // Data型
 type DataType = {
-  activeUserCount: number
+  // 管理画面
+  hamburgerMenu: string
+  isDrawer: boolean
+  inputText: string
+  // ルーム情報
   topics: Topic[]
-  topicsAdmin: Topic[]
-  messages: ChatItem[]
+  topicsAdmin: Omit<Topic, 'id'>[]
+  activeUserCount: number
+  topicStates: { [key: string]: TopicState }
+  room: Room
+  isRoomStarted: boolean
+  // ユーザー関連
   isAdmin: boolean
   icons: any
   iconChecked: number
-  activeTopicId: string | null
-  roomName: string
-  inputText: string
-  isDrawer: boolean
-  hamburgerMenu: string
+  // チャット関連
+  messages: ChatItem[]
 }
 Vue.use(VModal)
 export default Vue.extend({
   name: 'Index',
   components: {
     ChatRoom,
-    SettingPage,
   },
   data(): DataType {
     return {
-      roomName: '',
+      // 管理画面
+      hamburgerMenu: 'menu',
+      isDrawer: false,
       inputText: '',
+      // ルーム情報
       topics: [],
       topicsAdmin: [],
-      messages: [],
       activeUserCount: 0,
+      topicStates: {},
+      room: {} as Room,
+      isRoomStarted: false,
+      // ユーザー関連
       isAdmin: false,
-      isDrawer: false,
       icons: [
         { url: require('@/assets/img/sushi_akami.png') },
         { url: require('@/assets/img/sushi_ebi.png') },
@@ -182,8 +206,8 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_syari.png') },
       ],
       iconChecked: -1,
-      activeTopicId: null,
-      hamburgerMenu: 'menu',
+      // チャット関連
+      messages: [],
     }
   },
   computed: {
@@ -199,95 +223,238 @@ export default Vue.extend({
       this.isAdmin = true
     }
 
+    if (this.$route.query.roomId != null) {
+      // TODO: redirect
+    }
+
     const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
-
     if (!this.isAdmin) {
-      const selectedIcon = getSelectedIcon()
+      const selectedIcon = getSelectedIconFromJSON()
       if (selectedIcon == null) {
         this.$modal.show('sushi-modal')
       } else {
-        this.iconChecked = selectedIcon - 1
+        this.iconChecked = selectedIcon
         this.enterRoom(selectedIcon)
       }
     }
     this.$modal.show('sushi-modal')
 
-    socket.on('PUB_CHAT_ITEM', (res: any) => {
-      if (!this.messages.find((message) => message.id === res.content.id)) {
-        this.messages.push(res.content)
-      }
+    // SocketIOのコールバックの登録
+    socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
+      this.messages.push(chatItem)
     })
 
-    socket.on('PUB_CHANGE_ACTIVE_TOPIC', (res: any) => {
-      this.activeTopicId = `${res.topicId}`
-    })
-
-    socket.on('PUB_FINISH_TOPIC', (res: any) => {
-      const messageAdmin: Message = {
-        id: `${getUUID()}`,
-        topicId: res.topicId,
-        type: 'message',
-        iconId: '0',
-        timestamp: 0,
-        content: '【運営Bot】\n 以下、質問一覧です！',
-        isQuestion: false,
-      }
-      this.messages.push(messageAdmin)
-      for (const i in this.messages) {
-        // 閉じたトピックのmessageについて
-        if (
-          this.messages[i].topicId === res.topicId &&
-          this.messages[i].type === 'message'
-        ) {
-          // @ts-ignore
-          if (this.messages[i].isQuestion) {
-            const m: Message = {
-              id: `${getUUID()}`,
-              topicId: res.topicId,
-              type: 'message',
-              iconId: '0',
-              timestamp: 0,
-              // @ts-ignore
-              content: this.messages[i].content,
-              isQuestion: true,
-            }
-            this.messages.push(m)
-          }
-        }
+    socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
+      if (res.type === 'OPEN') {
+        // 現在activeなトピックがあればfinishedにする
+        this.topicStates = Object.fromEntries(
+          Object.entries(this.topicStates).map(([topicId, topicState]) => [
+            topicId,
+            topicState === 'active' ? 'finished' : topicState,
+          ])
+        )
+        this.topicStates[res.topicId] = 'active'
+      } else if (res.type === 'PAUSE') {
+        this.topicStates[res.topicId] = 'paused'
+      } else if (res.type === 'CLOSE') {
+        this.topicStates[res.topicId] = 'finished'
       }
     })
   },
   methods: {
-    sendMessage(text: string, topicId: string, isQuestion: boolean) {
+    // 管理画面の開閉
+    clickDrawerMenu() {
+      this.isDrawer = !this.isDrawer
+      if (this.isDrawer) {
+        this.hamburgerMenu = 'close'
+      } else {
+        this.hamburgerMenu = 'menu'
+      }
+    },
+
+    // ルーム情報
+    // 該当するtopicを削除
+    removeTopic(index: number) {
+      this.topicsAdmin.splice(index, 1)
+    },
+    // textareaに入力された文字を改行で区切ってtopic追加
+    addTopic() {
+      // 追加済みtopic名リスト作成
+      const set = new Set<string>()
+      for (const topic of this.topicsAdmin) {
+        set.add(topic.title)
+      }
+      // 入力を空白で区切る
+      const titles = this.inputText.split('\n')
+      for (const topicTitle of titles) {
+        // 空白はカウントしない
+        if (topicTitle === '') continue
+        // 重複してるトピックはカウントしない
+        if (set.has(topicTitle)) continue
+
+        const t: Omit<Topic, 'id'> = {
+          title: topicTitle,
+          // description: '',
+          urls: { github: '', slide: '', product: '' },
+        }
+        this.topicsAdmin.push(t)
+        set.add(topicTitle)
+      }
+      this.inputText = ''
+    },
+    // エンターキーでaddTopic呼び出し
+    clickAddTopic(e: any) {
+      // 日本語入力中のeventnterキー操作は無効にする
+      if (e.keyCode !== 13) return
+      this.addTopic()
+    },
+    // topic反映
+    startChat() {
+      let alertmessage: string = ''
+      // ルーム名絶対入れないとだめ
+      if (this.room.title === '') {
+        alertmessage = 'ルーム名を入力してください\n'
+      }
+
+      // 仮topicから空でないものをtopicsに
+      const topics: Omit<Topic, 'id'>[] = []
+      for (const t in this.topicsAdmin) {
+        if (this.topicsAdmin[t].title) {
+          topics.push(this.topicsAdmin[t])
+          // this.topicStates[this.topicsAdmin[t].id] = 'not-started'
+        }
+      }
+
+      // トピック0はだめ
+      if (topics.length === 0) {
+        alertmessage += 'トピック名を入力してください\n'
+      }
+
+      // ルーム名かトピック名が空ならアラート出して終了
+      if (alertmessage !== '') {
+        alert(alertmessage)
+        return
+      }
+
+      // ルームを作成
+      const socket = (this as any).socket
+      socket.emit(
+        'ADMIN_BUILD_ROOM',
+        {
+          title: this.room.title,
+          topics,
+        },
+        (room: AdminBuildRoomResponse) => {
+          this.room = room
+          console.log(room)
+          socket.emit(
+            'ADMIN_ENTER_ROOM',
+            {
+              roomId: room.id,
+            },
+            ({ chatItems, topics, activeUserCount }: any) => {
+              topics.forEach((topic: any) => {
+                this.topicStates[topic.id] = 'not-started'
+              })
+              this.messages = chatItems
+              this.topics = topics
+              this.activeUserCount = activeUserCount
+            }
+          )
+        }
+      )
+
+      // ルーム開始
+      this.$modal.hide('sushi-modal')
+    },
+
+    startRoom() {
+      const socket = (this as any).socket
+      socket.emit('ADMIN_START_ROOM', { roomId: this.room.id })
+      this.isRoomStarted = true
+    },
+
+    // アクティブトピックが変わる
+    changeActiveTopic(topicId: string) {
+      const socket = (this as any).socket
+      console.log(topicId)
+      socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
+        roomId: this.room.id,
+        topicId,
+        type: 'OPEN',
+      })
+    },
+
+    // ユーザ関連
+    // modalを消し、topic作成
+    hide(): any {
+      this.$modal.hide('sushi-modal')
+      this.enterRoom(this.iconChecked + 1)
+    },
+    // ルーム入室
+    enterRoom(iconId: number) {
+      const socket = (this as any).socket
+
+      const roomId = this.$route.query.roomId as string
+      socket.emit(
+        'ENTER_ROOM',
+        {
+          iconId,
+          roomId,
+        },
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        (res: any) => {
+          this.topics = res.topics
+          this.messages = res.chatItems ?? []
+          res.topics.forEach((topic: any) => {
+            this.topicStates[topic.id] = topic.state
+          })
+        }
+      )
+      setSelectedIconToJSON(iconId)
+    },
+    // アイコン選択
+    clickIcon(index: number) {
+      this.iconChecked = index
+    },
+
+    // チャット関連
+    sendMessage(
+      text: string,
+      topicId: string,
+      target: Message | Answer | null
+    ) {
+      console.log('send message: ', text)
       const socket = (this as any).socket
       const params: PostChatItemMessageParams = {
         type: 'message',
         id: getUUID(),
         topicId,
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
-        isQuestion,
+        target: target?.id ?? null,
       }
       // サーバーに反映する
       socket.emit('POST_CHAT_ITEM', params)
+      // NOTE: サーバと処理を共通化したい
       // ローカルに反映する
       this.messages.push({
         id: params.id,
-        topicId,
         type: 'message',
+        topicId,
         iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         content: text,
-        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        isQuestion,
+        createdAt: new Date(),
+        target,
+        timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
       })
     },
     sendReaction(message: Message) {
+      console.log('send reaction: ', message.content)
       const socket = (this as any).socket
       const params: PostChatItemReactionParams = {
-        id: `${getUUID()}`,
+        id: getUUID(),
         topicId: message.topicId,
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         type: 'reaction',
         reactionToId: message.id,
       }
@@ -300,12 +467,55 @@ export default Vue.extend({
         type: 'reaction',
         iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
         timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        target: {
-          id: message.id,
-          content:
-            (this.messages.find(({ id }) => id === message.id) as Message)
-              ?.content ?? '',
-        },
+        createdAt: new Date(),
+        target: message,
+      })
+    },
+    sendQuestion(text: string, topicId: string) {
+      console.log('send question: ', text)
+      const socket = (this as any).socket
+      const params: PostChatItemQuestionParams = {
+        type: 'question',
+        id: getUUID(),
+        topicId,
+        content: text,
+      }
+      // サーバーに反映する
+      socket.emit('POST_CHAT_ITEM', params)
+      // NOTE: サーバと処理を共通化したい
+      // ローカルに反映する
+      this.messages.push({
+        id: params.id,
+        type: 'question',
+        topicId,
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
+        content: text,
+        createdAt: new Date(),
+        timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
+      })
+    },
+    sendAnswer(text: string, question: Question) {
+      console.log('send answer: ', text)
+      const socket = (this as any).socket
+      const params: PostChatItemAnswerParams = {
+        id: getUUID(),
+        topicId: question.topicId,
+        type: 'answer',
+        target: question.id,
+        content: text,
+      }
+      // サーバーに反映する
+      socket.emit('POST_CHAT_ITEM', params)
+      // ローカルに反映する
+      this.messages.push({
+        id: params.id,
+        topicId: params.topicId,
+        type: 'answer',
+        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
+        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+        createdAt: new Date(),
+        target: question,
+        content: text,
       })
     },
     sendFavorite(topicId: string) {
@@ -329,216 +539,103 @@ export default Vue.extend({
         }
       })
     },
-    changeActiveTopic(topicId: string) {
-      const socket = (this as any).socket
-      socket.emit('CHANGE_ACTIVE_TOPIC', { topicId })
-    },
-    // modalを消し、topic作成
-    hide(): any {
-      this.topics.push()
-      this.$modal.hide('sushi-modal')
-      this.enterRoom(this.iconChecked + 1)
-    },
-    enterRoom(iconId: number) {
-      const socket = (this as any).socket
-      socket.emit(
-        'ENTER_ROOM',
-        {
-          iconId,
-        },
-        (res: any) => {
-          this.topics = res.topics
-          this.messages = res.chatItems ?? []
-          this.activeTopicId = res.activeTopicId
-        }
-      )
-      setSelectedIcon(iconId)
-    },
-    // 該当するtopicを削除
-    removeTopic(index: number) {
-      this.topicsAdmin.splice(index, 1)
-    },
-    // textareaに入力された文字を改行で区切ってtopic追加
-    addTopic() {
-      // 追加済みtopic名リスト作成
-      const set = new Set<string>()
-      for (const topic of this.topicsAdmin) {
-        set.add(topic.title)
-      }
-      // 入力を空白で区切る
-      const titles = this.inputText.split('\n')
-      for (const topicTitle of titles) {
-        // 空白はカウントしない
-        if (topicTitle === '') continue
-        // 重複してるトピックはカウントしない
-        if (set.has(topicTitle)) continue
-
-        const t: Topic = {
-          id: `${getUUID()}`,
-          title: topicTitle,
-          description: '',
-        }
-        this.topicsAdmin.push(t)
-        set.add(topicTitle)
-      }
-      this.inputText = ''
-    },
-    // topic反映
-    startChat() {
-      let alertmessage: string = ''
-      // ルーム名絶対入れないとだめ
-      if (this.roomName === '') {
-        alertmessage = 'ルーム名を入力してください\n'
-      }
-
-      // 仮topicから空でないものをtopicsに
-      for (const t in this.topicsAdmin) {
-        if (this.topicsAdmin[t].title) {
-          this.topics.push(this.topicsAdmin[t])
-        }
-      }
-
-      // トピック0はだめ
-      if (this.topics.length === 0) {
-        alertmessage += 'トピック名を入力してください\n'
-      }
-
-      // ルーム名かトピック名が空ならアラート出して終了
-      if (alertmessage !== '') {
-        alert(alertmessage)
-        return
-      }
-
-      // this.topicsをサーバに反映
-      const socket = (this as any).socket
-      socket.emit('CREATE_ROOM', {
-        topics: this.topics,
-      })
-
-      // ルーム開始
-      this.$modal.hide('sushi-modal')
-    },
-    // アイコン選択
-    clickIcon(index: number) {
-      this.iconChecked = index
-    },
-    clickDrawerMenu() {
-      this.isDrawer = !this.isDrawer
-      if (this.isDrawer) {
-        this.hamburgerMenu = 'close'
-      } else {
-        this.hamburgerMenu = 'menu'
-      }
-    },
   },
 })
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const CHAT_DUMMY_DATA = [
-  {
-    id: '0',
-    topicId: '0',
-    type: 'message',
-    iconId: '0',
-    content: '画像処理どうなってんの→独自実装!!?????',
-    isQuestion: false,
-    timestamp: 100,
-  },
+const TOPICS = [
   {
     id: '1',
-    topicId: '0',
-    type: 'message',
-    iconId: '1',
-    content:
-      '背景切り抜きまでしてくれるんか、すごいな。画像処理を独自実装...!すご！すご！',
-    isQuestion: false,
-    timestamp: 200,
+    title: 'TITLE 0',
+    urls: {},
   },
   {
     id: '2',
-    topicId: '0',
-    type: 'message',
-    iconId: '2',
-    content: 'デザイン期間中に作ったのか！',
-    isQuestion: false,
-    timestamp: 300,
+    title: 'TITLE 0',
+    urls: {},
   },
   {
     id: '3',
-    topicId: '0',
+    title: 'TITLE 0',
+    urls: {},
+  },
+]
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const CHAT_DUMMY_DATA: ChatItem[] = [
+  {
+    timestamp: 60,
+    iconId: '2',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
+    id: '001',
+    topicId: '1',
     type: 'message',
+    content: 'コメント',
+    target: null,
+  },
+  {
+    timestamp: 0,
     iconId: '3',
-    content: 'バックエンドはどんな技術を使ったんですか？',
-    isQuestion: true,
-    timestamp: 400,
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
+    target: {
+      id: '001',
+      topicId: '0',
+      type: 'message',
+      iconId: '2',
+      timestamp: 0,
+      createdAt: new Date('2021-05-08T00:00:00.000Z'),
+      content: 'コメント',
+      target: null,
+    },
+    id: '002',
+    topicId: '1',
+    type: 'reaction',
   },
   {
-    id: '4',
-    topicId: '0',
-    type: 'message',
+    timestamp: 0,
+    iconId: '2',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
+    id: '003',
+    topicId: '1',
+    type: 'question',
+    content: '質問',
+  },
+  {
+    timestamp: 0,
+    iconId: '3',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
+    id: '004',
+    topicId: '1',
+    type: 'answer',
+    content: '回答',
+    target: {
+      id: '003',
+      topicId: '0',
+      type: 'question',
+      iconId: '2',
+      timestamp: 0,
+      createdAt: new Date('2021-05-08T00:00:00.000Z'),
+      content: '質問',
+    },
+  },
+  {
+    timestamp: 0,
     iconId: '4',
-    content: 'チーム名の圧がすごいwwwwwwwwwww',
-    isQuestion: false,
-    timestamp: 500,
-  },
-  {
-    id: '5',
-    topicId: '0',
-    type: 'message',
-    iconId: '5',
-    content: 'なんか始まった笑笑',
-    isQuestion: false,
-    timestamp: 600,
-  },
-  {
-    id: '6',
-    topicId: '0',
-    type: 'message',
-    iconId: '6',
-    content: '既存のモデルそのままじゃなく独自改良してるのいいね',
-    isQuestion: false,
-    timestamp: 700,
-  },
-  {
-    id: '7',
-    topicId: '0',
-    type: 'message',
-    iconId: '7',
-    content: 'チーム名からのフリとオチ面白い笑笑',
-    isQuestion: false,
-    timestamp: 800,
-  },
-  {
-    id: '8',
-    topicId: '0',
-    type: 'reaction',
-    iconId: '0',
-    timestamp: 900,
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
     target: {
-      id: '1',
-      content:
-        '背景切り抜きまでしてくれるんか、すごいな。画像処理を独自実装...!すご！すご！',
+      id: '001',
+      topicId: '0',
+      type: 'message',
+      iconId: '2',
+      timestamp: 0,
+      createdAt: new Date('2021-05-08T00:00:00.000Z'),
+      content: 'コメント',
+      target: null,
     },
-  },
-  {
-    id: '9',
-    topicId: '0',
-    type: 'reaction',
-    iconId: '1',
-    timestamp: 1000,
-    target: {
-      id: '2',
-      content: 'デザイン期間中に作ったのか！',
-    },
-  },
-  {
-    id: '10',
-    topicId: '0',
+    id: '005',
+    topicId: '1',
     type: 'message',
-    iconId: '10',
-    content: 'UIきれい!',
-    isQuestion: false,
-    timestamp: 100,
+    content: 'リプライ',
   },
-] as const
+]
 </script>
