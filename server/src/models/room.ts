@@ -13,10 +13,10 @@ import {
   AdminChangeTopicStateParams,
   PostChatItemParams,
   PostStampParams,
-  PubStampParams,
 } from "../events";
 import { IServerSocket } from "../serverSocket";
 import { Stamp, stampIntervalSender } from "../stamp";
+import { v4 as getUUID } from "uuid";
 
 type MessageStore = ChatItemBase & {
   type: "message";
@@ -84,7 +84,11 @@ class RoomClass {
       state: "not-started",
     }));
     this.topics.forEach(({ id }) => {
-      this.topicTimeData[id] = { openedDate: null, pausedDate: null, offsetTime: 0 };
+      this.topicTimeData[id] = {
+        openedDate: null,
+        pausedDate: null,
+        offsetTime: 0,
+      };
     });
   }
 
@@ -158,19 +162,43 @@ class RoomClass {
       }
       targetTopic.state = "active";
 
-      if (this.topicTimeData[targetTopic.id].openedDate == null) {
-        this.topicTimeData[targetTopic.id].openedDate = new Date().getTime();
+      // トピック終了のBotメッセージ
+      if (currentActiveTopic != null) {
+        this.sendBotMessage(
+          currentActiveTopic.id,
+          "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）"
+        );
       }
 
+      const isFirstOpen = this.topicTimeData[targetTopic.id].openedDate == null;
+
+      // タイムスタンプの計算
+      if (isFirstOpen) {
+        this.topicTimeData[targetTopic.id].openedDate = new Date().getTime();
+      }
       const pausedDate = this.topicTimeData[targetTopic.id].pausedDate;
       if (pausedDate != null) {
-        this.topicTimeData[targetTopic.id].offsetTime += new Date().getTime() - pausedDate;
+        this.topicTimeData[targetTopic.id].offsetTime +=
+          new Date().getTime() - pausedDate;
       }
+
+      // トピック開始のBotメッセージ
+      this.sendBotMessage(
+        params.topicId,
+        isFirstOpen
+          ? "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n"
+          : "【運営Bot】\n 発表が再開されました"
+      );
     } else if (params.type === "PAUSE") {
       targetTopic.state = "paused";
       this.topicTimeData[targetTopic.id].pausedDate = new Date().getTime();
+      this.sendBotMessage(params.topicId, "【運営Bot】\n 発表が中断されました");
     } else if (params.type === "CLOSE") {
       targetTopic.state = "finished";
+      this.sendBotMessage(
+        params.topicId,
+        "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）"
+      );
     } else {
       throw new Error("[sushi-chat-server] Type is invalid.");
     }
@@ -186,7 +214,10 @@ class RoomClass {
         this.id,
         this.stampsQueue
       );
-    } else if (this.activeTopic == null && this.stampIntervalSenderTimer != null) {
+    } else if (
+      this.activeTopic == null &&
+      this.stampIntervalSenderTimer != null
+    ) {
       // 全部閉じたならタイマー解除
       clearInterval(this.stampIntervalSenderTimer);
       //c learIntervalしてもタイマーは残るので、あとでわかるように消す
@@ -228,7 +259,10 @@ class RoomClass {
    * @param userId
    * @param chatItemParams
    */
-  public postChatItem = (userId: string, chatItemParams: PostChatItemParams) => {
+  public postChatItem = (
+    userId: string,
+    chatItemParams: PostChatItemParams
+  ) => {
     if (!this.isOpened) {
       throw new Error("[sushi-chat-server] Room is not opened.");
     }
@@ -254,7 +288,10 @@ class RoomClass {
    * @param chatItem チャットアイテム
    * @returns
    */
-  private addServerInfo = (userId: string, chatItem: PostChatItemParams): ChatItemStore => {
+  private addServerInfo = (
+    userId: string,
+    chatItem: PostChatItemParams
+  ): ChatItemStore => {
     const timestamp = this.getTimestamp(chatItem.topicId);
     if (chatItem.type === "reaction") {
       const { reactionToId, ...rest } = chatItem;
@@ -282,7 +319,9 @@ class RoomClass {
    * @param chatItemStore
    * @returns フロントに返すためのデータ
    */
-  private chatItemStoreToChatItem = (chatItemStore: ChatItemStore): ChatItem => {
+  private chatItemStoreToChatItem = (
+    chatItemStore: ChatItemStore
+  ): ChatItem => {
     if (chatItemStore.type === "message") {
       if (chatItemStore.target == null) {
         // 通常メッセージ
@@ -294,14 +333,20 @@ class RoomClass {
         // リプライメッセージ
         // リプライ先のメッセージを取得する
         const targetChatItemStore = this.chatItems.find(
-          ({ id, type }) => id === chatItemStore.target && (type === "answer" || type === "message")
+          ({ id, type }) =>
+            id === chatItemStore.target &&
+            (type === "answer" || type === "message")
         );
         if (targetChatItemStore == null) {
-          throw new Error("[sushi-chat-server] Reply target message does not exists.");
+          throw new Error(
+            "[sushi-chat-server] Reply target message does not exists."
+          );
         }
         return {
           ...chatItemStore,
-          target: this.chatItemStoreToChatItem(targetChatItemStore) as Answer | Message,
+          target: this.chatItemStoreToChatItem(targetChatItemStore) as
+            | Answer
+            | Message,
         };
       }
     } else if (chatItemStore.type === "reaction") {
@@ -312,11 +357,16 @@ class RoomClass {
           (type === "message" || type === "question" || type === "answer")
       );
       if (targetChatItemStore == null) {
-        throw new Error("[sushi-chat-server] Reaction target message does not exists.");
+        throw new Error(
+          "[sushi-chat-server] Reaction target message does not exists."
+        );
       }
       return {
         ...chatItemStore,
-        target: this.chatItemStoreToChatItem(targetChatItemStore) as Message | Answer | Question,
+        target: this.chatItemStoreToChatItem(targetChatItemStore) as
+          | Message
+          | Answer
+          | Question,
       };
     } else if (chatItemStore.type === "question") {
       // 質問
@@ -327,13 +377,33 @@ class RoomClass {
         ({ id, type }) => id === chatItemStore.target && type === "question"
       );
       if (targetChatItemStore == null) {
-        throw new Error("[sushi-chat-server] Answer target message does not exists.");
+        throw new Error(
+          "[sushi-chat-server] Answer target message does not exists."
+        );
       }
       return {
         ...chatItemStore,
         target: this.chatItemStoreToChatItem(targetChatItemStore) as Question,
       };
     }
+  };
+
+  // Botメッセージ
+  private sendBotMessage = (topicId: string, content: string) => {
+    const botMessage: MessageStore = {
+      type: "message",
+      id: getUUID(),
+      topicId: topicId,
+      iconId: "0",
+      timestamp: this.getTimestamp(topicId),
+      createdAt: new Date(),
+      content: content,
+      target: null,
+    };
+    this.chatItems.push(botMessage);
+    RoomClass.globalSocket
+      .to(this.id)
+      .emit("PUB_CHAT_ITEM", this.chatItemStoreToChatItem(botMessage));
   };
 
   // utils
@@ -344,7 +414,10 @@ class RoomClass {
       // NOTE: エラー
       return 0;
     }
-    const timestamp = new Date().getTime() - openedDate - this.topicTimeData[topicId].offsetTime;
+    const timestamp =
+      new Date().getTime() -
+      openedDate -
+      this.topicTimeData[topicId].offsetTime;
     return timestamp < 0 ? 0 : timestamp;
   };
 
