@@ -68,6 +68,12 @@
       &:active {
         background: $active-button-background;
       }
+
+      &:disabled {
+        color: rgba(204, 204, 204, 0.5);
+        background: transparent;
+        cursor: default;
+      }
     }
   }
 }

@@ -66,7 +66,6 @@
       background-color: #f6666e;
       color: white;
       margin-top: 15px;
-      margin-bottom: 30px;
       min-height: 50px;
       display: flex;
       justify-content: center;
@@ -82,16 +81,41 @@
       flex: 1 1 0;
       overflow-y: scroll;
       font-size: 120%;
+      margin-top: 30px;
 
       .topic {
         display: flex;
-        background-color: #fff8b4;
         align-items: center;
         border-bottom: 2px solid rgb(192, 192, 192);
         padding: 6px 0;
 
         &:first-child {
           border-top: 2px solid rgb(192, 192, 192);
+        }
+      }
+
+      .ongoing {
+        background-color: #fff8b4;
+        .label{
+          background-color: #f6666e;
+          color: white;
+        }
+      }
+      .paused {
+        .label{
+          color: #f6666e;
+          background-color: white;
+          border: solid #f6666e 2px;
+          box-sizing: border-box;
+        }
+      }
+      .finished {
+        background-color: $gray;
+      }
+      .not-started{
+        color:rgb(192, 192, 192);
+        .buttons > button {
+          color: rgb(192, 192, 192);
         }
       }
 
@@ -108,8 +132,6 @@
         .label {
           font-size: 70%;
           font-weight: bold;
-          background-color: #f6666e;
-          color: white;
           padding: 3px 10px;
           border-radius: 24px;
           margin-left: 10px;
