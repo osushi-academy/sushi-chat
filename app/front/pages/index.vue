@@ -242,7 +242,13 @@ export default Vue.extend({
 
     // SocketIOのコールバックの登録
     socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
-      this.messages.push(chatItem)
+      if (this.messages.find(({ id }) => id === chatItem.id)) {
+        this.messages = this.messages.map((item) =>
+          item.id === chatItem.id ? chatItem : item
+        )
+      } else {
+        this.messages.push(chatItem)
+      }
     })
 
     socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
