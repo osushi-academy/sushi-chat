@@ -140,10 +140,6 @@ import {
 import ChatRoom from '@/components/ChatRoom.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
-import {
-  getSelectedIconFromJSON,
-  setSelectedIconToJSON,
-} from '@/utils/reserveSelectIcon'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -411,7 +407,6 @@ export default Vue.extend({
           })
         }
       )
-      setSelectedIconToJSON(iconId)
     },
     // アイコン選択
     clickIcon(index: number) {

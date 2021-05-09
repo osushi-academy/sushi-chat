@@ -48,6 +48,10 @@
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
+    <div v-if="selectedChatItem" class="reply-bar">
+      <div class="reply-content">{{ selectedChatItem.content }} に返信中</div>
+      <div class="material-icons" @click="deselectChatItem">close</div>
+    </div>
     <TextArea
       :topic="chatData.topic"
       :my-icon="myIcon"
@@ -225,6 +229,10 @@ export default Vue.extend({
         this.chatData.topic.title + '\n',
         ...messages,
       ])
+    },
+    // 選択したアイテム取り消し
+    deselectChatItem() {
+      this.selectedChatItem = null
     },
   },
 })

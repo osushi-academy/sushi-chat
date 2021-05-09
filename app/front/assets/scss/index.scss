@@ -470,3 +470,22 @@
     }
   }
 }
+
+.reply-bar {
+  display: inline-block;
+  background-color: $gray;
+  & > .reply-content {
+    color: $text-gray;
+    font-size: 80%;
+  }
+  & > .material-icons {
+    font-size: 20px;
+    color: $text-gray;
+    &:hover {
+      color: $black;
+    }
+    &:active {
+      color: $black;
+    }
+  }
+}
