@@ -11,6 +11,7 @@
       <button
         v-show="isAdmin"
         class="download-button"
+        :disabled="topicState === 'active'"
         @click="clickTopicActivate"
       >
         <zap-icon size="18"></zap-icon>

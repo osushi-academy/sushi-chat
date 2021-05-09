@@ -68,6 +68,12 @@
       &:active {
         background: rgba(187, 187, 187, 0.3);
       }
+
+      &:disabled {
+        color: rgba(204, 204, 204, 0.5);
+        background: transparent;
+        cursor: default;
+      }
     }
   }
 }

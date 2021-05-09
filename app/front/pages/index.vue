@@ -1,10 +1,10 @@
 <template>
   <div class="container page">
-    <header :v-show="isAdmin">
+    <header v-if="isAdmin">
       <button @click="clickDrawerMenu">
         <span class="material-icons"> {{ hamburgerMenu }} </span>
       </button>
-      <button v-show="!isRoomStarted" @click="startRoom">
+      <button v-if="!isRoomStarted" @click="startRoom">
         ルームをオープンする
       </button>
     </header>
@@ -95,7 +95,7 @@
           </div>
         </div>
       </modal>
-      <SettingPage v-if="isDrawer" />
+      <SettingPage v-if="isDrawer && isAdmin" />
       <div v-for="(chatData, index) in chatDataList" :key="index">
         <ChatRoom
           :topic-index="index"
@@ -242,7 +242,15 @@ export default Vue.extend({
 
     // SocketIOのコールバックの登録
     socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
-      this.messages.push(chatItem)
+      if (this.messages.find(({ id }) => id === chatItem.id)) {
+        // 自分が送信したコメント
+        this.messages = this.messages.map((item) =>
+          item.id === chatItem.id ? chatItem : item
+        )
+      } else {
+        // 自分以外のユーザーが送信したコメント
+        this.messages.push(chatItem)
+      }
     })
 
     socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
@@ -347,7 +355,7 @@ export default Vue.extend({
         },
         (room: AdminBuildRoomResponse) => {
           this.room = room
-          console.log(room)
+          console.log(`ルームID: ${room.id}`)
           socket.emit(
             'ADMIN_ENTER_ROOM',
             {
@@ -446,7 +454,7 @@ export default Vue.extend({
         content: text,
         createdAt: new Date(),
         target,
-        timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
+        timestamp: 0, // TODO: 正しいタイムスタンプを設定する
       })
     },
     sendReaction(message: Message) {
