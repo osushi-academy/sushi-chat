@@ -1,6 +1,6 @@
 const SUSHI_CHAT_SELECTED_ICON_KEY = 'SUSHI_CHAT_SELECTED_ICON_KEY'
 
-export const getSelectedIcon = () => {
+export const getSelectedIconFromJSON = () => {
   const iconIdOrNull = localStorage.getItem(SUSHI_CHAT_SELECTED_ICON_KEY)
   if (iconIdOrNull == null) {
     return null
@@ -11,5 +11,5 @@ export const getSelectedIcon = () => {
   }
 }
 
-export const setSelectedIcon = (iconId: number) =>
+export const setSelectedIconToJSON = (iconId: number) =>
   localStorage.setItem(SUSHI_CHAT_SELECTED_ICON_KEY, `${iconId}`)
