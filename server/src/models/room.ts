@@ -16,7 +16,7 @@ import {
   PubStampParams,
 } from "../events";
 import { IServerSocket } from "../serverSocket";
-import { Stamp } from "../stamp";
+import { Stamp, stampIntervalSender } from "../stamp";
 
 type MessageStore = ChatItemBase & {
   type: "message";
@@ -53,7 +53,9 @@ class RoomClass {
   private chatItems: ChatItemStore[] = [];
   public topics: (Topic & { state: TopicState })[];
   public stamps: StampStore[] = [];
+  public stampsQueue: Stamp[] = [];
   private isOpened = false;
+  private stampIntervalSenderTimer: NodeJS.Timeout | null = null;
 
   public get activeUserCount(): number {
     return this.users.length;
@@ -154,6 +156,22 @@ class RoomClass {
       type: params.type,
       topicId: params.topicId,
     });
+    if (this.activeTopic != null && this.stampIntervalSenderTimer == null) {
+      // 何か開いたならセット
+      this.stampIntervalSenderTimer = stampIntervalSender(
+        RoomClass.globalSocket,
+        this.id,
+        this.stampsQueue
+      );
+    } else if (
+      this.activeTopic == null &&
+      this.stampIntervalSenderTimer != null
+    ) {
+      // 全部閉じたならタイマー解除
+      clearInterval(this.stampIntervalSenderTimer);
+      //c learIntervalしてもタイマーは残るので、あとでわかるように消す
+      this.stampIntervalSenderTimer = null;
+    }
   };
 
   /**
@@ -176,9 +194,10 @@ class RoomClass {
       timestamp: 0, // TODO: 正しいタイムスタンプを設定
       createdAt: new Date(),
     });
-    // 配信する
-    this.getSocketByUserId(userId).broadcast("PUB_STAMP", {
-      iconId: this.getIconId(userId),
+    // 配信用に保存
+    this.stampsQueue.push({
+      userId,
+      timestamp: 0, // TODO: 正しいタイムスタンプを設定
       topicId: params.topicId,
     });
   };
@@ -188,7 +207,10 @@ class RoomClass {
    * @param userId
    * @param chatItemParams
    */
-  public postChatItem = (userId: string, chatItemParams: PostChatItemParams) => {
+  public postChatItem = (
+    userId: string,
+    chatItemParams: PostChatItemParams
+  ) => {
     if (!this.isOpened) {
       throw new Error("[sushi-chat-server] Room is not opened.");
     }
@@ -214,7 +236,10 @@ class RoomClass {
    * @param chatItem チャットアイテム
    * @returns
    */
-  private addServerInfo = (userId: string, chatItem: PostChatItemParams): ChatItemStore => {
+  private addServerInfo = (
+    userId: string,
+    chatItem: PostChatItemParams
+  ): ChatItemStore => {
     if (chatItem.type === "reaction") {
       const { reactionToId, ...rest } = chatItem;
       return {
@@ -241,7 +266,9 @@ class RoomClass {
    * @param chatItemStore
    * @returns フロントに返すためのデータ
    */
-  private chatItemStoreToChatItem = (chatItemStore: ChatItemStore): ChatItem => {
+  private chatItemStoreToChatItem = (
+    chatItemStore: ChatItemStore
+  ): ChatItem => {
     if (chatItemStore.type === "message") {
       if (chatItemStore.target == null) {
         // 通常メッセージ
@@ -253,14 +280,20 @@ class RoomClass {
         // リプライメッセージ
         // リプライ先のメッセージを取得する
         const targetChatItemStore = this.chatItems.find(
-          ({ id, type }) => id === chatItemStore.target && (type === "answer" || type === "message")
+          ({ id, type }) =>
+            id === chatItemStore.target &&
+            (type === "answer" || type === "message")
         );
         if (targetChatItemStore == null) {
-          throw new Error("[sushi-chat-server] Reply target message does not exists.");
+          throw new Error(
+            "[sushi-chat-server] Reply target message does not exists."
+          );
         }
         return {
           ...chatItemStore,
-          target: this.chatItemStoreToChatItem(targetChatItemStore) as Answer | Message,
+          target: this.chatItemStoreToChatItem(targetChatItemStore) as
+            | Answer
+            | Message,
         };
       }
     } else if (chatItemStore.type === "reaction") {
@@ -271,11 +304,16 @@ class RoomClass {
           (type === "message" || type === "question" || type === "answer")
       );
       if (targetChatItemStore == null) {
-        throw new Error("[sushi-chat-server] Reaction target message does not exists.");
+        throw new Error(
+          "[sushi-chat-server] Reaction target message does not exists."
+        );
       }
       return {
         ...chatItemStore,
-        target: this.chatItemStoreToChatItem(targetChatItemStore) as Message | Answer | Question,
+        target: this.chatItemStoreToChatItem(targetChatItemStore) as
+          | Message
+          | Answer
+          | Question,
       };
     } else if (chatItemStore.type === "question") {
       // 質問
@@ -286,7 +324,9 @@ class RoomClass {
         ({ id, type }) => id === chatItemStore.target && type === "question"
       );
       if (targetChatItemStore == null) {
-        throw new Error("[sushi-chat-server] Answer target message does not exists.");
+        throw new Error(
+          "[sushi-chat-server] Answer target message does not exists."
+        );
       }
       return {
         ...chatItemStore,
