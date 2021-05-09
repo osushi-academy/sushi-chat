@@ -38,7 +38,12 @@ export function insertRoom(
       values: [roomId.toString(), roomKey, title, status],
     },
     (err) => {
-      if (err) throw err;
+      if (err) {
+        console.log(
+          `${err.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
+          new Date().toISOString()
+        );
+      }
     }
   );
 }
@@ -73,7 +78,12 @@ export function insertTopics(client: Client, roomId: string, topics: Topic[]) {
     ";";
 
   client.query(query, (err) => {
-    if (err) throw err;
+    if (err) {
+      console.log(
+        `${err.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
+        new Date().toISOString()
+      );
+    }
   });
 }
 
@@ -112,7 +122,12 @@ export function insertChatItems(
     ";";
 
   client.query(query, (err) => {
-    if (err) throw err;
+    if (err) {
+      console.log(
+        `${err.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
+        new Date().toISOString()
+      );
+    }
   });
 }
 
