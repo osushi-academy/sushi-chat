@@ -1,10 +1,10 @@
 <template>
   <div class="container page">
-    <header :v-show="isAdmin">
+    <header>
       <button @click="clickDrawerMenu">
         <span class="material-icons"> {{ hamburgerMenu }} </span>
       </button>
-      <button v-show="!isRoomStarted" @click="startRoom">
+      <button v-if="isAdmin && !isRoomStarted" @click="startRoom">
         ルームをオープンする
       </button>
     </header>
