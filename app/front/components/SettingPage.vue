@@ -15,6 +15,10 @@
             >
             <button
               class="material-icons copy-button"
+              :disabled="
+                room.topics.findIndex((t) => topicStates[t.id] === 'active') ==
+                null
+              "
               @click="writeToClipboard"
             >
               content_copy
@@ -76,7 +80,7 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { TopicStatesPropType, Room, Topic, TopicState } from '@/models/contents'
+import { TopicStatesPropType, Room } from '@/models/contents'
 
 export default Vue.extend({
   name: 'SettingPage',
@@ -133,108 +137,114 @@ export default Vue.extend({
       }
     },
     clickNextTopicButton() {
-      // クローズにするトピックを探す
-      const closeTopic = this.room.topics.find(
+      // アクティブなトピックを探す
+      const currentActiveTopicIndex = this.room.topics.findIndex(
         (t) => this.topicStates[t.id] === 'active'
       )
-      // アクティブにするトピックを探す
-      const topic = this.room.topics.find(
-        (t) => this.topicStates[t.id] === 'not-started'
-      )
 
-      let alertMessage = '以下の操作を実行しますか？\n'
-      let closeFlag = false
-      let openFlag = false
-      if (typeof closeTopic !== 'undefined') closeFlag = true
-      if (typeof topic !== 'undefined') openFlag = true
+      if (currentActiveTopicIndex == null) {
+        return
+      }
 
-      if (closeFlag) {
-        alertMessage += 'トピックを閉じる：' + closeTopic.title
-        if (openFlag) {
-          alertMessage += '\n↓\n'
-        }
+      const nextTopic = this.room.topics?.[currentActiveTopicIndex + 1]
+
+      if (nextTopic != null) {
+        this.$emit('change-topic-state', nextTopic.id, 'active')
       }
-      if (openFlag) {
-        alertMessage += 'トピックを開く：' + topic.title + '\n'
-      }
-      console.log(topic)
-      if (openFlag || closeFlag) {
-        if (confirm(alertMessage)) {
-          this.$emit('change-topic-state', topic.id!, 'active')
-          this.$emit('change-topic-state', closeTopic.id!, 'finished')
-        }
-      }
+
+      // let alertMessage = '以下の操作を実行しますか？\n'
+      // let closeFlag = false
+      // let openFlag = false
+      // if (typeof closeTopic !== 'undefined') closeFlag = true
+      // if (typeof topic !== 'undefined') openFlag = true
+
+      // if (closeFlag) {
+      //   alertMessage += 'トピックを閉じる：' + closeTopic.title
+      //   if (openFlag) {
+      //     alertMessage += '\n↓\n'
+      //   }
+      // }
+      // if (openFlag) {
+      //   alertMessage += 'トピックを開く：' + topic.title + '\n'
+      // }
+      // console.log(topic)
+      // if (openFlag || closeFlag) {
+      // if (confirm(alertMessage)) {
+      //   this.$emit('change-topic-state', topic.id!, 'active')
+      //   this.$emit('change-topic-state', closeTopic.id!, 'finished')
+      // }
+      // }
     },
   },
 })
 
-const DUMMY_TOPICS = [
-  {
-    id: 'a',
-    title: 'チームA',
-    description: 'aaaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'b',
-    title: 'チームB',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'c',
-    title: 'チームCCCCCCCCCCCCCCCCC',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'd',
-    title: 'チームDDDDDDDDDDDDDDDDDDDD',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'e',
-    title: 'チームE',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'f',
-    title: 'チームF',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'g',
-    title: 'チームG',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'h',
-    title: 'チームH',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'i',
-    title: 'チームI',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-]
-const DUMMY_TOPIC_STATES: { [key: string]: TopicState } = {
-  a: 'finished',
-  b: 'finished',
-  c: 'active',
-  d: 'paused',
-  e: 'not-started',
-  f: 'not-started',
-  g: 'not-started',
-  h: 'not-started',
-  i: 'not-started',
-}
+// const DUMMY_TOPICS = [
+//   {
+//     id: 'a',
+//     title: 'チームA',
+//     description: 'aaaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'b',
+//     title: 'チームB',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'c',
+//     title: 'チームCCCCCCCCCCCCCCCCC',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'd',
+//     title: 'チームDDDDDDDDDDDDDDDDDDDD',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'e',
+//     title: 'チームE',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'f',
+//     title: 'チームF',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'g',
+//     title: 'チームG',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'h',
+//     title: 'チームH',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'i',
+//     title: 'チームI',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+// ]
+// const DUMMY_TOPIC_STATES: { [key: string]: TopicState } = {
+//   a: 'finished',
+//   b: 'finished',
+//   c: 'active',
+//   d: 'paused',
+//   e: 'not-started',
+//   f: 'not-started',
+//   g: 'not-started',
+//   h: 'not-started',
+//   i: 'not-started',
+// }
 const ICONS = [
   { icon: require('@/assets/img/tea.png') },
   { icon: require('@/assets/img/sushi_akami.png') },

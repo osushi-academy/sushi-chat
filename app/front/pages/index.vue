@@ -278,8 +278,19 @@ export default Vue.extend({
         this.hamburgerMenu = 'menu'
       }
     },
-    changeTopicState(topicId: string, state: string) {
+    changeTopicState(topicId: string, state: TopicState) {
+      if (state === 'not-started') {
+        return
+      }
       this.topicStates[topicId] = state
+      const socket = (this as any).socket
+      console.log(topicId, state)
+      socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
+        roomId: this.room.id,
+        type:
+          state === 'active' ? 'OPEN' : state === 'paused' ? 'PAUSE' : 'CLOSE',
+        topicId,
+      })
     },
     // ルーム情報
     // 該当するtopicを削除

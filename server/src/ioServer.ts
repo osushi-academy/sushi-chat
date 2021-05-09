@@ -52,7 +52,11 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
         try {
           const roomId = uuid();
-          const newRoom = new RoomClass(roomId, received.title, received.topics);
+          const newRoom = new RoomClass(
+            roomId,
+            received.title,
+            received.topics
+          );
           rooms[roomId] = newRoom;
           console.log(`new room build: ${roomId}`);
           callback({
@@ -116,7 +120,10 @@ const createSocketIOServer = (httpServer: HttpServer) => {
             activeUserCount: room.activeUserCount,
           });
         } catch (e) {
-          console.log(`${e.message ?? "Unknown error."} (ENTER_ROOM)`, new Date().toISOString());
+          console.log(
+            `${e.message ?? "Unknown error."} (ENTER_ROOM)`,
+            new Date().toISOString()
+          );
         }
       });
 
@@ -124,7 +131,9 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       socket.on("ADMIN_START_ROOM", (_) => {
         try {
           if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room");
+            throw new Error(
+              "[sushi-chat-server] You do not joined in any room"
+            );
           }
           const room = rooms[roomId];
           room.startRoom();
@@ -140,9 +149,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       socket.on("ADMIN_CHANGE_TOPIC_STATE", (received) => {
         try {
           if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room");
+            throw new Error(
+              "[sushi-chat-server] You do not joined in any room"
+            );
           }
           const room = rooms[roomId];
+          console.log(received);
           room.changeTopicState(received);
         } catch (e) {
           console.log(
@@ -167,7 +179,9 @@ const createSocketIOServer = (httpServer: HttpServer) => {
           );
 
           if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room");
+            throw new Error(
+              "[sushi-chat-server] You do not joined in any room"
+            );
           }
           const room = rooms[roomId];
 
@@ -184,12 +198,17 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       socket.on("POST_STAMP", (params) => {
         try {
           if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room");
+            throw new Error(
+              "[sushi-chat-server] You do not joined in any room"
+            );
           }
           const room = rooms[roomId];
           room.postStamp(socket.id, params);
         } catch (e) {
-          console.log(`${e.message ?? "Unknown error."} (POST_STAMP)`, new Date().toISOString());
+          console.log(
+            `${e.message ?? "Unknown error."} (POST_STAMP)`,
+            new Date().toISOString()
+          );
         }
       });
 
@@ -197,7 +216,9 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       socket.on("ADMIN_FINISH_ROOM", () => {
         try {
           if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room");
+            throw new Error(
+              "[sushi-chat-server] You do not joined in any room"
+            );
           }
           const room = rooms[roomId];
           room.finishRoom();
@@ -213,7 +234,9 @@ const createSocketIOServer = (httpServer: HttpServer) => {
       socket.on("ADMIN_CLOSE_ROOM", () => {
         try {
           if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room");
+            throw new Error(
+              "[sushi-chat-server] You do not joined in any room"
+            );
           }
           const room = rooms[roomId];
           room.closeRoom();
