@@ -66,14 +66,16 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 
       // ルームをたてる
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
-        const roomId = uuid();
-        const newRoom = new RoomClass(roomId, received.title, received.topics);
-        rooms[roomId] = newRoom;
-        callback({
-          id: newRoom.id,
-          title: newRoom.title,
-          topics: newRoom.topics,
-        });
+        try {
+          const roomId = uuid();
+          const newRoom = new RoomClass(roomId, received.title, received.topics);
+          rooms[roomId] = newRoom;
+          callback({
+            id: newRoom.id,
+            title: newRoom.title,
+            topics: newRoom.topics,
+          });
+        } catch {}
       });
 
       /** @var room このユーザーが参加しているルームID */
@@ -81,106 +83,122 @@ const createSocketIOServer = (httpServer: HttpServer) => {
 
       // 管理者がルームに参加する
       socket.on("ADMIN_ENTER_ROOM", (received, callback) => {
-        if (!(received.roomId in rooms)) {
-          throw new Error("[sushi-chat-server] Room does not exists.");
-        }
+        try {
+          if (!(received.roomId in rooms)) {
+            throw new Error("[sushi-chat-server] Room does not exists.");
+          }
 
-        const room = rooms[received.roomId];
-        const serverSocket = new ServerSocket(socket, received.roomId);
-        room.joinUser(serverSocket, "0");
+          const room = rooms[received.roomId];
+          const serverSocket = new ServerSocket(socket, received.roomId);
+          room.joinUser(serverSocket, "0");
 
-        roomId = room.id;
+          roomId = room.id;
 
-        callback({
-          chatItems: room.getChatItems(),
-          topics: room.topics,
-          activeUserCount: room.activeUserCount,
-        });
+          callback({
+            chatItems: room.getChatItems(),
+            topics: room.topics,
+            activeUserCount: room.activeUserCount,
+          });
+        } catch {}
       });
 
       // ルームに参加する
       socket.on("ENTER_ROOM", (received, callback) => {
-        if (!(received.roomId in rooms)) {
-          throw new Error("[sushi-chat-server] Room does not exists.");
-        }
+        try {
+          if (!(received.roomId in rooms)) {
+            throw new Error("[sushi-chat-server] Room does not exists.");
+          }
 
-        const room = rooms[received.roomId];
-        const serverSocket = new ServerSocket(socket, received.roomId);
-        room.joinUser(serverSocket, received.iconId);
+          const room = rooms[received.roomId];
+          const serverSocket = new ServerSocket(socket, received.roomId);
+          room.joinUser(serverSocket, received.iconId);
 
-        roomId = room.id;
+          roomId = room.id;
 
-        callback({
-          chatItems: room.getChatItems(),
-          topics: room.topics,
-          activeUserCount: room.activeUserCount,
-        });
+          callback({
+            chatItems: room.getChatItems(),
+            topics: room.topics,
+            activeUserCount: room.activeUserCount,
+          });
+        } catch {}
       });
 
       // ルームを開始する
-      socket.on("ADMIN_START_ROOM", (received) => {
-        if (roomId == null) {
-          throw new Error("[sushi-chat-server] You do not joined in any room");
-        }
-        const room = rooms[roomId];
-        room.startRoom();
+      socket.on("ADMIN_START_ROOM", (_) => {
+        try {
+          if (roomId == null) {
+            throw new Error("[sushi-chat-server] You do not joined in any room");
+          }
+          const room = rooms[roomId];
+          room.startRoom();
+        } catch {}
       });
 
       // トピック状態の変更
       socket.on("ADMIN_CHANGE_TOPIC_STATE", (received) => {
-        if (roomId == null) {
-          throw new Error("[sushi-chat-server] You do not joined in any room");
-        }
-        const room = rooms[roomId];
-        room.changeTopicState(received);
+        try {
+          if (roomId == null) {
+            throw new Error("[sushi-chat-server] You do not joined in any room");
+          }
+          const room = rooms[roomId];
+          room.changeTopicState(received);
+        } catch {}
       });
 
       //messageで送られてきたときの処理
       // @ts-ignore
       socket.on("POST_CHAT_ITEM", (received: ChatItemReceive) => {
-        console.log(
-          received.type === "message"
-            ? "message: " + received.content + " (id: " + received.id + ")"
-            : received.type === "reaction"
-            ? "reaction: to " + received.reactionToId
-            : received.type === "question"
-            ? "question: " + received.content + " (id: " + received.id + ")"
-            : "answer: " + received.content + " (id: " + received.id + ")"
-        );
+        try {
+          console.log(
+            received.type === "message"
+              ? "message: " + received.content + " (id: " + received.id + ")"
+              : received.type === "reaction"
+              ? "reaction: to " + received.reactionToId
+              : received.type === "question"
+              ? "question: " + received.content + " (id: " + received.id + ")"
+              : "answer: " + received.content + " (id: " + received.id + ")"
+          );
 
-        if (roomId == null) {
-          throw new Error("[sushi-chat-server] You do not joined in any room");
-        }
-        const room = rooms[roomId];
+          if (roomId == null) {
+            throw new Error("[sushi-chat-server] You do not joined in any room");
+          }
+          const room = rooms[roomId];
 
-        room.postChatItem(socket.id, received);
+          room.postChatItem(socket.id, received);
+        } catch {}
       });
 
       // スタンプを投稿する
       socket.on("POST_STAMP", (params) => {
-        if (roomId == null) {
-          throw new Error("[sushi-chat-server] You do not joined in any room");
-        }
-        const room = rooms[roomId];
-        room.postStamp(socket.id, params);
+        try {
+          if (roomId == null) {
+            throw new Error("[sushi-chat-server] You do not joined in any room");
+          }
+          const room = rooms[roomId];
+          room.postStamp(socket.id, params);
+        } catch {}
       });
 
       // ルームを終了する
       socket.on("ADMIN_FINISH_ROOM", () => {
-        if (roomId == null) {
-          throw new Error("[sushi-chat-server] You do not joined in any room");
-        }
-        const room = rooms[roomId];
-        room.finishRoom();
+        try {
+          if (roomId == null) {
+            throw new Error("[sushi-chat-server] You do not joined in any room");
+          }
+          const room = rooms[roomId];
+          room.finishRoom();
+        } catch {}
       });
 
       // ルームを閉じる
       socket.on("ADMIN_CLOSE_ROOM", () => {
-        if (roomId == null) {
-          throw new Error("[sushi-chat-server] You do not joined in any room");
-        }
-        const room = rooms[roomId];
-        room.closeRoom();
+        try {
+          if (roomId == null) {
+            throw new Error("[sushi-chat-server] You do not joined in any room");
+          }
+          const room = rooms[roomId];
+          room.closeRoom();
+        } catch {}
       });
 
       //stampで送られてきたときの処理
