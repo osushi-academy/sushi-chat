@@ -169,16 +169,11 @@ class RoomClass {
           "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）"
         );
       }
-      // トピック開始のBotメッセージ
-      this.sendBotMessage(
-        params.topicId,
-        this.topicTimeData[targetTopic.id].openedDate == null
-          ? "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n"
-          : "【運営Bot】\n 発表が再開されました"
-      );
+
+      const isFirstOpen = this.topicTimeData[targetTopic.id].openedDate == null;
 
       // タイムスタンプの計算
-      if (this.topicTimeData[targetTopic.id].openedDate == null) {
+      if (isFirstOpen) {
         this.topicTimeData[targetTopic.id].openedDate = new Date().getTime();
       }
       const pausedDate = this.topicTimeData[targetTopic.id].pausedDate;
@@ -186,6 +181,14 @@ class RoomClass {
         this.topicTimeData[targetTopic.id].offsetTime +=
           new Date().getTime() - pausedDate;
       }
+
+      // トピック開始のBotメッセージ
+      this.sendBotMessage(
+        params.topicId,
+        isFirstOpen
+          ? "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n"
+          : "【運営Bot】\n 発表が再開されました"
+      );
     } else if (params.type === "PAUSE") {
       targetTopic.state = "paused";
       this.topicTimeData[targetTopic.id].pausedDate = new Date().getTime();
@@ -392,7 +395,7 @@ class RoomClass {
       id: getUUID(),
       topicId: topicId,
       iconId: "0",
-      timestamp: 0,
+      timestamp: this.getTimestamp(topicId),
       createdAt: new Date(),
       content: content,
       target: null,
