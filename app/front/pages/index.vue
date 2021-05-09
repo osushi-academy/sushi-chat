@@ -32,7 +32,6 @@
                 class="secondary-textarea text-input"
                 contenteditable
                 placeholder="トピック名"
-                @keydown.enter.exact="clickAddTopic"
               />
               <button
                 type="button"

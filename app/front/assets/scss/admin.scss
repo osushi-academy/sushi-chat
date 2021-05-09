@@ -27,10 +27,22 @@
         }
         .room-url {
           display: flex;
-          button {
+          .copy-button {
             border: none;
             background: none;
             color: rgb(110, 110, 110);
+            width: 1.5em;
+            height: 1.5em;
+            border-radius: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            &:hover {
+              background: rgba(214, 214, 214, 0.3);
+            }
+            &:active {
+              background: rgba(187, 187, 187, 0.3);
+            }
           }
         }
       }

@@ -67,8 +67,8 @@
       <button @click="clickReply">REPLY</button>
     </article>
 
-    <!-- Reaction -->
-    <article v-else class="reaction">
+    <!--Reaction Message-->
+    <article v-else-if="message.type == 'reaction'" class="reaction">
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
       </div>
