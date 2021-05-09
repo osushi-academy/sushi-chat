@@ -161,26 +161,23 @@ export default Vue.extend({
       )
 
       let alertMessage = '以下の操作を実行しますか？\n'
-      let closeFlag = false
-      let openFlag = false
-      if (typeof closeTopic !== 'undefined') {
-        closeFlag = true
-      }
-      if (typeof topic !== 'undefined') {
-        openFlag = true
-      }
-
-      if (closeFlag) {
-        alertMessage += 'トピックを閉じる：' + closeTopic.title + '\n'
-        if (openFlag) alertMessage += '↓\n'
-      }
-      if (openFlag) {
+      if (typeof closeTopic !== 'undefined' && typeof topic !== 'undefined') {
+        alertMessage += 'トピックを閉じる：' + closeTopic.title + '\n↓\n'
         alertMessage += 'トピックを開く：' + topic.title + '\n'
-      }
-
-      if ((closeFlag || openFlag) && confirm(alertMessage)) {
-        if (closeFlag) this.topicStates[closeTopic.id] = 'finished'
-        if (openFlag) this.topicStates[topic.id] = 'ongoing'
+        if (confirm(alertMessage)) {
+          this.topicStates[closeTopic.id] = 'finished'
+          this.topicStates[topic.id] = 'ongoing'
+        }
+      } else if (typeof closeTopic !== 'undefined') {
+        alertMessage += 'トピックを閉じる：' + closeTopic.title + '\n'
+        if (confirm(alertMessage)) {
+          this.topicStates[closeTopic.id] = 'finished'
+        }
+      } else if (typeof topic !== 'undefined') {
+        alertMessage += 'トピックを開く：' + topic.title + '\n'
+        if (confirm(alertMessage)) {
+          this.topicStates[topic.id] = 'ongoing'
+        }
       }
     },
   },
