@@ -38,6 +38,8 @@ export type ChatItem = Message | Reaction | Question | Answer
 // Propのtopicの型（今回はTopicをそのまま）
 export type TopicPropType = Topic
 
+export type TopicStatesPropType = { [key: string]: TopicState }
+
 // ルーム型
 export type Room = {
   id: string

@@ -95,7 +95,12 @@
           </div>
         </div>
       </modal>
-      <SettingPage v-if="isDrawer && isAdmin" />
+      <SettingPage
+        v-if="isDrawer && isAdmin"
+        :room="room"
+        :topic-states="topicStates"
+        :my-icon-id="iconChecked + 1"
+      />
       <div v-for="(chatData, index) in chatDataList" :key="index">
         <ChatRoom
           :topic-index="index"

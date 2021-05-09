@@ -10,7 +10,9 @@
             <p>{{ room.title }}</p>
           </div>
           <div class="room-url">
-            <span>https://sushi-chat-cyan.vercel.app/{{ room.roomKey }}</span>
+            <span
+              >https://sushi-chat-cyan.vercel.app/?roomId={{ room.id }}</span
+            >
             <button
               class="material-icons copy-button"
               @click="writeToClipboard"
@@ -48,22 +50,22 @@
             >
           </div>
           <div v-if="myIconId === 0" class="buttons">
-            <button @click="clickPlayPauseButton(topic.id)">
-              <span
-                v-if="topicStates[topic.id] != 'finished'"
-                class="material-icons"
-                >{{ playOrPause(topicStates[topic.id]) }}</span
-              >
+            <button
+              v-if="topicStates[topic.id] != 'finished'"
+              @click="clickPlayPauseButton(topic.id)"
+            >
+              <span class="material-icons">{{
+                playOrPause(topicStates[topic.id])
+              }}</span>
             </button>
-            <button @click="clickFinishButton(topic.id)">
-              <span
-                v-if="
-                  topicStates[topic.id] === 'ongoing' ||
-                  topicStates[topic.id] === 'paused'
-                "
-                class="material-icons"
-                >stop</span
-              >
+            <button
+              v-if="
+                topicStates[topic.id] === 'ongoing' ||
+                topicStates[topic.id] === 'paused'
+              "
+              @click="clickFinishButton(topic.id)"
+            >
+              <span class="material-icons">stop</span>
             </button>
           </div>
         </div>
@@ -73,44 +75,24 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-
-// TODO:モデル更新後にここは消してcontent.ts読み込むようにする
-type TopicState = 'not-started' | 'ongoing' | 'paused' | 'finished'
-type TopicLinkType = 'github' | 'slide' | 'product'
-type Topic = {
-  id: string
-  title: string
-  description: string
-  urls: Record<TopicLinkType, string>
-}
-type Room = {
-  id: string
-  roomKey: string
-  title: string
-  topics: Topic[]
-}
-
-type DataType = {
-  room: Room
-  topicStates: { [key: string]: TopicState }
-  myIconId: number
-}
+import Vue, { PropOptions } from 'vue'
+import { TopicStatesPropType, Room } from '@/models/contents'
 
 export default Vue.extend({
   name: 'SettingPage',
-  props: {},
-  data(): DataType {
-    return {
-      room: {
-        id: 'testID',
-        roomKey: 'testRoomKey',
-        title: '技育CAMPハッカソンvol.3',
-        topics: DUMMY_TOPICS,
-      },
-      topicStates: DUMMY_TOPIC_STATES,
-      myIconId: 0,
-    }
+  props: {
+    room: {
+      type: Object,
+      required: true,
+    } as PropOptions<Room>,
+    topicStates: {
+      type: Object,
+      required: true,
+    } as PropOptions<TopicStatesPropType>,
+    myIconId: {
+      type: Number,
+      required: true,
+    },
   },
   computed: {
     icon(): { icon: string } {
@@ -131,23 +113,24 @@ export default Vue.extend({
   methods: {
     writeToClipboard() {
       navigator.clipboard.writeText(
-        'https://sushi-chat-cyan.vercel.app/' + this.room.roomKey
+        'https://sushi-chat-cyan.vercel.app/?roomId=' + this.room.id
       )
+      console.log(this.room)
     },
     clickPlayPauseButton(topicId: string) {
       if (this.topicStates[topicId] === 'ongoing') {
         this.topicStates[topicId] = 'paused'
       } else if (this.topicStates[topicId] === 'paused') {
-        this.topicStates[topicId]! = 'ongoing'
+        this.topicStates[topicId] = 'ongoing'
       } else if (this.topicStates[topicId] === 'not-started') {
-        this.topicStates[topicId]! = 'ongoing'
+        this.topicStates[topicId] = 'ongoing'
       }
     },
     clickFinishButton(topicId: string) {
       if (
         confirm('本当にこのトピックを終了しますか？この操作は取り消せません')
       ) {
-        this.topicStates[topicId] = 'finished'
+        this.topicStates[topicId]! = 'finished'
       }
     },
     clickNextTopicButton() {
