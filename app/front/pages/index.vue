@@ -229,15 +229,6 @@ export default Vue.extend({
 
     const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
-    if (!this.isAdmin) {
-      const selectedIcon = getSelectedIconFromJSON()
-      if (selectedIcon == null) {
-        this.$modal.show('sushi-modal')
-      } else {
-        this.iconChecked = selectedIcon
-        this.enterRoom(selectedIcon)
-      }
-    }
     this.$modal.show('sushi-modal')
 
     // SocketIOのコールバックの登録
