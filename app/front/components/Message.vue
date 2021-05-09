@@ -25,11 +25,8 @@
         <img :src="icon" alt="" />
       </div>
       <div class="baloon">
-        {{
-          message.target != null
-            ? `> ${message.target.content}\n${message.content}`
-            : message.content
-        }}
+        <!-- eslint-disable-next-line prettier/prettier -->
+        <div class="baloon">{{message.target != null? `> ${message.target.content}\n${message.content}`: message.content}}</div>
       </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
@@ -62,13 +59,12 @@
     <!--Answer Message-->
     <article
       v-else-if="message.type == 'answer'"
-      class="comment question"
-      :style="{ background: 'red' }"
+      class="comment answer"
       @click="clickCard"
     >
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
-        <div class="question-badge">A</div>
+        <div class="answer-badge">A</div>
         <div v-if="message.iconId == 0" class="admin-badge">運 営</div>
       </div>
       <!-- eslint-disable-next-line prettier/prettier -->
