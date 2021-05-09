@@ -157,11 +157,14 @@ class RoomClass {
         currentActiveTopic.state = "finished";
       }
       targetTopic.state = "active";
-      this.topicTimeData[targetTopic.id].openedDate = new Date().getTime();
+
+      if (this.topicTimeData[targetTopic.id].openedDate == null) {
+        this.topicTimeData[targetTopic.id].openedDate = new Date().getTime();
+      }
 
       const pausedDate = this.topicTimeData[targetTopic.id].pausedDate;
       if (pausedDate != null) {
-        this.topicTimeData[targetTopic.id].offsetTime = new Date().getTime() - pausedDate;
+        this.topicTimeData[targetTopic.id].offsetTime += new Date().getTime() - pausedDate;
       }
     } else if (params.type === "PAUSE") {
       targetTopic.state = "paused";
