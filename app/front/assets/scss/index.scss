@@ -62,11 +62,11 @@
       transition: all 0.3s;
 
       &:hover {
-        background: rgba(214, 214, 214, 0.3);
+        background: $hover-button-background;
       }
 
       &:active {
-        background: rgba(187, 187, 187, 0.3);
+        background: $active-button-background;
       }
     }
   }
@@ -261,7 +261,7 @@
 }
 
 .chatitem-wrapper {
-  padding: 0.45em 0;
+  padding: 0.45em 2.5em 0 0;
   scroll-snap-align: end;
 
   & > .comment,
@@ -274,7 +274,7 @@
     background: white;
     border-radius: 5px;
     box-shadow: $gray 0px 2px 5px -1px, $gray 0px 1px 3px -1px;
-    overflow: hidden;
+    overflow: visible;
 
     &.reaction {
       box-shadow: none;
@@ -299,10 +299,11 @@
       transform: translateY(50%);
       opacity: 0;
       transition: all 0.3s;
+      overflow: hidden;
 
       & > .material-icons {
         font-size: 32px;
-        color: #333;
+        color: $black;
         transform: translate(0%, 40%) rotate(-10deg);
       }
     }
@@ -408,6 +409,39 @@
       bottom: 0;
       right: 0;
       margin: 0;
+    }
+  }
+
+  & > .reply-icon {
+    position: absolute;
+    top: 1rem;
+    right: 0rem;
+    border-radius: 100%;
+
+    & > .material-icons {
+      font-size: 32px;
+      color: $gray;
+      &:hover {
+        color: $text-gray;
+      }
+      &:active {
+        color: $text-gray;
+      }
+    }
+    & > .answer-reply {
+      &:hover {
+        color: $pink;
+      }
+      &:active {
+        color: $pink;
+      }
+    }
+
+    &:hover {
+      background: $hover-button-background;
+    }
+    &:active {
+      background: $active-button-background;
     }
   }
 }

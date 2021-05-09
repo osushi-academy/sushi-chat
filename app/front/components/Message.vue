@@ -37,7 +37,6 @@
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
-      <button @click="clickReply">REPLY</button>
     </article>
 
     <!--Question Message-->
@@ -58,7 +57,6 @@
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
-      <button @click="clickReply">REPLY</button>
     </article>
 
     <!--Answer Message-->
@@ -81,7 +79,6 @@
       <div class="bg-good-icon">
         <span class="material-icons"> thumb_up </span>
       </div>
-      <button @click="clickReply">REPLY</button>
     </article>
 
     <!--Reaction Message-->
@@ -95,6 +92,19 @@
         {{ showTimestamp(message.timestamp) }}
       </div>
     </article>
+    <!--Reply Badge-->
+    <div
+      v-if="message.type != 'reaction' && message.iconId != 0"
+      class="reply-icon"
+      @click="clickReply"
+    >
+      <span
+        class="material-icons"
+        :class="{ 'answer-reply': message.type === 'question' }"
+      >
+        reply
+      </span>
+    </div>
   </div>
 </template>
 <script lang="ts">

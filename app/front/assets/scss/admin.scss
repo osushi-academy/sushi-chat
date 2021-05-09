@@ -38,10 +38,10 @@
             align-items: center;
             justify-content: center;
             &:hover {
-              background: rgba(214, 214, 214, 0.3);
+              background: $hover-button-background;
             }
             &:active {
-              background: rgba(187, 187, 187, 0.3);
+              background: $active-button-background;
             }
           }
         }
