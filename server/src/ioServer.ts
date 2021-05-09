@@ -53,6 +53,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
           const roomId = uuid();
           const newRoom = new RoomClass(roomId, received.title, received.topics);
           rooms[roomId] = newRoom;
+          console.log(roomId)
           callback({
             id: newRoom.id,
             title: newRoom.title,
