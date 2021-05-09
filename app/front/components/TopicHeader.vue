@@ -2,8 +2,8 @@
   <div
     class="topic-header"
     :class="{
-      'finished-topic': isFinishedTopic,
-      'active-topic': isActiveTopic,
+      'finished-topic': topicState === 'finished',
+      'active-topic': topicState === 'active',
     }"
   >
     <div class="main-line">
@@ -22,7 +22,8 @@
   </div>
 </template>
 <script lang="ts">
-import Vue from 'vue'
+import Vue, { PropOptions } from 'vue'
+import { TopicState } from '@/models/contents'
 import { DownloadIcon, ZapIcon } from 'vue-feather-icons'
 
 export default Vue.extend({
@@ -36,18 +37,14 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    isActiveTopic: {
-      type: Boolean,
-      required: true,
-    },
     isAdmin: {
       type: Boolean,
       required: true,
     },
-    isFinishedTopic: {
-      type: Boolean,
+    topicState: {
+      type: String,
       required: true,
-    },
+    } as PropOptions<TopicState>,
   },
   methods: {
     clickTopicActivate() {

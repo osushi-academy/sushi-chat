@@ -1,5 +1,4 @@
-import { Topic } from './contents'
-import { UserInputAction } from './userInputActions'
+import { ChatItem, Room, Topic, TopicState } from './contents'
 
 /**
  * WebSocketのイベント名
@@ -13,58 +12,53 @@ export type EventType =
   | 'BUILD_ROOM'
 
 /**
- * POST_CHAT_ITEMイベントを送るときのイベントの中身
+ * ルームを立てる
+ *
+ * @user Admin
+ * @event ADMIN_BUILD_ROOM
  */
-export type PostChatItemMessageParams = {
-  type: 'message' // アイテムタイプ
-  id: string // フロントで生成したアイテムID
-  iconId: string // アイコンID
-  topicId: string // トピックID
-  content: string // コメントの中身
-  isQuestion: boolean
+export type AdminBuildRoomResponse = Room
+
+// コメントを投稿する POST_CHAT_ITEM
+type PostChatItemParamsBase = {
+  id: string
+  topicId: string
+  type: 'message' | 'reaction' | 'question' | 'answer'
 }
-export type PostChatItemReactionParams = {
-  type: 'reaction' // アイテムタイプ
-  id: string // フロントで生成したアイテムID
-  iconId: string // アイコンID
-  topicId: string // トピックID
-  reactionToId: string // リアクションを送るメッセージのID
+
+export type PostChatItemMessageParams = PostChatItemParamsBase & {
+  type: 'message'
+  content: string
+  target: string | null
 }
+
+export type PostChatItemReactionParams = PostChatItemParamsBase & {
+  type: 'reaction'
+  reactionToId: string
+}
+
+export type PostChatItemQuestionParams = PostChatItemParamsBase & {
+  type: 'question'
+  content: string
+}
+
+export type PostChatItemAnswerParams = PostChatItemParamsBase & {
+  type: 'answer'
+  content: string
+  target: string
+}
+
+/**
+ * コメントを投稿する
+ *
+ * @user General
+ * @event POST_CHAT_ITEM
+ */
 export type PostChatItemParams =
   | PostChatItemMessageParams
   | PostChatItemReactionParams
-
-/**
- * PUB_CHAT_ITEMイベントを送るときのイベントの中身
- *
- * @example
- * const params: PubChatItemParams = {
- *    actions: {
- *      // トピック001に関するユーザーのアクション
- *      "001": [
- *        {
- *          type: "insert-editing",
- *          content: {
- *            id: "1",
- *          }
- *        },
- *        {
- *          type: "confirm-to-send",
- *          content: {
- *            // ...省略
- *          }
- *        },
- *      // ...
- *      ],
- *      // トピック002に関するユーザーのアクション
- *      "002": [ ... 省略]
- *    }
- *  }
- * }
- */
-export type PubChatItemParams = {
-  actions: Record<string, UserInputAction[]>
-}
+  | PostChatItemQuestionParams
+  | PostChatItemAnswerParams
 
 /**
  * START_EDITイベントを送るときのイベントの中身
@@ -86,45 +80,17 @@ export type EndEditParams = {
  * ENTER_ROOMイベントを送るときのイベントの中身
  */
 export type EnterRoomParams = {
+  roomId: string
   iconId: string
 }
 
 /**
  * ENTER_ROOMイベントを送ったときのレスポンスの中身
- *
- * @example
- * const response: EnterRoomResponse = {
- *    actions: {
- *      // トピック001に関するユーザーのアクション
- *      "001": [
- *        {
- *          type: "insert-editing",
- *          content: {
- *            id: "1",
- *          }
- *        },
- *        {
- *          type: "confirm-to-send",
- *          content: {
- *            // ...省略
- *          }
- *        },
- *      // ...
- *      ],
- *      // トピック002に関するユーザーのアクション
- *      "002": [ ... 省略]
- *     }
- *   },
- *   topics: [
- *     { id: "001", title: "タイトル", description: "説明" },
- *     { id: "002", title: "タイトル", description: "説明" },
- *     ...
- *   ]
- * }
  */
 export type EnterRoomResponse = {
-  actions: Record<string, UserInputAction>
-  topics: Topic[]
+  chatItems: ChatItem[]
+  topics: (Topic & { state: TopicState })[]
+  activeUserCount: number
 }
 
 /**
@@ -147,8 +113,6 @@ export type EventParams<
   EventName extends EventType
 > = EventName extends 'POST_CHAT_ITEM'
   ? PostChatItemParams
-  : EventName extends 'PUB_CHAT_ITEM'
-  ? PubChatItemParams
   : EventName extends 'START_EDIT'
   ? StartEditParams
   : EventName extends 'END_EDIT'
