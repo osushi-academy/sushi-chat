@@ -2,11 +2,9 @@ import { Server } from "socket.io";
 import {
   Answer,
   ChatItem,
-  ChatItemBase,
+  ChatItemStore,
   Message,
   Question,
-  Topic,
-  TopicState,
   User,
 } from "../chatItem";
 import {
@@ -14,33 +12,10 @@ import {
   PostChatItemParams,
   PostStampParams,
 } from "../events";
+import SaveChatItemClass from "../saveChatItem";
 import { IServerSocket } from "../serverSocket";
 import { Stamp, stampIntervalSender } from "../stamp";
-import { v4 as getUUID } from "uuid";
-
-type MessageStore = ChatItemBase & {
-  type: "message";
-  content: string;
-  target: string | null;
-};
-
-type ReactionStore = ChatItemBase & {
-  type: "reaction";
-  target: string;
-};
-
-type QuestionStore = ChatItemBase & {
-  type: "question";
-  content: string;
-};
-
-type AnswerStore = ChatItemBase & {
-  type: "answer";
-  content: string;
-  target: string;
-};
-
-type ChatItemStore = MessageStore | ReactionStore | QuestionStore | AnswerStore;
+import { Topic, TopicState } from "../topic";
 
 type StampStore = Stamp & {
   createdAt: Date;
@@ -275,6 +250,8 @@ class RoomClass {
     const chatItem = this.addServerInfo(userId, chatItemParams);
     // 配列に保存
     this.chatItems.push(chatItem);
+    // DBに保存
+    SaveChatItemClass.pushQueue(chatItem, this.id);
     // サーバでの保存形式をフロントに返すレスポンスの形式に変換して配信する
     RoomClass.globalSocket.emit(
       "PUB_CHAT_ITEM",

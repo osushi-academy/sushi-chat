@@ -1,6 +1,12 @@
 import { ChatItem } from "./chatItem";
 import { Topic } from "./topic";
 
+export type Room = {
+  id: string;
+  title: string;
+  topics: Topic[];
+};
+
 export type BuildRoom = {
   topics: Topic[];
 };

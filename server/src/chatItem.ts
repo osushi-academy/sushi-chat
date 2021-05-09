@@ -1,20 +1,3 @@
-export type Room = {
-  id: string;
-  title: string;
-  topics: Topic[];
-};
-
-export type Topic = {
-  id: string;
-  title: string;
-  description: string;
-  urls: Partial<Record<TopicLinkType, string | undefined>>;
-};
-
-export type TopicLinkType = "github" | "slide" | "product";
-
-export type TopicState = "not-started" | "active" | "paused" | "finished";
-
 export type ChatItemBase = {
   id: string;
   topicId: string;
@@ -49,6 +32,34 @@ export type Answer = ChatItemBase & {
 };
 
 export type ChatItem = Message | Reaction | Question | Answer;
+
+export type MessageStore = ChatItemBase & {
+  type: "message";
+  content: string;
+  target: string | null;
+};
+
+export type ReactionStore = ChatItemBase & {
+  type: "reaction";
+  target: string;
+};
+
+export type QuestionStore = ChatItemBase & {
+  type: "question";
+  content: string;
+};
+
+export type AnswerStore = ChatItemBase & {
+  type: "answer";
+  content: string;
+  target: string;
+};
+
+export type ChatItemStore =
+  | MessageStore
+  | ReactionStore
+  | QuestionStore
+  | AnswerStore;
 
 export type User = {
   id: string;
