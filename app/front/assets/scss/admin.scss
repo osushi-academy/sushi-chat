@@ -94,15 +94,15 @@
         }
       }
 
-      .ongoing {
+      .active {
         background-color: #fff8b4;
-        .label{
+        .label {
           background-color: #f6666e;
           color: white;
         }
       }
       .paused {
-        .label{
+        .label {
           color: #f6666e;
           background-color: white;
           border: solid #f6666e 2px;
@@ -112,8 +112,8 @@
       .finished {
         background-color: $gray;
       }
-      .not-started{
-        color:rgb(192, 192, 192);
+      .not-started {
+        color: rgb(192, 192, 192);
         .buttons > button {
           color: rgb(192, 192, 192);
         }

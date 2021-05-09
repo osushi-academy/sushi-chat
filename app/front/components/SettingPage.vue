@@ -10,9 +10,15 @@
             <p>{{ room.title }}</p>
           </div>
           <div class="room-url">
-            <span>https://sushi-chat-cyan.vercel.app/{{ room.roomKey }}</span>
+            <span
+              >https://sushi-chat-cyan.vercel.app/?roomId={{ room.id }}</span
+            >
             <button
               class="material-icons copy-button"
+              :disabled="
+                room.topics.findIndex((t) => topicStates[t.id] === 'active') ==
+                null
+              "
               @click="writeToClipboard"
             >
               content_copy
@@ -40,7 +46,7 @@
           <div class="topic-number">{{ index }}</div>
           <div class="topic-name">
             {{ topic.title
-            }}<span v-if="topicStates[topic.id] === 'ongoing'" class="label"
+            }}<span v-if="topicStates[topic.id] === 'active'" class="label"
               >進行中</span
             >
             <span v-if="topicStates[topic.id] === 'paused'" class="label"
@@ -48,22 +54,22 @@
             >
           </div>
           <div v-if="myIconId === 0" class="buttons">
-            <button @click="clickPlayPauseButton(topic.id)">
-              <span
-                v-if="topicStates[topic.id] != 'finished'"
-                class="material-icons"
-                >{{ playOrPause(topicStates[topic.id]) }}</span
-              >
+            <button
+              v-if="topicStates[topic.id] != 'finished'"
+              @click="clickPlayPauseButton(topic.id)"
+            >
+              <span class="material-icons">{{
+                playOrPause(topicStates[topic.id])
+              }}</span>
             </button>
-            <button @click="clickFinishButton(topic.id)">
-              <span
-                v-if="
-                  topicStates[topic.id] === 'ongoing' ||
-                  topicStates[topic.id] === 'paused'
-                "
-                class="material-icons"
-                >stop</span
-              >
+            <button
+              v-if="
+                topicStates[topic.id] === 'active' ||
+                topicStates[topic.id] === 'paused'
+              "
+              @click="clickFinishButton(topic.id)"
+            >
+              <span class="material-icons">stop</span>
             </button>
           </div>
         </div>
@@ -73,44 +79,24 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-
-// TODO:モデル更新後にここは消してcontent.ts読み込むようにする
-type TopicState = 'not-started' | 'ongoing' | 'paused' | 'finished'
-type TopicLinkType = 'github' | 'slide' | 'product'
-type Topic = {
-  id: string
-  title: string
-  description: string
-  urls: Record<TopicLinkType, string>
-}
-type Room = {
-  id: string
-  roomKey: string
-  title: string
-  topics: Topic[]
-}
-
-type DataType = {
-  room: Room
-  topicStates: { [key: string]: TopicState }
-  myIconId: number
-}
+import Vue, { PropOptions } from 'vue'
+import { TopicStatesPropType, Room } from '@/models/contents'
 
 export default Vue.extend({
   name: 'SettingPage',
-  props: {},
-  data(): DataType {
-    return {
-      room: {
-        id: 'testID',
-        roomKey: 'testRoomKey',
-        title: '技育CAMPハッカソンvol.3',
-        topics: DUMMY_TOPICS,
-      },
-      topicStates: DUMMY_TOPIC_STATES,
-      myIconId: 0,
-    }
+  props: {
+    room: {
+      type: Object,
+      required: true,
+    } as PropOptions<Room>,
+    topicStates: {
+      type: Object,
+      required: true,
+    } as PropOptions<TopicStatesPropType>,
+    myIconId: {
+      type: Number,
+      required: true,
+    },
   },
   computed: {
     icon(): { icon: string } {
@@ -118,7 +104,7 @@ export default Vue.extend({
     },
     playOrPause(): {} {
       return function (topicState: string) {
-        if (topicState === 'ongoing') {
+        if (topicState === 'active') {
           return 'pause'
         } else if (topicState === 'paused' || topicState === 'not-started') {
           return 'play_arrow'
@@ -131,125 +117,134 @@ export default Vue.extend({
   methods: {
     writeToClipboard() {
       navigator.clipboard.writeText(
-        'https://sushi-chat-cyan.vercel.app/' + this.room.roomKey
+        'https://sushi-chat-cyan.vercel.app/?roomId=' + this.room.id
       )
     },
     clickPlayPauseButton(topicId: string) {
-      if (this.topicStates[topicId] === 'ongoing') {
-        this.topicStates[topicId] = 'paused'
+      if (this.topicStates[topicId] === 'active') {
+        this.$emit('change-topic-state', topicId, 'paused')
       } else if (this.topicStates[topicId] === 'paused') {
-        this.topicStates[topicId]! = 'ongoing'
+        this.$emit('change-topic-state', topicId, 'active')
       } else if (this.topicStates[topicId] === 'not-started') {
-        this.topicStates[topicId]! = 'ongoing'
+        this.$emit('change-topic-state', topicId, 'active')
       }
     },
     clickFinishButton(topicId: string) {
       if (
         confirm('本当にこのトピックを終了しますか？この操作は取り消せません')
       ) {
-        this.topicStates[topicId] = 'finished'
+        this.topicStates[topicId]! = 'finished'
       }
     },
     clickNextTopicButton() {
-      // クローズにするトピックを探す
-      const closeTopic = this.room.topics.find(
-        (t) => this.topicStates[t.id] === 'ongoing'
-      )
-      // アクティブにするトピックを探す
-      const topic = this.room.topics.find(
-        (t) => this.topicStates[t.id] === 'not-started'
+      // アクティブなトピックを探す
+      const currentActiveTopicIndex = this.room.topics.findIndex(
+        (t) => this.topicStates[t.id] === 'active'
       )
 
-      let alertMessage = '以下の操作を実行しますか？\n'
-      if (typeof closeTopic !== 'undefined' && typeof topic !== 'undefined') {
-        alertMessage += 'トピックを閉じる：' + closeTopic.title + '\n↓\n'
-        alertMessage += 'トピックを開く：' + topic.title + '\n'
-        if (confirm(alertMessage)) {
-          this.topicStates[closeTopic.id] = 'finished'
-          this.topicStates[topic.id] = 'ongoing'
-        }
-      } else if (typeof closeTopic !== 'undefined') {
-        alertMessage += 'トピックを閉じる：' + closeTopic.title + '\n'
-        if (confirm(alertMessage)) {
-          this.topicStates[closeTopic.id] = 'finished'
-        }
-      } else if (typeof topic !== 'undefined') {
-        alertMessage += 'トピックを開く：' + topic.title + '\n'
-        if (confirm(alertMessage)) {
-          this.topicStates[topic.id] = 'ongoing'
-        }
+      if (currentActiveTopicIndex == null) {
+        return
       }
+
+      const nextTopic = this.room.topics?.[currentActiveTopicIndex + 1]
+
+      if (nextTopic != null) {
+        this.$emit('change-topic-state', nextTopic.id, 'active')
+      }
+
+      // let alertMessage = '以下の操作を実行しますか？\n'
+      // let closeFlag = false
+      // let openFlag = false
+      // if (typeof closeTopic !== 'undefined') closeFlag = true
+      // if (typeof topic !== 'undefined') openFlag = true
+
+      // if (closeFlag) {
+      //   alertMessage += 'トピックを閉じる：' + closeTopic.title
+      //   if (openFlag) {
+      //     alertMessage += '\n↓\n'
+      //   }
+      // }
+      // if (openFlag) {
+      //   alertMessage += 'トピックを開く：' + topic.title + '\n'
+      // }
+      // console.log(topic)
+      // if (openFlag || closeFlag) {
+      // if (confirm(alertMessage)) {
+      //   this.$emit('change-topic-state', topic.id!, 'active')
+      //   this.$emit('change-topic-state', closeTopic.id!, 'finished')
+      // }
+      // }
     },
   },
 })
 
-const DUMMY_TOPICS = [
-  {
-    id: 'a',
-    title: 'チームA',
-    description: 'aaaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'b',
-    title: 'チームB',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'c',
-    title: 'チームCCCCCCCCCCCCCCCCC',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'd',
-    title: 'チームDDDDDDDDDDDDDDDDDDDD',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'e',
-    title: 'チームE',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'f',
-    title: 'チームF',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'g',
-    title: 'チームG',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'h',
-    title: 'チームH',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-  {
-    id: 'i',
-    title: 'チームI',
-    description: 'aaaaa',
-    urls: { github: '', slide: '', product: '' },
-  },
-]
-const DUMMY_TOPIC_STATES: { [key: string]: TopicState } = {
-  a: 'finished',
-  b: 'finished',
-  c: 'ongoing',
-  d: 'paused',
-  e: 'not-started',
-  f: 'not-started',
-  g: 'not-started',
-  h: 'not-started',
-  i: 'not-started',
-}
+// const DUMMY_TOPICS = [
+//   {
+//     id: 'a',
+//     title: 'チームA',
+//     description: 'aaaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'b',
+//     title: 'チームB',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'c',
+//     title: 'チームCCCCCCCCCCCCCCCCC',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'd',
+//     title: 'チームDDDDDDDDDDDDDDDDDDDD',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'e',
+//     title: 'チームE',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'f',
+//     title: 'チームF',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'g',
+//     title: 'チームG',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'h',
+//     title: 'チームH',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+//   {
+//     id: 'i',
+//     title: 'チームI',
+//     description: 'aaaaa',
+//     urls: { github: '', slide: '', product: '' },
+//   },
+// ]
+// const DUMMY_TOPIC_STATES: { [key: string]: TopicState } = {
+//   a: 'finished',
+//   b: 'finished',
+//   c: 'active',
+//   d: 'paused',
+//   e: 'not-started',
+//   f: 'not-started',
+//   g: 'not-started',
+//   h: 'not-started',
+//   i: 'not-started',
+// }
 const ICONS = [
   { icon: require('@/assets/img/tea.png') },
   { icon: require('@/assets/img/sushi_akami.png') },

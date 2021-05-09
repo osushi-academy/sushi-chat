@@ -95,7 +95,13 @@
           </div>
         </div>
       </modal>
-      <SettingPage v-if="isDrawer && isAdmin" />
+      <SettingPage
+        v-if="isDrawer && isAdmin"
+        :room="room"
+        :topic-states="topicStates"
+        :my-icon-id="iconChecked + 1"
+        @change-topic-state="changeTopicState"
+      />
       <div v-for="(chatData, index) in chatDataList" :key="index">
         <ChatRoom
           :topic-index="index"
@@ -267,7 +273,20 @@ export default Vue.extend({
         this.hamburgerMenu = 'menu'
       }
     },
-
+    changeTopicState(topicId: string, state: TopicState) {
+      if (state === 'not-started') {
+        return
+      }
+      this.topicStates[topicId] = state
+      const socket = (this as any).socket
+      console.log(topicId, state)
+      socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
+        roomId: this.room.id,
+        type:
+          state === 'active' ? 'OPEN' : state === 'paused' ? 'PAUSE' : 'CLOSE',
+        topicId,
+      })
+    },
     // ルーム情報
     // 該当するtopicを削除
     removeTopic(index: number) {

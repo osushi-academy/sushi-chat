@@ -164,6 +164,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
             );
           }
           const room = rooms[roomId];
+          console.log(received);
           room.changeTopicState(received);
         } catch (e) {
           console.log(
