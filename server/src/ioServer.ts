@@ -40,7 +40,8 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         {}
       >
     ) => {
-      // activeUserCount++;
+      activeUserCount++;
+
       console.log("user joined, now", activeUserCount);
       if (activeUserCount === 1) {
         //サーバー起こしておくため
@@ -58,7 +59,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
             title: newRoom.title,
             topics: newRoom.topics,
           });
-        } catch {}
+        } catch (e) {
+          console.log(
+            `${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
+            new Date().toISOString()
+          );
+        }
       });
 
       /** @var room このユーザーが参加しているルームID */
@@ -82,7 +88,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
             topics: room.topics,
             activeUserCount: room.activeUserCount,
           });
-        } catch {}
+        } catch (e) {
+          console.log(
+            `${e.message ?? "Unknown error."} (ADMIN_ENTER_ROOM)`,
+            new Date().toISOString()
+          );
+        }
       });
 
       // ルームに参加する
@@ -103,7 +114,9 @@ const createSocketIOServer = (httpServer: HttpServer) => {
             topics: room.topics,
             activeUserCount: room.activeUserCount,
           });
-        } catch {}
+        } catch (e) {
+          console.log(`${e.message ?? "Unknown error."} (ENTER_ROOM)`, new Date().toISOString());
+        }
       });
 
       // ルームを開始する
@@ -114,7 +127,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
           }
           const room = rooms[roomId];
           room.startRoom();
-        } catch {}
+        } catch (e) {
+          console.log(
+            `${e.message ?? "Unknown error."} (ADMIN_START_ROOM)`,
+            new Date().toISOString()
+          );
+        }
       });
 
       // トピック状態の変更
@@ -125,7 +143,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
           }
           const room = rooms[roomId];
           room.changeTopicState(received);
-        } catch {}
+        } catch (e) {
+          console.log(
+            `${e.message ?? "Unknown error."} (ADMIN_CHANGE_TOPIC_STATE)`,
+            new Date().toISOString()
+          );
+        }
       });
 
       //messageで送られてきたときの処理
@@ -148,7 +171,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
           const room = rooms[roomId];
 
           room.postChatItem(socket.id, received);
-        } catch {}
+        } catch (e) {
+          console.log(
+            `${e.message ?? "Unknown error."} (POST_CHAT_ITEM)`,
+            new Date().toISOString()
+          );
+        }
       });
 
       // スタンプを投稿する
@@ -159,7 +187,9 @@ const createSocketIOServer = (httpServer: HttpServer) => {
           }
           const room = rooms[roomId];
           room.postStamp(socket.id, params);
-        } catch {}
+        } catch (e) {
+          console.log(`${e.message ?? "Unknown error."} (POST_STAMP)`, new Date().toISOString());
+        }
       });
 
       // ルームを終了する
@@ -170,7 +200,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
           }
           const room = rooms[roomId];
           room.finishRoom();
-        } catch {}
+        } catch (e) {
+          console.log(
+            `${e.message ?? "Unknown error."} (ADMIN_FINISH_ROOM)`,
+            new Date().toISOString()
+          );
+        }
       });
 
       // ルームを閉じる
@@ -181,7 +216,12 @@ const createSocketIOServer = (httpServer: HttpServer) => {
           }
           const room = rooms[roomId];
           room.closeRoom();
-        } catch {}
+        } catch (e) {
+          console.log(
+            `${e.message ?? "Unknown error."} (ADMIN_CLOSE_ROOM)`,
+            new Date().toISOString()
+          );
+        }
       });
 
       //接続解除時に行う処理
