@@ -1,10 +1,10 @@
 # sushi-chat
 
-2021/04/24~04/25 [サポーターズ 技育 Camp ハッカソン vol.2](https://talent.supporterz.jp/events/4dd93ba8-1fde-477a-8706-2d17f46c1c4d/) にて、学生 4 人で開発したプロダクトです。**今後のハッカソンで実際に使っていただくことを目指して継続開発中です！**
+2021/04/24~04/25 [サポーターズ 技育 CAMP ハッカソン vol.2](https://talent.supporterz.jp/events/4dd93ba8-1fde-477a-8706-2d17f46c1c4d/) にて、学生 4 人で開発したプロダクトです。**今後のハッカソンで実際に使っていただくことを目指して継続開発中です！**
 
 🎉🎉 上記ハッカソンで[最優秀賞](https://twitter.com/geek_pjt/status/1386253688604266496)をいただきました！
 
-2021/05/08~05/09 [サポーターズ 技育 Camp ハッカソン vol.3](https://talent.supporterz.jp/events/d1a92db9-5a22-4e3b-a441-ae9669fe79c4/) で実際に使っていただきました！
+2021/05/08~05/09 サポーターズ 技育 CAMP ハッカソン vol.3 で[実際に使っていただきました！](https://twitter.com/geek_pjt/status/1391344209269956610?s=20)
 
 ## デプロイ先
 
