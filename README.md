@@ -8,7 +8,7 @@
 
 ## デプロイ先
 
-[sushi-chat](https://sushi-chat-cyan.vercel.app/)（開発中につき動作未確認）
+[sushi-chat](https://sushi-chat-cyan.vercel.app/)（開発中は動作が不安定になる時もあります）
 
 ## 概要
 
