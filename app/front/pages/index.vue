@@ -59,42 +59,13 @@
           </div>
         </div>
       </modal>
-      <modal
+      <SelectIconModal
         v-if="!isAdmin"
-        name="sushi-modal"
-        :adaptive="true"
-        :click-to-close="false"
-      >
-        <div class="modal-header">
-          <h2>アイコンを選んでね</h2>
-        </div>
-        <div class="modal-body">
-          <div class="icon-list">
-            <button
-              v-for="(icon, index) in icons"
-              :key="index"
-              :class="{
-                'icon-selected': iconChecked == index,
-                'icon-shari': index === 10,
-              }"
-              class="icon-box"
-              @click="clickIcon(index)"
-            >
-              <img :src="icon.url" alt="" class="sushi-fit" />
-            </button>
-          </div>
-          <div class="modal-actions">
-            <button
-              :disabled="iconChecked < 0"
-              type="button"
-              class="primary-button"
-              @click="hide"
-            >
-              はじめる
-            </button>
-          </div>
-        </div>
-      </modal>
+        :icons="icons"
+        :icon-checked="iconChecked"
+        @click-icon="clickIcon"
+        @hide-modal="hide"
+      />
       <SettingPage
         v-if="isDrawer && isAdmin"
         :room="room"
@@ -144,6 +115,7 @@ import {
   PostChatItemReactionParams,
 } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
+import SelectIconModal from '@/components/SelectIconModal.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
 
@@ -178,6 +150,7 @@ export default Vue.extend({
   name: 'Index',
   components: {
     ChatRoom,
+    SelectIconModal,
   },
   data(): DataType {
     return {
