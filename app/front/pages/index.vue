@@ -23,7 +23,7 @@
           <input v-model="room.title" />
           <h3>トピック名</h3>
           <div>
-            <div v-for="(topic, index) in topicsAdmin" :key="topic.id">
+            <div v-for="(topic, index) in topicsAdmin" :key="index">
               <h3 class="modal-index">{{ index + 1 }}</h3>
               <input
                 v-model="topicsAdmin[index].title"
