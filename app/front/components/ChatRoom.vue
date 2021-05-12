@@ -225,7 +225,7 @@ export default Vue.extend({
           (message) =>
             '🍣: ' + (message as Message).content.replaceAll('\n', '\n') + '\n'
         )
-      exportText(`${this.chatData.topic.title}_comments`, [
+      exportText(`${this.topicIndex}_${this.chatData.topic.title}_comments`, [
         this.chatData.topic.title + '\n',
         ...messages,
       ])
