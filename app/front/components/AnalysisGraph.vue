@@ -17,7 +17,7 @@
 import Vue, { PropOptions } from 'vue'
 import { Topic, ChatItem } from '@/models/contents'
 import { ChartData, ChartOptions } from 'chart.js'
-import ChartLine from '~/utils/ChartLine'
+import ChartLine from '~/utils/chartLine'
 
 // Data型
 type DataType = {
