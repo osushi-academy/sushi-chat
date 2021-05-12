@@ -1,4 +1,7 @@
-const exportText = (title: string, body: string[]) => {
+const exportText = (title: string, text: string[]) => {
+  const bom = new Uint8Array([0xef, 0xbb, 0xbf])
+  let body: any[] = [bom]
+  body = body.concat(text)
   const blob = new Blob(body, {
     type: 'text/plan',
   })
