@@ -34,10 +34,7 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import VModal from 'vue-js-modal'
 import { IconsPropType } from '@/models/contents'
-
-Vue.use(VModal)
 
 export default Vue.extend({
   name: 'SelectIconModal',

@@ -9,56 +9,10 @@
       </button>
     </header>
     <main>
-      <modal
+      <CreateRoomModal
         v-if="isAdmin && room.id == null"
-        name="sushi-modal"
-        :adaptive="true"
-        :click-to-close="false"
-      >
-        <div class="modal-header">
-          <h2>ルーム作成</h2>
-        </div>
-        <div class="modal-body modal-scrollable">
-          <h3>ルーム名</h3>
-          <input v-model="room.title" />
-          <h3>トピック名</h3>
-          <div>
-            <div v-for="(topic, index) in topicsAdmin" :key="index">
-              <h3 class="modal-index">{{ index + 1 }}</h3>
-              <input
-                v-model="topicsAdmin[index].title"
-                :tabindex="index"
-                name="titleArea"
-                class="secondary-textarea text-input"
-                contenteditable
-                placeholder="トピック名"
-              />
-              <button
-                type="button"
-                class="secondary-button topic-remove"
-                @click="removeTopic(index)"
-              >
-                削除
-              </button>
-            </div>
-            <textarea v-model="inputText"></textarea>
-            <button
-              type="button"
-              class="secondary-button topic-add"
-              @click="addTopic"
-            >
-              追加
-            </button>
-            <button
-              type="button"
-              class="secondary-button topic-start"
-              @click="startChat"
-            >
-              はじめる
-            </button>
-          </div>
-        </div>
-      </modal>
+        @start-chat="startChat"
+      />
       <SelectIconModal
         v-if="!isAdmin"
         :icons="icons"
@@ -115,6 +69,7 @@ import {
   PostChatItemReactionParams,
 } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
+import CreateRoomModal from '@/components/CreateRoomModal.vue'
 import SelectIconModal from '@/components/SelectIconModal.vue'
 import { io } from 'socket.io-client'
 import getUUID from '@/utils/getUUID'
@@ -130,10 +85,8 @@ type DataType = {
   // 管理画面
   hamburgerMenu: string
   isDrawer: boolean
-  inputText: string
   // ルーム情報
   topics: Topic[]
-  topicsAdmin: Omit<Topic, 'id'>[]
   activeUserCount: number
   topicStates: { [key: string]: TopicState }
   room: Room
@@ -151,16 +104,15 @@ export default Vue.extend({
   components: {
     ChatRoom,
     SelectIconModal,
+    CreateRoomModal,
   },
   data(): DataType {
     return {
       // 管理画面
       hamburgerMenu: 'menu',
       isDrawer: false,
-      inputText: '',
       // ルーム情報
       topics: [],
-      topicsAdmin: [],
       activeUserCount: 0,
       topicStates: {},
       room: {} as Room,
@@ -193,11 +145,12 @@ export default Vue.extend({
       }))
     },
   },
-  mounted(): any {
+  created(): any {
     if (this.$route.query.user === 'admin') {
       this.isAdmin = true
     }
-
+  },
+  mounted(): any {
     if (this.$route.query.roomId != null) {
       // TODO: redirect
     }
@@ -261,43 +214,9 @@ export default Vue.extend({
       })
     },
     // ルーム情報
-    // 該当するtopicを削除
-    removeTopic(index: number) {
-      this.topicsAdmin.splice(index, 1)
-    },
-    // textareaに入力された文字を改行で区切ってtopic追加
-    addTopic() {
-      // 追加済みtopic名リスト作成
-      const set = new Set<string>()
-      for (const topic of this.topicsAdmin) {
-        set.add(topic.title)
-      }
-      // 入力を空白で区切る
-      const titles = this.inputText.split('\n')
-      for (const topicTitle of titles) {
-        // 空白はカウントしない
-        if (topicTitle === '') continue
-        // 重複してるトピックはカウントしない
-        if (set.has(topicTitle)) continue
-
-        const t: Omit<Topic, 'id'> = {
-          title: topicTitle,
-          // description: '',
-          urls: { github: '', slide: '', product: '' },
-        }
-        this.topicsAdmin.push(t)
-        set.add(topicTitle)
-      }
-      this.inputText = ''
-    },
-    // エンターキーでaddTopic呼び出し
-    clickAddTopic(e: any) {
-      // 日本語入力中のeventnterキー操作は無効にする
-      if (e.keyCode !== 13) return
-      this.addTopic()
-    },
     // topic反映
-    startChat() {
+    startChat(room: Room, topicsAdmin: Omit<Topic, 'id'>[]) {
+      this.room = room
       let alertmessage: string = ''
       // ルーム名絶対入れないとだめ
       if (this.room.title === '') {
@@ -306,9 +225,9 @@ export default Vue.extend({
 
       // 仮topicから空でないものをtopicsに
       const topics: Omit<Topic, 'id'>[] = []
-      for (const t in this.topicsAdmin) {
-        if (this.topicsAdmin[t].title) {
-          topics.push(this.topicsAdmin[t])
+      for (const t in topicsAdmin) {
+        if (topicsAdmin[t].title) {
+          topics.push(topicsAdmin[t])
           // this.topicStates[this.topicsAdmin[t].id] = 'not-started'
         }
       }
