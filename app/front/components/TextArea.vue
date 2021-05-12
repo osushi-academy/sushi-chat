@@ -70,7 +70,7 @@ export default Vue.extend({
   methods: {
     sendMessage() {
       // 空なら何もしないでreturn
-      if (!this.text.length) {
+      if (!this.text.trim().length) {
         return
       }
       // submit
