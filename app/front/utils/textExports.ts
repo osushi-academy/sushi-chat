@@ -3,7 +3,7 @@ const exportText = (title: string, text: string[]) => {
   let body: any[] = [bom]
   body = body.concat(text)
   const blob = new Blob(body, {
-    type: 'text/plan',
+    type: 'text/plain',
   })
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
