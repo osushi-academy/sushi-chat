@@ -73,6 +73,12 @@ export default Vue.extend({
       if (!this.text.trim().length) {
         return
       }
+
+      // 文字数制限
+      if (this.text.length > maxMessageLength) {
+        return
+      }
+
       // submit
       this.$emit('submit', this.text, this.isQuestion)
       // 入力を空に
@@ -97,4 +103,6 @@ export default Vue.extend({
     },
   },
 })
+// コメント文字数上限
+const maxMessageLength = 300
 </script>
