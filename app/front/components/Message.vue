@@ -90,7 +90,7 @@
         <img :src="icon" alt="" />
       </div>
       <span class="material-icons"> thumb_up </span>
-      <div class="text">{{ message.target.content }}</div>
+      <div class="text">{{ message.target.content | reactionTargetText }}</div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -124,6 +124,12 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<ChatItemPropType>,
+  },
+  filters: {
+    reactionTargetText(text: string) {
+      const maxText = 20
+      return text.length > maxText ? text.slice(0, maxText) + '...' : text
+    },
   },
   computed: {
     icon(): { icon: unknown } {
