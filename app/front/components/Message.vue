@@ -119,17 +119,17 @@ export type ChatItemPropType = ChatItem
 
 export default Vue.extend({
   name: 'Message',
-  props: {
-    message: {
-      type: Object,
-      required: true,
-    } as PropOptions<ChatItemPropType>,
-  },
   filters: {
     reactionTargetText(text: string) {
       const maxText = 20
       return text.length > maxText ? text.slice(0, maxText) + '...' : text
     },
+  },
+  props: {
+    message: {
+      type: Object,
+      required: true,
+    } as PropOptions<ChatItemPropType>,
   },
   computed: {
     icon(): { icon: unknown } {
