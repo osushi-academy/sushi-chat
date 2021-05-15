@@ -15,7 +15,7 @@
           tag="div"
         >
           <div
-            v-for="message in chatData.message"
+            v-for="message in chatItems"
             :key="message.id"
             class="list-complete-item"
           >
@@ -62,30 +62,36 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { Topic, ChatItem, Message, TopicState } from '@/models/contents'
+import {
+  Topic,
+  ChatItem,
+  Message,
+  TopicState,
+  Question,
+  Answer,
+} from '@/models/contents'
 import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
 import FavoriteButton from '@/components/FavoriteButton.vue'
 import exportText from '@/utils/textExports'
 import AnalysisGraph from './AnalysisGraph.vue'
+import { ChatItemStore } from '~/store'
 
 type ChatDataPropType = {
   topic: Topic
   message: ChatItem[]
 }
 
-type FavoriteCallbackRegisterPropType = {
-  favoriteCallbackRegister: (
-    topicId: string,
-    callback: (count: number) => void
-  ) => void
-}
+type FavoriteCallbackRegisterPropType = (
+  topicId: string,
+  callback: (count: number) => void
+) => void
 
 // Data型
 type DataType = {
   isNotify: boolean
-  selectedChatItem: ChatItem | null
+  selectedChatItem: Message | Question | Answer | null
 }
 
 export default Vue.extend({
@@ -134,6 +140,11 @@ export default Vue.extend({
     isNotStartedTopic() {
       return this.topicState === 'not-started'
     },
+    chatItems() {
+      return ChatItemStore.chatItems.filter(
+        ({ topicId }) => topicId === this.chatData.topic.id
+      )
+    },
   },
   watch: {
     chatData() {
@@ -145,34 +156,28 @@ export default Vue.extend({
   methods: {
     // 送信ボタン
     clickSubmit(text: string, isQuestion: boolean) {
-      if (this.selectedChatItem == null) {
+      const target = this.selectedChatItem
+      const topicId = this.chatData.topic.id
+      if (target == null) {
         if (isQuestion) {
           // 質問
-          this.$emit('send-question', text, this.chatData.topic.id)
+          ChatItemStore.postQuestion({ text, topicId })
         } else {
           // 通常メッセージ
-          this.$emit('send-message', text, this.chatData.topic.id, null)
+          ChatItemStore.postMessage({ text, topicId })
         }
-      } else if (
-        this.selectedChatItem.type === 'message' ||
-        this.selectedChatItem.type === 'answer'
-      ) {
+      } else if (target.type === 'message' || target.type === 'answer') {
         // リプライ
-        this.$emit(
-          'send-message',
-          text,
-          this.chatData.topic.id,
-          this.selectedChatItem
-        )
-      } else if (this.selectedChatItem.type === 'question') {
+        ChatItemStore.postMessage({ text, topicId, target })
+      } else if (target.type === 'question') {
         // 回答
-        this.$emit('send-answer', text, this.selectedChatItem)
+        ChatItemStore.postAnswer({ text, topicId, target })
       }
       this.clickScroll()
       this.selectedChatItem = null
     },
     clickReaction(message: Message) {
-      this.$emit('send-reaction', message)
+      ChatItemStore.postReaction({ message })
     },
     // ハートボタン
     clickFavorite() {

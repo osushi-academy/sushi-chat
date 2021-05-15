@@ -35,10 +35,6 @@
           :favorite-callback-register="favoriteCallbackRegister"
           :my-icon="iconChecked"
           :topic-state="topicStates[chatData.topic.id]"
-          @send-message="sendMessage"
-          @send-reaction="sendReaction"
-          @send-question="sendQuestion"
-          @send-answer="sendAnswer"
           @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
         />
@@ -51,28 +47,12 @@
 import Vue from 'vue'
 // @ts-ignore
 import VModal from 'vue-js-modal'
-import {
-  Room,
-  ChatItem,
-  Message,
-  Topic,
-  TopicState,
-  Stamp,
-  Answer,
-  Question,
-} from '@/models/contents'
-import {
-  AdminBuildRoomResponse,
-  PostChatItemAnswerParams,
-  PostChatItemMessageParams,
-  PostChatItemQuestionParams,
-  PostChatItemReactionParams,
-} from '@/models/event'
+import { Room, ChatItem, Topic, TopicState, Stamp } from '@/models/contents'
+import { AdminBuildRoomResponse } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
 import CreateRoomModal from '@/components/CreateRoomModal.vue'
 import SelectIconModal from '@/components/SelectIconModal.vue'
 import { io } from 'socket.io-client'
-import getUUID from '@/utils/getUUID'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -205,7 +185,6 @@ export default Vue.extend({
       }
       this.topicStates[topicId] = state
       const socket = (this as any).socket
-      console.log(topicId, state)
       socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
         roomId: this.room.id,
         type:
@@ -284,7 +263,6 @@ export default Vue.extend({
     // アクティブトピックが変わる
     changeActiveTopic(topicId: string) {
       const socket = (this as any).socket
-      console.log(topicId)
       socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
         roomId: this.room.id,
         topicId,
@@ -324,105 +302,6 @@ export default Vue.extend({
       this.iconChecked = index
     },
 
-    // チャット関連
-    sendMessage(
-      text: string,
-      topicId: string,
-      target: Message | Answer | null
-    ) {
-      console.log('send message: ', text)
-      const socket = (this as any).socket
-      const params: PostChatItemMessageParams = {
-        type: 'message',
-        id: getUUID(),
-        topicId,
-        content: text,
-        target: target?.id ?? null,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // NOTE: サーバと処理を共通化したい
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        type: 'message',
-        topicId,
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        content: text,
-        createdAt: new Date(),
-        target,
-        timestamp: 0, // TODO: 正しいタイムスタンプを設定する
-      })
-    },
-    sendReaction(message: Message) {
-      console.log('send reaction: ', message.content)
-      const socket = (this as any).socket
-      const params: PostChatItemReactionParams = {
-        id: getUUID(),
-        topicId: message.topicId,
-        type: 'reaction',
-        reactionToId: message.id,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        topicId: message.topicId,
-        type: 'reaction',
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        createdAt: new Date(),
-        target: message,
-      })
-    },
-    sendQuestion(text: string, topicId: string) {
-      console.log('send question: ', text)
-      const socket = (this as any).socket
-      const params: PostChatItemQuestionParams = {
-        type: 'question',
-        id: getUUID(),
-        topicId,
-        content: text,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // NOTE: サーバと処理を共通化したい
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        type: 'question',
-        topicId,
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        content: text,
-        createdAt: new Date(),
-        timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
-      })
-    },
-    sendAnswer(text: string, question: Question) {
-      console.log('send answer: ', text)
-      const socket = (this as any).socket
-      const params: PostChatItemAnswerParams = {
-        id: getUUID(),
-        topicId: question.topicId,
-        type: 'answer',
-        target: question.id,
-        content: text,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        topicId: params.topicId,
-        type: 'answer',
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        createdAt: new Date(),
-        target: question,
-        content: text,
-      })
-    },
     sendFavorite(topicId: string) {
       const socket = (this as any).socket
       socket.emit('POST_STAMP', { topicId })
