@@ -18,9 +18,11 @@ export type ChatItemBase = {
   createdAt: Date
 }
 export type Question = ChatItemBase & {
+  type: 'question'
   content: string // 質問の内容
 }
 export type Answer = ChatItemBase & {
+  type: 'answer'
   content: string // 回答する質問
   target: Question // 回答の内容
 }
