@@ -1,0 +1,18 @@
+name: Pulling into develop
+on:
+  push:
+    branches:
+      - main
+jobs:
+  pulling_into_develop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: create-pull-request
+        uses: repo-sync/pull-request@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          source_branch: "main"
+          destination_branch: "develop"
+          pr_title: "Pulling ${{ github.ref }} into develop"
+          pr_body: "Pulling ${{ github.ref }} into develop"
