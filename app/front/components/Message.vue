@@ -2,7 +2,7 @@
   <div class="chatitem-wrapper">
     <!--Admin Message-->
     <article
-      v-if="message.type == 'message' && message.iconId == 0"
+      v-if="message.type == 'message' && message.iconId == '0'"
       class="comment admin"
     >
       <div class="icon-wrapper">
@@ -52,7 +52,7 @@
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
         <div class="question-badge">Q</div>
-        <div v-if="message.iconId == 0" class="admin-badge">運 営</div>
+        <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
       <div class="baloon">{{ message.content }}</div>
       <div class="comment-timestamp">
@@ -72,7 +72,7 @@
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
         <div class="answer-badge">A</div>
-        <div v-if="message.iconId == 0" class="admin-badge">運 営</div>
+        <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
       <!-- eslint-disable-next-line prettier/prettier -->
       <div class="baloon">{{`Q. ${message.target.content}\nA. ${message.content}`}}</div>
@@ -90,14 +90,16 @@
         <img :src="icon" alt="" />
       </div>
       <span class="material-icons"> thumb_up </span>
-      <div class="text">{{ message.target.content | reactionTargetText }}</div>
+      <div class="long-text">
+        {{ message.target.content }}
+      </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
     </article>
     <!--Reply Badge-->
     <div
-      v-if="message.type != 'reaction' && message.iconId != 0"
+      v-if="message.type != 'reaction' && message.iconId != '0'"
       class="reply-icon"
       @click="clickReply"
     >
@@ -112,19 +114,10 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { ChatItem } from '~/models/contents'
-
-// PropのChatItemの型（今回はChatItemをそのまま）
-export type ChatItemPropType = ChatItem
+import { ChatItemPropType } from '~/models/contents'
 
 export default Vue.extend({
   name: 'Message',
-  filters: {
-    reactionTargetText(text: string) {
-      const maxText = 20
-      return text.length > maxText ? text.slice(0, maxText) + '...' : text
-    },
-  },
   props: {
     message: {
       type: Object,
