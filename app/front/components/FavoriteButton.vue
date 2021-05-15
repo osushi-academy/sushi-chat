@@ -108,7 +108,7 @@ export default Vue.extend({
 
       if (key) {
         this.$set(this.stampAnimationFinished, key, false)
-        const index = this.count.findIndex(({ id }) => id == key)
+        const index = this.count.findIndex(({ id }) => id === key)
         this.count.splice(index, 1, {
           id: this.count[index].id,
           color: getRandomColor(),
