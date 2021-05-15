@@ -247,12 +247,25 @@
       }
     }
   }
+  .instruction {
+    display: flex;
+    justify-content: flex-end;
 
-  & > .key-instruct {
-    font-size: 70%;
-    color: gray;
-    margin-bottom: 0.5rem;
-    text-align: end;
+    & > .key-instruct {
+      font-size: 70%;
+      color: gray;
+      margin-bottom: 0.5rem;
+      text-align: end;
+      flex: 1;
+    }
+
+    & > .text-counter {
+      font-size: 70%;
+    }
+
+    & > .over {
+      color: red;
+    }
   }
   @media screen and (max-width: 768px) {
     & > .key-instruct {
