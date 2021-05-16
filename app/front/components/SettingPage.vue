@@ -102,7 +102,7 @@ export default Vue.extend({
     icon(): { icon: string } {
       return ICONS[this.myIconId]?.icon ?? ICONS[0].icon
     },
-    playOrPause(): {} {
+    playOrPause() {
       return function (topicState: string) {
         if (topicState === 'active') {
           return 'pause'

@@ -19,7 +19,14 @@
         <div v-show="isQuestion" class="question-badge">Q</div>
       </button>
     </div>
-    <KeyInstruction />
+    <div class="instruction">
+      <KeyInstruction />
+      <span
+        class="text-counter"
+        :class="{ over: maxMessageLength < text.length }"
+        >{{ text.length }}</span
+      >
+    </div>
     <label class="question-checkbox">
       <input type="checkbox" @click="setQuestion" />質問として投稿する
     </label>
@@ -34,6 +41,7 @@ import KeyInstruction from '@/components/KeyInstruction.vue'
 type DataType = {
   isQuestion: boolean
   text: string
+  maxMessageLength: number
 }
 export default Vue.extend({
   name: 'TextArea',
@@ -58,6 +66,7 @@ export default Vue.extend({
     return {
       isQuestion: false,
       text: '',
+      maxMessageLength: 300,
     }
   },
   computed: {
@@ -73,6 +82,12 @@ export default Vue.extend({
       if (!this.text.trim().length) {
         return
       }
+
+      // 文字数制限
+      if (this.text.length > this.maxMessageLength) {
+        return
+      }
+
       // submit
       this.$emit('submit', this.text, this.isQuestion)
       // 入力を空に
