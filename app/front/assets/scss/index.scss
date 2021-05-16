@@ -247,12 +247,25 @@
       }
     }
   }
+  .instruction {
+    display: flex;
+    justify-content: flex-end;
 
-  & > .key-instruct {
-    font-size: 70%;
-    color: gray;
-    margin-bottom: 0.5rem;
-    text-align: end;
+    & > .key-instruct {
+      font-size: 70%;
+      color: gray;
+      margin-bottom: 0.5rem;
+      text-align: end;
+      flex: 1;
+    }
+
+    & > .text-counter {
+      font-size: 70%;
+    }
+
+    & > .over {
+      color: red;
+    }
   }
   @media screen and (max-width: 768px) {
     & > .key-instruct {
@@ -410,12 +423,16 @@
         margin-right: 1em;
       }
 
-      & > .text {
+      & > .long-text {
         flex: 1;
+        display: -webkit-box;
         margin-left: 0.5em;
         color: $text-gray;
         font-style: oblique;
         word-break: break-all;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
       }
     }
 

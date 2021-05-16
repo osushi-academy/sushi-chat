@@ -49,7 +49,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-// @ts-ignore
 import VModal from 'vue-js-modal'
 import {
   Room,

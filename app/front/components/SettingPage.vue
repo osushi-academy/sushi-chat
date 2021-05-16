@@ -10,9 +10,7 @@
             <p>{{ room.title }}</p>
           </div>
           <div class="room-url">
-            <span
-              >https://sushi-chat-cyan.vercel.app/?roomId={{ room.id }}</span
-            >
+            <span>{{ baseUrl }}?roomId={{ room.id }}</span>
             <button
               class="material-icons copy-button"
               :disabled="
@@ -102,7 +100,10 @@ export default Vue.extend({
     icon(): { icon: string } {
       return ICONS[this.myIconId]?.icon ?? ICONS[0].icon
     },
-    playOrPause(): {} {
+    baseUrl() {
+      return String(location.href).replace('?user=admin', '')
+    },
+    playOrPause() {
       return function (topicState: string) {
         if (topicState === 'active') {
           return 'pause'
@@ -116,9 +117,7 @@ export default Vue.extend({
   },
   methods: {
     writeToClipboard() {
-      navigator.clipboard.writeText(
-        'https://sushi-chat-cyan.vercel.app/?roomId=' + this.room.id
-      )
+      navigator.clipboard.writeText(this.baseUrl + '?roomId=' + this.room.id)
     },
     clickPlayPauseButton(topicId: string) {
       if (this.topicStates[topicId] === 'active') {
@@ -178,73 +177,6 @@ export default Vue.extend({
   },
 })
 
-// const DUMMY_TOPICS = [
-//   {
-//     id: 'a',
-//     title: 'チームA',
-//     description: 'aaaaaa',
-//     urls: { github: '', slide: '', product: '' },
-//   },
-//   {
-//     id: 'b',
-//     title: 'チームB',
-//     description: 'aaaaa',
-//     urls: { github: '', slide: '', product: '' },
-//   },
-//   {
-//     id: 'c',
-//     title: 'チームCCCCCCCCCCCCCCCCC',
-//     description: 'aaaaa',
-//     urls: { github: '', slide: '', product: '' },
-//   },
-//   {
-//     id: 'd',
-//     title: 'チームDDDDDDDDDDDDDDDDDDDD',
-//     description: 'aaaaa',
-//     urls: { github: '', slide: '', product: '' },
-//   },
-//   {
-//     id: 'e',
-//     title: 'チームE',
-//     description: 'aaaaa',
-//     urls: { github: '', slide: '', product: '' },
-//   },
-//   {
-//     id: 'f',
-//     title: 'チームF',
-//     description: 'aaaaa',
-//     urls: { github: '', slide: '', product: '' },
-//   },
-//   {
-//     id: 'g',
-//     title: 'チームG',
-//     description: 'aaaaa',
-//     urls: { github: '', slide: '', product: '' },
-//   },
-//   {
-//     id: 'h',
-//     title: 'チームH',
-//     description: 'aaaaa',
-//     urls: { github: '', slide: '', product: '' },
-//   },
-//   {
-//     id: 'i',
-//     title: 'チームI',
-//     description: 'aaaaa',
-//     urls: { github: '', slide: '', product: '' },
-//   },
-// ]
-// const DUMMY_TOPIC_STATES: { [key: string]: TopicState } = {
-//   a: 'finished',
-//   b: 'finished',
-//   c: 'active',
-//   d: 'paused',
-//   e: 'not-started',
-//   f: 'not-started',
-//   g: 'not-started',
-//   h: 'not-started',
-//   i: 'not-started',
-// }
 const ICONS = [
   { icon: require('@/assets/img/tea.png') },
   { icon: require('@/assets/img/sushi_akami.png') },
