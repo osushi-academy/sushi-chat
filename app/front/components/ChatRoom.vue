@@ -62,14 +62,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import {
-  Topic,
-  ChatItem,
-  Message,
-  TopicState,
-  Question,
-  Answer,
-} from '@/models/contents'
+import { Topic, Message, TopicState, Question, Answer } from '@/models/contents'
 import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
@@ -80,7 +73,6 @@ import { ChatItemStore } from '~/store'
 
 type ChatDataPropType = {
   topic: Topic
-  message: ChatItem[]
 }
 
 type FavoriteCallbackRegisterPropType = (
@@ -147,7 +139,7 @@ export default Vue.extend({
     },
   },
   watch: {
-    chatData() {
+    chatItems() {
       Vue.nextTick(() => {
         this.scrollToBottomOrShowModal()
       })
@@ -223,7 +215,7 @@ export default Vue.extend({
       this.$emit('topic-activate', this.chatData.topic.id)
     },
     clickDownload() {
-      const messages = this.chatData.message
+      const messages = ChatItemStore.chatItems
         .filter(({ type }) => type === 'message')
         .filter(({ iconId }) => iconId !== '0')
         .map(

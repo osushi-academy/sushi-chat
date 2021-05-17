@@ -135,7 +135,6 @@ export default Vue.extend({
       // TODO: redirect
     }
 
-    // const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
     this.$modal.show('sushi-modal')
 
@@ -225,7 +224,6 @@ export default Vue.extend({
         },
         (room: AdminBuildRoomResponse) => {
           this.room = room
-          console.log(`ルームID: ${room.id}`)
           socket.emit(
             'ADMIN_ENTER_ROOM',
             {
@@ -235,7 +233,7 @@ export default Vue.extend({
               topics.forEach((topic: any) => {
                 this.topicStates[topic.id] = 'not-started'
               })
-              this.messages = chatItems
+              ChatItemStore.addList(chatItems)
               this.topics = topics
               this.activeUserCount = activeUserCount
             }
@@ -283,7 +281,7 @@ export default Vue.extend({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (res: any) => {
           this.topics = res.topics
-          this.messages = res.chatItems ?? []
+          ChatItemStore.addList(res.chatItems)
           res.topics.forEach((topic: any) => {
             this.topicStates[topic.id] = topic.state
           })

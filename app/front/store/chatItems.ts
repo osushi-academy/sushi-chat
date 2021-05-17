@@ -27,6 +27,14 @@ export default class ChatItems extends VuexModule {
   }
 
   @Mutation
+  public addList(chatItems: ChatItem[]) {
+    if (chatItems.length === 0) {
+      return
+    }
+    this._chatItems.push(...chatItems)
+  }
+
+  @Mutation
   public update(chatItem: ChatItem) {
     this._chatItems = this._chatItems.map((item) =>
       item.id === chatItem.id ? chatItem : item
