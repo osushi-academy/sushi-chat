@@ -267,11 +267,6 @@
       color: red;
     }
   }
-  @media screen and (max-width: 768px) {
-    & > .key-instruct {
-      display: none;
-    }
-  }
 
   & > .question-checkbox {
     font-size: 85%;
