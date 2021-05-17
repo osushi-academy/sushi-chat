@@ -20,7 +20,7 @@
       </button>
     </div>
     <div class="instruction">
-      <KeyInstruction />
+      <KeyInstruction :device-type="deviceType" />
       <span
         class="text-counter"
         :class="{ over: maxMessageLength < text.length }"
@@ -34,7 +34,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { TopicPropType } from '@/models/contents'
+import { TopicPropType, DeviceType } from '@/models/contents'
 import KeyInstruction from '@/components/KeyInstruction.vue'
 
 // Data型
@@ -61,6 +61,10 @@ export default Vue.extend({
       type: Boolean,
       required: true,
     },
+    deviceType: {
+      type: String,
+      default: 'windows',
+    } as PropOptions<DeviceType>,
   },
   data(): DataType {
     return {
