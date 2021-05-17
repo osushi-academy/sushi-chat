@@ -1,5 +1,5 @@
-import { io } from 'socket.io-client'
 import { Module, VuexModule, Mutation, Action } from 'vuex-module-decorators'
+import socket from '~/utils/socketIO'
 import { Answer, ChatItem, Message, Question } from '~/models/contents'
 import {
   PostChatItemAnswerParams,
@@ -8,8 +8,6 @@ import {
   PostChatItemReactionParams,
 } from '~/models/event'
 import getUUID from '~/utils/getUUID'
-
-const socket = io(process.env.apiBaseUrl as string)
 
 @Module({
   name: 'chatItems',
@@ -24,8 +22,24 @@ export default class ChatItems extends VuexModule {
   }
 
   @Mutation
-  private add(chatItem: ChatItem) {
+  public add(chatItem: ChatItem) {
     this._chatItems.push(chatItem)
+  }
+
+  @Mutation
+  public update(chatItem: ChatItem) {
+    this._chatItems = this._chatItems.map((item) =>
+      item.id === chatItem.id ? chatItem : item
+    )
+  }
+
+  @Action({ rawError: true })
+  public addOrUpdate(chatItem: ChatItem) {
+    if (this._chatItems.find(({ id }) => id === chatItem.id)) {
+      this.update(chatItem)
+    } else {
+      this.add(chatItem)
+    }
   }
 
   @Action({ rawError: true })

@@ -51,7 +51,8 @@ import { AdminBuildRoomResponse } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
 import CreateRoomModal from '@/components/CreateRoomModal.vue'
 import SelectIconModal from '@/components/SelectIconModal.vue'
-import { io } from 'socket.io-client'
+import socket from '~/utils/socketIO'
+import { ChatItemStore } from '~/store'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -134,21 +135,14 @@ export default Vue.extend({
       // TODO: redirect
     }
 
-    const socket = io(process.env.apiBaseUrl as string)
+    // const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
     this.$modal.show('sushi-modal')
 
     // SocketIOのコールバックの登録
     socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
-      if (this.messages.find(({ id }) => id === chatItem.id)) {
-        // 自分が送信したコメント
-        this.messages = this.messages.map((item) =>
-          item.id === chatItem.id ? chatItem : item
-        )
-      } else {
-        // 自分以外のユーザーが送信したコメント
-        this.messages.push(chatItem)
-      }
+      // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
+      ChatItemStore.addOrUpdate(chatItem)
     })
 
     socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
