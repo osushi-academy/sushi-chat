@@ -26,8 +26,7 @@
       </div>
       <div class="baloon">
         <!-- eslint-disable-next-line prettier/prettier -->
-        <div v-if="message.target == null" class="baloon">
-          {{ message.content }}
+        <div v-if="message.target == null" class="baloon">{{ message.content }}
         </div>
         <div v-else class="baloon">
           <span :style="{ color: 'gray', fontSize: '80%' }"
@@ -76,9 +75,7 @@
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
       <!-- eslint-disable-next-line prettier/prettier -->
-      <div class="baloon">
-        {{ `Q. ${message.target.content}\nA. ${message.content}` }}
-      </div>
+      <div class="baloon">{{`Q. ${message.target.content}\nA. ${message.content}`}}</div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -93,7 +90,9 @@
         <img :src="icon" alt="" />
       </div>
       <span class="material-icons"> thumb_up </span>
-      <div class="text">{{ message.target.content | reactionTargetText }}</div>
+      <div class="long-text">
+        {{ message.target.content }}
+      </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -119,12 +118,6 @@ import { ChatItemPropType } from '~/models/contents'
 
 export default Vue.extend({
   name: 'Message',
-  filters: {
-    reactionTargetText(text: string) {
-      const maxText = 20
-      return text.length > maxText ? text.slice(0, maxText) + '...' : text
-    },
-  },
   props: {
     message: {
       type: Object,
