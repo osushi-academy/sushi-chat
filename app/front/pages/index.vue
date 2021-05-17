@@ -57,7 +57,6 @@ import { ChatItemStore } from '~/store'
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
   topic: Topic
-  message: ChatItem[]
 }
 
 // Data型
@@ -75,8 +74,6 @@ type DataType = {
   isAdmin: boolean
   icons: any
   iconChecked: number
-  // チャット関連
-  messages: ChatItem[]
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -113,15 +110,12 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_syari.png') },
       ],
       iconChecked: -1,
-      // チャット関連
-      messages: [],
     }
   },
   computed: {
     chatDataList(): ChatData[] {
       return this.topics.map((topic) => ({
         topic,
-        message: this.messages.filter(({ topicId }) => topicId === topic.id),
       }))
     },
   },
