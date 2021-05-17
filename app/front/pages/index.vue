@@ -79,8 +79,12 @@ type ChatData = {
   message: ChatItem[]
 }
 
+type DeviceType = 'windows' | 'mac' | 'smartphone'
+
 // Data型
 type DataType = {
+  // OS判定
+  device: DeviceType
   // 管理画面
   hamburgerMenu: string
   isDrawer: boolean
@@ -107,6 +111,8 @@ export default Vue.extend({
   },
   data(): DataType {
     return {
+      // OS判定
+      device: 'windows',
       // 管理画面
       hamburgerMenu: 'menu',
       isDrawer: false,
@@ -187,6 +193,20 @@ export default Vue.extend({
         this.topicStates[res.topicId] = 'finished'
       }
     })
+
+    // OS判定
+    const os = window.navigator.userAgent.toLowerCase()
+    if (os.includes('windows nt')) {
+      this.device = 'windows'
+    } else if (os.includes('android')) {
+      this.device = 'smartphone'
+    } else if (os.includes('iphone') || os.includes('ipad')) {
+      this.device = 'smartphone'
+    } else if (os.includes('mac os x')) {
+      this.device = 'mac'
+    } else {
+      this.device = 'windows'
+    }
   },
   methods: {
     // 管理画面の開閉

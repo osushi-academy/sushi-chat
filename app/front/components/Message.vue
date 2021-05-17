@@ -93,13 +93,7 @@
         <img :src="icon" alt="" />
       </div>
       <span class="material-icons"> thumb_up </span>
-<<<<<<< HEAD
       <div class="text">{{ message.target.content | reactionTargetText }}</div>
-=======
-      <div class="long-text">
-        {{ message.target.content }}
-      </div>
->>>>>>> 254e8411d16821ed08b12f7786b2daa989a8f8ca
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
