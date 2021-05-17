@@ -45,7 +45,6 @@
 
 <script lang="ts">
 import Vue from 'vue'
-// @ts-ignore
 import VModal from 'vue-js-modal'
 import { Room, ChatItem, Topic, TopicState, Stamp } from '@/models/contents'
 import { AdminBuildRoomResponse } from '@/models/event'

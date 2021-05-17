@@ -37,6 +37,9 @@ export type Reaction = ChatItemBase & {
 }
 export type ChatItem = Message | Reaction | Question | Answer
 
+// PropのChatItemの型（今回はChatItemをそのまま）
+export type ChatItemPropType = ChatItem
+
 // Propのtopicの型（今回はTopicをそのまま）
 export type TopicPropType = Topic
 
