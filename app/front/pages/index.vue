@@ -81,8 +81,6 @@ type ChatData = {
   message: ChatItem[]
 }
 
-type DeviceType = 'windows' | 'mac' | 'smartphone'
-
 // Data型
 type DataType = {
   // OS判定
