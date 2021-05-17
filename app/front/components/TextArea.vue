@@ -20,7 +20,7 @@
       </button>
     </div>
     <div class="instruction">
-      <KeyInstruction />
+      <KeyInstruction :device-type="deviceType" />
       <span
         class="text-counter"
         :class="{ over: maxMessageLength < text.length }"
@@ -28,13 +28,13 @@
       >
     </div>
     <label class="question-checkbox">
-      <input type="checkbox" @click="setQuestion" />質問として投稿する
+      <input v-model="isQuestion" type="checkbox" />質問として投稿する
     </label>
   </section>
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { TopicPropType } from '@/models/contents'
+import { TopicPropType, DeviceType } from '@/models/contents'
 import KeyInstruction from '@/components/KeyInstruction.vue'
 
 // Data型
@@ -61,6 +61,10 @@ export default Vue.extend({
       type: Boolean,
       required: true,
     },
+    deviceType: {
+      type: String,
+      default: 'windows',
+    } as PropOptions<DeviceType>,
   },
   data(): DataType {
     return {
@@ -92,6 +96,8 @@ export default Vue.extend({
       this.$emit('submit', this.text, this.isQuestion)
       // 入力を空に
       this.text = ''
+      // チェックボックスのチェックを外す
+      this.isQuestion = false
 
       // スクロール
       const element: HTMLElement | null = document.getElementById(this.topic.id)
@@ -102,10 +108,6 @@ export default Vue.extend({
           behavior: 'smooth',
         })
       }
-    },
-    // 質問フラグを立てる
-    setQuestion() {
-      this.isQuestion = !this.isQuestion
     },
     enterSendMessage(e: any) {
       if (e.ctrlKey || e.metaKey) this.sendMessage()

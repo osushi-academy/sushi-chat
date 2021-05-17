@@ -56,3 +56,5 @@ export type Stamp = {
   userId: string
   topicId: string
 }
+
+export type DeviceType = 'windows' | 'mac' | 'smartphone'
