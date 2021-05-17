@@ -28,7 +28,7 @@
       >
     </div>
     <label class="question-checkbox">
-      <input type="checkbox" @click="setQuestion" />質問として投稿する
+      <input v-model="isQuestion" type="checkbox" />質問として投稿する
     </label>
   </section>
 </template>
@@ -92,6 +92,8 @@ export default Vue.extend({
       this.$emit('submit', this.text, this.isQuestion)
       // 入力を空に
       this.text = ''
+      // チェックボックスのチェックを外す
+      this.isQuestion = false
 
       // スクロール
       const element: HTMLElement | null = document.getElementById(this.topic.id)
@@ -102,10 +104,6 @@ export default Vue.extend({
           behavior: 'smooth',
         })
       }
-    },
-    // 質問フラグを立てる
-    setQuestion() {
-      this.isQuestion = !this.isQuestion
     },
     enterSendMessage(e: any) {
       if (e.ctrlKey || e.metaKey) this.sendMessage()
