@@ -36,10 +36,6 @@
           :my-icon="iconChecked"
           :topic-state="topicStates[chatData.topic.id]"
           :device-type="deviceType"
-          @send-message="sendMessage"
-          @send-reaction="sendReaction"
-          @send-question="sendQuestion"
-          @send-answer="sendAnswer"
           @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
         />
@@ -54,31 +50,21 @@ import VModal from 'vue-js-modal'
 import {
   Room,
   ChatItem,
-  Message,
   Topic,
   TopicState,
   Stamp,
-  Answer,
-  Question,
   DeviceType,
 } from '@/models/contents'
-import {
-  AdminBuildRoomResponse,
-  PostChatItemAnswerParams,
-  PostChatItemMessageParams,
-  PostChatItemQuestionParams,
-  PostChatItemReactionParams,
-} from '@/models/event'
+import { AdminBuildRoomResponse } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
 import CreateRoomModal from '@/components/CreateRoomModal.vue'
 import SelectIconModal from '@/components/SelectIconModal.vue'
-import { io } from 'socket.io-client'
-import getUUID from '@/utils/getUUID'
+import socket from '~/utils/socketIO'
+import { ChatItemStore } from '~/store'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
   topic: Topic
-  message: ChatItem[]
 }
 
 // Data型
@@ -98,8 +84,6 @@ type DataType = {
   isAdmin: boolean
   icons: any
   iconChecked: number
-  // チャット関連
-  messages: ChatItem[]
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -138,15 +122,12 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_syari.png') },
       ],
       iconChecked: -1,
-      // チャット関連
-      messages: [],
     }
   },
   computed: {
     chatDataList(): ChatData[] {
       return this.topics.map((topic) => ({
         topic,
-        message: this.messages.filter(({ topicId }) => topicId === topic.id),
       }))
     },
   },
@@ -160,21 +141,13 @@ export default Vue.extend({
       // TODO: redirect
     }
 
-    const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
     this.$modal.show('sushi-modal')
 
     // SocketIOのコールバックの登録
     socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
-      if (this.messages.find(({ id }) => id === chatItem.id)) {
-        // 自分が送信したコメント
-        this.messages = this.messages.map((item) =>
-          item.id === chatItem.id ? chatItem : item
-        )
-      } else {
-        // 自分以外のユーザーが送信したコメント
-        this.messages.push(chatItem)
-      }
+      // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
+      ChatItemStore.addOrUpdate(chatItem)
     })
 
     socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
@@ -224,7 +197,6 @@ export default Vue.extend({
       }
       this.topicStates[topicId] = state
       const socket = (this as any).socket
-      console.log(topicId, state)
       socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
         roomId: this.room.id,
         type:
@@ -272,7 +244,6 @@ export default Vue.extend({
         },
         (room: AdminBuildRoomResponse) => {
           this.room = room
-          console.log(`ルームID: ${room.id}`)
           socket.emit(
             'ADMIN_ENTER_ROOM',
             {
@@ -282,7 +253,7 @@ export default Vue.extend({
               topics.forEach((topic: any) => {
                 this.topicStates[topic.id] = 'not-started'
               })
-              this.messages = chatItems
+              ChatItemStore.addList(chatItems)
               this.topics = topics
               this.activeUserCount = activeUserCount
             }
@@ -303,7 +274,6 @@ export default Vue.extend({
     // アクティブトピックが変わる
     changeActiveTopic(topicId: string) {
       const socket = (this as any).socket
-      console.log(topicId)
       socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
         roomId: this.room.id,
         topicId,
@@ -331,7 +301,7 @@ export default Vue.extend({
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (res: any) => {
           this.topics = res.topics
-          this.messages = res.chatItems ?? []
+          ChatItemStore.addList(res.chatItems)
           res.topics.forEach((topic: any) => {
             this.topicStates[topic.id] = topic.state
           })
@@ -343,105 +313,6 @@ export default Vue.extend({
       this.iconChecked = index
     },
 
-    // チャット関連
-    sendMessage(
-      text: string,
-      topicId: string,
-      target: Message | Answer | null
-    ) {
-      console.log('send message: ', text)
-      const socket = (this as any).socket
-      const params: PostChatItemMessageParams = {
-        type: 'message',
-        id: getUUID(),
-        topicId,
-        content: text,
-        target: target?.id ?? null,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // NOTE: サーバと処理を共通化したい
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        type: 'message',
-        topicId,
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        content: text,
-        createdAt: new Date(),
-        target,
-        timestamp: 0, // TODO: 正しいタイムスタンプを設定する
-      })
-    },
-    sendReaction(message: Message) {
-      console.log('send reaction: ', message.content)
-      const socket = (this as any).socket
-      const params: PostChatItemReactionParams = {
-        id: getUUID(),
-        topicId: message.topicId,
-        type: 'reaction',
-        reactionToId: message.id,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        topicId: message.topicId,
-        type: 'reaction',
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        createdAt: new Date(),
-        target: message,
-      })
-    },
-    sendQuestion(text: string, topicId: string) {
-      console.log('send question: ', text)
-      const socket = (this as any).socket
-      const params: PostChatItemQuestionParams = {
-        type: 'question',
-        id: getUUID(),
-        topicId,
-        content: text,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // NOTE: サーバと処理を共通化したい
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        type: 'question',
-        topicId,
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        content: text,
-        createdAt: new Date(),
-        timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
-      })
-    },
-    sendAnswer(text: string, question: Question) {
-      console.log('send answer: ', text)
-      const socket = (this as any).socket
-      const params: PostChatItemAnswerParams = {
-        id: getUUID(),
-        topicId: question.topicId,
-        type: 'answer',
-        target: question.id,
-        content: text,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        topicId: params.topicId,
-        type: 'answer',
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        createdAt: new Date(),
-        target: question,
-        content: text,
-      })
-    },
     sendFavorite(topicId: string) {
       const socket = (this as any).socket
       socket.emit('POST_STAMP', { topicId })

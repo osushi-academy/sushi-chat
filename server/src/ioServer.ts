@@ -82,7 +82,7 @@ const createSocketIOServer = (httpServer: HttpServer) => {
         }
       });
 
-      /** @var room このユーザーが参加しているルームID */
+      /** @var roomId このユーザーが参加しているルームID */
       let roomId: string;
 
       // 管理者がルームに参加する
