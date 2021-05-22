@@ -109,19 +109,18 @@ export type BuildRoomParams = {
  *   id: "1234", topoc_id: "2"
  * }
  */
-export type EventParams<
-  EventName extends EventType
-> = EventName extends 'POST_CHAT_ITEM'
-  ? PostChatItemParams
-  : EventName extends 'START_EDIT'
-  ? StartEditParams
-  : EventName extends 'END_EDIT'
-  ? EndEditParams
-  : EventName extends 'ENTER_ROOM'
-  ? EnterRoomParams
-  : EventName extends 'BUILD_ROOM'
-  ? BuildRoomParams
-  : never
+export type EventParams<EventName extends EventType> =
+  EventName extends 'POST_CHAT_ITEM'
+    ? PostChatItemParams
+    : EventName extends 'START_EDIT'
+    ? StartEditParams
+    : EventName extends 'END_EDIT'
+    ? EndEditParams
+    : EventName extends 'ENTER_ROOM'
+    ? EnterRoomParams
+    : EventName extends 'BUILD_ROOM'
+    ? BuildRoomParams
+    : never
 
 /**
  * イベント名を引数にとって、イベントを送ったときのレスポンスの型を返す
@@ -131,6 +130,5 @@ export type EventParams<
  *   actions: { ... }, topocs: [ ... ]
  * }
  */
-export type EventResponse<
-  EventName extends EventType
-> = EventName extends 'ENTER_ROOM' ? EnterRoomResponse : void
+export type EventResponse<EventName extends EventType> =
+  EventName extends 'ENTER_ROOM' ? EnterRoomResponse : void
