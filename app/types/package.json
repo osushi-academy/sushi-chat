@@ -1,0 +1,8 @@
+{
+  "name": "types",
+  "version": "1.0.0",
+  "license": "MIT",
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  }
+}
