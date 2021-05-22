@@ -30,6 +30,11 @@
 - リアルタイム通信：SocketIO
 - その他：Github Discord Notion GithubActions（自動デプロイ）
 
+## パッケージ構成
+- `app/front`: フロントエンド
+- `app/server`: サーバーサイド
+- `app/shared`: 共通パッケージ
+
 ## ハッカソン資料
 [ハッカソンプレゼン資料](https://docs.google.com/presentation/d/1A8hxD4WBBODAvX_OhhWMsc2PKykCHYYPn0KdOFvcwsg/edit?usp=sharing)
 
