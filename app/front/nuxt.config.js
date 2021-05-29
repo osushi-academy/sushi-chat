@@ -16,17 +16,16 @@ export default {
     },
     meta: [
       { charset: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       {
         name: 'viewport',
         content:
-          'width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no',
+          'width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1',
       },
       { hid: 'description', name: 'description', content: '' },
       {
         hid: 'og:url',
         property: 'og:url',
-        content: 'https://sushi-chat-liart.vercel.app/',
+        content: 'https://sushi-chat-cyan.vercel.app/',
       },
       {
         hid: 'og:type',
