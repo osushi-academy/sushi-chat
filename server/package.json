@@ -1,6 +1,5 @@
 {
   "name": "sushi-chat-server",
-  "type": "module",
   "version": "1.0.0",
   "description": "server of sushi chat",
   "main": "app.js",
