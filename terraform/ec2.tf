@@ -1,16 +1,50 @@
 resource "aws_instance" "main" {
-  ami                    = var.ami.amazon-linux-2
+  ami                    = var.ami.sushi-chat
   instance_type          = "t2.micro"
   subnet_id              = aws_subnet.public_a.id
   vpc_security_group_ids = [aws_security_group.public_instance.id]
   user_data              = file("./user_data.tpl")
   key_name               = var.key-pair
-  placement_group        = ""
+  iam_instance_profile   = aws_iam_instance_profile.write_cloud_watch_logs.id
 
   tags = {
     Name    = "${var.project}-ec2-instance"
     project = var.project
   }
+}
+
+resource "aws_iam_instance_profile" "write_cloud_watch_logs" {
+  name = "write_cloud_watch_logs"
+  role = aws_iam_role.write_cloud_watch_logs.name
+}
+
+resource "aws_iam_role" "write_cloud_watch_logs" {
+  name = "write_cloud_watch_logs"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = {
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
+      Sid    = "",
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }
+  })
+
+  tags = {
+    Name    = "${var.project}-write_cloud_watch_logs"
+    project = var.project
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "attach_cloud_watch_agent_server_policy" {
+  role       = aws_iam_role.write_cloud_watch_logs.name
+  policy_arn = data.aws_iam_policy.cloud_watch_agent_server_policy.arn
+}
+
+data "aws_iam_policy" "cloud_watch_agent_server_policy" {
+  name = "CloudWatchAgentServerPolicy"
 }
 
 resource "aws_alb_target_group_attachment" "main" {
