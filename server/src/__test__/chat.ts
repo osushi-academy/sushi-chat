@@ -14,7 +14,7 @@ describe("機能テスト", () => {
   // テストのセットアップ
   beforeAll((done) => {
     const httpServer = createServer();
-    io = createSocketIOServer(httpServer);
+    createSocketIOServer(httpServer).then((r) => (io = r));
     httpServer.listen(async () => {
       const port = (httpServer as any).address().port;
       [adminSocket, ...clientSockets] = ArrayRange(5).map(() =>
