@@ -55,7 +55,7 @@ resource "aws_alb_target_group_attachment" "main" {
 
 resource "aws_security_group" "public_instance" {
   description = "This is a security group for API server for sushi-chat app. It allows http and https from alb, and ssh from admin."
-  vpc_id = aws_vpc.main.id
+  vpc_id      = aws_vpc.main.id
 
   egress {
     from_port        = 0
@@ -72,7 +72,7 @@ resource "aws_security_group" "public_instance" {
 }
 
 resource "aws_security_group_rule" "allow_ssh" {
-  description = "This allow ssh to public instance from admin."
+  description       = "This allow ssh to public instance from admin."
   security_group_id = aws_security_group.public_instance.id
   type              = "ingress"
   from_port         = 22
@@ -82,7 +82,7 @@ resource "aws_security_group_rule" "allow_ssh" {
 }
 
 resource "aws_security_group_rule" "allow_http" {
-  description = "This allows http from alb."
+  description              = "This allows http from alb."
   security_group_id        = aws_security_group.public_instance.id
   type                     = "ingress"
   from_port                = 80
@@ -92,7 +92,7 @@ resource "aws_security_group_rule" "allow_http" {
 }
 
 resource "aws_security_group_rule" "allow_https" {
-  description = "This allows https from alb."
+  description              = "This allows https from alb."
   security_group_id        = aws_security_group.public_instance.id
   type                     = "ingress"
   from_port                = 443
