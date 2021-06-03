@@ -52,7 +52,7 @@ variable "ami" {
   type = map(string)
   default = {
     amazon-linux-2 = "ami-06098fd00463352b6"
-    sushi-chat     = "ami-0db3eef09e35d90e2"
+    sushi-chat     = "ami-0a8abbd29b4ab9294"
   }
 }
 
