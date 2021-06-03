@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import {
   Answer,
+  AnswerStore,
   ChatItem,
   ChatItemStore,
   Message,
@@ -205,16 +206,29 @@ class RoomClass {
       (chatItemStore): chatItemStore is QuestionStore =>
         chatItemStore.type === "question" && chatItemStore.topicId === topicId
     );
+    // 回答済みの質問の集計
+    const answeredIds = this.chatItems
+      .filter<AnswerStore>(
+        (chatItemStore): chatItemStore is AnswerStore =>
+          chatItemStore.type === "answer" && chatItemStore.topicId === topicId
+      )
+      .map(({ target }) => target);
+
+    const questionMessages = questions.map(
+      ({ id, content }) =>
+        `Q. ${content}` + (answeredIds.includes(id) ? " [回答済]" : "")
+    );
 
     // トピック終了のBotメッセージ
     this.sendBotMessage(
       topicId,
       [
         "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
-        "",
-        "以下質問一覧です",
-        ...questions.map(({ content }) => `Q. ${content}`),
-      ].join("\n")
+        questionMessages.length > 0 ? "" : null,
+        ...questionMessages,
+      ]
+        .filter(Boolean)
+        .join("\n")
     );
   };
 
