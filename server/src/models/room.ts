@@ -6,6 +6,7 @@ import {
   Message,
   MessageStore,
   Question,
+  QuestionStore,
   User,
 } from "../chatItem";
 import {
@@ -132,20 +133,15 @@ class RoomClass {
       throw new Error("[sushi-chat-server] Topic does not exists.");
     }
     if (params.type === "OPEN") {
-      // 現在activeであるトピックをfinishedにし、指定したトピックをopenにする
+      // 現在activeであるトピックをfinishedする
       const currentActiveTopic = this.activeTopic;
       if (currentActiveTopic != null) {
         currentActiveTopic.state = "finished";
+        this.finishTopic(currentActiveTopic.id);
       }
-      targetTopic.state = "active";
 
-      // トピック終了のBotメッセージ
-      if (currentActiveTopic != null) {
-        this.sendBotMessage(
-          currentActiveTopic.id,
-          "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）"
-        );
-      }
+      // 指定されたトピックをOpenにする
+      targetTopic.state = "active";
 
       const isFirstOpen = this.topicTimeData[targetTopic.id].openedDate == null;
 
@@ -172,10 +168,7 @@ class RoomClass {
       this.sendBotMessage(params.topicId, "【運営Bot】\n 発表が中断されました");
     } else if (params.type === "CLOSE") {
       targetTopic.state = "finished";
-      this.sendBotMessage(
-        params.topicId,
-        "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）"
-      );
+      this.finishTopic(params.topicId);
     } else {
       throw new Error("[sushi-chat-server] Type is invalid.");
     }
@@ -200,6 +193,29 @@ class RoomClass {
       //c learIntervalしてもタイマーは残るので、あとでわかるように消す
       this.stampIntervalSenderTimer = null;
     }
+  };
+
+  /**
+   * トピック終了時の処理を行う
+   * @param topicId 終了させるトピックID
+   */
+  private finishTopic = (topicId: string) => {
+    // 質問の集計
+    const questions = this.chatItems.filter<QuestionStore>(
+      (chatItemStore): chatItemStore is QuestionStore =>
+        chatItemStore.type === "question" && chatItemStore.topicId === topicId
+    );
+
+    // トピック終了のBotメッセージ
+    this.sendBotMessage(
+      topicId,
+      [
+        "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
+        "",
+        "以下質問一覧です",
+        ...questions.map(({ content }) => `Q. ${content}`),
+      ].join("\n")
+    );
   };
 
   /**
