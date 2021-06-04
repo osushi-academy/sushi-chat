@@ -205,6 +205,7 @@ class RoomClass {
   /**
    * 新しくスタンプが投稿された時に呼ばれる関数。
    * @param userId
+   * @param params
    */
   public postStamp = (userId: string, params: PostStampParams) => {
     if (!this.isOpened) {

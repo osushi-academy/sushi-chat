@@ -29,6 +29,19 @@ CREATE TABLE ChatItems (
   targetId UUID REFERENCES ChatItems(id)
 );
 
+drop table stamps;
+CREATE TABLE Stamps (
+    id SERIAL PRIMARY KEY,
+    roomId UUID NOT NULL,
+    topicId INT NOT NULL,
+    userId VARCHAR(30) NOT NULL,
+    timestamp INT NOT NULL,
+    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (roomId, topicId) REFERENCES topics(roomId, id)
+)
+
+-- ChatItemsに統合したから使っていないらしい↓
+
 -- CREATE TABLE Messages (
 --   id UUID NOT NULL PRIMARY KEY,
 --   roomId UUID NOT NULL REFERENCES Rooms(id),
