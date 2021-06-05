@@ -132,7 +132,7 @@ class RoomClass {
       throw new Error("[sushi-chat-server] Topic does not exists.");
     }
     if (params.type === "OPEN") {
-      // 現在activeであるトピックをCfinishedにし、指定したトピックをopenにする
+      // 現在activeであるトピックをfinishedにし、指定したトピックをopenにする
       const currentActiveTopic = this.activeTopic;
       if (currentActiveTopic != null) {
         currentActiveTopic.state = "finished";

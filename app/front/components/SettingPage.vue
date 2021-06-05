@@ -133,6 +133,7 @@ export default Vue.extend({
         confirm('本当にこのトピックを終了しますか？この操作は取り消せません')
       ) {
         this.topicStates[topicId]! = 'finished'
+        this.$emit('change-topic-state', topicId, 'closed')
       }
     },
     clickNextTopicButton() {
