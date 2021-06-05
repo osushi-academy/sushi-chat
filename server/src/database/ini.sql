@@ -29,7 +29,6 @@ CREATE TABLE ChatItems (
   targetId UUID REFERENCES ChatItems(id)
 );
 
-drop table stamps;
 CREATE TABLE Stamps (
     id SERIAL PRIMARY KEY,
     roomId UUID NOT NULL,
