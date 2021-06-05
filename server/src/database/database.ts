@@ -128,19 +128,23 @@ export function insertChatItems(
 }
 
 export function insertStamps(client: Client, stamps: Stamp[], roomId: string) {
-  for (let stamp of stamps) {
-    const query = `INSERT INTO stamps (roomId,topicId,userId,timestamp) VALUES ('${roomId}', ${stamp.topicId}, '${stamp.userId}', '${stamp.timestamp}')`;
-    client.query(query, (err) => {
-      if (err) {
-        console.log(
-          `${
-            err.message ?? "Unknown error."
-          } (SAVE ROOM(${roomId})/STAMP(${stamp}) IN DB)`,
-          new Date().toISOString()
-        );
-      }
-    });
-  }
+  const values = stamps
+    .map(
+      (stamp) =>
+        `('${roomId}', ${stamp.topicId}, '${stamp.userId}', '${stamp.timestamp}')`
+    )
+    .join(", ");
+  const query = `INSERT INTO stamps (roomId,topicId,userId,timestamp) VALUES ${values}`;
+  client.query(query, (err) => {
+    if (err) {
+      console.log(
+        `${
+          err.message ?? "Unknown error."
+        } (SAVE ROOM(${roomId})/STAMPS(${stamps}) IN DB)`,
+        new Date().toISOString()
+      );
+    }
+  });
 }
 
 function messagesConverter(messages: (MessageStore & { roomId: string })[]) {
