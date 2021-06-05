@@ -19,7 +19,7 @@ resource "aws_security_group" "db" {
 }
 
 resource "aws_security_group_rule" "allow_private_postgres_access" {
-  description = "This allows access to postgres from public instance."
+  description              = "This allows access to postgres from public instance."
   security_group_id        = aws_security_group.db.id
   type                     = "ingress"
   from_port                = 5432

@@ -13,8 +13,8 @@ resource "aws_lb" "main" {
 
 resource "aws_security_group" "public_alb" {
   description = "This is a security group for public alb for API servers of sushi-chat app."
-  name   = "${var.project}-sg-alb"
-  vpc_id = aws_vpc.main.id
+  name        = "${var.project}-sg-alb"
+  vpc_id      = aws_vpc.main.id
 
   egress {
     from_port        = 0
@@ -31,25 +31,25 @@ resource "aws_security_group" "public_alb" {
 }
 
 resource "aws_security_group_rule" "public_http" {
-  description = "This allows http from internet."
+  description       = "This allows http from internet."
   security_group_id = aws_security_group.public_alb.id
   type              = "ingress"
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  cidr_blocks      = [var.cidr_default_gateway.ipv4] #tfsec:ignore:AWS006
-  ipv6_cidr_blocks = [var.cidr_default_gateway.ipv6] #tfsec:ignore:AWS006
+  cidr_blocks       = [var.cidr_default_gateway.ipv4] #tfsec:ignore:AWS006
+  ipv6_cidr_blocks  = [var.cidr_default_gateway.ipv6] #tfsec:ignore:AWS006
 }
 
 resource "aws_security_group_rule" "public_https" {
-  description = "This allows https from internet."
+  description       = "This allows https from internet."
   security_group_id = aws_security_group.public_alb.id
   type              = "ingress"
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks      = [var.cidr_default_gateway.ipv4] #tfsec:ignore:AWS006
-  ipv6_cidr_blocks = [var.cidr_default_gateway.ipv6] #tfsec:ignore:AWS006
+  cidr_blocks       = [var.cidr_default_gateway.ipv4] #tfsec:ignore:AWS006
+  ipv6_cidr_blocks  = [var.cidr_default_gateway.ipv6] #tfsec:ignore:AWS006
 }
 
 resource "aws_lb_target_group" "main" {

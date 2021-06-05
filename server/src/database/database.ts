@@ -12,15 +12,13 @@ import { Topic } from "../topic";
 
 export function clientCreate(): Client {
   const client = new Client({
-    connectionString:
-      process.env.DATABASE_URL ||
-      "postgres://qabliybaqbojrs:33f010e49729bfe1596b5ce23dd0954dd46f8aad95f46ca0fb69c4ad28ee4470@ec2-23-22-191-232.compute-1.amazonaws.com:5432/d9aqjjqv0ao05c",
+    connectionString: process.env.DATABASE_URL,
     ssl: {
       rejectUnauthorized: false,
     },
   });
+  client.connect().catch(console.error);
 
-  client.connect();
   return client;
 }
 
