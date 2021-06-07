@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable vue/no-v-html -->
   <div class="chatitem-wrapper">
     <!--Admin Message-->
     <article
@@ -9,7 +10,7 @@
         <img :src="icon" alt="" />
         <div class="admin-badge">運 営</div>
       </div>
-      <div class="baloon">{{ message.content }}</div>
+      <div class="baloon" v-html="autoLink(message.content)"></div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -26,13 +27,13 @@
       </div>
       <div class="baloon">
         <!-- eslint-disable-next-line prettier/prettier -->
-        <div v-if="message.target == null" class="baloon">{{ message.content }}
-        </div>
+        <div v-if="message.target == null" class="baloon" v-html="autoLink(message.content)"></div>
         <div v-else class="baloon">
-          <span :style="{ color: 'gray', fontSize: '80%' }"
-            >> {{ message.target.content }}</span
-          >
-          {{ message.content }}
+          <span
+            :style="{ color: 'gray', fontSize: '80%' }"
+            v-html="`>` + autoLink(message.target.content)"
+          ></span>
+          <span v-html="autoLink(message.content)"></span>
         </div>
       </div>
       <div class="comment-timestamp">
@@ -54,7 +55,7 @@
         <div class="question-badge">Q</div>
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
-      <div class="baloon">{{ message.content }}</div>
+      <div class="baloon" v-html="autoLink(message.content)"></div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -75,7 +76,7 @@
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
       <!-- eslint-disable-next-line prettier/prettier -->
-      <div class="baloon">{{`Q. ${message.target.content}\nA. ${message.content}`}}</div>
+      <div class="baloon" v-html="`Q. `+ autoLink(message.target.content) + `\nA.` + autoLink(message.content)"></div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -130,6 +131,13 @@ export default Vue.extend({
     },
   },
   methods: {
+    // URLを検出してハイパーリンクに変換
+    autoLink(text: string) {
+      return text.replace(
+        /(https?:\/\/[^\s]*)/g,
+        "<a href='$1', target='_blank'>$1</a>"
+      )
+    },
     clickCard() {
       this.$emit('click-card', this.message)
     },
