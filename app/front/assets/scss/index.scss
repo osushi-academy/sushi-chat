@@ -435,14 +435,6 @@
       }
     }
 
-    &.comment > .baloon {
-      border-radius: 1.5em;
-      width: 100%;
-      word-break: break-all;
-      z-index: 5;
-      white-space: pre-line;
-    }
-
     & > .comment-timestamp {
       color: $text-gray;
       font-size: 10px;
@@ -508,4 +500,11 @@
       color: $black;
     }
   }
+}
+
+.baloon {
+  border-radius: 1.5em;
+  width: 100%;
+  z-index: 5;
+  white-space: pre-line;
 }
