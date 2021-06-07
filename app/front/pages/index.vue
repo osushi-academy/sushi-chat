@@ -398,7 +398,12 @@ export default Vue.extend({
       })
     },
     sendReaction(message: Message) {
-      console.log('send reaction: ', message.content)
+      // 選択中の文字が存在する場合リアクションしない
+      if (
+        window.getSelection()!.getRangeAt(0).endOffset >
+        window.getSelection()!.getRangeAt(0).startOffset
+      )
+        return
       const socket = (this as any).socket
       const params: PostChatItemReactionParams = {
         id: getUUID(),
