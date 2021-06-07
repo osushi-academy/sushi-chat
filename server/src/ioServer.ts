@@ -17,8 +17,14 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
       methods: ["GET", "POST"],
     },
   });
+  if (
+    process.env.NODE_ENV == "production" &&
+    process.env.SOCKET_IO_ADMIN_UI_PASSWORD === undefined
+  ) {
+    throw Error("SOCKET_IO_ADMIN_UI_PASSWORD is not defined in production.");
+  }
   const hashed = await generateHash(
-    process.env.SOCKET_IO_ADMIN_UI_PASSWORD as string
+    process.env.SOCKET_IO_ADMIN_UI_PASSWORD ?? ""
   );
   instrument(io, {
     auth: {
