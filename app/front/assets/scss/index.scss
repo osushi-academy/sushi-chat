@@ -113,6 +113,61 @@
     .list-complete-leave-active {
       position: absolute;
     }
+
+    & > .graph-wrapper {
+      margin: 2px 16px 4px 16px;
+      border-top: 2px solid $gray;
+      text-align: end;
+
+      & > .close-button {
+        border: none;
+        background: transparent;
+      }
+
+      & > .graph-action-area {
+        text-align: end;
+        padding-top: 4px;
+        margin-bottom: -8px;
+        display: flex;
+        justify-content: flex-end;
+
+        & > .close-button {
+          border: none;
+          background: transparent;
+          border-radius: 100%;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          &:hover {
+            background: rgba(0, 0, 0, 0.021);
+          }
+        }
+      }
+    }
+
+    & > .show-graph-button {
+      text-align: center;
+      border: none;
+      background: $gray;
+      border-radius: 999px;
+      margin: 4px 54px 4px 16px;
+      padding: 8px 0;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      & > .toggle-icon {
+        margin-left: 8px;
+      }
+
+      &:hover {
+        background: rgb(206, 205, 205);
+      }
+    }
   }
 
   & > .stamp-zone {
