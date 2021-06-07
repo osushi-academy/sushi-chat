@@ -1,10 +1,6 @@
 <template>
   <div class="chatitem-wrapper comment">
     <div class="comment admin">
-      <div class="icon-wrapper">
-        <img :src="icon" alt="" />
-        <div class="admin-badge">運 営</div>
-      </div>
       <ChartLine
         :chart-data="chartData"
         :options="chartOption"
