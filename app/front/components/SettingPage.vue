@@ -7,15 +7,14 @@
         </div>
         <div class="room-info">
           <div class="room-title">
-            <p>{{ room.title }}</p>
+            <p>{{ title }}</p>
           </div>
           <div class="room-url">
-            <span>{{ baseUrl }}?roomId={{ room.id }}</span>
+            <span>{{ shareUrl }}</span>
             <button
               class="material-icons copy-button"
               :disabled="
-                room.topics.findIndex((t) => topicStates[t.id] === 'active') ==
-                null
+                topics.findIndex((t) => topicStates[t.id] === 'active') == null
               "
               @click="writeToClipboard"
             >
@@ -36,7 +35,7 @@
 
       <div class="topic-list">
         <div
-          v-for="(topic, index) in room.topics"
+          v-for="(topic, index) in topics"
           :key="topic.id"
           class="topic"
           :class="topicStates[topic.id]"
@@ -78,15 +77,23 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { TopicStatesPropType, Room } from '@/models/contents'
+import { TopicStatesPropType, Topic } from '@/models/contents'
 
 export default Vue.extend({
   name: 'SettingPage',
   props: {
-    room: {
-      type: Object,
+    roomId: {
+      type: String,
       required: true,
-    } as PropOptions<Room>,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    topics: {
+      type: Array,
+      required: true,
+    } as PropOptions<Topic[]>,
     topicStates: {
       type: Object,
       required: true,
@@ -100,8 +107,8 @@ export default Vue.extend({
     icon(): { icon: string } {
       return ICONS[this.myIconId]?.icon ?? ICONS[0].icon
     },
-    baseUrl() {
-      return String(location.href).replace('?user=admin', '')
+    shareUrl() {
+      return `${location.origin}?roomId=${encodeURIComponent(this.roomId)}`
     },
     playOrPause() {
       return function (topicState: string) {
@@ -117,7 +124,7 @@ export default Vue.extend({
   },
   methods: {
     writeToClipboard() {
-      navigator.clipboard.writeText(this.baseUrl + '?roomId=' + this.room.id)
+      navigator.clipboard.writeText(this.shareUrl)
     },
     clickPlayPauseButton(topicId: string) {
       if (this.topicStates[topicId] === 'active') {
@@ -133,11 +140,12 @@ export default Vue.extend({
         confirm('本当にこのトピックを終了しますか？この操作は取り消せません')
       ) {
         this.topicStates[topicId]! = 'finished'
+        this.$emit('change-topic-state', topicId, 'closed')
       }
     },
     clickNextTopicButton() {
       // アクティブなトピックを探す
-      const currentActiveTopicIndex = this.room.topics.findIndex(
+      const currentActiveTopicIndex = this.topics.findIndex(
         (t) => this.topicStates[t.id] === 'active'
       )
 
@@ -145,7 +153,7 @@ export default Vue.extend({
         return
       }
 
-      const nextTopic = this.room.topics?.[currentActiveTopicIndex + 1]
+      const nextTopic = this.topics?.[currentActiveTopicIndex + 1]
 
       if (nextTopic != null) {
         this.$emit('change-topic-state', nextTopic.id, 'active')
