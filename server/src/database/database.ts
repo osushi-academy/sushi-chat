@@ -1,14 +1,12 @@
-import { v4 as uuid } from "uuid";
 import { Client } from "pg";
 import {
-  ChatItemStore,
-  ReactionStore,
-  Reaction,
   AnswerStore,
   MessageStore,
   QuestionStore,
+  ReactionStore,
 } from "../chatItem";
 import { Topic } from "../topic";
+import { Stamp } from "../stamp";
 
 export function clientCreate(): Client {
   const client = new Client({
@@ -123,6 +121,26 @@ export function insertChatItems(
     if (err) {
       console.log(
         `${err.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
+        new Date().toISOString()
+      );
+    }
+  });
+}
+
+export function insertStamps(client: Client, stamps: Stamp[], roomId: string) {
+  const values = stamps
+    .map(
+      (stamp) =>
+        `('${roomId}', ${stamp.topicId}, '${stamp.userId}', '${stamp.timestamp}')`
+    )
+    .join(", ");
+  const query = `INSERT INTO stamps (roomId,topicId,userId,timestamp) VALUES ${values}`;
+  client.query(query, (err) => {
+    if (err) {
+      console.log(
+        `${
+          err.message ?? "Unknown error."
+        } (SAVE ROOM(${roomId})/STAMPS(${stamps}) IN DB)`,
         new Date().toISOString()
       );
     }

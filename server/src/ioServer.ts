@@ -62,7 +62,8 @@ const createSocketIOServer = (httpServer: HttpServer) => {
           const newRoom = new RoomClass(
             roomId,
             received.title,
-            received.topics
+            received.topics,
+            client
           );
           rooms[roomId] = newRoom;
           console.log(`new room build: ${roomId}`);

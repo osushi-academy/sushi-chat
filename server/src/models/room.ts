@@ -18,6 +18,7 @@ import { IServerSocket } from "../serverSocket";
 import { Stamp, stampIntervalSender } from "../stamp";
 import { Topic, TopicState } from "../topic";
 import { v4 as getUUID } from "uuid";
+import { Client } from "pg";
 
 type StampStore = Stamp & {
   createdAt: Date;
@@ -33,6 +34,7 @@ class RoomClass {
   public stampsQueue: Stamp[] = [];
   private isOpened = false;
   private stampIntervalSenderTimer: NodeJS.Timeout | null = null;
+  private dbClient: Client;
 
   /**
    * @var {number} topicTimeData.openedDate トピックの開始時刻
@@ -53,7 +55,8 @@ class RoomClass {
   constructor(
     public readonly id: string,
     public readonly title: string,
-    topics: Omit<Topic, "id">[]
+    topics: Omit<Topic, "id">[],
+    dbClient: Client
   ) {
     this.topics = topics.map((topic, i) => ({
       ...topic,
@@ -67,6 +70,7 @@ class RoomClass {
         offsetTime: 0,
       };
     });
+    this.dbClient = dbClient;
   }
 
   /**
@@ -187,6 +191,7 @@ class RoomClass {
     if (this.activeTopic != null && this.stampIntervalSenderTimer == null) {
       // 何か開いたならセット
       this.stampIntervalSenderTimer = stampIntervalSender(
+        this.dbClient,
         RoomClass.globalSocket,
         this.id,
         this.stampsQueue
@@ -205,6 +210,7 @@ class RoomClass {
   /**
    * 新しくスタンプが投稿された時に呼ばれる関数。
    * @param userId
+   * @param params
    */
   public postStamp = (userId: string, params: PostStampParams) => {
     if (!this.isOpened) {
