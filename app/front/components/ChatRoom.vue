@@ -11,6 +11,7 @@
       <div class="text-zone">
         <transition-group
           :id="chatData.topic.id"
+          ref="scrollable"
           class="scrollable list-complete"
           tag="div"
         >
@@ -43,7 +44,11 @@
           @favorite="clickFavorite"
         />
       </div>
-      <button v-show="isNotify" class="message-badge" @click="clickScroll">
+      <button
+        class="message-badge"
+        :style="{ transform: `translate(-50%, ${isNotify ? 0 : 150}%)` }"
+        @click="clickScroll"
+      >
         最新のコメント
         <div class="material-icons">arrow_downward</div>
       </button>
@@ -70,6 +75,7 @@ import {
   TopicState,
   DeviceType,
 } from '@/models/contents'
+import throttle from 'lodash.throttle'
 import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
@@ -153,6 +159,22 @@ export default Vue.extend({
       })
     },
   },
+  mounted() {
+    const element = (this.$refs.scrollable as Vue).$el
+    if (element != null) {
+      element.addEventListener('scroll', this.handleScroll)
+      element.scrollTo({
+        top: element.scrollHeight,
+        left: 0,
+      })
+    }
+  },
+  beforeDestroy() {
+    const element = (this.$refs.scrollable as Vue).$el
+    if (element != null) {
+      element.removeEventListener('scroll', this.handleScroll)
+    }
+  },
   methods: {
     // 送信ボタン
     clickSubmit(text: string, isQuestion: boolean) {
@@ -189,27 +211,27 @@ export default Vue.extend({
     clickFavorite() {
       this.$emit('send-stamp', this.chatData.topic.id)
     },
+    handleScroll: throttle(function (this: any, e: Event) {
+      if (!this.isScrollBottom(e.target)) {
+        this.isNotify = true
+      } else {
+        this.isNotify = false
+      }
+    }, 500),
     scrollToBottomOrShowModal() {
       // 下までスクロールされていなければ通知を出す
-      const element: HTMLElement | null = document.getElementById(
-        this.chatData.topic.id
-      )
-      if (element == null) return
+      const element = (this.$refs.scrollable as Vue).$el
       if (this.isScrollBottom(element)) {
         element.scrollTo({
           top: element.scrollHeight,
           left: 0,
           behavior: 'smooth',
         })
-      } else {
-        this.isNotify = true
       }
     },
     // いちばん下までスクロール
     clickScroll() {
-      const element: HTMLElement | null = document.getElementById(
-        this.chatData.topic.id
-      )
+      const element: Element | null = (this.$refs.scrollable as Vue).$el
       if (element) {
         element.scrollTo({
           top: element.scrollHeight,
@@ -220,7 +242,7 @@ export default Vue.extend({
       }
     },
     // いちばん下までスクロールしてあるか
-    isScrollBottom(element: HTMLElement): Boolean {
+    isScrollBottom(element: any): boolean {
       return (
         element.scrollHeight < element.scrollTop + element.offsetHeight + 200
       )
