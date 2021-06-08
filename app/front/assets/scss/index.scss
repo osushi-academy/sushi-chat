@@ -83,7 +83,7 @@
   display: flex;
   border-top: 2px solid $gray;
   position: relative;
-  overflow-y: scroll;
+  overflow-y: hidden;
 
   & > .text-zone {
     flex: 1;
@@ -423,6 +423,11 @@
 
     &.comment {
       cursor: pointer;
+
+      &.admin {
+        cursor: default;
+      }
+
       &:hover {
         background: rgb(245, 245, 245);
       }
@@ -508,9 +513,11 @@
     top: 1rem;
     right: 0rem;
     border-radius: 100%;
+    border: none;
+    background: transparent;
 
     & > .material-icons {
-      font-size: 32px;
+      font-size: 28px;
       color: $gray;
       &:hover {
         color: $text-gray;
@@ -526,13 +533,6 @@
       &:active {
         color: $pink;
       }
-    }
-
-    &:hover {
-      background: $hover-button-background;
-    }
-    &:active {
-      background: $active-button-background;
     }
   }
 }
