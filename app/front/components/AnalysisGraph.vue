@@ -1,5 +1,5 @@
 <template>
-  <div class="chatitem-wrapper comment">
+  <div class="chatitem-wrapper">
     <div class="comment admin">
       <ChartLine
         :chart-data="chartData"
@@ -70,7 +70,7 @@ export default Vue.extend({
       // チャートのスタイル: <canvas>のstyle属性として設定
       chartStyles: {
         height: 'auto',
-        width: '80%',
+        width: '100%',
       },
       icon: require('@/assets/img/tea.png'),
     }
