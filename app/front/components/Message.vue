@@ -73,11 +73,13 @@
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
       <div>
-        Q.
-        <UrlToLink :text="message.target.content" />
-        <br />
-        A.
-        <UrlToLink :text="message.content" />
+        <span>
+          <UrlToLink
+            :text="'Q. ' + message.target.content"
+            :style="{ color: 'gray', fontSize: '80%' }"
+          />
+        </span>
+        <UrlToLink :text="'A. ' + message.content" />
       </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
@@ -101,7 +103,7 @@
       </div>
     </article>
     <!--Reply Badge-->
-    <div
+    <button
       v-if="message.type != 'reaction' && message.iconId != '0'"
       class="reply-icon"
       @click="clickReply"
@@ -112,7 +114,7 @@
       >
         reply
       </span>
-    </div>
+    </button>
   </div>
 </template>
 <script lang="ts">
