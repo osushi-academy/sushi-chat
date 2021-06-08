@@ -3,13 +3,19 @@
     <span v-for="(content, i) in text.split(/(https?:\/\/[^\s]*)/)" :key="i">
       <span v-if="i % 2 === 0">
         <span v-for="(token, j) in content.split(/(\n)/)" :key="j">
-          <span v-if="j % 2 == 0">
+          <span v-if="j % 2 == 0" style="word-break: break-all">
             {{ token }}
           </span>
           <br v-else />
         </span>
       </span>
-      <a v-else :href="content" target="_blank" @click.stop>
+      <a
+        v-else
+        :href="content"
+        target="_blank"
+        style="word-break: break-all"
+        @click.stop
+      >
         {{ content }}
       </a>
     </span>
