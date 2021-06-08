@@ -318,10 +318,12 @@
     & > .text-counter {
       font-size: 70%;
       user-select: none;
+      display: none;
     }
 
     & > .over {
       color: red;
+      display: inline;
     }
   }
 
