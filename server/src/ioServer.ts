@@ -7,12 +7,30 @@ import { ReceiveEventParams, ReceiveEventResponses } from "./events";
 import ServerSocket from "./serverSocket";
 import { clientCreate, insertRoom, insertTopics } from "./database/database";
 import { Client } from "pg";
+import { instrument } from "@socket.io/admin-ui";
+import { generateHash } from "./utils/crypt";
 
-const createSocketIOServer = (httpServer: HttpServer) => {
+const createSocketIOServer = async (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
     cors: {
       origin: "*",
       methods: ["GET", "POST"],
+    },
+  });
+  if (
+    process.env.NODE_ENV == "production" &&
+    process.env.SOCKET_IO_ADMIN_UI_PASSWORD === undefined
+  ) {
+    throw Error("SOCKET_IO_ADMIN_UI_PASSWORD is not defined in production.");
+  }
+  const hashed = await generateHash(
+    process.env.SOCKET_IO_ADMIN_UI_PASSWORD ?? ""
+  );
+  instrument(io, {
+    auth: {
+      type: "basic",
+      username: "admin",
+      password: hashed,
     },
   });
   RoomClass.globalSocket = io;
