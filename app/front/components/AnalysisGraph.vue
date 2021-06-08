@@ -66,6 +66,9 @@ export default Vue.extend({
             },
           ],
         },
+        tooltips: {
+          mode: undefined,
+        },
       },
       // チャートのスタイル: <canvas>のstyle属性として設定
       chartStyles: {
