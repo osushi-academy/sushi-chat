@@ -24,7 +24,7 @@
       <span
         class="text-counter"
         :class="{ over: maxMessageLength < text.length }"
-        >{{ text.length }}</span
+        >文字数をオーバーしています。 {{ 300 - text.length }}</span
       >
     </div>
     <label class="question-checkbox">
