@@ -26,14 +26,24 @@
               @click-reply="selectedChatItem = message"
             />
           </div>
-          <div
-            v-if="topicState === 'finished'"
-            :key="chatData.topic.id"
-            class="list-complete-item"
-          >
-            <AnalysisGraph :chat-data="chatData" />
-          </div>
         </transition-group>
+        <div v-if="showGraph" class="graph-wrapper">
+          <div class="graph-action-area" style="text-align: end">
+            <button class="close-button" @click="showGraph = false">
+              <XIcon></XIcon>
+            </button>
+          </div>
+          <AnalysisGraph :chat-data="chatData" />
+        </div>
+        <button
+          v-if="topicState === 'finished' && !showGraph"
+          :key="chatData.topic.id"
+          class="show-graph-button"
+          @click="showGraph = true"
+        >
+          盛り上がりグラフを見る
+          <ChevronUpIcon class="toggle-icon" size="14"></ChevronUpIcon>
+        </button>
       </div>
       <div class="stamp-zone">
         <FavoriteButton
@@ -81,6 +91,7 @@ import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
 import FavoriteButton from '@/components/FavoriteButton.vue'
 import exportText from '@/utils/textExports'
+import { XIcon, ChevronUpIcon } from 'vue-feather-icons'
 import AnalysisGraph from './AnalysisGraph.vue'
 
 type ChatDataPropType = {
@@ -99,6 +110,7 @@ type FavoriteCallbackRegisterPropType = {
 type DataType = {
   isNotify: boolean
   selectedChatItem: ChatItem | null
+  showGraph: boolean
 }
 
 export default Vue.extend({
@@ -109,6 +121,8 @@ export default Vue.extend({
     TextArea,
     FavoriteButton,
     AnalysisGraph,
+    XIcon,
+    ChevronUpIcon,
   },
   props: {
     chatData: {
@@ -145,6 +159,7 @@ export default Vue.extend({
     return {
       isNotify: false,
       selectedChatItem: null,
+      showGraph: false,
     }
   },
   computed: {
