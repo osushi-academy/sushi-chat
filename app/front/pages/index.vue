@@ -35,7 +35,6 @@
           :favorite-callback-register="favoriteCallbackRegister"
           :my-icon="iconChecked"
           :topic-state="topicStates[chatData.topic.id]"
-          :device-type="deviceType"
           @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
         />
@@ -47,20 +46,13 @@
 <script lang="ts">
 import Vue from 'vue'
 import VModal from 'vue-js-modal'
-import {
-  Room,
-  ChatItem,
-  Topic,
-  TopicState,
-  Stamp,
-  DeviceType,
-} from '@/models/contents'
+import { Room, ChatItem, Topic, TopicState, Stamp } from '@/models/contents'
 import { AdminBuildRoomResponse } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
 import CreateRoomModal from '@/components/CreateRoomModal.vue'
 import SelectIconModal from '@/components/SelectIconModal.vue'
 import socket from '~/utils/socketIO'
-import { ChatItemStore } from '~/store'
+import { ChatItemStore, DeviceStore } from '~/store'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -69,8 +61,6 @@ type ChatData = {
 
 // Data型
 type DataType = {
-  // OS判定
-  deviceType: DeviceType
   // 管理画面
   hamburgerMenu: string
   isDrawer: boolean
@@ -95,8 +85,6 @@ export default Vue.extend({
   },
   data(): DataType {
     return {
-      // OS判定
-      deviceType: 'windows',
       // 管理画面
       hamburgerMenu: 'menu',
       isDrawer: false,
@@ -166,20 +154,7 @@ export default Vue.extend({
         this.topicStates[res.topicId] = 'finished'
       }
     })
-
-    // OS判定
-    const os = window.navigator.userAgent.toLowerCase()
-    if (os.includes('windows nt')) {
-      this.deviceType = 'windows'
-    } else if (os.includes('android')) {
-      this.deviceType = 'smartphone'
-    } else if (os.includes('iphone') || os.includes('ipad')) {
-      this.deviceType = 'smartphone'
-    } else if (os.includes('mac os x')) {
-      this.deviceType = 'mac'
-    } else {
-      this.deviceType = 'windows'
-    }
+    DeviceStore.determineOs()
   },
   methods: {
     // 管理画面の開閉

@@ -56,21 +56,13 @@
       :topic="chatData.topic"
       :my-icon="myIcon"
       :disabled="isNotStartedTopic"
-      :device-type="deviceType"
       @submit="clickSubmit"
     />
   </article>
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import {
-  Topic,
-  Message,
-  TopicState,
-  Question,
-  Answer,
-  DeviceType,
-} from '@/models/contents'
+import { Topic, Message, TopicState, Question, Answer } from '@/models/contents'
 import TopicHeader from '@/components/TopicHeader.vue'
 import MessageComponent from '@/components/Message.vue'
 import TextArea from '@/components/TextArea.vue'
@@ -129,10 +121,6 @@ export default Vue.extend({
       type: Boolean,
       default: false,
     },
-    deviceType: {
-      type: String,
-      default: 'windows',
-    } as PropOptions<DeviceType>,
   },
   data(): DataType {
     return {
