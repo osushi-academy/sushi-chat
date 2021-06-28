@@ -3,7 +3,6 @@
     <TopicHeader
       :title="topicIndex + '. ' + chatData.topic.title"
       :topic-state="topicState"
-      :is-admin="isAdmin"
       @topic-activate="clickTopicActivate"
       @download="clickDownload"
     />
@@ -112,10 +111,6 @@ export default Vue.extend({
       type: String,
       required: true,
     } as PropOptions<TopicState>,
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
   },
   data(): DataType {
     return {

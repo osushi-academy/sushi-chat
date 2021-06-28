@@ -28,7 +28,6 @@
       <div v-for="(chatData, index) in chatDataList" :key="index">
         <ChatRoom
           :topic-index="index"
-          :is-admin="isAdmin"
           :chat-data="chatData"
           :favorite-callback-register="favoriteCallbackRegister"
           :topic-state="topicStates[chatData.topic.id]"
@@ -68,7 +67,6 @@ type DataType = {
   room: Room
   isRoomStarted: boolean
   // ユーザー関連
-  isAdmin: boolean
   icons: any
 }
 Vue.use(VModal)
@@ -91,7 +89,6 @@ export default Vue.extend({
       room: {} as Room,
       isRoomStarted: false,
       // ユーザー関連
-      isAdmin: false,
       icons: [
         { url: require('@/assets/img/sushi_akami.png') },
         { url: require('@/assets/img/sushi_ebi.png') },
@@ -113,10 +110,13 @@ export default Vue.extend({
         topic,
       }))
     },
+    isAdmin(): boolean {
+      return UserItemStore.userItems.isAdmin
+    },
   },
   created(): any {
     if (this.$route.query.user === 'admin') {
-      this.isAdmin = true
+      UserItemStore.changeIsAdmin(true)
     }
   },
   mounted(): any {

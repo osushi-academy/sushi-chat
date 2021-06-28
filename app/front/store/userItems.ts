@@ -2,6 +2,7 @@ import { Module, VuexModule, Mutation } from 'vuex-module-decorators'
 
 type UserItem = {
   myIconId: number
+  isAdmin: boolean
 }
 
 @Module({
@@ -10,7 +11,7 @@ type UserItem = {
   namespaced: true,
 })
 export default class UserItems extends VuexModule {
-  private _userItems: UserItem = { myIconId: -1 }
+  private _userItems: UserItem = { myIconId: -1, isAdmin: false }
 
   public get userItems(): UserItem {
     return this._userItems
@@ -19,5 +20,10 @@ export default class UserItems extends VuexModule {
   @Mutation
   public changeMyIcon(index: number) {
     this._userItems.myIconId = index
+  }
+
+  @Mutation
+  public changeIsAdmin(state: boolean) {
+    this._userItems.isAdmin = state
   }
 }

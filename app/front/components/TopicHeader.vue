@@ -26,6 +26,7 @@
 import Vue, { PropOptions } from 'vue'
 import { TopicState } from '@/models/contents'
 import { DownloadIcon, ZapIcon } from 'vue-feather-icons'
+import { UserItemStore } from '~/store'
 
 export default Vue.extend({
   name: 'TopicHeader',
@@ -38,14 +39,15 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    isAdmin: {
-      type: Boolean,
-      required: true,
-    },
     topicState: {
       type: String,
       required: true,
     } as PropOptions<TopicState>,
+  },
+  computed: {
+    isAdmin(): boolean {
+      return UserItemStore.userItems.isAdmin
+    },
   },
   methods: {
     clickTopicActivate() {
