@@ -54,7 +54,6 @@
     </div>
     <TextArea
       :topic="chatData.topic"
-      :my-icon="myIcon"
       :disabled="isNotStartedTopic"
       @submit="clickSubmit"
     />
@@ -109,10 +108,6 @@ export default Vue.extend({
       type: Function,
       required: true,
     } as PropOptions<FavoriteCallbackRegisterPropType>,
-    myIcon: {
-      type: Number,
-      required: true,
-    },
     topicState: {
       type: String,
       required: true,
