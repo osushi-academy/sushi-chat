@@ -16,7 +16,6 @@
       <SelectIconModal
         v-if="!isAdmin"
         :icons="icons"
-        :icon-checked="iconChecked"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
@@ -24,16 +23,13 @@
         v-if="isDrawer && isAdmin"
         :room="room"
         :topic-states="topicStates"
-        :my-icon-id="iconChecked + 1"
         @change-topic-state="changeTopicState"
       />
       <div v-for="(chatData, index) in chatDataList" :key="index">
         <ChatRoom
           :topic-index="index"
-          :is-admin="isAdmin"
           :chat-data="chatData"
           :favorite-callback-register="favoriteCallbackRegister"
-          :my-icon="iconChecked"
           :topic-state="topicStates[chatData.topic.id]"
           @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
@@ -52,7 +48,7 @@ import ChatRoom from '@/components/ChatRoom.vue'
 import CreateRoomModal from '@/components/CreateRoomModal.vue'
 import SelectIconModal from '@/components/SelectIconModal.vue'
 import socket from '~/utils/socketIO'
-import { ChatItemStore, DeviceStore } from '~/store'
+import { ChatItemStore, DeviceStore, UserItemStore } from '~/store'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -71,9 +67,7 @@ type DataType = {
   room: Room
   isRoomStarted: boolean
   // ユーザー関連
-  isAdmin: boolean
   icons: any
-  iconChecked: number
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -95,7 +89,6 @@ export default Vue.extend({
       room: {} as Room,
       isRoomStarted: false,
       // ユーザー関連
-      isAdmin: false,
       icons: [
         { url: require('@/assets/img/sushi_akami.png') },
         { url: require('@/assets/img/sushi_ebi.png') },
@@ -109,7 +102,6 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_uni.png') },
         { url: require('@/assets/img/sushi_syari.png') },
       ],
-      iconChecked: -1,
     }
   },
   computed: {
@@ -118,10 +110,13 @@ export default Vue.extend({
         topic,
       }))
     },
+    isAdmin(): boolean {
+      return UserItemStore.userItems.isAdmin
+    },
   },
   created(): any {
     if (this.$route.query.user === 'admin') {
-      this.isAdmin = true
+      UserItemStore.changeIsAdmin(true)
     }
   },
   mounted(): any {
@@ -260,7 +255,7 @@ export default Vue.extend({
     // modalを消し、topic作成
     hide(): any {
       this.$modal.hide('sushi-modal')
-      this.enterRoom(this.iconChecked + 1)
+      this.enterRoom(UserItemStore.userItems.myIconId + 1)
     },
     // ルーム入室
     enterRoom(iconId: number) {
@@ -285,7 +280,7 @@ export default Vue.extend({
     },
     // アイコン選択
     clickIcon(index: number) {
-      this.iconChecked = index
+      UserItemStore.changeMyIcon(index)
     },
 
     sendFavorite(topicId: string) {

@@ -53,10 +53,6 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<TopicPropType>,
-    myIcon: {
-      type: Number,
-      required: true,
-    },
     disabled: {
       type: Boolean,
       required: true,

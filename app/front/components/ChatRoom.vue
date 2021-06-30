@@ -3,7 +3,6 @@
     <TopicHeader
       :title="topicIndex + '. ' + chatData.topic.title"
       :topic-state="topicState"
-      :is-admin="isAdmin"
       @topic-activate="clickTopicActivate"
       @download="clickDownload"
     />
@@ -54,7 +53,6 @@
     </div>
     <TextArea
       :topic="chatData.topic"
-      :my-icon="myIcon"
       :disabled="isNotStartedTopic"
       @submit="clickSubmit"
     />
@@ -109,18 +107,10 @@ export default Vue.extend({
       type: Function,
       required: true,
     } as PropOptions<FavoriteCallbackRegisterPropType>,
-    myIcon: {
-      type: Number,
-      required: true,
-    },
     topicState: {
       type: String,
       required: true,
     } as PropOptions<TopicState>,
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
   },
   data(): DataType {
     return {

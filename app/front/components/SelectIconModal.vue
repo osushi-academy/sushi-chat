@@ -9,7 +9,7 @@
           v-for="(icon, index) in icons"
           :key="index"
           :class="{
-            'icon-selected': iconChecked == index,
+            'icon-selected': myIconId == index,
             'icon-shari': index === 10,
           }"
           class="icon-box"
@@ -20,7 +20,7 @@
       </div>
       <div class="modal-actions">
         <button
-          :disabled="iconChecked < 0"
+          :disabled="myIconId < 0"
           type="button"
           class="primary-button"
           @click="hideModal"
@@ -35,6 +35,7 @@
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
 import { IconsPropType } from '@/models/contents'
+import { UserItemStore } from '~/store'
 
 export default Vue.extend({
   name: 'SelectIconModal',
@@ -43,9 +44,10 @@ export default Vue.extend({
       type: Array,
       required: true,
     } as PropOptions<IconsPropType>,
-    iconChecked: {
-      type: Number,
-      required: true,
+  },
+  computed: {
+    myIconId() {
+      return UserItemStore.userItems.myIconId
     },
   },
   methods: {

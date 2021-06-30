@@ -79,6 +79,7 @@
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
 import { TopicStatesPropType, Room } from '@/models/contents'
+import { UserItemStore } from '~/store'
 
 export default Vue.extend({
   name: 'SettingPage',
@@ -91,14 +92,13 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<TopicStatesPropType>,
-    myIconId: {
-      type: Number,
-      required: true,
-    },
   },
   computed: {
+    myIconId() {
+      return UserItemStore.userItems.myIconId + 1
+    },
     icon(): { icon: string } {
-      return ICONS[this.myIconId]?.icon ?? ICONS[0].icon
+      return ICONS[UserItemStore.userItems.myIconId]?.icon ?? ICONS[0].icon
     },
     baseUrl() {
       return String(location.href).replace('?user=admin', '')
