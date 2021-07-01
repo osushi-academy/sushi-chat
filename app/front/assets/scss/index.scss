@@ -350,6 +350,11 @@
     box-shadow: $gray 0px 2px 5px -1px, $gray 0px 1px 3px -1px;
     overflow: visible;
 
+    .text{
+      flex: 1;
+      word-break: break-all;
+    }
+
     &.reaction {
       box-shadow: none;
       margin-left: 2em;
