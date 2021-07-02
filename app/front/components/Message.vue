@@ -9,7 +9,9 @@
         <img :src="icon" alt="" />
         <div class="admin-badge">運 営</div>
       </div>
-      <UrlToLink :text="message.content" />
+      <div class="text">
+        <UrlToLink :text="message.content" />
+      </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -24,10 +26,10 @@
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
       </div>
-      <div v-if="message.target == null">
+      <div v-if="message.target == null" class="text">
         <UrlToLink :text="message.content" />
       </div>
-      <div v-else>
+      <div v-else class="text">
         <span :style="{ color: 'gray', fontSize: '80%' }" @click.stop>
           <UrlToLink :text="`> ` + message.target.content" />
         </span>
@@ -52,7 +54,9 @@
         <div class="question-badge">Q</div>
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
-      <UrlToLink :text="message.content" />
+      <div class="text">
+        <UrlToLink :text="message.content" />
+      </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -72,7 +76,7 @@
         <div class="answer-badge">A</div>
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
-      <div>
+      <div class="text">
         <span>
           <UrlToLink
             :text="'Q. ' + message.target.content"
