@@ -1,5 +1,5 @@
 <template>
-  <div class="text">
+  <div>
     <span v-for="(content, i) in text.split(/(https?:\/\/[^\s]*)/)" :key="i">
       <span v-if="i % 2 === 0">
         <span v-for="(token, j) in content.split(/(\n)/)" :key="j">
