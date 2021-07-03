@@ -350,9 +350,9 @@
     box-shadow: $gray 0px 2px 5px -1px, $gray 0px 1px 3px -1px;
     overflow: visible;
 
-    .text{
+    .text {
       flex: 1;
-      word-break: break-all;
+      overflow-wrap: anywhere;
     }
 
     &.reaction {
@@ -374,7 +374,7 @@
         margin-left: 0.5em;
         color: $text-gray;
         font-style: oblique;
-        word-break: break-all;
+        overflow-wrap: anywhere;
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         overflow: hidden;
