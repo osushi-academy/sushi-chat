@@ -1,10 +1,6 @@
 <template>
-  <div class="chatitem-wrapper comment">
+  <div class="chatitem-wrapper">
     <div class="comment admin">
-      <div class="icon-wrapper">
-        <img :src="icon" alt="" />
-        <div class="admin-badge">運 営</div>
-      </div>
       <ChartLine
         :chart-data="chartData"
         :options="chartOption"
@@ -70,11 +66,14 @@ export default Vue.extend({
             },
           ],
         },
+        tooltips: {
+          mode: undefined,
+        },
       },
       // チャートのスタイル: <canvas>のstyle属性として設定
       chartStyles: {
         height: 'auto',
-        width: '80%',
+        width: '100%',
       },
       icon: require('@/assets/img/tea.png'),
     }

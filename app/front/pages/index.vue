@@ -21,7 +21,9 @@
       />
       <SettingPage
         v-if="isDrawer && isAdmin"
-        :room="room"
+        :room-id="roomId"
+        :title="''"
+        :topics="topics"
         :topic-states="topicStates"
         @change-topic-state="changeTopicState"
       />
@@ -47,7 +49,7 @@ import { AdminBuildRoomResponse } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
 import CreateRoomModal from '@/components/CreateRoomModal.vue'
 import SelectIconModal from '@/components/SelectIconModal.vue'
-import socket from '~/utils/socketIO'
+import { io } from 'socket.io-client'
 import { ChatItemStore, DeviceStore, UserItemStore } from '~/store'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
@@ -113,6 +115,9 @@ export default Vue.extend({
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
     },
+    roomId(): string {
+      return (this.$router.currentRoute.query.roomId ?? '') as string
+    },
   },
   created(): any {
     if (this.$route.query.user === 'admin') {
@@ -120,12 +125,28 @@ export default Vue.extend({
     }
   },
   mounted(): any {
-    if (this.$route.query.roomId != null) {
-      // TODO: redirect
-    }
-
+    const socket = io(process.env.apiBaseUrl as string)
     ;(this as any).socket = socket
-    this.$modal.show('sushi-modal')
+
+    if (this.isAdmin && this.$route.query.roomId != null) {
+      socket.emit(
+        'ADMIN_ENTER_ROOM',
+        {
+          roomId: this.$route.query.roomId,
+        },
+        ({ chatItems, topics, activeUserCount }: any) => {
+          topics.forEach(({ id, state }: any) => {
+            this.topicStates[id] = state
+          })
+          ChatItemStore.setChatItems(chatItems)
+          this.topics = topics
+          this.activeUserCount = activeUserCount
+          this.isRoomStarted = true // TODO: API側の対応が必要
+        }
+      )
+    } else {
+      this.$modal.show('sushi-modal')
+    }
 
     // SocketIOのコールバックの登録
     socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
@@ -214,14 +235,19 @@ export default Vue.extend({
         },
         (room: AdminBuildRoomResponse) => {
           this.room = room
+          console.log(`ルームID: ${room.id}`)
+          this.$router.push({
+            path: this.$router.currentRoute.path,
+            query: { ...this.$router.currentRoute.query, roomId: room.id },
+          })
           socket.emit(
             'ADMIN_ENTER_ROOM',
             {
               roomId: room.id,
             },
             ({ chatItems, topics, activeUserCount }: any) => {
-              topics.forEach((topic: any) => {
-                this.topicStates[topic.id] = 'not-started'
+              topics.forEach(({ id, state }: any) => {
+                this.topicStates[id] = state
               })
               ChatItemStore.addList(chatItems)
               this.topics = topics

@@ -12,9 +12,9 @@ describe("機能テスト", () => {
   let clientSockets: ClientSocket[];
 
   // テストのセットアップ
-  beforeAll((done) => {
+  beforeAll(async (done) => {
     const httpServer = createServer();
-    io = createSocketIOServer(httpServer);
+    io = await createSocketIOServer(httpServer);
     httpServer.listen(async () => {
       const port = (httpServer as any).address().port;
       [adminSocket, ...clientSockets] = ArrayRange(5).map(() =>

@@ -1,26 +1,22 @@
-import { v4 as uuid } from "uuid";
 import { Client } from "pg";
 import {
-  ChatItemStore,
-  ReactionStore,
-  Reaction,
   AnswerStore,
   MessageStore,
   QuestionStore,
+  ReactionStore,
 } from "../chatItem";
 import { Topic } from "../topic";
+import { Stamp } from "../stamp";
 
 export function clientCreate(): Client {
   const client = new Client({
-    connectionString:
-      process.env.DATABASE_URL ||
-      "postgres://qabliybaqbojrs:33f010e49729bfe1596b5ce23dd0954dd46f8aad95f46ca0fb69c4ad28ee4470@ec2-23-22-191-232.compute-1.amazonaws.com:5432/d9aqjjqv0ao05c",
+    connectionString: process.env.DATABASE_URL,
     ssl: {
       rejectUnauthorized: false,
     },
   });
+  client.connect().catch(console.error);
 
-  client.connect();
   return client;
 }
 
@@ -125,6 +121,26 @@ export function insertChatItems(
     if (err) {
       console.log(
         `${err.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
+        new Date().toISOString()
+      );
+    }
+  });
+}
+
+export function insertStamps(client: Client, stamps: Stamp[], roomId: string) {
+  const values = stamps
+    .map(
+      (stamp) =>
+        `('${roomId}', ${stamp.topicId}, '${stamp.userId}', '${stamp.timestamp}')`
+    )
+    .join(", ");
+  const query = `INSERT INTO stamps (roomId,topicId,userId,timestamp) VALUES ${values}`;
+  client.query(query, (err) => {
+    if (err) {
+      console.log(
+        `${
+          err.message ?? "Unknown error."
+        } (SAVE ROOM(${roomId})/STAMPS(${stamps}) IN DB)`,
         new Date().toISOString()
       );
     }

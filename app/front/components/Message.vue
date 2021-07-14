@@ -9,7 +9,9 @@
         <img :src="icon" alt="" />
         <div class="admin-badge">運 営</div>
       </div>
-      <div class="baloon">{{ message.content }}</div>
+      <div class="text">
+        <UrlToLink :text="message.content" />
+      </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -24,16 +26,14 @@
       <div class="icon-wrapper">
         <img :src="icon" alt="" />
       </div>
-      <div class="baloon">
-        <!-- eslint-disable-next-line prettier/prettier -->
-        <div v-if="message.target == null" class="baloon">{{ message.content }}
-        </div>
-        <div v-else class="baloon">
-          <span :style="{ color: 'gray', fontSize: '80%' }"
-            >> {{ message.target.content }}</span
-          >
-          {{ message.content }}
-        </div>
+      <div v-if="message.target == null" class="text">
+        <UrlToLink :text="message.content" />
+      </div>
+      <div v-else class="text">
+        <span :style="{ color: 'gray', fontSize: '80%' }" @click.stop>
+          <UrlToLink :text="`> ` + message.target.content" />
+        </span>
+        <UrlToLink :text="message.content" />
       </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
@@ -54,7 +54,9 @@
         <div class="question-badge">Q</div>
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
-      <div class="baloon">{{ message.content }}</div>
+      <div class="text">
+        <UrlToLink :text="message.content" />
+      </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -74,8 +76,15 @@
         <div class="answer-badge">A</div>
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
-      <!-- eslint-disable-next-line prettier/prettier -->
-      <div class="baloon">{{`Q. ${message.target.content}\nA. ${message.content}`}}</div>
+      <div class="text">
+        <span>
+          <UrlToLink
+            :text="'Q. ' + message.target.content"
+            :style="{ color: 'gray', fontSize: '80%' }"
+          />
+        </span>
+        <UrlToLink :text="'A. ' + message.content" />
+      </div>
       <div class="comment-timestamp">
         {{ showTimestamp(message.timestamp) }}
       </div>
@@ -98,7 +107,7 @@
       </div>
     </article>
     <!--Reply Badge-->
-    <div
+    <button
       v-if="message.type != 'reaction' && message.iconId != '0'"
       class="reply-icon"
       @click="clickReply"
@@ -109,15 +118,19 @@
       >
         reply
       </span>
-    </div>
+    </button>
   </div>
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
+import UrlToLink from '@/components/UrlToLink.vue'
 import { ChatItemPropType } from '~/models/contents'
 
 export default Vue.extend({
   name: 'Message',
+  components: {
+    UrlToLink,
+  },
   props: {
     message: {
       type: Object,

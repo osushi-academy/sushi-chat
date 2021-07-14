@@ -12,3 +12,5 @@ const PORT = process.env.PORT || 7000;
 httpServer.listen(PORT, function () {
   console.log("server listening. Port:" + PORT);
 });
+
+app.get("/", (req, res) => res.send("ok"));

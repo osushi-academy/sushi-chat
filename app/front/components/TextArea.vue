@@ -24,7 +24,7 @@
       <span
         class="text-counter"
         :class="{ over: maxMessageLength < text.length }"
-        >{{ text.length }}</span
+        >文字数をオーバーしています。 {{ maxMessageLength - text.length }}</span
       >
     </div>
     <label class="question-checkbox">
@@ -84,8 +84,8 @@ export default Vue.extend({
         return
       }
 
-      // submit
-      this.$emit('submit', this.text, this.isQuestion)
+      // 先頭と末尾の空白、改行を削除しsubmit
+      this.$emit('submit', this.text.trim(), this.isQuestion)
       // 入力を空に
       this.text = ''
       // チェックボックスのチェックを外す
