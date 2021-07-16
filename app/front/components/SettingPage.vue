@@ -158,29 +158,6 @@ export default Vue.extend({
       if (nextTopic != null) {
         this.$emit('change-topic-state', nextTopic.id, 'active')
       }
-
-      // let alertMessage = '以下の操作を実行しますか？\n'
-      // let closeFlag = false
-      // let openFlag = false
-      // if (typeof closeTopic !== 'undefined') closeFlag = true
-      // if (typeof topic !== 'undefined') openFlag = true
-
-      // if (closeFlag) {
-      //   alertMessage += 'トピックを閉じる：' + closeTopic.title
-      //   if (openFlag) {
-      //     alertMessage += '\n↓\n'
-      //   }
-      // }
-      // if (openFlag) {
-      //   alertMessage += 'トピックを開く：' + topic.title + '\n'
-      // }
-      // console.log(topic)
-      // if (openFlag || closeFlag) {
-      // if (confirm(alertMessage)) {
-      //   this.$emit('change-topic-state', topic.id!, 'active')
-      //   this.$emit('change-topic-state', closeTopic.id!, 'finished')
-      // }
-      // }
     },
   },
 })

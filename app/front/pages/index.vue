@@ -21,7 +21,7 @@
       />
       <SettingPage
         v-if="isDrawer && isAdmin"
-        :room-id="roomId"
+        :room-id="room.id"
         :title="''"
         :topics="topics"
         :topic-states="topicStates"
@@ -49,7 +49,7 @@ import { AdminBuildRoomResponse } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
 import CreateRoomModal from '@/components/CreateRoomModal.vue'
 import SelectIconModal from '@/components/SelectIconModal.vue'
-import { io } from 'socket.io-client'
+import socket from '~/utils/socketIO'
 import { ChatItemStore, DeviceStore, UserItemStore } from '~/store'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
@@ -115,9 +115,6 @@ export default Vue.extend({
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
     },
-    roomId(): string {
-      return (this.$router.currentRoute.query.roomId ?? '') as string
-    },
   },
   created(): any {
     if (this.$route.query.user === 'admin') {
@@ -125,35 +122,16 @@ export default Vue.extend({
     }
   },
   mounted(): any {
-    const socket = io(process.env.apiBaseUrl as string)
-    ;(this as any).socket = socket
-
-    if (this.isAdmin && this.$route.query.roomId != null) {
-      socket.emit(
-        'ADMIN_ENTER_ROOM',
-        {
-          roomId: this.$route.query.roomId,
-        },
-        ({ chatItems, topics, activeUserCount }: any) => {
-          topics.forEach(({ id, state }: any) => {
-            this.topicStates[id] = state
-          })
-          ChatItemStore.setChatItems(chatItems)
-          this.topics = topics
-          this.activeUserCount = activeUserCount
-          this.isRoomStarted = true // TODO: API側の対応が必要
-        }
-      )
-    } else {
-      this.$modal.show('sushi-modal')
+    if (this.$route.query.roomId != null) {
+      // TODO: redirect
     }
-
+    ;(this as any).socket = socket
+    this.$modal.show('sushi-modal')
     // SocketIOのコールバックの登録
     socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
       // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
       ChatItemStore.addOrUpdate(chatItem)
     })
-
     socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
       if (res.type === 'OPEN') {
         // 現在activeなトピックがあればfinishedにする
