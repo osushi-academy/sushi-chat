@@ -21,7 +21,9 @@
       />
       <SettingPage
         v-if="isDrawer && isAdmin"
-        :room="room"
+        :room-id="room.id"
+        :title="''"
+        :topics="topics"
         :topic-states="topicStates"
         @change-topic-state="changeTopicState"
       />
@@ -123,16 +125,13 @@ export default Vue.extend({
     if (this.$route.query.roomId != null) {
       // TODO: redirect
     }
-
     ;(this as any).socket = socket
     this.$modal.show('sushi-modal')
-
     // SocketIOのコールバックの登録
     socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
       // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
       ChatItemStore.addOrUpdate(chatItem)
     })
-
     socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
       if (res.type === 'OPEN') {
         // 現在activeなトピックがあればfinishedにする
@@ -214,14 +213,19 @@ export default Vue.extend({
         },
         (room: AdminBuildRoomResponse) => {
           this.room = room
+          console.log(`ルームID: ${room.id}`)
+          this.$router.push({
+            path: this.$router.currentRoute.path,
+            query: { ...this.$router.currentRoute.query, roomId: room.id },
+          })
           socket.emit(
             'ADMIN_ENTER_ROOM',
             {
               roomId: room.id,
             },
             ({ chatItems, topics, activeUserCount }: any) => {
-              topics.forEach((topic: any) => {
-                this.topicStates[topic.id] = 'not-started'
+              topics.forEach(({ id, state }: any) => {
+                this.topicStates[id] = state
               })
               ChatItemStore.addList(chatItems)
               this.topics = topics

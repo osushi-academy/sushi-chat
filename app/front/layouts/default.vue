@@ -17,7 +17,7 @@ export default {
         href: 'https://fonts.gstatic.com',
       },
     ],
-    title: 'SUSHI CHAT',
+    title: 'sushi-chat',
   },
 }
 </script>

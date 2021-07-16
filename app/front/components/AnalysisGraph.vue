@@ -1,10 +1,6 @@
 <template>
-  <div class="chatitem-wrapper comment">
+  <div class="chatitem-wrapper">
     <div class="comment admin">
-      <div class="icon-wrapper">
-        <img :src="icon" alt="" />
-        <div class="admin-badge">運 営</div>
-      </div>
       <ChartLine
         :chart-data="chartData"
         :options="chartOption"
@@ -15,9 +11,10 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { Topic, ChatItem } from '@/models/contents'
+import { Topic } from '@/models/contents'
 import { ChartData, ChartOptions } from 'chart.js'
 import ChartLine from '~/utils/ChartLine'
+import { ChatItemStore } from '~/store'
 
 // Data型
 type DataType = {
@@ -29,7 +26,6 @@ type DataType = {
 
 type ChatDataPropType = {
   topic: Topic
-  message: ChatItem[]
 }
 
 export default Vue.extend({
@@ -70,11 +66,14 @@ export default Vue.extend({
             },
           ],
         },
+        tooltips: {
+          mode: undefined,
+        },
       },
       // チャートのスタイル: <canvas>のstyle属性として設定
       chartStyles: {
         height: 'auto',
-        width: '80%',
+        width: '100%',
       },
       icon: require('@/assets/img/tea.png'),
     }
@@ -100,7 +99,7 @@ export default Vue.extend({
     },
     // 運営を弾いたコメント数といいね数のデータを埋める
     fillData() {
-      const commentStamp: Array<number> = this.chatData.message
+      const commentStamp: Array<number> = ChatItemStore.chatItems
         .filter(({ iconId }) => iconId !== '0')
         .map((message) => Math.floor(message.timestamp / 10000))
       const maxStamp: number = Math.max(...commentStamp)
