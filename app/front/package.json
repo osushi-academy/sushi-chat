@@ -6,8 +6,9 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
+    "lint:js": "eslint --ext \".js,.ts,.vue\" --ignore-path .gitignore .",
     "lint": "yarn lint:js",
+    "fix": "prettier --write \"**/*.{js,ts,vue}\"",
     "test": "jest"
   },
   "dependencies": {
@@ -38,9 +39,7 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
     "eslint": "^7.22.0",
-    "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-nuxt": "^2.0.0",
-    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.7.0",
     "jest": "^26.6.3",
     "node-sass": "^5.0.0",

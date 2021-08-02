@@ -12,8 +12,12 @@
       "default": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "tsc -w",
+    "lint": "eslint ./src",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "devDependencies": {
