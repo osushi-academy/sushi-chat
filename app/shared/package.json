@@ -17,7 +17,8 @@
   ],
   "scripts": {
     "dev": "tsc -w",
-    "lint": "eslint ./src",
+    "lint": "eslint --ext \".js,.ts,.vue\" --ignore-path .gitignore ./src",
+    "fix": "prettier --write \"**/*.{js,ts}\" --ignore-path .gitignore ./src",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "devDependencies": {

@@ -74,17 +74,17 @@
   </article>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { Topic, Message, TopicState, Question, Answer } from '@/models/contents'
-import throttle from 'lodash.throttle'
-import TopicHeader from '@/components/TopicHeader.vue'
-import MessageComponent from '@/components/Message.vue'
-import TextArea from '@/components/TextArea.vue'
-import FavoriteButton from '@/components/FavoriteButton.vue'
-import exportText from '@/utils/textExports'
-import { XIcon, ChevronUpIcon } from 'vue-feather-icons'
-import AnalysisGraph from './AnalysisGraph.vue'
-import { ChatItemStore } from '~/store'
+import Vue, { PropOptions } from "vue"
+import { Topic, Message, TopicState, Question, Answer } from "@/models/contents"
+import throttle from "lodash.throttle"
+import TopicHeader from "@/components/TopicHeader.vue"
+import MessageComponent from "@/components/Message.vue"
+import TextArea from "@/components/TextArea.vue"
+import FavoriteButton from "@/components/FavoriteButton.vue"
+import exportText from "@/utils/textExports"
+import { XIcon, ChevronUpIcon } from "vue-feather-icons"
+import AnalysisGraph from "./AnalysisGraph.vue"
+import { ChatItemStore } from "~/store"
 
 type ChatDataPropType = {
   topic: Topic
@@ -92,7 +92,7 @@ type ChatDataPropType = {
 
 type FavoriteCallbackRegisterPropType = (
   topicId: string,
-  callback: (count: number) => void
+  callback: (count: number) => void,
 ) => void
 
 // Data型
@@ -103,7 +103,7 @@ type DataType = {
 }
 
 export default Vue.extend({
-  name: 'ChatRoom',
+  name: "ChatRoom",
   components: {
     TopicHeader,
     MessageComponent,
@@ -141,11 +141,11 @@ export default Vue.extend({
   },
   computed: {
     isNotStartedTopic() {
-      return this.topicState === 'not-started'
+      return this.topicState === "not-started"
     },
     chatItems() {
       return ChatItemStore.chatItems.filter(
-        ({ topicId }) => topicId === this.chatData.topic.id
+        ({ topicId }) => topicId === this.chatData.topic.id,
       )
     },
   },
@@ -159,7 +159,7 @@ export default Vue.extend({
   mounted() {
     const element = (this.$refs.scrollable as Vue).$el
     if (element != null) {
-      element.addEventListener('scroll', this.handleScroll)
+      element.addEventListener("scroll", this.handleScroll)
       element.scrollTo({
         top: element.scrollHeight,
         left: 0,
@@ -169,7 +169,7 @@ export default Vue.extend({
   beforeDestroy() {
     const element = (this.$refs.scrollable as Vue).$el
     if (element != null) {
-      element.removeEventListener('scroll', this.handleScroll)
+      element.removeEventListener("scroll", this.handleScroll)
     }
   },
   methods: {
@@ -185,10 +185,10 @@ export default Vue.extend({
           // 通常メッセージ
           ChatItemStore.postMessage({ text, topicId })
         }
-      } else if (target.type === 'message' || target.type === 'answer') {
+      } else if (target.type === "message" || target.type === "answer") {
         // リプライ
         ChatItemStore.postMessage({ text, topicId, target })
-      } else if (target.type === 'question') {
+      } else if (target.type === "question") {
         // 回答
         ChatItemStore.postAnswer({ text, topicId, target })
       }
@@ -200,7 +200,7 @@ export default Vue.extend({
     },
     // ハートボタン
     clickFavorite() {
-      this.$emit('send-stamp', this.chatData.topic.id)
+      this.$emit("send-stamp", this.chatData.topic.id)
     },
     handleScroll: throttle(function (this: any, e: Event) {
       if (!this.isScrollBottom(e.target)) {
@@ -216,7 +216,7 @@ export default Vue.extend({
         element.scrollTo({
           top: element.scrollHeight,
           left: 0,
-          behavior: 'smooth',
+          behavior: "smooth",
         })
       }
     },
@@ -227,7 +227,7 @@ export default Vue.extend({
         element.scrollTo({
           top: element.scrollHeight,
           left: 0,
-          behavior: 'smooth',
+          behavior: "smooth",
         })
         this.isNotify = false
       }
@@ -239,18 +239,18 @@ export default Vue.extend({
       )
     },
     clickTopicActivate() {
-      this.$emit('topic-activate', this.chatData.topic.id)
+      this.$emit("topic-activate", this.chatData.topic.id)
     },
     clickDownload() {
       const messages = ChatItemStore.chatItems
-        .filter(({ type }) => type === 'message')
-        .filter(({ iconId }) => iconId !== '0')
+        .filter(({ type }) => type === "message")
+        .filter(({ iconId }) => iconId !== "0")
         .map(
           (message) =>
-            '🍣: ' + (message as Message).content.replaceAll('\n', '\n') + '\n'
+            "🍣: " + (message as Message).content.replaceAll("\n", "\n") + "\n",
         )
       exportText(`${this.topicIndex}_${this.chatData.topic.title}_comments`, [
-        this.chatData.topic.title + '\n',
+        this.chatData.topic.title + "\n",
         ...messages,
       ])
     },

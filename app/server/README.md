@@ -1,21 +1,28 @@
 # サーバー
+
 ## 起動方法
+
 0. サーバーのルートディレクトリに移動
-    ```
-    cd server
-    ```
+
+   ```
+   cd server
+   ```
 
 1. ライブラリのインストール（初回、ライブラリ更新時のみ）
-    ```
-    npm install
-    ```
 
-2. 開発サーバー起動（Hot Reload有）
-    ```
-    npm run dev
-    ```
+   ```
+   npm install
+   ```
+
+2. 開発サーバー起動（Hot Reload 有）
+   ```
+   npm run dev
+   ```
+
 ## ビルド
+
 1. ビルド
+
    ```
    npm run build
    ```
@@ -26,10 +33,12 @@
    ```
 
 ## テスト
+
 1. 全てのテストを実行する
-    ```
-    npm run test
-    ```
+
+   ```
+   npm run test
+   ```
 
 2. 部分的にテストを実行する
    ```
@@ -47,6 +56,7 @@ main に pull-request すれば以下にデプロイされるはず
 <https://sushi-chat-server.herokuapp.com>
 
 手動のデプロイは一番上のディレクトリで
+
 ```
 git subtree --prefix server push heroku main
 ```

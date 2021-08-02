@@ -1,38 +1,38 @@
-import { createServer } from "http";
-import { Server } from "socket.io";
-import { io as Client, Socket as ClientSocket } from "socket.io-client";
-import { ArrayRange } from "../utils/range";
-import createSocketIOServer from "../ioServer";
-import { AdminBuildRoomParams } from "../events";
-import { Topic } from "../topic";
+import { createServer } from "http"
+import { Server } from "socket.io"
+import { io as Client, Socket as ClientSocket } from "socket.io-client"
+import { ArrayRange } from "../utils/range"
+import createSocketIOServer from "../ioServer"
+import { AdminBuildRoomParams } from "../events"
+import { Topic } from "../topic"
 
 describe("機能テスト", () => {
-  let io: Server;
-  let adminSocket: ClientSocket;
-  let clientSockets: ClientSocket[];
+  let io: Server
+  let adminSocket: ClientSocket
+  let clientSockets: ClientSocket[]
 
   // テストのセットアップ
   beforeAll(async (done) => {
-    const httpServer = createServer();
-    io = await createSocketIOServer(httpServer);
+    const httpServer = createServer()
+    io = await createSocketIOServer(httpServer)
     httpServer.listen(async () => {
-      const port = (httpServer as any).address().port;
-      [adminSocket, ...clientSockets] = ArrayRange(5).map(() =>
-        Client(`http://localhost:${port}`)
-      );
-      done();
-    });
-  });
+      const port = (httpServer as any).address().port
+      ;[adminSocket, ...clientSockets] = ArrayRange(5).map(() =>
+        Client(`http://localhost:${port}`),
+      )
+      done()
+    })
+  })
 
   // テストの終了処理
   afterAll(() => {
-    io.close();
-    adminSocket.close();
-    clientSockets.forEach((socket) => socket.close());
-  });
+    io.close()
+    adminSocket.close()
+    clientSockets.forEach((socket) => socket.close())
+  })
 
-  let roomId: string;
-  let topics: Topic[];
+  let roomId: string
+  let topics: Topic[]
   const roomDataParams: AdminBuildRoomParams = {
     title: "TEST_ROOM_TITLE",
     topics: ArrayRange(10).map((i) => ({
@@ -44,33 +44,33 @@ describe("機能テスト", () => {
         product: `https://example.com/our-product/${i}`,
       },
     })),
-  };
+  }
 
   const expectedTopics = roomDataParams.topics.map((topic) => ({
     ...topic,
     id: expect.any(String),
     state: "not-started",
-  }));
+  }))
 
   describe("ルームを立てる", () => {
     test("管理者がルームを立てる", async (resolve) => {
       adminSocket.emit("ADMIN_BUILD_ROOM", roomDataParams, (res: any) => {
-        roomId = res.id;
-        topics = res.topics;
+        roomId = res.id
+        topics = res.topics
         expect(res).toStrictEqual({
           id: expect.any(String),
           title: roomDataParams.title,
           topics: expectedTopics,
-        });
-        resolve();
-      });
-    });
-  });
+        })
+        resolve()
+      })
+    })
+  })
 
   describe("ユーザーがルームに入る", () => {
     afterAll(() => {
-      clientSockets[0].off("PUB_ENTER_ROOM");
-    });
+      clientSockets[0].off("PUB_ENTER_ROOM")
+    })
     test("管理者がルームに入る", async (resolve) => {
       // 管理者がルームに入る
       adminSocket.emit("ADMIN_ENTER_ROOM", { roomId }, (res: any) => {
@@ -78,10 +78,10 @@ describe("機能テスト", () => {
           chatItems: [],
           topics: expectedTopics,
           activeUserCount: 1,
-        });
-        resolve();
-      });
-    });
+        })
+        resolve()
+      })
+    })
     test("ユーザーがルームに入る", async (resolve) => {
       clientSockets[0].emit(
         "ENTER_ROOM",
@@ -91,137 +91,137 @@ describe("機能テスト", () => {
             chatItems: [],
             topics: expectedTopics,
             activeUserCount: 2,
-          });
-          resolve();
-        }
-      );
-    });
+          })
+          resolve()
+        },
+      )
+    })
     test("ユーザーの入室が配信される", async (resolve) => {
       clientSockets[0].on("PUB_ENTER_ROOM", (res) => {
         expect(res).toStrictEqual({
           iconId: "2",
           activeUserCount: 3,
-        });
-        resolve();
-      });
+        })
+        resolve()
+      })
       clientSockets[1].emit(
         "ENTER_ROOM",
         { roomId, iconId: "2" },
-        (res: any) => {}
-      );
-    });
+        (res: any) => {},
+      )
+    })
     test.skip("存在しない部屋には入れない", async (resolve) => {
       // TODO: エラー発生の確認がうまくできない
       clientSockets[2].on("error", (res: any) => {
-        console.log(res);
-      });
+        console.log(res)
+      })
       clientSockets[2].emit(
         "ENTER_ROOM",
         { roomId: "dasldksamk", iconId: "2" },
-        () => {}
-      );
-    });
-  });
+        () => {},
+      )
+    })
+  })
 
   describe("ルームの開始・トピックの遷移", () => {
     afterEach(() => {
-      clientSockets[0].off("PUB_CHANGE_TOPIC_STATE");
-    });
+      clientSockets[0].off("PUB_CHANGE_TOPIC_STATE")
+    })
 
     test("ルームの開始", (resolve) => {
       clientSockets[0].on("PUB_START_ROOM", () => {
-        resolve();
-      });
-      adminSocket.emit("ADMIN_START_ROOM", {});
-    });
+        resolve()
+      })
+      adminSocket.emit("ADMIN_START_ROOM", {})
+    })
 
     test("0番目のトピックのオープン", (resolve) => {
       clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
         expect(res).toStrictEqual({
           type: "OPEN",
           topicId: topics[0].id,
-        });
-        resolve();
-      });
+        })
+        resolve()
+      })
       adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
         roomId,
         type: "OPEN",
         topicId: topics[0].id,
-      });
-    });
+      })
+    })
 
     test("1番目のトピックをオープン", (resolve) => {
       clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
         expect(res).toStrictEqual({
           type: "OPEN",
           topicId: topics[1].id,
-        });
-        resolve();
-      });
+        })
+        resolve()
+      })
       adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
         roomId,
         type: "OPEN",
         topicId: topics[1].id,
-      });
-    });
+      })
+    })
 
     test("2番目のトピックをオープン", (resolve) => {
       clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
         expect(res).toStrictEqual({
           type: "OPEN",
           topicId: topics[2].id,
-        });
-        resolve();
-      });
+        })
+        resolve()
+      })
       adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
         roomId,
         type: "OPEN",
         topicId: topics[2].id,
-      });
-    });
+      })
+    })
 
     test("2番目のトピックを一時停止", (resolve) => {
       clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
         expect(res).toStrictEqual({
           type: "PAUSE",
           topicId: topics[2].id,
-        });
-        resolve();
-      });
+        })
+        resolve()
+      })
       adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
         roomId,
         type: "PAUSE",
         topicId: topics[2].id,
-      });
-    });
+      })
+    })
 
     test("0番目のトピックをオープン", (resolve) => {
       clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
         expect(res).toStrictEqual({
           type: "OPEN",
           topicId: topics[0].id,
-        });
-        resolve();
-      });
+        })
+        resolve()
+      })
       adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
         roomId,
         type: "OPEN",
         topicId: topics[0].id,
-      });
-    });
-  });
+      })
+    })
+  })
 
   describe("コメントを投稿する", () => {
     beforeAll(() => {
       clientSockets[2].emit(
         "ENTER_ROOM",
         { roomId, iconId: "3" },
-        (res: any) => {}
-      );
-    });
+        (res: any) => {},
+      )
+    })
     afterEach(() => {
-      clientSockets[0].off("PUB_CHAT_ITEM");
-    });
+      clientSockets[0].off("PUB_CHAT_ITEM")
+    })
 
     test("Messageの投稿", (resolve) => {
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
@@ -232,20 +232,20 @@ describe("機能テスト", () => {
           iconId: "2",
           timestamp: expect.any(Number),
           createdAt: expect.stringMatching(
-            /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+            /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
           ),
           content: "コメント",
           target: null,
-        });
-        resolve();
-      });
+        })
+        resolve()
+      })
       clientSockets[1].emit("POST_CHAT_ITEM", {
         id: "001",
         topicId: topics[0].id,
         type: "message",
         content: "コメント",
-      });
-    });
+      })
+    })
 
     test("Reactionの投稿", (resolve) => {
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
@@ -256,7 +256,7 @@ describe("機能テスト", () => {
           iconId: "3",
           timestamp: expect.any(Number),
           createdAt: expect.stringMatching(
-            /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+            /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
           ),
           target: {
             id: "001",
@@ -265,21 +265,21 @@ describe("機能テスト", () => {
             iconId: "2",
             timestamp: expect.any(Number),
             createdAt: expect.stringMatching(
-              /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+              /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
             ),
             content: "コメント",
             target: null,
           },
-        });
-        resolve();
-      });
+        })
+        resolve()
+      })
       clientSockets[2].emit("POST_CHAT_ITEM", {
         id: "002",
         topicId: topics[0].id,
         type: "reaction",
         reactionToId: "001",
-      });
-    });
+      })
+    })
 
     test("Questionの投稿", (resolve) => {
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
@@ -290,19 +290,19 @@ describe("機能テスト", () => {
           iconId: "2",
           timestamp: expect.any(Number),
           createdAt: expect.stringMatching(
-            /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+            /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
           ),
           content: "質問",
-        });
-        resolve();
-      });
+        })
+        resolve()
+      })
       clientSockets[1].emit("POST_CHAT_ITEM", {
         id: "003",
         topicId: topics[0].id,
         type: "question",
         content: "質問",
-      });
-    });
+      })
+    })
 
     test("Answerの投稿", (resolve) => {
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
@@ -313,7 +313,7 @@ describe("機能テスト", () => {
           iconId: "3",
           timestamp: expect.any(Number),
           createdAt: expect.stringMatching(
-            /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+            /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
           ),
           content: "回答",
           target: {
@@ -323,22 +323,22 @@ describe("機能テスト", () => {
             iconId: "2",
             timestamp: expect.any(Number),
             createdAt: expect.stringMatching(
-              /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+              /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
             ),
             content: "質問",
           },
-        });
-        resolve();
-      });
+        })
+        resolve()
+      })
       clientSockets[2].emit("POST_CHAT_ITEM", {
         id: "004",
         topicId: topics[0].id,
         type: "answer",
         content: "回答",
         target: "003",
-      });
-    });
-  });
+      })
+    })
+  })
 
   describe("スタンプの投稿", () => {
     test("スタンプを投稿する", (resolve) => {
@@ -346,12 +346,12 @@ describe("機能テスト", () => {
         expect(res).toStrictEqual({
           iconId: "3",
           topicId: topics[0].id,
-        });
-        resolve();
-      });
-      clientSockets[2].emit("POST_STAMP", { topicId: topics[0].id });
-    });
-  });
+        })
+        resolve()
+      })
+      clientSockets[2].emit("POST_STAMP", { topicId: topics[0].id })
+    })
+  })
 
   describe("途中から入室した場合", () => {
     test("途中から入室した場合に履歴が見れる", (resolve) => {
@@ -365,7 +365,7 @@ describe("機能テスト", () => {
                 timestamp: expect.any(Number),
                 iconId: "2",
                 createdAt: expect.stringMatching(
-                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
                 ),
                 id: "001",
                 topicId: "1",
@@ -377,7 +377,7 @@ describe("機能テスト", () => {
                 timestamp: expect.any(Number),
                 iconId: "3",
                 createdAt: expect.stringMatching(
-                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
                 ),
                 target: {
                   id: "001",
@@ -386,7 +386,7 @@ describe("機能テスト", () => {
                   iconId: "2",
                   timestamp: expect.any(Number),
                   createdAt: expect.stringMatching(
-                    /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                    /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
                   ),
                   content: "コメント",
                   target: null,
@@ -399,7 +399,7 @@ describe("機能テスト", () => {
                 timestamp: expect.any(Number),
                 iconId: "2",
                 createdAt: expect.stringMatching(
-                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
                 ),
                 id: "003",
                 topicId: "1",
@@ -410,7 +410,7 @@ describe("機能テスト", () => {
                 timestamp: expect.any(Number),
                 iconId: "3",
                 createdAt: expect.stringMatching(
-                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
                 ),
                 id: "004",
                 topicId: "1",
@@ -423,7 +423,7 @@ describe("機能テスト", () => {
                   iconId: "2",
                   timestamp: expect.any(Number),
                   createdAt: expect.stringMatching(
-                    /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                    /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
                   ),
                   content: "質問",
                 },
@@ -436,26 +436,26 @@ describe("機能テスト", () => {
               ...topics.slice(3),
             ],
             activeUserCount: 5,
-          });
-          resolve();
-        }
-      );
-    });
-  });
+          })
+          resolve()
+        },
+      )
+    })
+  })
 
   describe("ルームの終了・閉じる", () => {
     test("ルームを終了する", (resolve) => {
       clientSockets[0].on("PUB_FINISH_ROOM", () => {
-        resolve();
-      });
-      adminSocket.emit("ADMIN_FINISH_ROOM", {});
-    });
+        resolve()
+      })
+      adminSocket.emit("ADMIN_FINISH_ROOM", {})
+    })
 
     test("ルームを閉じる", (resolve) => {
       clientSockets[0].on("PUB_CLOSE_ROOM", () => {
-        resolve();
-      });
-      adminSocket.emit("ADMIN_CLOSE_ROOM", {});
-    });
-  });
-});
+        resolve()
+      })
+      adminSocket.emit("ADMIN_CLOSE_ROOM", {})
+    })
+  })
+})

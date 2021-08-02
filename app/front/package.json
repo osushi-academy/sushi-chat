@@ -8,7 +8,7 @@
     "generate": "nuxt generate",
     "lint:js": "eslint --ext \".js,.ts,.vue\" --ignore-path .gitignore .",
     "lint": "yarn lint:js",
-    "fix": "prettier --write \"**/*.{js,ts,vue}\"",
+    "fix": "prettier --write \"**/*.{js,ts,vue}\" --ignore-path .gitignore .",
     "test": "jest"
   },
   "dependencies": {

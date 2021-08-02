@@ -8,7 +8,8 @@
     "build": "tsc -p .",
     "dev": "ts-node-dev --transpile-only --rs ./src/app.ts",
     "test": "jest",
-    "lint": "eslint ./src"
+    "lint": "eslint ./src",
+    "fix": "prettier --write \"**/*.{js,ts}\" --ignore-path .gitignore ."
   },
   "author": "Eri-0910",
   "license": "ISC",
