@@ -8,6 +8,7 @@ import {
   PostChatItemReactionParams,
 } from '~/models/event'
 import getUUID from '~/utils/getUUID'
+import { UserItemStore } from '~/store'
 
 @Module({
   name: 'chatItems',
@@ -24,6 +25,11 @@ export default class ChatItems extends VuexModule {
   @Mutation
   public add(chatItem: ChatItem) {
     this._chatItems.push(chatItem)
+  }
+
+  @Mutation
+  public setChatItems(chatItems: ChatItem[]) {
+    this._chatItems = chatItems
   }
 
   @Mutation
@@ -72,7 +78,7 @@ export default class ChatItems extends VuexModule {
       id: params.id,
       type: 'message',
       topicId,
-      iconId: '1', // TODO: 正しいアイコンを設定
+      iconId: (UserItemStore.userItems.myIconId + 1).toString(),
       content: text,
       createdAt: new Date(),
       target: target ?? null,
@@ -85,6 +91,12 @@ export default class ChatItems extends VuexModule {
 
   @Action({ rawError: true })
   public postReaction({ message }: { message: Message | Question | Answer }) {
+    // 選択中の文字が存在する場合リアクションしない
+    if (
+      window.getSelection()!.getRangeAt(0).endOffset >
+      window.getSelection()!.getRangeAt(0).startOffset
+    )
+      return
     const params: PostChatItemReactionParams = {
       id: getUUID(),
       topicId: message.topicId,
@@ -96,7 +108,7 @@ export default class ChatItems extends VuexModule {
       id: params.id,
       topicId: message.topicId,
       type: 'reaction',
-      iconId: '1', // TODO: 正しいアイコンを設定
+      iconId: (UserItemStore.userItems.myIconId + 1).toString(),
       timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
       createdAt: new Date(),
       target: message,
@@ -119,7 +131,7 @@ export default class ChatItems extends VuexModule {
       id: params.id,
       type: 'question',
       topicId,
-      iconId: '1', // TODO: 正しいアイコンを設定
+      iconId: (UserItemStore.userItems.myIconId + 1).toString(),
       content: text,
       createdAt: new Date(),
       timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
@@ -153,7 +165,7 @@ export default class ChatItems extends VuexModule {
       id: params.id,
       topicId,
       type: 'answer',
-      iconId: '1', // TODO: 正しいアイコンを設定
+      iconId: (UserItemStore.userItems.myIconId + 1).toString(),
       timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
       createdAt: new Date(),
       target,

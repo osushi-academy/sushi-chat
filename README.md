@@ -1,9 +1,12 @@
 # sushi-chat
-2021/04/24~04/25 [サポーターズ 技育CAMP ハッカソンvol.2](https://talent.supporterz.jp/events/4dd93ba8-1fde-477a-8706-2d17f46c1c4d/) にて、学生 4 人で開発したプロダクトです。**今後のハッカソンで実際に使っていただくことを目指して継続開発中です！**
+2021/04/24~04/25 [サポーターズ 技育CAMP ハッカソンvol.2](https://talent.supporterz.jp/events/4dd93ba8-1fde-477a-8706-2d17f46c1c4d/) にて、学生 4 人で開発したプロダクトです。**今後のハッカソンで実際に使っていただけることになったため継続開発中です！**
 
 🎉🎉 上記ハッカソンで[最優秀賞](https://twitter.com/geek_pjt/status/1386253688604266496)をいただきました！
 
-2021/05/08~05/09 サポーターズ 技育CAMP ハッカソンvol.3 で[実際に使っていただきました！](https://twitter.com/geek_pjt/status/1391344209269956610)
+2021/05/08~05/09 サポーターズ 技育CAMP ハッカソンvol.3 で[実際に使っていただきました！](https://twitter.com/geek_pjt/status/1391344209269956610)<br>
+その後のハッカソンでも使っていただいています！
+
+🍣🍣 sushi-chatの近況をTwitterで発信しています！ → Twitterアカウントは[こちら](https://twitter.com/osushi_academy)
 
 ## ローカルでの実行方法
 各種READMEをご覧ください
@@ -15,7 +18,7 @@
 
 他の参加者によるコメント投稿機能のほか、スタンプでのリアクション、質問の投稿など、プレゼンを盛り上げる役割に特化しています。
 
-![スクリーンショット](/resource/pc-screenshot2[mac].PNG)
+https://user-images.githubusercontent.com/65712721/125596302-f5606786-3974-4ce7-a021-0e5bebb3d1fe.mp4
 
 ## 開発期間
 ハッカソン：2021/4/17 ~ 4/25
@@ -40,6 +43,7 @@
 
 # おすしアカデミー
 大学生・大学院生4人で組んだチームです。
+おすしアカデミーのTwitterアカウントは[こちら](https://twitter.com/osushi_academy)
 
 <table>
   <tr>

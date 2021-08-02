@@ -83,14 +83,14 @@
   display: flex;
   border-top: 2px solid $gray;
   position: relative;
-  overflow-y: scroll;
+  overflow-y: hidden;
 
   & > .text-zone {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    overflow-y: scroll;
+    overflow-y: hidden;
 
     & > .scrollable {
       scroll-snap-type: y mandatory;
@@ -112,6 +112,62 @@
     }
     .list-complete-leave-active {
       position: absolute;
+    }
+
+    & > .graph-wrapper {
+      margin: 2px 16px 4px 16px;
+      border-top: 2px solid $gray;
+      text-align: end;
+
+      & > .close-button {
+        border: none;
+        background: transparent;
+      }
+
+      & > .graph-action-area {
+        text-align: end;
+        padding-top: 4px;
+        margin-bottom: -8px;
+        display: flex;
+        justify-content: flex-end;
+
+        & > .close-button {
+          border: none;
+          background: transparent;
+          border-radius: 100%;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          &:hover {
+            background: rgba(0, 0, 0, 0.021);
+          }
+        }
+      }
+    }
+
+    & > .show-graph-button {
+      text-align: center;
+      border: none;
+      background: $gray;
+      border-radius: 999px;
+      margin: 4px 54px 4px 16px;
+      padding: 8px 0;
+      font-size: 0.8rem;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      & > .toggle-icon {
+        margin-left: 8px;
+      }
+
+      &:hover {
+        background: rgb(206, 205, 205);
+      }
     }
   }
 
@@ -257,25 +313,30 @@
       margin-bottom: 0.5rem;
       text-align: end;
       flex: 1;
+      user-select: none;
     }
 
     & > .text-counter {
       font-size: 70%;
+      user-select: none;
+      display: none;
     }
 
     & > .over {
       color: red;
+      display: inline;
     }
   }
 
   & > .question-checkbox {
     font-size: 85%;
     margin-left: 0.5em;
+    user-select: none;
   }
 }
 
 .chatitem-wrapper {
-  padding: 0.45em 2.5em 0 0;
+  padding: 0.2em 2.5em 0.25em 0;
   scroll-snap-align: end;
 
   & > .comment,
@@ -290,8 +351,37 @@
     box-shadow: $gray 0px 2px 5px -1px, $gray 0px 1px 3px -1px;
     overflow: visible;
 
+    .text {
+      flex: 1;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+    }
+
     &.reaction {
       box-shadow: none;
+      margin-left: 2em;
+      align-items: center;
+
+      & > .icon-wrapper {
+        width: 1.6rem;
+        height: 1.6rem;
+        margin: 0;
+        margin-right: 1em;
+        align-self: center; // NOTE: for safari (yuta-ike)
+      }
+
+      & > .long-text {
+        flex: 1;
+        display: -webkit-box;
+        margin-left: 0.5em;
+        color: $text-gray;
+        font-style: oblique;
+        word-break: break-all;
+        overflow-wrap: anywhere;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+      }
     }
 
     &.question {
@@ -308,7 +398,6 @@
       background: rgb(235, 235, 235);
       border: none;
       box-shadow: none;
-      pointer-events: none;
     }
 
     & > .bg-good-icon {
@@ -342,6 +431,11 @@
 
     &.comment {
       cursor: pointer;
+
+      &.admin {
+        cursor: default;
+      }
+
       &:hover {
         background: rgb(245, 245, 245);
       }
@@ -349,6 +443,14 @@
 
     &.question:hover {
       background: rgb(206, 234, 255);
+    }
+
+    &.answer:hover {
+      background: rgb(255, 233, 237);
+    }
+
+    &.admin:hover {
+      background: rgb(235, 235, 235);
     }
 
     & > .icon-wrapper {
@@ -364,6 +466,7 @@
       display: grid;
       align-items: center;
       position: relative;
+      user-select: none;
 
       & > .question-badge {
         width: 1.25rem;
@@ -402,43 +505,6 @@
       }
     }
 
-    &.reaction {
-      margin-left: 2em;
-      align-items: center;
-
-      & > .icon-wrapper {
-        width: 1.6rem;
-        height: 1.6rem;
-        margin: 0;
-        margin-right: 1em;
-        align-self: center; // NOTE: for safari (yuta-ike)
-      }
-
-      & > .icon-wrapper {
-        margin-right: 1em;
-      }
-
-      & > .long-text {
-        flex: 1;
-        display: -webkit-box;
-        margin-left: 0.5em;
-        color: $text-gray;
-        font-style: oblique;
-        word-break: break-all;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        overflow: hidden;
-      }
-    }
-
-    &.comment > .baloon {
-      border-radius: 1.5em;
-      width: 100%;
-      word-break: break-all;
-      z-index: 5;
-      white-space: pre-line;
-    }
-
     & > .comment-timestamp {
       color: $text-gray;
       font-size: 10px;
@@ -446,6 +512,7 @@
       bottom: 0;
       right: 0;
       margin: 0;
+      user-select: none;
     }
   }
 
@@ -454,9 +521,11 @@
     top: 1rem;
     right: 0rem;
     border-radius: 100%;
+    border: none;
+    background: transparent;
 
     & > .material-icons {
-      font-size: 32px;
+      font-size: 28px;
       color: $gray;
       &:hover {
         color: $text-gray;
@@ -472,13 +541,6 @@
       &:active {
         color: $pink;
       }
-    }
-
-    &:hover {
-      background: $hover-button-background;
-    }
-    &:active {
-      background: $active-button-background;
     }
   }
 }

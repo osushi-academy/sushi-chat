@@ -1,11 +1,13 @@
 import { Server } from "socket.io";
 import {
   Answer,
+  AnswerStore,
   ChatItem,
   ChatItemStore,
   Message,
   MessageStore,
   Question,
+  QuestionStore,
   User,
 } from "../chatItem";
 import {
@@ -18,6 +20,7 @@ import { IServerSocket } from "../serverSocket";
 import { Stamp, stampIntervalSender } from "../stamp";
 import { Topic, TopicState } from "../topic";
 import { v4 as getUUID } from "uuid";
+import { Client } from "pg";
 
 type StampStore = Stamp & {
   createdAt: Date;
@@ -33,6 +36,7 @@ class RoomClass {
   public stampsQueue: Stamp[] = [];
   private isOpened = false;
   private stampIntervalSenderTimer: NodeJS.Timeout | null = null;
+  private dbClient: Client;
 
   /**
    * @var {number} topicTimeData.openedDate トピックの開始時刻
@@ -53,7 +57,8 @@ class RoomClass {
   constructor(
     public readonly id: string,
     public readonly title: string,
-    topics: Omit<Topic, "id">[]
+    topics: Omit<Topic, "id">[],
+    dbClient: Client
   ) {
     this.topics = topics.map((topic, i) => ({
       ...topic,
@@ -67,6 +72,7 @@ class RoomClass {
         offsetTime: 0,
       };
     });
+    this.dbClient = dbClient;
   }
 
   /**
@@ -132,20 +138,15 @@ class RoomClass {
       throw new Error("[sushi-chat-server] Topic does not exists.");
     }
     if (params.type === "OPEN") {
-      // 現在activeであるトピックをCfinishedにし、指定したトピックをopenにする
+      // 現在activeであるトピックをfinishedする
       const currentActiveTopic = this.activeTopic;
       if (currentActiveTopic != null) {
         currentActiveTopic.state = "finished";
+        this.finishTopic(currentActiveTopic.id);
       }
-      targetTopic.state = "active";
 
-      // トピック終了のBotメッセージ
-      if (currentActiveTopic != null) {
-        this.sendBotMessage(
-          currentActiveTopic.id,
-          "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）"
-        );
-      }
+      // 指定されたトピックをOpenにする
+      targetTopic.state = "active";
 
       const isFirstOpen = this.topicTimeData[targetTopic.id].openedDate == null;
 
@@ -172,10 +173,7 @@ class RoomClass {
       this.sendBotMessage(params.topicId, "【運営Bot】\n 発表が中断されました");
     } else if (params.type === "CLOSE") {
       targetTopic.state = "finished";
-      this.sendBotMessage(
-        params.topicId,
-        "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）"
-      );
+      this.finishTopic(params.topicId);
     } else {
       throw new Error("[sushi-chat-server] Type is invalid.");
     }
@@ -187,6 +185,7 @@ class RoomClass {
     if (this.activeTopic != null && this.stampIntervalSenderTimer == null) {
       // 何か開いたならセット
       this.stampIntervalSenderTimer = stampIntervalSender(
+        this.dbClient,
         RoomClass.globalSocket,
         this.id,
         this.stampsQueue
@@ -203,8 +202,45 @@ class RoomClass {
   };
 
   /**
+   * トピック終了時の処理を行う
+   * @param topicId 終了させるトピックID
+   */
+  private finishTopic = (topicId: string) => {
+    // 質問の集計
+    const questions = this.chatItems.filter<QuestionStore>(
+      (chatItemStore): chatItemStore is QuestionStore =>
+        chatItemStore.type === "question" && chatItemStore.topicId === topicId
+    );
+    // 回答済みの質問の集計
+    const answeredIds = this.chatItems
+      .filter<AnswerStore>(
+        (chatItemStore): chatItemStore is AnswerStore =>
+          chatItemStore.type === "answer" && chatItemStore.topicId === topicId
+      )
+      .map(({ target }) => target);
+
+    const questionMessages = questions.map(
+      ({ id, content }) =>
+        `Q. ${content}` + (answeredIds.includes(id) ? " [回答済]" : "")
+    );
+
+    // トピック終了のBotメッセージ
+    this.sendBotMessage(
+      topicId,
+      [
+        "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
+        questionMessages.length > 0 ? "" : null,
+        ...questionMessages,
+      ]
+        .filter(Boolean)
+        .join("\n")
+    );
+  };
+
+  /**
    * 新しくスタンプが投稿された時に呼ばれる関数。
    * @param userId
+   * @param params
    */
   public postStamp = (userId: string, params: PostStampParams) => {
     if (!this.isOpened) {

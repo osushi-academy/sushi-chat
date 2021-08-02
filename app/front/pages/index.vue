@@ -16,26 +16,23 @@
       <SelectIconModal
         v-if="!isAdmin"
         :icons="icons"
-        :icon-checked="iconChecked"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
       <SettingPage
         v-if="isDrawer && isAdmin"
-        :room="room"
+        :room-id="room.id"
+        :title="''"
+        :topics="topics"
         :topic-states="topicStates"
-        :my-icon-id="iconChecked + 1"
         @change-topic-state="changeTopicState"
       />
       <div v-for="(chatData, index) in chatDataList" :key="index">
         <ChatRoom
           :topic-index="index"
-          :is-admin="isAdmin"
           :chat-data="chatData"
           :favorite-callback-register="favoriteCallbackRegister"
-          :my-icon="iconChecked"
           :topic-state="topicStates[chatData.topic.id]"
-          :device-type="deviceType"
           @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
         />
@@ -47,20 +44,13 @@
 <script lang="ts">
 import Vue from 'vue'
 import VModal from 'vue-js-modal'
-import {
-  Room,
-  ChatItem,
-  Topic,
-  TopicState,
-  Stamp,
-  DeviceType,
-} from '@/models/contents'
+import { Room, ChatItem, Topic, TopicState, Stamp } from '@/models/contents'
 import { AdminBuildRoomResponse } from '@/models/event'
 import ChatRoom from '@/components/ChatRoom.vue'
 import CreateRoomModal from '@/components/CreateRoomModal.vue'
 import SelectIconModal from '@/components/SelectIconModal.vue'
 import socket from '~/utils/socketIO'
-import { ChatItemStore } from '~/store'
+import { ChatItemStore, DeviceStore, UserItemStore } from '~/store'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -69,8 +59,6 @@ type ChatData = {
 
 // Data型
 type DataType = {
-  // OS判定
-  deviceType: DeviceType
   // 管理画面
   hamburgerMenu: string
   isDrawer: boolean
@@ -81,9 +69,7 @@ type DataType = {
   room: Room
   isRoomStarted: boolean
   // ユーザー関連
-  isAdmin: boolean
   icons: any
-  iconChecked: number
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -95,8 +81,6 @@ export default Vue.extend({
   },
   data(): DataType {
     return {
-      // OS判定
-      deviceType: 'windows',
       // 管理画面
       hamburgerMenu: 'menu',
       isDrawer: false,
@@ -107,7 +91,6 @@ export default Vue.extend({
       room: {} as Room,
       isRoomStarted: false,
       // ユーザー関連
-      isAdmin: false,
       icons: [
         { url: require('@/assets/img/sushi_akami.png') },
         { url: require('@/assets/img/sushi_ebi.png') },
@@ -121,7 +104,6 @@ export default Vue.extend({
         { url: require('@/assets/img/sushi_uni.png') },
         { url: require('@/assets/img/sushi_syari.png') },
       ],
-      iconChecked: -1,
     }
   },
   computed: {
@@ -130,26 +112,26 @@ export default Vue.extend({
         topic,
       }))
     },
+    isAdmin(): boolean {
+      return UserItemStore.userItems.isAdmin
+    },
   },
   created(): any {
     if (this.$route.query.user === 'admin') {
-      this.isAdmin = true
+      UserItemStore.changeIsAdmin(true)
     }
   },
   mounted(): any {
     if (this.$route.query.roomId != null) {
       // TODO: redirect
     }
-
     ;(this as any).socket = socket
     this.$modal.show('sushi-modal')
-
     // SocketIOのコールバックの登録
     socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
       // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
       ChatItemStore.addOrUpdate(chatItem)
     })
-
     socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
       if (res.type === 'OPEN') {
         // 現在activeなトピックがあればfinishedにする
@@ -166,20 +148,7 @@ export default Vue.extend({
         this.topicStates[res.topicId] = 'finished'
       }
     })
-
-    // OS判定
-    const os = window.navigator.userAgent.toLowerCase()
-    if (os.includes('windows nt')) {
-      this.deviceType = 'windows'
-    } else if (os.includes('android')) {
-      this.deviceType = 'smartphone'
-    } else if (os.includes('iphone') || os.includes('ipad')) {
-      this.deviceType = 'smartphone'
-    } else if (os.includes('mac os x')) {
-      this.deviceType = 'mac'
-    } else {
-      this.deviceType = 'windows'
-    }
+    DeviceStore.determineOs()
   },
   methods: {
     // 管理画面の開閉
@@ -244,14 +213,19 @@ export default Vue.extend({
         },
         (room: AdminBuildRoomResponse) => {
           this.room = room
+          console.log(`ルームID: ${room.id}`)
+          this.$router.push({
+            path: this.$router.currentRoute.path,
+            query: { ...this.$router.currentRoute.query, roomId: room.id },
+          })
           socket.emit(
             'ADMIN_ENTER_ROOM',
             {
               roomId: room.id,
             },
             ({ chatItems, topics, activeUserCount }: any) => {
-              topics.forEach((topic: any) => {
-                this.topicStates[topic.id] = 'not-started'
+              topics.forEach(({ id, state }: any) => {
+                this.topicStates[id] = state
               })
               ChatItemStore.addList(chatItems)
               this.topics = topics
@@ -285,7 +259,7 @@ export default Vue.extend({
     // modalを消し、topic作成
     hide(): any {
       this.$modal.hide('sushi-modal')
-      this.enterRoom(this.iconChecked + 1)
+      this.enterRoom(UserItemStore.userItems.myIconId + 1)
     },
     // ルーム入室
     enterRoom(iconId: number) {
@@ -310,7 +284,7 @@ export default Vue.extend({
     },
     // アイコン選択
     clickIcon(index: number) {
-      this.iconChecked = index
+      UserItemStore.changeMyIcon(index)
     },
 
     sendFavorite(topicId: string) {

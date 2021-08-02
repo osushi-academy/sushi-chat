@@ -20,11 +20,11 @@
       </button>
     </div>
     <div class="instruction">
-      <KeyInstruction :device-type="deviceType" />
+      <KeyInstruction />
       <span
         class="text-counter"
         :class="{ over: maxMessageLength < text.length }"
-        >{{ text.length }}</span
+        >文字数をオーバーしています。 {{ maxMessageLength - text.length }}</span
       >
     </div>
     <label class="question-checkbox">
@@ -34,7 +34,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from 'vue'
-import { TopicPropType, DeviceType } from '@/models/contents'
+import { TopicPropType } from '@/models/contents'
 import KeyInstruction from '@/components/KeyInstruction.vue'
 
 // Data型
@@ -53,18 +53,10 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<TopicPropType>,
-    myIcon: {
-      type: Number,
-      required: true,
-    },
     disabled: {
       type: Boolean,
       required: true,
     },
-    deviceType: {
-      type: String,
-      default: 'windows',
-    } as PropOptions<DeviceType>,
   },
   data(): DataType {
     return {
@@ -92,8 +84,8 @@ export default Vue.extend({
         return
       }
 
-      // submit
-      this.$emit('submit', this.text, this.isQuestion)
+      // 先頭と末尾の空白、改行を削除しsubmit
+      this.$emit('submit', this.text.trim(), this.isQuestion)
       // 入力を空に
       this.text = ''
       // チェックボックスのチェックを外す
