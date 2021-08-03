@@ -111,9 +111,11 @@ describe("機能テスト", () => {
       );
     });
     test.skip("存在しない部屋には入れない", async (resolve) => {
-      // TODO: エラー発生の確認がうまくできない
+      // TODO: サーバー側でエラー発生時にクライアントにメッセージを返さないようになっているので、テストがタイムアウトに
+      //  なってfailしてしまう。実装を直す必要あり。
       clientSockets[2].on("error", (res: any) => {
-        console.log(res);
+        // TODO: エラーレスポンスのフォーマットを決め、エラーチェックをする
+        resolve();
       });
       clientSockets[2].emit(
         "ENTER_ROOM",
@@ -129,7 +131,8 @@ describe("機能テスト", () => {
     });
 
     test("ルームの開始", (resolve) => {
-      clientSockets[0].on("PUB_START_ROOM", () => {
+      clientSockets[0].on("PUB_START_ROOM", (res) => {
+        expect(res).toStrictEqual({});
         resolve();
       });
       adminSocket.emit("ADMIN_START_ROOM", {});
@@ -343,10 +346,13 @@ describe("機能テスト", () => {
   describe("スタンプの投稿", () => {
     test("スタンプを投稿する", (resolve) => {
       clientSockets[0].on("PUB_STAMP", (res) => {
-        expect(res).toStrictEqual({
-          iconId: "3",
-          topicId: topics[0].id,
-        });
+        expect(res).toStrictEqual([
+          {
+            userId: clientSockets[2].id,
+            timestamp: expect.any(Number),
+            topicId: topics[0].id,
+          },
+        ]);
         resolve();
       });
       clientSockets[2].emit("POST_STAMP", { topicId: topics[0].id });
@@ -361,6 +367,95 @@ describe("機能テスト", () => {
         (res: any) => {
           expect(res).toStrictEqual({
             chatItems: [
+              {
+                timestamp: expect.any(Number),
+                iconId: "0",
+                createdAt: expect.stringMatching(
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                ),
+                id: expect.any(String),
+                topicId: "1",
+                type: "message",
+                content:
+                  "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n",
+                target: null,
+              },
+              {
+                timestamp: expect.any(Number),
+                iconId: "0",
+                createdAt: expect.stringMatching(
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                ),
+                id: expect.any(String),
+                topicId: "1",
+                type: "message",
+                content:
+                  "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
+                target: null,
+              },
+              {
+                timestamp: expect.any(Number),
+                iconId: "0",
+                createdAt: expect.stringMatching(
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                ),
+                id: expect.any(String),
+                topicId: "2",
+                type: "message",
+                content:
+                  "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n",
+                target: null,
+              },
+              {
+                timestamp: expect.any(Number),
+                iconId: "0",
+                createdAt: expect.stringMatching(
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                ),
+                id: expect.any(String),
+                topicId: "2",
+                type: "message",
+                content:
+                  "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
+                target: null,
+              },
+              {
+                timestamp: expect.any(Number),
+                iconId: "0",
+                createdAt: expect.stringMatching(
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                ),
+                id: expect.any(String),
+                topicId: "3",
+                type: "message",
+                content:
+                  "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n",
+                target: null,
+              },
+              {
+                timestamp: expect.any(Number),
+                iconId: "0",
+                createdAt: expect.stringMatching(
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                ),
+                id: expect.any(String),
+                topicId: "3",
+                type: "message",
+                content: "【運営Bot】\n 発表が中断されました",
+                target: null,
+              },
+              {
+                timestamp: expect.any(Number),
+                iconId: "0",
+                createdAt: expect.stringMatching(
+                  /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/
+                ),
+                id: expect.any(String),
+                topicId: "1",
+                type: "message",
+                content: "【運営Bot】\n 発表が再開されました",
+                target: null,
+              },
               {
                 timestamp: expect.any(Number),
                 iconId: "2",
