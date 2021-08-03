@@ -126,7 +126,25 @@ export default Vue.extend({
       // TODO: redirect
     }
     ;(this as any).socket = socket
-    this.$modal.show("sushi-modal")
+    if (this.isAdmin && this.$route.query.roomId != null) {
+      socket.emit(
+        "ADMIN_ENTER_ROOM",
+        {
+          roomId: this.$route.query.roomId,
+        },
+        ({ chatItems, topics, activeUserCount }: any) => {
+          topics.forEach(({ id, state }: any) => {
+            this.topicStates[id] = state
+          })
+          ChatItemStore.addList(chatItems)
+          this.topics = topics
+          this.activeUserCount = activeUserCount
+          this.isRoomStarted = true // TODO: API側の対応が必要
+        },
+      )
+    } else {
+      this.$modal.show("sushi-modal")
+    }
     // SocketIOのコールバックの登録
     socket.on("PUB_CHAT_ITEM", (chatItem: ChatItem) => {
       // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
