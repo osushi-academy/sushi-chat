@@ -23,13 +23,13 @@
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
-import { TopicState } from "@/models/contents"
-import { DownloadIcon, ZapIcon } from "vue-feather-icons"
-import { UserItemStore } from "~/store"
+import Vue, { PropOptions } from 'vue'
+import { TopicState } from '@/models/contents'
+import { DownloadIcon, ZapIcon } from 'vue-feather-icons'
+import { UserItemStore } from '~/store'
 
 export default Vue.extend({
-  name: "TopicHeader",
+  name: 'TopicHeader',
   components: {
     DownloadIcon,
     ZapIcon,
@@ -51,10 +51,10 @@ export default Vue.extend({
   },
   methods: {
     clickTopicActivate() {
-      this.$emit("topic-activate")
+      this.$emit('topic-activate')
     },
     clickDownload() {
-      this.$emit("download")
+      this.$emit('download')
     },
   },
 })

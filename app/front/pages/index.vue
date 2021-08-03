@@ -42,15 +42,15 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import VModal from "vue-js-modal"
-import { Room, ChatItem, Topic, TopicState, Stamp } from "@/models/contents"
-import { AdminBuildRoomResponse } from "@/models/event"
-import ChatRoom from "@/components/ChatRoom.vue"
-import CreateRoomModal from "@/components/CreateRoomModal.vue"
-import SelectIconModal from "@/components/SelectIconModal.vue"
-import socket from "~/utils/socketIO"
-import { ChatItemStore, DeviceStore, UserItemStore } from "~/store"
+import Vue from 'vue'
+import VModal from 'vue-js-modal'
+import { Room, ChatItem, Topic, TopicState, Stamp } from '@/models/contents'
+import { AdminBuildRoomResponse } from '@/models/event'
+import ChatRoom from '@/components/ChatRoom.vue'
+import CreateRoomModal from '@/components/CreateRoomModal.vue'
+import SelectIconModal from '@/components/SelectIconModal.vue'
+import socket from '~/utils/socketIO'
+import { ChatItemStore, DeviceStore, UserItemStore } from '~/store'
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -73,7 +73,7 @@ type DataType = {
 }
 Vue.use(VModal)
 export default Vue.extend({
-  name: "Index",
+  name: 'Index',
   components: {
     ChatRoom,
     SelectIconModal,
@@ -82,7 +82,7 @@ export default Vue.extend({
   data(): DataType {
     return {
       // 管理画面
-      hamburgerMenu: "menu",
+      hamburgerMenu: 'menu',
       isDrawer: false,
       // ルーム情報
       topics: [],
@@ -92,17 +92,17 @@ export default Vue.extend({
       isRoomStarted: false,
       // ユーザー関連
       icons: [
-        { url: require("@/assets/img/sushi_akami.png") },
-        { url: require("@/assets/img/sushi_ebi.png") },
-        { url: require("@/assets/img/sushi_harasu.png") },
-        { url: require("@/assets/img/sushi_ikura.png") },
-        { url: require("@/assets/img/sushi_iwashi.png") },
-        { url: require("@/assets/img/sushi_kai_hokkigai.png") },
-        { url: require("@/assets/img/sushi_salmon.png") },
-        { url: require("@/assets/img/sushi_shirasu.png") },
-        { url: require("@/assets/img/sushi_tai.png") },
-        { url: require("@/assets/img/sushi_uni.png") },
-        { url: require("@/assets/img/sushi_syari.png") },
+        { url: require('@/assets/img/sushi_akami.png') },
+        { url: require('@/assets/img/sushi_ebi.png') },
+        { url: require('@/assets/img/sushi_harasu.png') },
+        { url: require('@/assets/img/sushi_ikura.png') },
+        { url: require('@/assets/img/sushi_iwashi.png') },
+        { url: require('@/assets/img/sushi_kai_hokkigai.png') },
+        { url: require('@/assets/img/sushi_salmon.png') },
+        { url: require('@/assets/img/sushi_shirasu.png') },
+        { url: require('@/assets/img/sushi_tai.png') },
+        { url: require('@/assets/img/sushi_uni.png') },
+        { url: require('@/assets/img/sushi_syari.png') },
       ],
     }
   },
@@ -117,7 +117,7 @@ export default Vue.extend({
     },
   },
   created(): any {
-    if (this.$route.query.user === "admin") {
+    if (this.$route.query.user === 'admin') {
       UserItemStore.changeIsAdmin(true)
     }
   },
@@ -128,7 +128,7 @@ export default Vue.extend({
     ;(this as any).socket = socket
     if (this.isAdmin && this.$route.query.roomId != null) {
       socket.emit(
-        "ADMIN_ENTER_ROOM",
+        'ADMIN_ENTER_ROOM',
         {
           roomId: this.$route.query.roomId,
         },
@@ -143,27 +143,27 @@ export default Vue.extend({
         },
       )
     } else {
-      this.$modal.show("sushi-modal")
+      this.$modal.show('sushi-modal')
     }
     // SocketIOのコールバックの登録
-    socket.on("PUB_CHAT_ITEM", (chatItem: ChatItem) => {
+    socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
       // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
       ChatItemStore.addOrUpdate(chatItem)
     })
-    socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
-      if (res.type === "OPEN") {
+    socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
+      if (res.type === 'OPEN') {
         // 現在activeなトピックがあればfinishedにする
         this.topicStates = Object.fromEntries(
           Object.entries(this.topicStates).map(([topicId, topicState]) => [
             topicId,
-            topicState === "active" ? "finished" : topicState,
-          ]),
+            topicState === 'active' ? 'finished' : topicState,
+          ])
         )
-        this.topicStates[res.topicId] = "active"
-      } else if (res.type === "PAUSE") {
-        this.topicStates[res.topicId] = "paused"
-      } else if (res.type === "CLOSE") {
-        this.topicStates[res.topicId] = "finished"
+        this.topicStates[res.topicId] = 'active'
+      } else if (res.type === 'PAUSE') {
+        this.topicStates[res.topicId] = 'paused'
+      } else if (res.type === 'CLOSE') {
+        this.topicStates[res.topicId] = 'finished'
       }
     })
     DeviceStore.determineOs()
@@ -173,36 +173,36 @@ export default Vue.extend({
     clickDrawerMenu() {
       this.isDrawer = !this.isDrawer
       if (this.isDrawer) {
-        this.hamburgerMenu = "close"
+        this.hamburgerMenu = 'close'
       } else {
-        this.hamburgerMenu = "menu"
+        this.hamburgerMenu = 'menu'
       }
     },
     changeTopicState(topicId: string, state: TopicState) {
-      if (state === "not-started") {
+      if (state === 'not-started') {
         return
       }
       this.topicStates[topicId] = state
       const socket = (this as any).socket
-      socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
+      socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
         roomId: this.room.id,
         type:
-          state === "active" ? "OPEN" : state === "paused" ? "PAUSE" : "CLOSE",
+          state === 'active' ? 'OPEN' : state === 'paused' ? 'PAUSE' : 'CLOSE',
         topicId,
       })
     },
     // ルーム情報
     // topic反映
-    startChat(room: Room, topicsAdmin: Omit<Topic, "id">[]) {
+    startChat(room: Room, topicsAdmin: Omit<Topic, 'id'>[]) {
       this.room = room
-      let alertmessage: string = ""
+      let alertmessage = ''
       // ルーム名絶対入れないとだめ
-      if (this.room.title === "") {
-        alertmessage = "ルーム名を入力してください\n"
+      if (this.room.title === '') {
+        alertmessage = 'ルーム名を入力してください\n'
       }
 
       // 仮topicから空でないものをtopicsに
-      const topics: Omit<Topic, "id">[] = []
+      const topics: Omit<Topic, 'id'>[] = []
       for (const t in topicsAdmin) {
         if (topicsAdmin[t].title) {
           topics.push(topicsAdmin[t])
@@ -212,11 +212,11 @@ export default Vue.extend({
 
       // トピック0はだめ
       if (topics.length === 0) {
-        alertmessage += "トピック名を入力してください\n"
+        alertmessage += 'トピック名を入力してください\n'
       }
 
       // ルーム名かトピック名が空ならアラート出して終了
-      if (alertmessage !== "") {
+      if (alertmessage !== '') {
         alert(alertmessage)
         return
       }
@@ -224,7 +224,7 @@ export default Vue.extend({
       // ルームを作成
       const socket = (this as any).socket
       socket.emit(
-        "ADMIN_BUILD_ROOM",
+        'ADMIN_BUILD_ROOM',
         {
           title: this.room.title,
           topics,
@@ -237,7 +237,7 @@ export default Vue.extend({
             query: { ...this.$router.currentRoute.query, roomId: room.id },
           })
           socket.emit(
-            "ADMIN_ENTER_ROOM",
+            'ADMIN_ENTER_ROOM',
             {
               roomId: room.id,
             },
@@ -248,35 +248,35 @@ export default Vue.extend({
               ChatItemStore.addList(chatItems)
               this.topics = topics
               this.activeUserCount = activeUserCount
-            },
+            }
           )
-        },
+        }
       )
 
       // ルーム開始
-      this.$modal.hide("sushi-modal")
+      this.$modal.hide('sushi-modal')
     },
 
     startRoom() {
       const socket = (this as any).socket
-      socket.emit("ADMIN_START_ROOM", { roomId: this.room.id })
+      socket.emit('ADMIN_START_ROOM', { roomId: this.room.id })
       this.isRoomStarted = true
     },
 
     // アクティブトピックが変わる
     changeActiveTopic(topicId: string) {
       const socket = (this as any).socket
-      socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
+      socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
         roomId: this.room.id,
         topicId,
-        type: "OPEN",
+        type: 'OPEN',
       })
     },
 
     // ユーザ関連
     // modalを消し、topic作成
     hide(): any {
-      this.$modal.hide("sushi-modal")
+      this.$modal.hide('sushi-modal')
       this.enterRoom(UserItemStore.userItems.myIconId + 1)
     },
     // ルーム入室
@@ -285,7 +285,7 @@ export default Vue.extend({
 
       const roomId = this.$route.query.roomId as string
       socket.emit(
-        "ENTER_ROOM",
+        'ENTER_ROOM',
         {
           iconId,
           roomId,
@@ -297,7 +297,7 @@ export default Vue.extend({
           res.topics.forEach((topic: any) => {
             this.topicStates[topic.id] = topic.state
           })
-        },
+        }
       )
     },
     // アイコン選択
@@ -307,19 +307,19 @@ export default Vue.extend({
 
     sendFavorite(topicId: string) {
       const socket = (this as any).socket
-      socket.emit("POST_STAMP", { topicId })
+      socket.emit('POST_STAMP', { topicId })
     },
     // スタンプが通知された時に実行されるコールバックの登録
     // NOTE: スタンプ周りのUI表示が複雑なため、少しややこしい実装を採用しています。
     favoriteCallbackRegister(
       topicId: string,
-      callback: (count: number) => void,
+      callback: (count: number) => void
     ) {
       const socket = (this as any).socket
-      socket.on("PUB_STAMP", (stamps: Stamp[]) => {
+      socket.on('PUB_STAMP', (stamps: Stamp[]) => {
         const stampsAboutTopicId = stamps.filter(
           // スタンプは自分が押したものも通知されるため省く処理を入れています
-          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id,
+          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id
         )
         if (stampsAboutTopicId.length > 0) {
           callback(stampsAboutTopicId.length)
@@ -332,18 +332,18 @@ export default Vue.extend({
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TOPICS = [
   {
-    id: "1",
-    title: "TITLE 0",
+    id: '1',
+    title: 'TITLE 0',
     urls: {},
   },
   {
-    id: "2",
-    title: "TITLE 0",
+    id: '2',
+    title: 'TITLE 0',
     urls: {},
   },
   {
-    id: "3",
-    title: "TITLE 0",
+    id: '3',
+    title: 'TITLE 0',
     urls: {},
   },
 ]
@@ -352,77 +352,77 @@ const TOPICS = [
 const CHAT_DUMMY_DATA: ChatItem[] = [
   {
     timestamp: 60,
-    iconId: "2",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    id: "001",
-    topicId: "1",
-    type: "message",
-    content: "コメント",
+    iconId: '2',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
+    id: '001',
+    topicId: '1',
+    type: 'message',
+    content: 'コメント',
     target: null,
   },
   {
     timestamp: 0,
-    iconId: "3",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
+    iconId: '3',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
     target: {
-      id: "001",
-      topicId: "0",
-      type: "message",
-      iconId: "2",
+      id: '001',
+      topicId: '0',
+      type: 'message',
+      iconId: '2',
       timestamp: 0,
-      createdAt: new Date("2021-05-08T00:00:00.000Z"),
-      content: "コメント",
+      createdAt: new Date('2021-05-08T00:00:00.000Z'),
+      content: 'コメント',
       target: null,
     },
-    id: "002",
-    topicId: "1",
-    type: "reaction",
+    id: '002',
+    topicId: '1',
+    type: 'reaction',
   },
   {
     timestamp: 0,
-    iconId: "2",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    id: "003",
-    topicId: "1",
-    type: "question",
-    content: "質問",
+    iconId: '2',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
+    id: '003',
+    topicId: '1',
+    type: 'question',
+    content: '質問',
   },
   {
     timestamp: 0,
-    iconId: "3",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    id: "004",
-    topicId: "1",
-    type: "answer",
-    content: "回答",
+    iconId: '3',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
+    id: '004',
+    topicId: '1',
+    type: 'answer',
+    content: '回答',
     target: {
-      id: "003",
-      topicId: "0",
-      type: "question",
-      iconId: "2",
+      id: '003',
+      topicId: '0',
+      type: 'question',
+      iconId: '2',
       timestamp: 0,
-      createdAt: new Date("2021-05-08T00:00:00.000Z"),
-      content: "質問",
+      createdAt: new Date('2021-05-08T00:00:00.000Z'),
+      content: '質問',
     },
   },
   {
     timestamp: 0,
-    iconId: "4",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
+    iconId: '4',
+    createdAt: new Date('2021-05-08T00:00:00.000Z'),
     target: {
-      id: "001",
-      topicId: "0",
-      type: "message",
-      iconId: "2",
+      id: '001',
+      topicId: '0',
+      type: 'message',
+      iconId: '2',
       timestamp: 0,
-      createdAt: new Date("2021-05-08T00:00:00.000Z"),
-      content: "コメント",
+      createdAt: new Date('2021-05-08T00:00:00.000Z'),
+      content: 'コメント',
       target: null,
     },
-    id: "005",
-    topicId: "1",
-    type: "message",
-    content: "リプライ",
+    id: '005',
+    topicId: '1',
+    type: 'message',
+    content: 'リプライ',
   },
 ]
 </script>
