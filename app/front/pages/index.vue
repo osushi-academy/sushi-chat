@@ -195,7 +195,7 @@ export default Vue.extend({
     // topic反映
     startChat(room: Room, topicsAdmin: Omit<Topic, "id">[]) {
       this.room = room
-      let alertmessage = ""
+      let alertmessage: string = ""
       // ルーム名絶対入れないとだめ
       if (this.room.title === "") {
         alertmessage = "ルーム名を入力してください\n"

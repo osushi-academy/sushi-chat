@@ -26,7 +26,7 @@
 import Vue, { PropOptions } from "vue"
 import { TopicState } from "@/models/contents"
 import { DownloadIcon, ZapIcon } from "vue-feather-icons"
-import { UserItemStore } from "@/store"
+import { UserItemStore } from "~/store"
 
 export default Vue.extend({
   name: "TopicHeader",
