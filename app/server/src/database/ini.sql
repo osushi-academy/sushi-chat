@@ -8,7 +8,7 @@ CREATE TABLE Rooms (
 CREATE TABLE Topics (
     id INT NOT NULL,
     roomId UUID NOT NULL REFERENCES Rooms(id),
-    title VARCHAR(20) NOT NULL,
+    title VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
     state INT NOT NULL,
     githubUrl TEXT,
