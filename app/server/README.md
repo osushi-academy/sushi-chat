@@ -5,18 +5,18 @@
 0. サーバーのルートディレクトリに移動
 
    ```
-   cd server
+   cd app/server/
    ```
 
 1. ライブラリのインストール（初回、ライブラリ更新時のみ）
 
    ```
-   npm install
+   yarn
    ```
 
 2. 開発サーバー起動（Hot Reload 有）
    ```
-   npm run dev
+   yarn dev
    ```
 
 ## ビルド
@@ -24,12 +24,12 @@
 1. ビルド
 
    ```
-   npm run build
+   yarn build
    ```
 
 2. ビルドファイルを実行
    ```
-   npm start
+   yarn start
    ```
 
 ## テスト
@@ -37,16 +37,16 @@
 1. 全てのテストを実行する
 
    ```
-   npm run test
+   yarn test
    ```
 
 2. 部分的にテストを実行する
    ```
-   npm run test -- ./path/to/testfile.ts
+   yarn test -- ./path/to/testfile.ts
    ```
    例
    ```
-   npm run test -- ./src/__test__/chat.ts
+   yarn test -- ./src/__test__/chat.ts
    ```
 
 ## デプロイ
