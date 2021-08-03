@@ -1,9 +1,9 @@
-import Vue, { PropOptions } from "vue"
-import { ChartData, ChartOptions } from "chart.js"
-import { Line, mixins } from "vue-chartjs"
+import Vue, { PropOptions } from 'vue'
+import { ChartData, ChartOptions } from 'chart.js'
+import { Line, mixins } from 'vue-chartjs'
 
 export default Vue.extend({
-  name: "ChartLine",
+  name: 'ChartLine',
   mixins: [Line, mixins.reactiveProp],
   props: {
     chartData: {

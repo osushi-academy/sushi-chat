@@ -1,4 +1,4 @@
-const SUSHI_CHAT_SELECTED_ICON_KEY = "SUSHI_CHAT_SELECTED_ICON_KEY"
+const SUSHI_CHAT_SELECTED_ICON_KEY = 'SUSHI_CHAT_SELECTED_ICON_KEY'
 
 export const getSelectedIconFromJSON = () => {
   const iconIdOrNull = localStorage.getItem(SUSHI_CHAT_SELECTED_ICON_KEY)

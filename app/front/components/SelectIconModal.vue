@@ -33,12 +33,12 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
-import { IconsPropType } from "@/models/contents"
-import { UserItemStore } from "~/store"
+import Vue, { PropOptions } from 'vue'
+import { IconsPropType } from '@/models/contents'
+import { UserItemStore } from '~/store'
 
 export default Vue.extend({
-  name: "SelectIconModal",
+  name: 'SelectIconModal',
   props: {
     icons: {
       type: Array,
@@ -52,10 +52,10 @@ export default Vue.extend({
   },
   methods: {
     selectIcon(index: number) {
-      this.$emit("click-icon", index)
+      this.$emit('click-icon', index)
     },
     hideModal() {
-      this.$emit("hide-modal")
+      this.$emit('hide-modal')
     },
   },
 })

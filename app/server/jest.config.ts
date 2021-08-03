@@ -117,7 +117,9 @@ export default {
   // rootDir: undefined,
 
   // A list of paths to directories that Jest should use to search for files in
-  roots: ["<rootDir>/src"],
+  "roots": [
+    "<rootDir>/src"
+  ],
 
   // Allows you to use a custom runner instead of Jest's default test runner
   // runner: "jest-runner",
@@ -146,11 +148,13 @@ export default {
   // The glob patterns Jest uses to detect test files
   testMatch: [
     "<rootDir>/src/__test__/**/*.(js|ts)",
-    "**/?(*.)+(spec|test).[tj]s",
+    "**/?(*.)+(spec|test).[tj]s"
   ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: ["/node_modules/"],
+  testPathIgnorePatterns: [
+    "/node_modules/"
+  ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],
@@ -169,11 +173,13 @@ export default {
 
   // A map from regular expressions to paths to transformers
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest",
+    "^.+\\.(ts|tsx)$": "ts-jest"
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  transformIgnorePatterns: ["/node_modules/"],
+  transformIgnorePatterns: [
+    "/node_modules/"
+  ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,
@@ -186,4 +192,4 @@ export default {
 
   // Whether to use watchman for file crawling
   // watchman: true,
-}
+};

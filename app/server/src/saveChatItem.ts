@@ -1,29 +1,29 @@
-import { Client } from "pg"
+import { Client } from "pg";
 import {
   AnswerStore,
   ChatItemStore,
   MessageStore,
   QuestionStore,
   ReactionStore,
-} from "./chatItem"
-import { insertChatItems } from "./database/database"
+} from "./chatItem";
+import { insertChatItems } from "./database/database";
 
 class SaveChatItemClass {
   public static chatItemQueue: {
-    messagesQueue: (MessageStore & { roomId: string })[]
-    reactionsQueue: (ReactionStore & { roomId: string })[]
-    questionsQueue: (QuestionStore & { roomId: string })[]
-    answersQueue: (AnswerStore & { roomId: string })[]
+    messagesQueue: (MessageStore & { roomId: string })[];
+    reactionsQueue: (ReactionStore & { roomId: string })[];
+    questionsQueue: (QuestionStore & { roomId: string })[];
+    answersQueue: (AnswerStore & { roomId: string })[];
   } = {
     messagesQueue: [],
     reactionsQueue: [],
     questionsQueue: [],
     answersQueue: [],
-  }
-  public static client: Client
+  };
+  public static client: Client;
 
   constructor(client: Client) {
-    SaveChatItemClass.client = client
+    SaveChatItemClass.client = client;
   }
 
   public static pushQueue(chatItemStore: ChatItemStore, roomId: string) {
@@ -32,28 +32,28 @@ class SaveChatItemClass {
         SaveChatItemClass.chatItemQueue.messagesQueue.push({
           ...chatItemStore,
           roomId,
-        })
-        break
+        });
+        break;
       case "reaction":
         SaveChatItemClass.chatItemQueue.reactionsQueue.push({
           ...chatItemStore,
           roomId,
-        })
-        break
+        });
+        break;
       case "question":
         SaveChatItemClass.chatItemQueue.questionsQueue.push({
           ...chatItemStore,
           roomId,
-        })
-        break
+        });
+        break;
       case "answer":
         SaveChatItemClass.chatItemQueue.answersQueue.push({
           ...chatItemStore,
           roomId,
-        })
-        break
+        });
+        break;
       default:
-        break
+        break;
     }
   }
 
@@ -63,19 +63,19 @@ class SaveChatItemClass {
       SaveChatItemClass.chatItemQueue.messagesQueue,
       SaveChatItemClass.chatItemQueue.reactionsQueue,
       SaveChatItemClass.chatItemQueue.questionsQueue,
-      SaveChatItemClass.chatItemQueue.answersQueue,
-    )
-    SaveChatItemClass.chatItemQueue.messagesQueue = []
-    SaveChatItemClass.chatItemQueue.reactionsQueue = []
-    SaveChatItemClass.chatItemQueue.questionsQueue = []
-    SaveChatItemClass.chatItemQueue.answersQueue = []
+      SaveChatItemClass.chatItemQueue.answersQueue
+    );
+    SaveChatItemClass.chatItemQueue.messagesQueue = [];
+    SaveChatItemClass.chatItemQueue.reactionsQueue = [];
+    SaveChatItemClass.chatItemQueue.questionsQueue = [];
+    SaveChatItemClass.chatItemQueue.answersQueue = [];
   }
 
   public static chatItemIntervalSaver(): NodeJS.Timeout {
     return setInterval(() => {
-      this.saveChatItem()
-    }, 60000)
+      this.saveChatItem();
+    }, 60000);
   }
 }
 
-export default SaveChatItemClass
+export default SaveChatItemClass;

@@ -4,4 +4,4 @@
  * @param count 要素の数
  * @returns 配列
  */
-export const ArrayRange = (count: number) => [...Array(count)].map((_, i) => i)
+export const ArrayRange = (count: number) =>  [...Array(count)].map((_, i) => i)

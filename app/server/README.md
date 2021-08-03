@@ -1,7 +1,5 @@
 # サーバー
-
 ## 起動方法
-
 0. サーバーのルートディレクトリに移動
 
    ```
@@ -20,9 +18,7 @@
    ```
 
 ## ビルド
-
 1. ビルド
-
    ```
    yarn build
    ```
@@ -33,7 +29,6 @@
    ```
 
 ## テスト
-
 1. 全てのテストを実行する
 
    ```
@@ -56,7 +51,6 @@ main に pull-request すれば以下にデプロイされるはず
 <https://sushi-chat-server.herokuapp.com>
 
 手動のデプロイは一番上のディレクトリで
-
 ```
 git subtree --prefix server push heroku main
 ```

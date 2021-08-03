@@ -1,7 +1,7 @@
 const waitedLoop = (
   milliseconds: number,
   maxCount: number,
-  callback: () => void | boolean | Promise<void | boolean>,
+  callback: () => void | boolean | Promise<void | boolean>
 ) => {
   let count = 0
   const handler = async () => {
@@ -22,7 +22,7 @@ export const randomWaitedLoog = (
   milliseconds: number,
   maxDelay: number,
   maxCount: number,
-  callback: () => void | boolean,
+  callback: () => void | boolean
 ) =>
   waitedLoop(
     milliseconds,
@@ -31,6 +31,6 @@ export const randomWaitedLoog = (
       new Promise((resolve) =>
         setTimeout(() => {
           resolve(callback())
-        }, Math.random() * 2 * maxDelay - maxDelay),
-      ),
+        }, Math.random() * 2 * maxDelay - maxDelay)
+      )
   )

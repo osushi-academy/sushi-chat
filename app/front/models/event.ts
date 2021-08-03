@@ -1,15 +1,15 @@
-import { ChatItem, Room, Topic, TopicState } from "./contents"
+import { ChatItem, Room, Topic, TopicState } from './contents'
 
 /**
  * WebSocketのイベント名
  */
 export type EventType =
-  | "POST_CHAT_ITEM"
-  | "PUB_CHAT_ITEM"
-  | "START_EDIT"
-  | "END_EDIT"
-  | "ENTER_ROOM"
-  | "BUILD_ROOM"
+  | 'POST_CHAT_ITEM'
+  | 'PUB_CHAT_ITEM'
+  | 'START_EDIT'
+  | 'END_EDIT'
+  | 'ENTER_ROOM'
+  | 'BUILD_ROOM'
 
 /**
  * ルームを立てる
@@ -23,27 +23,27 @@ export type AdminBuildRoomResponse = Room
 type PostChatItemParamsBase = {
   id: string
   topicId: string
-  type: "message" | "reaction" | "question" | "answer"
+  type: 'message' | 'reaction' | 'question' | 'answer'
 }
 
 export type PostChatItemMessageParams = PostChatItemParamsBase & {
-  type: "message"
+  type: 'message'
   content: string
   target: string | null
 }
 
 export type PostChatItemReactionParams = PostChatItemParamsBase & {
-  type: "reaction"
+  type: 'reaction'
   reactionToId: string
 }
 
 export type PostChatItemQuestionParams = PostChatItemParamsBase & {
-  type: "question"
+  type: 'question'
   content: string
 }
 
 export type PostChatItemAnswerParams = PostChatItemParamsBase & {
-  type: "answer"
+  type: 'answer'
   content: string
   target: string
 }
@@ -110,15 +110,15 @@ export type BuildRoomParams = {
  * }
  */
 export type EventParams<EventName extends EventType> =
-  EventName extends "POST_CHAT_ITEM"
+  EventName extends 'POST_CHAT_ITEM'
     ? PostChatItemParams
-    : EventName extends "START_EDIT"
+    : EventName extends 'START_EDIT'
     ? StartEditParams
-    : EventName extends "END_EDIT"
+    : EventName extends 'END_EDIT'
     ? EndEditParams
-    : EventName extends "ENTER_ROOM"
+    : EventName extends 'ENTER_ROOM'
     ? EnterRoomParams
-    : EventName extends "BUILD_ROOM"
+    : EventName extends 'BUILD_ROOM'
     ? BuildRoomParams
     : never
 
@@ -131,4 +131,4 @@ export type EventParams<EventName extends EventType> =
  * }
  */
 export type EventResponse<EventName extends EventType> =
-  EventName extends "ENTER_ROOM" ? EnterRoomResponse : void
+  EventName extends 'ENTER_ROOM' ? EnterRoomResponse : void

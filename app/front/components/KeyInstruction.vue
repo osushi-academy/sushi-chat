@@ -8,11 +8,11 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import { DeviceStore } from "~/store"
+import Vue from 'vue'
+import { DeviceStore } from '~/store'
 
 export default Vue.extend({
-  name: "KeyInstruction",
+  name: 'KeyInstruction',
   computed: {
     device() {
       return DeviceStore.device

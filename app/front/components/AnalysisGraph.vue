@@ -10,11 +10,11 @@
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
-import { Topic } from "@/models/contents"
-import { ChartData, ChartOptions } from "chart.js"
-import ChartLine from "~/utils/ChartLine"
-import { ChatItemStore } from "~/store"
+import Vue, { PropOptions } from 'vue'
+import { Topic } from '@/models/contents'
+import { ChartData, ChartOptions } from 'chart.js'
+import ChartLine from '~/utils/ChartLine'
+import { ChatItemStore } from '~/store'
 
 // Data型
 type DataType = {
@@ -29,7 +29,7 @@ type ChatDataPropType = {
 }
 
 export default Vue.extend({
-  name: "ChatRoom",
+  name: 'ChatRoom',
   components: {
     ChartLine,
   },
@@ -49,14 +49,14 @@ export default Vue.extend({
       chartOption: {
         title: {
           display: true,
-          text: this.chatData.topic.title + "の盛り上がり度",
+          text: this.chatData.topic.title + 'の盛り上がり度',
         },
         scales: {
           xAxes: [
             {
               scaleLabel: {
                 display: true, // ラベルの表示・非表示
-                labelString: "時間(/10秒)",
+                labelString: '時間(/10秒)',
               },
             },
           ],
@@ -72,10 +72,10 @@ export default Vue.extend({
       },
       // チャートのスタイル: <canvas>のstyle属性として設定
       chartStyles: {
-        height: "auto",
-        width: "100%",
+        height: 'auto',
+        width: '100%',
       },
-      icon: require("@/assets/img/tea.png"),
+      icon: require('@/assets/img/tea.png'),
     }
   },
   // グラフの描画: 10秒ごとに分けて値をカウント→値を描画する。
@@ -100,12 +100,12 @@ export default Vue.extend({
     // 運営を弾いたコメント数といいね数のデータを埋める
     fillData() {
       const commentStamp: Array<number> = ChatItemStore.chatItems
-        .filter(({ iconId }) => iconId !== "0")
+        .filter(({ iconId }) => iconId !== '0')
         .map((message) => Math.floor(message.timestamp / 10000))
       const maxStamp: number = Math.max(...commentStamp)
       const commentNum: { [key: number]: number } = this.toCountStamp(
         commentStamp,
-        maxStamp,
+        maxStamp
       )
       this.chartData = {
         labels: Object.keys(commentNum),
@@ -113,12 +113,12 @@ export default Vue.extend({
         datasets: [
           {
             // データのラベル
-            label: "コメント",
+            label: 'コメント',
             // データの値。labelsと同じサイズ
             // @ts-ignore
             data: Object.values(commentNum),
-            borderColor: "rgba(0, 0, 255, 0.3)",
-            backgroundColor: "rgba(0, 0, 255, 0.3)",
+            borderColor: 'rgba(0, 0, 255, 0.3)',
+            backgroundColor: 'rgba(0, 0, 255, 0.3)',
           },
           // {
           //   label: 'いいね',
