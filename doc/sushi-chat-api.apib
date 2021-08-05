@@ -1,6 +1,17 @@
 FORMAT: 1A
 HOST: http://localhost/api
 
+# sushi-chat API
+sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
+
+対応表
+- POST：restのPOSTと同様に、CLIENTからSERVERに何かを送る方向のイベント
+- GET：POSTとは逆に、SERVERからCLIENTに何かを送る方向のイベント
+- response 200：Socket.IOのレスポンスに読み替えてください。正常系（成功）です。
+- response 400：Socket.IOのレスポンスに読み替えてください。異常系（失敗）です。
+- responseが空の場合、特に失敗を通知する必要がないと判断したものは空にしています（サーバからフロントにイベントを送る場合など）
+
+
 # Data Structures
 ## Topic (object)
 + id: 1 (number, required) - トピックID
@@ -41,11 +52,8 @@ HOST: http://localhost/api
 + topic_id: 1 (number, required) - トピックID
 + timestamp: 3000 (number, required) - タイムスタンプ（active時以外に投稿されたものはnull）
 
-# sushi-chat API
-
-# Group Auth
-
-## ログイン [POST /login]
+## Group Auth
+### ログイン [POST /login]
 + Request
     + Headers
         ```
@@ -55,10 +63,10 @@ HOST: http://localhost/api
     + Attributes
         + result: `success` (string) - ログイン成功
 
-# Group Room
+## Group Room
 
-## ルーム [/room]
-### ルーム一覧 [GET]
+### ルーム [/room]
+#### ルーム一覧 [GET]
 **管理者** 自分が管理者or共同管理者になっているルームの一覧を取得する（マイページ）
 + Request
     + Headers
@@ -69,7 +77,7 @@ HOST: http://localhost/api
     + Attributes
         + data (array[Room], fixed-type)
 
-### ルーム作成 [POST]
+#### ルーム作成 [POST]
 **管理者** ルームを新たに作成する（マイページ）
 + Request (application/json)
     + Headers
@@ -84,7 +92,7 @@ HOST: http://localhost/api
 + Response 200 (application/json)
     + Attributes (Room)
 
-### ルーム詳細 [GET /room/{id}]
+#### ルーム詳細 [GET /room/{id}]
 **管理者・一般ユーザ** ルーム情報を取得する（チャットページ）
 
 *※管理者がAPIを叩いた場合のみ、admin_invite_keyが含まれる*
@@ -94,7 +102,7 @@ HOST: http://localhost/api
 + Response 200
     + Attributes (Room)
 
-### チャット履歴 [GET /room/{id}/history]
+#### チャット履歴 [GET /room/{id}/history]
 **管理者・一般ユーザ** アクセスしたルームが既にclosedだった場合にルームのチャット履歴とスタンプ履歴を取得する（マイページ）
 + Parameters
     + id: 1 (number, required)
@@ -103,7 +111,7 @@ HOST: http://localhost/api
         + chat_items (array[ChatItem])
         + stamps (array[Stamp])
 
-### 公開停止 [POST /room/{id}/archive]
+#### 公開停止 [POST /room/{id}/archive]
 **管理者** ルームの公開を停止する（これ以降はURLにアクセスしても履歴が見れなくなる）
 + Parameters
     + id: 1 (number, required)
@@ -116,7 +124,7 @@ HOST: http://localhost/api
     + Attributes
         + result: `success` (string, required)
 
-### 招待を受ける（管理者） [POST /room/{id}/invited{?admin_invite_key}]
+#### 招待を受ける（管理者） [POST /room/{id}/invited{?admin_invite_key}]
 **管理者** 招待URLにアクセスしてきた新たな共同管理者が叩くAPI。APIを叩いたユーザと管理者を紐付ける
 + Parameters
     + id: 1 (number, required)
@@ -130,18 +138,18 @@ HOST: http://localhost/api
     + Attributes
         + result: `success` (string, required)
 
-# Group Socket: Enter Room
+## Group Socket: Enter Room
 
-## ルーム入室（CLIENT → SERVER） [POST /ENTER_ROOM]
+### ルーム入室（CLIENT → SERVER） [POST /ENTER_ROOM]
 **管理者・一般ユーザ** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
 
 *※ 管理者の場合はiconIdを指定しない*
 
 + Request
     + Attributes
-        + roomId: `{roomId}` (number, required) - ルームID
-        + iconId: `{iconId}` (number, optional) - アイコンID
-        + speakerTopicId: `{topicId}` (number, required) - トピックID
+        + roomId: `1` (number, required) - ルームID
+        + iconId: `1` (number, optional) - アイコンID
+        + speakerTopicId: `1` (number, required) - トピックID
 + Response 200
     + Attributes
         + chatItems (array[ChatItem])
@@ -152,47 +160,50 @@ HOST: http://localhost/api
     + Attributes
         + result: `failure` (string) - 失敗
 
-## アクティブユーザ数の変化（SERVER → CLIENT） [GET /ENTER_ROOM]
+### アクティブユーザ数の変化（SERVER → CLIENT） [GET /PUB_USER_COUNT]
 **管理者・一般ユーザ** アクティブユーザ数が変化した場合に、それを通知する
 + Request
     + Attributes
         + activeUserCount: 1 (number, required) - アクティブユーザ数
++ Response 200
 
-# Group Socket: Manage Topic
-## トピックの状態を変更する（CLIENT → SERVER） [POST /ADMIN_CHANGE_TOPIC_STATE]
+## Group Socket: Manage Topic
+### トピックの状態を変更する（CLIENT → SERVER） [POST /ADMIN_CHANGE_TOPIC_STATE]
 **管理者** トピックの状態を変更する
 + Request
     + Attributes
-        + roomId: `{roomId}` (number, required) - ルームID
-        + topicId: `{topicId}` (number, required) - トピックID
+        + roomId: `1` (number, required) - ルームID
+        + topicId: `1` (number, required) - トピックID
         + type: `OPEN` (enum[string], required) - トピックの状態
             + `OPEN`
             + `PAUSE`
             + `CLOSE`
-+ Response
++ Response 200
     + Attributes
         + result: `success` (string, required)
 + Response 400 (application/json)
     + Attributes
         + result: `failure` (string) - ログイン失敗
-## トピックの状態の更新を通知する（SERVER → CLIENT） [GET /PUB_CHANGE_TOPIC_STATE]
+
+### トピックの状態の更新を通知する（SERVER → CLIENT） [GET /PUB_CHANGE_TOPIC_STATE]
 **管理者・一般ユーザ** トピックの状態の更新を通知する
 + Request
     + Attributes
-        + topicId: `{topicId}` (number, required) - トピックID
+        + topicId: `1` (number, required) - トピックID
         + type: `OPEN` (enum[string], required) - トピックの状態
             + `OPEN`
             + `PAUSE`
             + `CLOSE`
++ Response 200
 
-# Group Socket: Post ChatItem
-## 投稿する（CLIENT → SERVER） [POST /POST_CHAT_ITEM]
+## Group Socket: Post ChatItem
+### 投稿する（CLIENT → SERVER） [POST /POST_CHAT_ITEM]
 **管理者・一般ユーザ** チャットアイテムを投稿する
 + Request
     + Attributes
         + id: `{id}` (string, required) - フロントで生成したアイテムID
-        + roomId: `{roomId}` (number, required) - ルームID
-        + topicId: `{topicId}` (number, required) - トピックID
+        + roomId: `1` (number, required) - ルームID
+        + topicId: `1` (number, required) - トピックID
         + type: `message` (enum[string], required) - ChatItemタイプ
             + `message`
             + `reaction`
@@ -207,26 +218,35 @@ HOST: http://localhost/api
 + Response 400 (application/json)
     + Attributes
         + result: `failure` (string) - ログイン失敗
-## 投稿を配信する（SERVER → CLIENT） [GET /PUB_CHAT_ITEM]
+### 投稿を配信する（SERVER → CLIENT） [GET /PUB_CHAT_ITEM]
 **管理者・一般ユーザ** チャットアイテムを配信する
 + Request
     + Attributes (ChatItem)
++ Response 200
 
-# Group Socket: Post Stamp
-## スタンプを投稿する（CLIENT → SERVER） [POST /POST_STAMP]
+## Group Socket: Post Stamp
+### スタンプを投稿する（CLIENT → SERVER） [POST /POST_STAMP]
 **管理者・一般ユーザ** スタンプを投稿する
 + Request
     + Attributes
-        + roomId: `{roomId}` (number, required) - ルームID
-        + topicId: `{topicId}` (number, required) - トピックID
-## スタンプを配信する（SERVER → CLIENT） [GET /PUB_STAMP]
+        + roomId: `1` (number, required) - ルームID
+        + topicId: `1` (number, required) - トピックID
++ Response 200
+### スタンプを配信する（SERVER → CLIENT） [GET /PUB_STAMP]
 **管理者・一般ユーザ** スタンプを配信する
 + Request
     + Attributes
-        + topicId: `{topicId}` (number, required) - トピックID
-# Group Socket: Finish Room
-## ルームを閉じる（CLIENT → SERVER） [POST /ADMIN_FINISH_ROOM]
+        + topicId: `1` (number, required) - トピックID
++ Response 200
+## Group Socket: Finish Room
+### ルームを閉じる（CLIENT → SERVER） [POST /ADMIN_FINISH_ROOM]
 **管理者** ルームを閉じる。これ以降はコメントやスタンプが投稿できなくなる。
 + Request
     + Attributes
-        + roomId: `{roomId}` (number, required) - ルームID
+        + roomId: `1` (number, required) - ルームID
++ Response 200
+    + Attributes
+        + result: `success` (string, required)
++ Response 400
+    + Attributes
+        + result: `failure` (string, required)
