@@ -33,9 +33,9 @@
   </section>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { TopicPropType } from '@/models/contents'
-import KeyInstruction from '@/components/KeyInstruction.vue'
+import Vue, { PropOptions } from "vue"
+import { TopicPropType } from "@/models/contents"
+import KeyInstruction from "@/components/KeyInstruction.vue"
 
 // Data型
 type DataType = {
@@ -44,7 +44,7 @@ type DataType = {
   maxMessageLength: number
 }
 export default Vue.extend({
-  name: 'TextArea',
+  name: "TextArea",
   components: {
     KeyInstruction,
   },
@@ -61,15 +61,15 @@ export default Vue.extend({
   data(): DataType {
     return {
       isQuestion: false,
-      text: '',
+      text: "",
       maxMessageLength: 300,
     }
   },
   computed: {
     placeholder(): string {
       return this.$props.disabled
-        ? '※ まだコメントはオープンしていません'
-        : 'ここにコメントを入力して盛り上げよう 🎉🎉'
+        ? "※ まだコメントはオープンしていません"
+        : "ここにコメントを入力して盛り上げよう 🎉🎉"
     },
   },
   methods: {
@@ -85,9 +85,9 @@ export default Vue.extend({
       }
 
       // 先頭と末尾の空白、改行を削除しsubmit
-      this.$emit('submit', this.text.trim(), this.isQuestion)
+      this.$emit("submit", this.text.trim(), this.isQuestion)
       // 入力を空に
-      this.text = ''
+      this.text = ""
       // チェックボックスのチェックを外す
       this.isQuestion = false
 
@@ -97,7 +97,7 @@ export default Vue.extend({
         element.scrollTo({
           top: element.scrollHeight,
           left: 0,
-          behavior: 'smooth',
+          behavior: "smooth",
         })
       }
     },

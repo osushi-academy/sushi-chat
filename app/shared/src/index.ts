@@ -1,5 +1,5 @@
-export * from "./types/event";
-export * from "./types/model";
-export * from "./types/userInputActions";
+export * from "./types/event"
+export * from "./types/model"
+export * from "./types/userInputActions"
 
-export const name = "sushi-chat";
+export const name = "sushi-chat"
