@@ -29,10 +29,27 @@ https://user-images.githubusercontent.com/65712721/125596302-f5606786-3974-4ce7-
 - その他：Github Discord Notion GithubActions（自動デプロイ）
 
 ## ローカルでの実行方法
-各種READMEをご覧ください
+### 初回のみ
+ライブラリのインストール
+```
+yarn
+```
+### フロント
+フロントエンドの[README](/app/front/README.md)
+または
+```
+yarn dev:front
+```
+### サーバ
+```
+yarn dev:server
+```
+バックエンドの[README](/server/README.md)
 
-→フロントエンドの[README](/app/front/README.md) / バックエンドの[README](/server/README.md)
-
+### shared
+```
+yarn dev:shared
+```
 
 ## ハッカソン資料
 [ハッカソンプレゼン資料](https://docs.google.com/presentation/d/1A8hxD4WBBODAvX_OhhWMsc2PKykCHYYPn0KdOFvcwsg/edit?usp=sharing)
