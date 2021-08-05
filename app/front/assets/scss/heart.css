@@ -1,0 +1,68 @@
+@charset "UTF-8";
+.heart-button-wraper {
+  position: relative;
+  display: -ms-grid;
+  display: grid;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.heart-button {
+  position: absolute;
+  opacity: 0;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  pointer-events: none;
+  font-size: 30px;
+}
+
+.heart-button-animation {
+  -webkit-animation: heart 1.5s 0.2s 1 ease-out;
+          animation: heart 1.5s 0.2s 1 ease-out;
+}
+
+/* ========= アニメーションの設定 ======== */
+@-webkit-keyframes heart {
+  0% {
+    -webkit-transform: translateX(-50%) translateY(0) scale(1);
+            transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 0;
+    left: 50%;
+    top: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: translateY(-300px) scale(1.6);
+            transform: translateY(-300px) scale(1.6);
+    opacity: 0;
+  }
+}
+@keyframes heart {
+  0% {
+    -webkit-transform: translateX(-50%) translateY(0) scale(1);
+            transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 0;
+    left: 50%;
+    top: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    -webkit-transform: translateY(-300px) scale(1.6);
+            transform: translateY(-300px) scale(1.6);
+    opacity: 0;
+  }
+}
+/*# sourceMappingURL=heart.css.map */

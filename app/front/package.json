@@ -1,14 +1,14 @@
 {
-  "name": "sushi-chat",
+  "name": "sushi-chat-front",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
+    "lint:js": "eslint --ext \".js,.ts,.vue\" --ignore-path .gitignore .",
     "lint": "yarn lint:js",
+    "fix": "prettier --write \"**/*.{js,ts,vue}\" --ignore-path .gitignore .",
     "test": "jest"
   },
   "dependencies": {
@@ -20,6 +20,8 @@
     "nuxt": "^2.15.3",
     "nuxt-webfontloader": "^1.1.0",
     "socket.io-client": "^4.0.1",
+    "sushi-chat-shared": "^1.0.0",
+    "ts-loader": "^8.0.17",
     "vue-chartjs": "^3.5.1",
     "vue-feather-icons": "^5.1.0",
     "vue-js-modal": "^2.0.0-rc.6"
@@ -38,9 +40,7 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
     "eslint": "^7.22.0",
-    "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-nuxt": "^2.0.0",
-    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.7.0",
     "jest": "^26.6.3",
     "node-sass": "^5.0.0",

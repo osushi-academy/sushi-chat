@@ -1,0 +1,130 @@
+@startuml sequence タイトル
+actor "参加者/共同管理者" as part
+actor 管理者 as admin
+participant Vueフロント as front
+participant サーバー as server
+database データベース as db
+participant GooglePlatform as gp
+
+==ログイン==
+admin -> front: サービスにアクセス
+front -> front: ログインページへリダイレクト
+front -> admin: "Googleログイン"を表示
+admin -> gp: Googleログイン
+gp -> front: idトークン付きでリダイレクト
+front -> server ++: idトークンを送る
+server -> gp: idトークンを検証
+gp -> server: 検証結果&ユーザー情報
+server -> db: ユーザーの存在確認
+db -> server: 結果
+alt 未登録ユーザーの場合
+  server -> db: ユーザー情報を登録
+  server -> front: 登録完了
+else 登録済みユーザーの場合
+  server -> front --: ログイン完了
+end
+front -> admin: マイページ画面を表示
+
+note over server, front: ログイン後のREST APIの呼び出しは常にidTokenが付与され、\nサーバーではidTokenの検証が行われる
+newpage
+
+==ルームの準備==
+admin -> front: マイページ画面にアクセス
+front -> admin: マイページ画面を表示
+admin -> front: "ルームを建てる"を選択
+front -> admin: ルーム建て画面を表示
+admin -> front: ルーム名・トピック等入力
+front -> server ++: ルーム名・トピック等を送信
+server -> server: ルームIDを生成
+server -> db: ルーム名・トピック等を保存
+server -> db: ルームIDとユーザを紐付け
+server -> front --: ルームID
+front -> admin: ルーム画面を表示
+
+newpage
+
+== ルームを進行する==
+admin -> front: ルーム画面にアクセス
+front -> server ++: ルーム情報をリクエスト
+server -> db: ルーム情報取得
+db -> server: ルーム情報
+server -> front --: ルーム情報
+alt ルームが進行中の場合
+  front -> admin: ルーム画面を表示
+  front -> server : WebSocket通信開始（idToken）
+  activate front
+  activate server
+  front -> server ++: ENTER_ROOM
+  server -> db: 管理者として登録済みか確認
+  db -> server: 結果
+  server -> db: ルーム状態を"進行中"に変更
+  server -> front --: チャット履歴・トピック情報
+  |||
+  front <-> server: チャット・スタンプの更新など
+  server <-> db: チャット・スタンプ情報の保存
+  |||
+  admin -> front: ルームを閉じる
+  front -> server: ルームを閉じる
+  server -> db: ルーム状態を"終了"に変更
+  server -> front: WebSocketを終了
+  deactivate front
+  deactivate server
+else ルームが開始前or終了後の場合
+  front -> server: チャット履歴・トピック情報をリクエスト
+  server -> front: チャット履歴・トピック情報
+  front -> admin: ルーム画面を表示
+end
+
+newpage
+
+==ルームへの招待を受ける（管理者）==
+admin -> part: URLを共有
+part -> front: adminKey付きURLにアクセス
+front -> server ++: adminKey, roomId
+server -> db: roomIdから正しいadminKeyの取得
+db -> server: adminKey
+server -> server: adminKeyの一致チェック
+server -> db: ルームの管理者としてユーザーを追加
+server -> front --: 完了
+front -> part: ルーム画面へリダイレクト
+
+newpage
+
+==ルームへの招待を受ける（参加者）==
+admin -> part: URLを共有
+part -> front: ルーム画面にアクセス
+
+front -> server ++: ルーム状態をリクエスト
+server -> db: ルーム状態取得
+db -> server: ルーム状態
+server -> front --: ルーム状態
+
+alt ルームが進行中の場合
+  front -> part: アイコン選択画面を表示
+  part -> front: アイコンを入力
+  front -> part: ルーム画面を表示
+  front -> server : WebSocket通信開始
+  activate front
+  activate server
+  front -> server ++: ENTER_ROOM（アイコンidなど）
+  server -> front --: チャット履歴・トピック情報
+  |||
+  front <-> server: チャット・スタンプの更新など
+  server <-> db: チャット・スタンプ情報の保存
+  |||
+  server -> front:  WebSocketを終了
+  deactivate front
+  deactivate server
+else ルームが開始前or終了後の場合
+  front -> server: チャット履歴・トピック情報をリクエスト
+  server -> front: チャット履歴・トピック情報
+  front -> part: ルーム画面を表示
+end
+
+newpage
+
+==ルームを削除する==
+admin -> front: ルームを削除する
+front -> server ++: ルーム削除
+server -> db --: ルーム削除
+@enduml

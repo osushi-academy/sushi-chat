@@ -7,7 +7,9 @@
     "start": "node ./dist/app.js",
     "build": "tsc -p .",
     "dev": "ts-node-dev --transpile-only --rs ./src/app.ts",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint ./src",
+    "fix": "prettier --write \"**/*.{js,ts}\" --ignore-path .gitignore ."
   },
   "author": "Eri-0910",
   "license": "ISC",
@@ -22,6 +24,7 @@
     "socket.io": "^4.0.1",
     "socket.io-client": "^4.0.1",
     "socket.io-mock": "^1.3.1",
+    "sushi-chat-shared": "^1.0.0",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4",
     "uuid": "^8.3.2"

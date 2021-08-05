@@ -140,7 +140,7 @@ export default Vue.extend({
           this.topics = topics
           this.activeUserCount = activeUserCount
           this.isRoomStarted = true // TODO: API側の対応が必要
-        }
+        },
       )
     } else {
       this.$modal.show('sushi-modal')
@@ -195,7 +195,7 @@ export default Vue.extend({
     // topic反映
     startChat(room: Room, topicsAdmin: Omit<Topic, 'id'>[]) {
       this.room = room
-      let alertmessage: string = ''
+      let alertmessage = ''
       // ルーム名絶対入れないとだめ
       if (this.room.title === '') {
         alertmessage = 'ルーム名を入力してください\n'
