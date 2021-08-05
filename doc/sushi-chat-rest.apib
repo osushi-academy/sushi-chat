@@ -1,0 +1,232 @@
+FORMAT: 1A
+HOST: http://localhost/api
+
+# Data Structures
+## Topic (object)
++ id: 1 (number, required) - トピックID
++ order: 0 (number, required) - トピックの順序を表すindex（0始まり）
++ name: `おすしアカデミー` (string, required)
++ description: `説明` (string, optional)
++ url: `https://sushi-chat.example.com` (string, optional)
+
+## Room (object)
++ id: 1 (number, required) - ルームID
++ name: `サマーハッカソン vol5` (string, required) - ルーム名
++ topics(array[Topic], required)
++ type: `not-started` (enum[string], required) - ルーム状態
+    + `not-started`
+    + `ongoing`
+    + `closed`
++ opened_date: `2021-08-04` (string, optional) - ルームオープン日
++ admin_invite_key: `{admin_invite_key}` (string, optional) - 管理者招待キー（管理者がAPIを叩いた場合のみ含まれる）
+
+## ChatItem (object)
++ id: `{id}` (string, required) - フロントで生成したアイテムID
++ topic_id: 1 (number, required) - トピックID
++ created_at: `2021-08-05T03:16:13.501Z` (string, required) - 作成日時
++ type: `message` (enum[string], required) - ChatItemタイプ
+    + `message`
+    + `reaction`
+    + `question`
+    + `answer`
+    + `reply`
+    + `speaker-message`
+    + `admin-message`
+    + `system-message`
++ content: `コンテンツ` (string, optional) - メッセージ内容
++ quote: `質問文またはリプライ先またはいいね先` (string, optional) - 引用先メッセージ
++ timestamp: 3000 (number, optional) - タイムスタンプ（active時以外に投稿されたものはnull）
+
+## Stamp (object)
++ topic_id: 1 (number, required) - トピックID
++ timestamp: 3000 (number, required) - タイムスタンプ（active時以外に投稿されたものはnull）
+
+# sushi-chat API
+
+# Group Auth
+
+## ログイン [POST /login]
++ Request
+    + Headers
+        ```
+        Authorization: Bearer {idtoken}
+        ```
++ Response 200 (application/json)
+    + Attributes
+        + result: `success` (string) - ログイン成功
+
+# Group Room
+
+## ルーム [/room]
+### ルーム一覧 [GET]
+**管理者** 自分が管理者or共同管理者になっているルームの一覧を取得する（マイページ）
++ Request
+    + Headers
+        ```
+        Authorization: Bearer {idtoken}
+        ```
++ Response 200 (application/json)
+    + Attributes
+        + data (array[Room], fixed-type)
+
+### ルーム作成 [POST]
+**管理者** ルームを新たに作成する（マイページ）
++ Request (application/json)
+    + Headers
+        ```
+        Authorization: Bearer {idtoken}
+        ```
+    + Attributes
+        + name: `サマーハッカソン vol5` (string, required) - ルーム名
+        + topics (array[object], required)
+            + (object)
+                + name: `おすしアカデミー` (string, required)
++ Response 200 (application/json)
+    + Attributes (Room)
+
+### ルーム詳細 [GET /room/{id}]
+**管理者・一般ユーザ** ルーム情報を取得する（チャットページ）
+
+*※管理者がAPIを叩いた場合のみ、admin_invite_keyが含まれる*
+
++ Parameters
+    + id: 1 (number, required)
++ Response 200
+    + Attributes (Room)
+
+### チャット履歴 [GET /room/{id}/history]
+**管理者・一般ユーザ** アクセスしたルームが既にclosedだった場合にルームのチャット履歴とスタンプ履歴を取得する（マイページ）
++ Parameters
+    + id: 1 (number, required)
++ Response 200 (application/json)
+    + Attributes
+        + chat_items (array[ChatItem])
+        + stamps (array[Stamp])
+
+### 公開停止 [POST /room/{id}/archive]
+**管理者** ルームの公開を停止する（これ以降はURLにアクセスしても履歴が見れなくなる）
++ Parameters
+    + id: 1 (number, required)
++ Request
+    + Headers
+        ```
+        Authorization: Bearer {idtoken}
+        ```
++ Response 200
+    + Attributes
+        + result: `success` (string, required)
+
+### 招待を受ける（管理者） [POST /room/{id}/invited{?admin_invite_key}]
+**管理者** 招待URLにアクセスしてきた新たな共同管理者が叩くAPI。APIを叩いたユーザと管理者を紐付ける
++ Parameters
+    + id: 1 (number, required)
+    + admin_invite_key: `wau9e31` (string, required) - 管理者招待キー
++ Request
+    + Headers
+        ```
+        Authorization: Bearer {idtoken}
+        ```
++ Response 200 (application/json)
+    + Attributes
+        + result: `success` (string, required)
+
+# Group Socket: Enter Room
+
+## ルーム入室（CLIENT → SERVER） [POST /ENTER_ROOM]
+**管理者・一般ユーザ** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
+
+*※ 管理者の場合はiconIdを指定しない*
+
++ Request
+    + Attributes
+        + roomId: `{roomId}` (number, required) - ルームID
+        + iconId: `{iconId}` (number, optional) - アイコンID
+        + speakerTopicId: `{topicId}` (number, required) - トピックID
++ Response 200
+    + Attributes
+        + chatItems (array[ChatItem])
+        + stamps (array[Stamp])
+        + topics (array[Topic])
+        + activeUserCount: 1 (number, required) - アクティブユーザ数
++ Response 400 (application/json)
+    + Attributes
+        + result: `failure` (string) - 失敗
+
+## アクティブユーザ数の変化（SERVER → CLIENT） [GET /ENTER_ROOM]
+**管理者・一般ユーザ** アクティブユーザ数が変化した場合に、それを通知する
++ Request
+    + Attributes
+        + activeUserCount: 1 (number, required) - アクティブユーザ数
+
+# Group Socket: Manage Topic
+## トピックの状態を変更する（CLIENT → SERVER） [POST /ADMIN_CHANGE_TOPIC_STATE]
+**管理者** トピックの状態を変更する
++ Request
+    + Attributes
+        + roomId: `{roomId}` (number, required) - ルームID
+        + topicId: `{topicId}` (number, required) - トピックID
+        + type: `OPEN` (enum[string], required) - トピックの状態
+            + `OPEN`
+            + `PAUSE`
+            + `CLOSE`
++ Response
+    + Attributes
+        + result: `success` (string, required)
++ Response 400 (application/json)
+    + Attributes
+        + result: `failure` (string) - ログイン失敗
+## トピックの状態の更新を通知する（SERVER → CLIENT） [GET /PUB_CHANGE_TOPIC_STATE]
+**管理者・一般ユーザ** トピックの状態の更新を通知する
++ Request
+    + Attributes
+        + topicId: `{topicId}` (number, required) - トピックID
+        + type: `OPEN` (enum[string], required) - トピックの状態
+            + `OPEN`
+            + `PAUSE`
+            + `CLOSE`
+
+# Group Socket: Post ChatItem
+## 投稿する（CLIENT → SERVER） [POST /POST_CHAT_ITEM]
+**管理者・一般ユーザ** チャットアイテムを投稿する
++ Request
+    + Attributes
+        + id: `{id}` (string, required) - フロントで生成したアイテムID
+        + roomId: `{roomId}` (number, required) - ルームID
+        + topicId: `{topicId}` (number, required) - トピックID
+        + type: `message` (enum[string], required) - ChatItemタイプ
+            + `message`
+            + `reaction`
+            + `question`
+            + `answer`
+            + `reply`
+            + `admin-message`
+        + content: `内容` (string, required) - コメントの内容
++ Response 200 (application/json)
+    + Attributes
+        + result: `success` (string) - ログイン成功
++ Response 400 (application/json)
+    + Attributes
+        + result: `failure` (string) - ログイン失敗
+## 投稿を配信する（SERVER → CLIENT） [GET /PUB_CHAT_ITEM]
+**管理者・一般ユーザ** チャットアイテムを配信する
++ Request
+    + Attributes (ChatItem)
+
+# Group Socket: Post Stamp
+## スタンプを投稿する（CLIENT → SERVER） [POST /POST_STAMP]
+**管理者・一般ユーザ** スタンプを投稿する
++ Request
+    + Attributes
+        + roomId: `{roomId}` (number, required) - ルームID
+        + topicId: `{topicId}` (number, required) - トピックID
+## スタンプを配信する（SERVER → CLIENT） [GET /PUB_STAMP]
+**管理者・一般ユーザ** スタンプを配信する
++ Request
+    + Attributes
+        + topicId: `{topicId}` (number, required) - トピックID
+# Group Socket: Finish Room
+## ルームを閉じる（CLIENT → SERVER） [POST /ADMIN_FINISH_ROOM]
+**管理者** ルームを閉じる。これ以降はコメントやスタンプが投稿できなくなる。
++ Request
+    + Attributes
+        + roomId: `{roomId}` (number, required) - ルームID
