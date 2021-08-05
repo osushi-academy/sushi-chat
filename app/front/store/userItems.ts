@@ -1,4 +1,4 @@
-import { Module, VuexModule, Mutation } from 'vuex-module-decorators'
+import { Module, VuexModule, Mutation } from "vuex-module-decorators"
 
 type UserItem = {
   myIconId: number
@@ -6,7 +6,7 @@ type UserItem = {
 }
 
 @Module({
-  name: 'userItems',
+  name: "userItems",
   stateFactory: true,
   namespaced: true,
 })

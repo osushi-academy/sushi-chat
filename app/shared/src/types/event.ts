@@ -1,5 +1,5 @@
-import { Topic } from "./model";
-import { UserInputAction } from "./userInputActions";
+import { Topic } from "./model"
+import { UserInputAction } from "./userInputActions"
 
 /**
  * WebSocketのイベント名
@@ -10,24 +10,24 @@ export type EventType =
   | "START_EDIT"
   | "END_EDIT"
   | "ENTER_ROOM"
-  | "BUILD_ROOM";
+  | "BUILD_ROOM"
 
 /**
  * POST_CHAT_ITEMイベントを送るときのイベントの中身
  */
 export type PostChatItemParams =
   | {
-      type: "message"; // アイテムタイプ
-      id: string; // フロントで生成したアイテムID
-      topic_id: string; // トピックID
-      content: string; // コメントの中身
+      type: "message" // アイテムタイプ
+      id: string // フロントで生成したアイテムID
+      topic_id: string // トピックID
+      content: string // コメントの中身
     }
   | {
-      type: "reaction"; // アイテムタイプ
-      id: string; // フロントで生成したアイテムID
-      topic_id: string; // トピックID
-      reaction_to_id: string; // リアクションを送るメッセージのID
-    };
+      type: "reaction" // アイテムタイプ
+      id: string // フロントで生成したアイテムID
+      topic_id: string // トピックID
+      reaction_to_id: string // リアクションを送るメッセージのID
+    }
 
 /**
  * PUB_CHAT_ITEMイベントを送るときのイベントの中身
@@ -58,31 +58,31 @@ export type PostChatItemParams =
  * }
  */
 export type PubChatItemParams = {
-  actions: Record<string, UserInputAction[]>;
-};
+  actions: Record<string, UserInputAction[]>
+}
 
 /**
  * START_EDITイベントを送るときのイベントの中身
  */
 export type StartEditParams = {
-  id: string; // フロントで生成したアイテムID
-  topic_id: string; // トピックID
-};
+  id: string // フロントで生成したアイテムID
+  topic_id: string // トピックID
+}
 
 /**
  * END_EDITイベントを送るときのイベントの中身
  */
 export type EndEditParams = {
-  id: string;
-  topic_id: string;
-};
+  id: string
+  topic_id: string
+}
 
 /**
  * ENTER_ROOMイベントを送るときのイベントの中身
  */
 export type EnterRoomParams = {
-  icon_id: string;
-};
+  icon_id: string
+}
 
 /**
  * ENTER_ROOMイベントを送ったときのレスポンスの中身
@@ -118,17 +118,17 @@ export type EnterRoomParams = {
  * }
  */
 export type EnterRoomResponse = {
-  actions: Record<string, UserInputAction>;
-  topics: Topic[];
-};
+  actions: Record<string, UserInputAction>
+  topics: Topic[]
+}
 
 /**
  * BUILD_ROOMイベントを送ったときのレスポンスの中身
  */
 export type BuildRoomParams = {
-  id: string;
-  topics: Topic[];
-};
+  id: string
+  topics: Topic[]
+}
 
 /**
  * イベント名を引数にとって、イベントを送るときの型を返す
@@ -151,7 +151,7 @@ export type EventParams<EventName extends EventType> =
     ? EnterRoomParams
     : EventName extends "BUILD_ROOM"
     ? BuildRoomParams
-    : never;
+    : never
 
 /**
  * イベント名を引数にとって、イベントを送ったときのレスポンスの型を返す
@@ -162,4 +162,4 @@ export type EventParams<EventName extends EventType> =
  * }
  */
 export type EventResponse<EventName extends EventType> =
-  EventName extends "ENTER_ROOM" ? EnterRoomResponse : void;
+  EventName extends "ENTER_ROOM" ? EnterRoomResponse : void
