@@ -39,7 +39,7 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
   const client: Client = clientCreate()
   SaveChatItemClass.client = client
 
-  let activeUserCount: number = 0
+  let activeUserCount = 0
   let serverAwakerTimer: NodeJS.Timeout
   let chatItemIntervalSaverTimer: NodeJS.Timeout
 
@@ -61,7 +61,7 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
             callback: (response: ReceiveEventResponses[K]) => void,
           ) => void
         },
-        {}
+        Record<string, never>
       >,
     ) => {
       activeUserCount++

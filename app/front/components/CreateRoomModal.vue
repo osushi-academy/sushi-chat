@@ -62,8 +62,8 @@ import { Room, Topic } from "@/models/contents"
 type DataType = {
   topicsAdmin: Omit<Topic, "id">[]
   room: Room
-  inputText: String
-  MAX_TOPIC_LENGTH: Number
+  inputText: string
+  MAX_TOPIC_LENGTH: number
   isLongInputTopic: boolean
   isLongTopic: boolean[]
   canStart: boolean
