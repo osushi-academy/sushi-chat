@@ -9,16 +9,16 @@ import {
   Question,
   QuestionStore,
   User,
-} from "../chatItem"
+} from "../../chatItem"
 import {
   AdminChangeTopicStateParams,
   PostChatItemParams,
   PostStampParams,
-} from "../events"
-import SaveChatItemClass from "../saveChatItem"
-import { IServerSocket } from "../serverSocket"
-import { Stamp, stampIntervalSender } from "../stamp"
-import { Topic, TopicState } from "../topic"
+} from "../../events"
+import SaveChatItemClass from "../../saveChatItem"
+import { IServerSocket } from "../../serverSocket"
+import { Stamp, stampIntervalSender } from "../../stamp"
+import { Topic, TopicState } from "../../topic"
 import { v4 as getUUID } from "uuid"
 import { Client } from "pg"
 

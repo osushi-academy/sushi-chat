@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io"
 import { Server as HttpServer } from "http"
 import { v4 as uuid } from "uuid"
-import RoomClass from "./models/room"
+import RoomClass from "./domain/room/Room"
 import SaveChatItemClass from "./saveChatItem"
 import { ReceiveEventParams, ReceiveEventResponses } from "./events"
 import ServerSocket from "./serverSocket"
