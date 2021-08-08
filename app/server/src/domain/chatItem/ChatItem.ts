@@ -6,8 +6,8 @@ abstract class ChatItem {
     private readonly topicId: string,
     public readonly roomId: string,
     private readonly userIconId: string,
-    private readonly timestamp: number,
     private readonly createdAt: Date,
+    private readonly timestamp?: number,
   ) {}
 
   // TODO: モデルオブジェクトに変換のメソッドを持たせるのではなく、変換するためのクラスを使った方が責務の分離として正しい
@@ -19,8 +19,8 @@ abstract class ChatItem {
       id: this.id,
       topicId: this.topicId,
       iconId: this.userIconId,
-      timestamp: this.timestamp,
       createdAt: this.createdAt,
+      timestamp: this.timestamp,
     }
   }
 }
