@@ -10,21 +10,12 @@ import {
   QuestionStore,
   User,
 } from "../../chatItem"
-import {
-  AdminChangeTopicStateParams,
-  PostChatItemParams,
-  PostStampParams,
-} from "../../events"
-import SaveChatItemClass from "../../saveChatItem"
+import { AdminChangeTopicStateParams, PostChatItemParams } from "../../events"
 import { IServerSocket } from "../../serverSocket"
-import { Stamp, stampIntervalSender } from "../../stamp"
 import { Topic, TopicState } from "../../topic"
 import { v4 as getUUID } from "uuid"
-import { Client } from "pg"
-
-type StampStore = Stamp & {
-  createdAt: Date
-}
+import ChatItemClass from "../chatItem/ChatItem"
+import StampClass from "../stamp/Stamp"
 
 class RoomClass {
   public static globalSocket: Server
@@ -32,11 +23,8 @@ class RoomClass {
   private users: (User & { socket: IServerSocket })[] = []
   private chatItems: ChatItemStore[] = []
   public topics: (Topic & { state: TopicState })[]
-  public stamps: StampStore[] = []
-  public stampsQueue: Stamp[] = []
+  private stamps: StampClass[] = []
   private isOpened = false
-  private stampIntervalSenderTimer: NodeJS.Timeout | null = null
-  private dbClient: Client
 
   /**
    * @var {number} topicTimeData.openedDate トピックの開始時刻
@@ -58,7 +46,6 @@ class RoomClass {
     public readonly id: string,
     public readonly title: string,
     topics: Omit<Topic, "id">[],
-    dbClient: Client,
   ) {
     this.topics = topics.map((topic, i) => ({
       ...topic,
@@ -72,7 +59,6 @@ class RoomClass {
         offsetTime: 0,
       }
     })
-    this.dbClient = dbClient
   }
 
   /**
@@ -182,23 +168,6 @@ class RoomClass {
       type: params.type,
       topicId: params.topicId,
     })
-    if (this.activeTopic != null && this.stampIntervalSenderTimer == null) {
-      // 何か開いたならセット
-      this.stampIntervalSenderTimer = stampIntervalSender(
-        this.dbClient,
-        RoomClass.globalSocket,
-        this.id,
-        this.stampsQueue,
-      )
-    } else if (
-      this.activeTopic == null &&
-      this.stampIntervalSenderTimer != null
-    ) {
-      // 全部閉じたならタイマー解除
-      clearInterval(this.stampIntervalSenderTimer)
-      //c learIntervalしてもタイマーは残るので、あとでわかるように消す
-      this.stampIntervalSenderTimer = null
-    }
   }
 
   /**
@@ -239,43 +208,25 @@ class RoomClass {
 
   /**
    * 新しくスタンプが投稿された時に呼ばれる関数。
-   * @param userId
-   * @param params
+   * @param stamp
    */
-  public postStamp = (userId: string, params: PostStampParams) => {
+  public postStamp = (stamp: StampClass) => {
     if (!this.isOpened) {
       throw new Error("[sushi-chat-server] Room is not opened.")
     }
     // ユーザーの存在チェック
-    if (!this.userIdExistCheck(userId)) {
+    if (!this.userIdExistCheck(stamp.userId)) {
       throw new Error("[sushi-chat-server] User does not exists.")
     }
-    // TODO: topicIDの存在チェック
-    const timestamp = this.getTimestamp(params.topicId)
-    // 配列に保存
-    this.stamps.push({
-      topicId: params.topicId,
-      userId,
-      timestamp,
-      createdAt: new Date(),
-    })
-    // 配信用に保存
-    this.stampsQueue.push({
-      userId,
-      timestamp,
-      topicId: params.topicId,
-    })
+    this.stamps.push(stamp)
   }
 
   /**
    * 新しくチャットが投稿された時に呼ばれる関数。
    * @param userId
-   * @param chatItemParams
+   * @param chatItem
    */
-  public postChatItem = (
-    userId: string,
-    chatItemParams: PostChatItemParams,
-  ) => {
+  public postChatItem = (userId: string, chatItem: ChatItemClass) => {
     if (!this.isOpened) {
       throw new Error("[sushi-chat-server] Room is not opened.")
     }
@@ -284,16 +235,14 @@ class RoomClass {
     if (!this.userIdExistCheck(userId)) {
       throw new Error("[sushi-chat-server] User does not exists.")
     }
-    // フロントから送られてきたパラメータをこのクラスで保存する形式に変換する
-    const chatItem = this.addServerInfo(userId, chatItemParams)
+    // 保存する形式に変換
+    const chatItemStore = chatItem.toChatItemStore()
     // 配列に保存
-    this.chatItems.push(chatItem)
-    // DBに保存
-    SaveChatItemClass.pushQueue(chatItem, this.id)
+    this.chatItems.push(chatItemStore)
     // サーバでの保存形式をフロントに返すレスポンスの形式に変換して配信する
     RoomClass.globalSocket.emit(
       "PUB_CHAT_ITEM",
-      this.chatItemStoreToChatItem(chatItem),
+      this.chatItemStoreToChatItem(chatItemStore),
     )
   }
 
@@ -423,7 +372,7 @@ class RoomClass {
 
   // utils
 
-  private getTimestamp = (topicId: string) => {
+  public getTimestamp = (topicId: string) => {
     const openedDate = this.topicTimeData[topicId].openedDate
     if (openedDate == null) {
       // NOTE: エラー
