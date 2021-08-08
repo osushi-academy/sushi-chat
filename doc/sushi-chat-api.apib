@@ -40,13 +40,12 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
     + `reaction`
     + `question`
     + `answer`
-    + `reply`
     + `speaker-message`
     + `admin-message`
     + `system-message`
-+ content: `コンテンツ` (string, optional) - メッセージ内容
-+ quote: `質問文またはリプライ先またはいいね先` (string, optional) - 引用先メッセージ
-+ timestamp: 3000 (number, optional) - タイムスタンプ（active時以外に投稿されたものはnull）
++ content: `投稿文書` (string, optional) - ユーザーが投稿した内容。reactionの場合のみnullが入る
++ quote: `引用メッセージID` (string, optional) - reactionではリアクション先、answerでは元の質問、それ以外ではリプライ先のchatItemのID
++ timestamp: 3000 (number, optional) - タイムスタンプ（active時以外に投稿されたものはnullになる）
 
 ## Stamp (object)
 + topic_id: 1 (number, required) - トピックID
