@@ -1,29 +1,29 @@
-import Message from "./Message";
-import Question from "./Question";
-import Answer from "./Answer";
-import ChatItem from "./ChatItem";
-import { ReactionStore } from "../../chatItem";
+import Message from "./Message"
+import Question from "./Question"
+import Answer from "./Answer"
+import ChatItem from "./ChatItem"
+import { ReactionStore } from "../../chatItem"
 
 class Reaction extends ChatItem {
   constructor(
     id: string,
     topicId: string,
     roomId: string,
-    userId: string,
+    userIconId: string,
     timestamp: number,
     createdAt: Date,
-    private readonly target: Message | Question | Answer
+    private readonly target: Message | Question | Answer,
   ) {
-    super(id, topicId, roomId, userId, timestamp, createdAt);
+    super(id, topicId, roomId, userIconId, timestamp, createdAt)
   }
 
-  public toChatItemStore(iconId: string): ReactionStore {
+  public toChatItemStore(): ReactionStore {
     return {
-      ...super.toChatItemStoreBase(iconId),
+      ...super.toChatItemStoreBase(),
       type: "reaction",
       target: this.target.id,
-    };
+    }
   }
 }
 
-export default Reaction;
+export default Reaction

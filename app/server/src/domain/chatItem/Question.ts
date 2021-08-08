@@ -1,26 +1,26 @@
-import ChatItem from "./ChatItem";
-import { QuestionStore } from "../../chatItem";
+import ChatItem from "./ChatItem"
+import { QuestionStore } from "../../chatItem"
 
 class Question extends ChatItem {
   constructor(
     id: string,
     topicId: string,
     roomId: string,
-    userId: string,
+    userIconId: string,
     timestamp: number,
     createdAt: Date,
-    private readonly content: string
+    private readonly content: string,
   ) {
-    super(id, topicId, roomId, userId, timestamp, createdAt);
+    super(id, topicId, roomId, userIconId, timestamp, createdAt)
   }
 
-  public toChatItemStore(iconId: string): QuestionStore {
+  public toChatItemStore(): QuestionStore {
     return {
-      ...super.toChatItemStoreBase(iconId),
+      ...super.toChatItemStoreBase(),
       type: "question",
       content: this.content,
-    };
+    }
   }
 }
 
-export default Question;
+export default Question
