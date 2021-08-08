@@ -21,7 +21,7 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
 + url: `https://sushi-chat.example.com` (string, optional)
 
 ## Room (object)
-+ id: 1 (number, required) - ルームID
++ id: `{roomId}` (string, required) - ルームID
 + name: `サマーハッカソン vol5` (string, required) - ルーム名
 + topics(array[Topic], required)
 + type: `not-started` (enum[string], required) - ルーム状態
@@ -74,7 +74,7 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
         ```
 + Response 200 (application/json)
     + Attributes
-        + data (array[Room], fixed-type)
+        + rooms (array[Room], fixed-type)
 
 #### ルーム作成 [POST]
 **管理者** ルームを新たに作成する（マイページ）
@@ -97,23 +97,23 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
 *※管理者がAPIを叩いた場合のみ、admin_invite_keyが含まれる*
 
 + Parameters
-    + id: 1 (number, required)
+    + id: `{roomId}` (string, required)
 + Response 200
     + Attributes (Room)
 
 #### チャット履歴 [GET /room/{id}/history]
 **管理者・一般ユーザ** アクセスしたルームが既にclosedだった場合にルームのチャット履歴とスタンプ履歴を取得する（マイページ）
 + Parameters
-    + id: 1 (number, required)
+    + id: `{roomId}` (string, required)
 + Response 200 (application/json)
     + Attributes
         + chat_items (array[ChatItem])
         + stamps (array[Stamp])
 
-#### 公開停止 [POST /room/{id}/archive]
+#### 公開停止 [PUT /room/{id}/archive]
 **管理者** ルームの公開を停止する（これ以降はURLにアクセスしても履歴が見れなくなる）
 + Parameters
-    + id: 1 (number, required)
+    + id: `{roomId}` (string, required)
 + Request
     + Headers
         ```
@@ -123,10 +123,10 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
     + Attributes
         + result: `success` (string, required)
 
-#### 招待を受ける（管理者） [POST /room/{id}/invited{?admin_invite_key}]
+#### 招待を受ける（管理者） [PUT /room/{id}/invited{?admin_invite_key}]
 **管理者** 招待URLにアクセスしてきた新たな共同管理者が叩くAPI。APIを叩いたユーザと管理者を紐付ける
 + Parameters
-    + id: 1 (number, required)
+    + id: `{roomId}` (string, required)
     + admin_invite_key: `wau9e31` (string, required) - 管理者招待キー
 + Request
     + Headers
@@ -139,14 +139,16 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
 
 ## Group Socket: Enter Room
 
-### ルーム入室（CLIENT → SERVER） [POST /ENTER_ROOM]
+### ルーム入室（CLIENT → SERVER） [PUT /ENTER_ROOM]
 **管理者・一般ユーザ** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
+
+リクエストもレスポンスもあるので注意。
 
 *※ 管理者の場合はiconIdを指定しない*
 
 + Request
     + Attributes
-        + roomId: `1` (number, required) - ルームID
+        + roomId: `{roomId}` (string, required) - ルームID
         + iconId: `1` (number, optional) - アイコンID
         + speakerTopicId: `1` (number, required) - トピックID
 + Response 200
@@ -162,16 +164,15 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
 ### アクティブユーザ数の変化（SERVER → CLIENT） [GET /PUB_USER_COUNT]
 **管理者・一般ユーザ** アクティブユーザ数が変化した場合に、それを通知する
 + Request
++ Response 200
     + Attributes
         + activeUserCount: 1 (number, required) - アクティブユーザ数
-+ Response 200
-
 ## Group Socket: Manage Topic
-### トピックの状態を変更する（CLIENT → SERVER） [POST /ADMIN_CHANGE_TOPIC_STATE]
+### トピックの状態を変更する（CLIENT → SERVER） [PUT /ADMIN_CHANGE_TOPIC_STATE]
 **管理者** トピックの状態を変更する
 + Request
     + Attributes
-        + roomId: `1` (number, required) - ルームID
+        + roomId: `{roomId}` (string, required) - ルームID
         + topicId: `1` (number, required) - トピックID
         + type: `OPEN` (enum[string], required) - トピックの状態
             + `OPEN`
@@ -201,16 +202,16 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
 + Request
     + Attributes
         + id: `{id}` (string, required) - フロントで生成したアイテムID
-        + roomId: `1` (number, required) - ルームID
+        + roomId: `{roomId}` (string, required) - ルームID
         + topicId: `1` (number, required) - トピックID
         + type: `message` (enum[string], required) - ChatItemタイプ
             + `message`
             + `reaction`
             + `question`
             + `answer`
-            + `reply`
             + `admin-message`
-        + content: `内容` (string, required) - コメントの内容
+        + content: `内容` (string, optional) - ユーザーが投稿する内容。reactionの場合のみnullが入る
+        + quote: `引用メッセージID` (string, optional) - reactionではリアクション先、answerでは元の質問、それ以外ではリプライ先のchatItemのID
 + Response 200 (application/json)
     + Attributes
         + result: `success` (string) - ログイン成功
@@ -228,7 +229,7 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
 **管理者・一般ユーザ** スタンプを投稿する
 + Request
     + Attributes
-        + roomId: `1` (number, required) - ルームID
+        + roomId: `{roomId}` (string, required) - ルームID
         + topicId: `1` (number, required) - トピックID
 + Response 200
 ### スタンプを配信する（SERVER → CLIENT） [GET /PUB_STAMP]
@@ -238,11 +239,11 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
         + topicId: `1` (number, required) - トピックID
 + Response 200
 ## Group Socket: Finish Room
-### ルームを閉じる（CLIENT → SERVER） [POST /ADMIN_FINISH_ROOM]
+### ルームを閉じる（CLIENT → SERVER） [PUT /ADMIN_FINISH_ROOM]
 **管理者** ルームを閉じる。これ以降はコメントやスタンプが投稿できなくなる。
 + Request
     + Attributes
-        + roomId: `1` (number, required) - ルームID
+        + roomId: `{roomId}` (string, required) - ルームID
 + Response 200
     + Attributes
         + result: `success` (string, required)
