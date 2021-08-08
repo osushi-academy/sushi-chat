@@ -1,4 +1,3 @@
-import RoomService from "../room/RoomService"
 import RoomClass from "../../domain/room/Room"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
