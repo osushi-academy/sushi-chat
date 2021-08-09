@@ -8,12 +8,12 @@ class Message extends ChatItem {
     topicId: string,
     roomId: string,
     userIconId: string,
-    timestamp: number,
     createdAt: Date,
     private readonly content: string,
     private readonly target: Message | Answer | null,
+    timestamp?: number,
   ) {
-    super(id, topicId, roomId, userIconId, timestamp, createdAt)
+    super(id, topicId, roomId, userIconId, createdAt, timestamp)
   }
 
   public toChatItemStore(): MessageStore {

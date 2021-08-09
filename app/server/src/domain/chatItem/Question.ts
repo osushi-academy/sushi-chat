@@ -7,11 +7,11 @@ class Question extends ChatItem {
     topicId: string,
     roomId: string,
     userIconId: string,
-    timestamp: number,
     createdAt: Date,
     private readonly content: string,
+    timestamp?: number,
   ) {
-    super(id, topicId, roomId, userIconId, timestamp, createdAt)
+    super(id, topicId, roomId, userIconId, createdAt, timestamp)
   }
 
   public toChatItemStore(): QuestionStore {

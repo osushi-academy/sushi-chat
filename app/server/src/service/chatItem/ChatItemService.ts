@@ -25,7 +25,7 @@ class ChatItemService {
     const user = this.findUser(command.userId)
     const room = this.findRoom(user.roomId)
     const target =
-      command.targetId !== null
+      command.targetId !== undefined && command.targetId !== null
         ? ((await this.chatItemRepository.find(command.targetId)) as
             | Message
             | Answer)
@@ -36,10 +36,10 @@ class ChatItemService {
       command.topicId,
       user.roomId,
       user.iconId,
-      room.getTimestamp(command.topicId),
       new Date(),
       command.content,
       target,
+      room.getTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, message)
@@ -61,9 +61,9 @@ class ChatItemService {
       command.topicId,
       user.roomId,
       user.iconId,
-      room.getTimestamp(command.topicId),
       new Date(),
       target,
+      room.getTimestamp(command.topicId),
     )
 
     console.log(`reaction: to ${command.targetId}`)
@@ -81,9 +81,9 @@ class ChatItemService {
       command.topicId,
       user.roomId,
       user.iconId,
-      room.getTimestamp(command.topicId),
       new Date(),
       command.content,
+      room.getTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, question)
@@ -104,10 +104,10 @@ class ChatItemService {
       command.topicId,
       user.roomId,
       user.iconId,
-      room.getTimestamp(command.topicId),
       new Date(),
       command.content,
       target,
+      room.getTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, answer)

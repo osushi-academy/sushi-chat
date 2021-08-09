@@ -134,10 +134,10 @@ class ChatItemRepository implements IChatItemRepository {
           res.topicid,
           res.roomid,
           res.iconid,
-          res.timestamp,
           res.createdat,
           res.content,
           target,
+          res.timestamp,
         )
       case "reaction":
         target = (await this.find(res.targetid)) as Message | Question | Answer
@@ -146,9 +146,9 @@ class ChatItemRepository implements IChatItemRepository {
           res.topicid,
           res.roomid,
           res.iconid,
-          res.timestamp,
           res.createdat,
           target,
+          res.timestamp,
         )
       case "question":
         return new Question(
@@ -156,9 +156,9 @@ class ChatItemRepository implements IChatItemRepository {
           res.topicid,
           res.roomid,
           res.iconid,
-          res.timestamp,
           res.createdat,
           res.content,
+          res.timestamp,
         )
       case "answer":
         target = (await this.find(res.targetid)) as Question
@@ -167,10 +167,10 @@ class ChatItemRepository implements IChatItemRepository {
           res.topicid,
           res.roomid,
           res.iconid,
-          res.timestamp,
           res.createdat,
           res.content,
           target,
+          res.timestamp,
         )
       default:
         throw new Error(

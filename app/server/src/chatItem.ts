@@ -3,8 +3,8 @@ export type ChatItemBase = {
   topicId: string
   type: string
   iconId: string
-  timestamp: number
   createdAt: Date
+  timestamp?: number
 }
 
 export type ChatItemType = "message" | "reaction" | "question" | "answer"
