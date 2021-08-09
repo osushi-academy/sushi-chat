@@ -1,12 +1,12 @@
-import { Client } from "pg";
+import { Client } from "pg"
 import {
   AnswerStore,
   MessageStore,
   QuestionStore,
   ReactionStore,
-} from "../chatItem";
-import { Topic } from "../topic";
-import { Stamp } from "../stamp";
+} from "../chatItem"
+import { Topic } from "../topic"
+import { Stamp } from "../stamp"
 
 export function clientCreate(): Client {
   const client = new Client({
@@ -14,10 +14,10 @@ export function clientCreate(): Client {
     ssl: {
       rejectUnauthorized: false,
     },
-  });
-  client.connect().catch(console.error);
+  })
+  client.connect().catch(console.error)
 
-  return client;
+  return client
 }
 
 export function insertRoom(
@@ -25,23 +25,22 @@ export function insertRoom(
   roomId: string,
   roomKey: string,
   title: string,
-  status: number
+  status: number,
 ) {
   client.query(
     {
-      text:
-        "INSERT INTO Rooms (id, roomKey, title, status) VALUES ($1, $2, $3, $4);",
+      text: "INSERT INTO Rooms (id, roomKey, title, status) VALUES ($1, $2, $3, $4);",
       values: [roomId.toString(), roomKey, title, status],
     },
     (err) => {
       if (err) {
         console.log(
           `${err.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
-          new Date().toISOString()
-        );
+          new Date().toISOString(),
+        )
       }
-    }
-  );
+    },
+  )
 }
 
 export function insertTopics(client: Client, roomId: string, topics: Topic[]) {
@@ -64,23 +63,23 @@ export function insertTopics(client: Client, roomId: string, topics: Topic[]) {
         /* slideUrl */ topic.urls.slide +
         "','" +
         /* productUrl */ topic.urls.product +
-        "')"
+        "')",
     )
-    .join(",");
+    .join(",")
 
   const query =
     "INSERT INTO Topics (id, roomId, title, description, state, githubUrl, slideUrl, productUrl) VALUES" +
     values +
-    ";";
+    ";"
 
   client.query(query, (err) => {
     if (err) {
       console.log(
         `${err.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
-        new Date().toISOString()
-      );
+        new Date().toISOString(),
+      )
     }
-  });
+  })
 }
 
 export function insertChatItems(
@@ -88,7 +87,7 @@ export function insertChatItems(
   messages: (MessageStore & { roomId: string })[],
   reactions: (ReactionStore & { roomId: string })[],
   questions: (QuestionStore & { roomId: string })[],
-  answers: (AnswerStore & { roomId: string })[]
+  answers: (AnswerStore & { roomId: string })[],
 ) {
   if (
     messages.length == 0 &&
@@ -96,12 +95,12 @@ export function insertChatItems(
     messages.length == 0 &&
     messages.length == 0
   ) {
-    return;
+    return
   }
-  const convertedMessages = messagesConverter(messages);
-  const convertedReactions = reactionsConverter(reactions);
-  const convertedQuestions = questionsConverter(questions);
-  const convertedAnswers = answersConverter(answers);
+  const convertedMessages = messagesConverter(messages)
+  const convertedReactions = reactionsConverter(reactions)
+  const convertedQuestions = questionsConverter(questions)
+  const convertedAnswers = answersConverter(answers)
 
   const values = [
     convertedMessages,
@@ -110,41 +109,41 @@ export function insertChatItems(
     convertedAnswers,
   ]
     .filter((v) => v != "")
-    .join(",");
+    .join(",")
 
   const query =
     "INSERT INTO chatItems (id, type, roomId, topicId, iconId, timestamp, createdAt, content, targetId) VALUES" +
     values +
-    ";";
+    ";"
 
   client.query(query, (err) => {
     if (err) {
       console.log(
         `${err.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
-        new Date().toISOString()
-      );
+        new Date().toISOString(),
+      )
     }
-  });
+  })
 }
 
 export function insertStamps(client: Client, stamps: Stamp[], roomId: string) {
   const values = stamps
     .map(
       (stamp) =>
-        `('${roomId}', ${stamp.topicId}, '${stamp.userId}', '${stamp.timestamp}')`
+        `('${roomId}', ${stamp.topicId}, '${stamp.userId}', '${stamp.timestamp}')`,
     )
-    .join(", ");
-  const query = `INSERT INTO stamps (roomId,topicId,userId,timestamp) VALUES ${values}`;
+    .join(", ")
+  const query = `INSERT INTO stamps (roomId,topicId,userId,timestamp) VALUES ${values}`
   client.query(query, (err) => {
     if (err) {
       console.log(
         `${
           err.message ?? "Unknown error."
         } (SAVE ROOM(${roomId})/STAMPS(${stamps}) IN DB)`,
-        new Date().toISOString()
-      );
+        new Date().toISOString(),
+      )
     }
-  });
+  })
 }
 
 function messagesConverter(messages: (MessageStore & { roomId: string })[]) {
@@ -172,9 +171,9 @@ function messagesConverter(messages: (MessageStore & { roomId: string })[]) {
         /* content */ message.content +
         "'," +
         (message.target ? "'" + message.target + "'" : null) +
-        ")"
+        ")",
     )
-    .join(",");
+    .join(",")
 }
 
 function reactionsConverter(reactions: (ReactionStore & { roomId: string })[]) {
@@ -202,9 +201,9 @@ function reactionsConverter(reactions: (ReactionStore & { roomId: string })[]) {
         /* content */ null +
         ",'" +
         /* targetId */ reaction.target +
-        "')"
+        "')",
     )
-    .join(",");
+    .join(",")
 }
 
 function questionsConverter(questions: (QuestionStore & { roomId: string })[]) {
@@ -232,9 +231,9 @@ function questionsConverter(questions: (QuestionStore & { roomId: string })[]) {
         /* content */ question.content +
         "'," +
         /* targetId */ null +
-        ")"
+        ")",
     )
-    .join(",");
+    .join(",")
 }
 
 function answersConverter(answers: (AnswerStore & { roomId: string })[]) {
@@ -262,7 +261,7 @@ function answersConverter(answers: (AnswerStore & { roomId: string })[]) {
         /* content */ answer.content +
         "','" +
         /* targetId */ answer.target +
-        "')"
+        "')",
     )
-    .join(",");
+    .join(",")
 }

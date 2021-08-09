@@ -1,12 +1,12 @@
 body {
-  font-family: 'M PLUS 1p', sans-serif;
+  font-family: "M PLUS 1p", sans-serif;
 }
 
 .material-icons {
   -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 button {
@@ -27,7 +27,7 @@ label {
   padding-left: 0px;
 }
 
-label > input[type='checkbox'] {
+label > input[type="checkbox"] {
   outline: none;
   margin: 0.2rem;
   width: 12px;
@@ -35,20 +35,20 @@ label > input[type='checkbox'] {
   cursor: pointer;
 }
 
-label > input[type='checkbox']:focus-visible::before {
+label > input[type="checkbox"]:focus-visible::before {
   outline: auto;
   outline-offset: 2px;
   outline-color: blue;
 }
 
-label > input[type='checkbox']::before {
+label > input[type="checkbox"]::before {
   position: absolute;
   top: 50%;
   left: 0;
   -webkit-transform: translateY(-50%);
-          transform: translateY(-50%);
+  transform: translateY(-50%);
   opacity: 1;
-  content: '';
+  content: "";
   display: inline-block;
   height: 16px;
   width: 16px;
@@ -57,28 +57,35 @@ label > input[type='checkbox']::before {
   border-radius: 1px;
 }
 
-label > input[type='checkbox']:checked::before {
+label > input[type="checkbox"]:checked::before {
   background: #3bb7ff;
   border-color: transparent;
 }
 
-label > input[type='checkbox']::after {
+label > input[type="checkbox"]::after {
   position: absolute;
   top: 50%;
   left: 0;
   -webkit-transform: translateY(-50%);
-          transform: translateY(-50%);
+  transform: translateY(-50%);
   opacity: 0;
-  content: '';
+  content: "";
   display: inline-block;
   height: 16px;
   width: 16px;
   background: white;
-  -webkit-clip-path: polygon(10% 50%, 20% 40%, 45% 60%, 80% 20%, 90% 30%, 45% 83%);
-          clip-path: polygon(10% 50%, 20% 40%, 45% 60%, 80% 20%, 90% 30%, 45% 83%);
+  -webkit-clip-path: polygon(
+    10% 50%,
+    20% 40%,
+    45% 60%,
+    80% 20%,
+    90% 30%,
+    45% 83%
+  );
+  clip-path: polygon(10% 50%, 20% 40%, 45% 60%, 80% 20%, 90% 30%, 45% 83%);
 }
 
-label > input[type='checkbox']:checked::after {
+label > input[type="checkbox"]:checked::after {
   opacity: 1;
 }
 
@@ -101,8 +108,8 @@ span.key-span {
   display: flex;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
   height: 100vh;
   min-width: 0;
 }
@@ -123,8 +130,8 @@ span.key-span {
   display: -ms-flexbox;
   display: flex;
   -webkit-box-flex: 1;
-      -ms-flex: 1;
-          flex: 1;
+  -ms-flex: 1;
+  flex: 1;
   overflow-x: scroll;
 }
 /*# sourceMappingURL=common.css.map */

@@ -76,12 +76,12 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { TopicStatesPropType, Topic } from '@/models/contents'
-import { UserItemStore } from '~/store'
+import Vue, { PropOptions } from "vue"
+import { TopicStatesPropType, Topic } from "@/models/contents"
+import { UserItemStore } from "~/store"
 
 export default Vue.extend({
-  name: 'SettingPage',
+  name: "SettingPage",
   props: {
     roomId: {
       type: String,
@@ -112,10 +112,10 @@ export default Vue.extend({
     },
     playOrPause() {
       return function (topicState: string) {
-        if (topicState === 'active') {
-          return 'pause'
-        } else if (topicState === 'paused' || topicState === 'not-started') {
-          return 'play_arrow'
+        if (topicState === "active") {
+          return "pause"
+        } else if (topicState === "paused" || topicState === "not-started") {
+          return "play_arrow"
         } else {
           return null
         }
@@ -127,26 +127,26 @@ export default Vue.extend({
       navigator.clipboard.writeText(this.shareUrl)
     },
     clickPlayPauseButton(topicId: string) {
-      if (this.topicStates[topicId] === 'active') {
-        this.$emit('change-topic-state', topicId, 'paused')
-      } else if (this.topicStates[topicId] === 'paused') {
-        this.$emit('change-topic-state', topicId, 'active')
-      } else if (this.topicStates[topicId] === 'not-started') {
-        this.$emit('change-topic-state', topicId, 'active')
+      if (this.topicStates[topicId] === "active") {
+        this.$emit("change-topic-state", topicId, "paused")
+      } else if (this.topicStates[topicId] === "paused") {
+        this.$emit("change-topic-state", topicId, "active")
+      } else if (this.topicStates[topicId] === "not-started") {
+        this.$emit("change-topic-state", topicId, "active")
       }
     },
     clickFinishButton(topicId: string) {
       if (
-        confirm('本当にこのトピックを終了しますか？この操作は取り消せません')
+        confirm("本当にこのトピックを終了しますか？この操作は取り消せません")
       ) {
-        this.topicStates[topicId]! = 'finished'
-        this.$emit('change-topic-state', topicId, 'closed')
+        this.topicStates[topicId]! = "finished"
+        this.$emit("change-topic-state", topicId, "closed")
       }
     },
     clickNextTopicButton() {
       // アクティブなトピックを探す
       const currentActiveTopicIndex = this.topics.findIndex(
-        (t) => this.topicStates[t.id] === 'active'
+        (t) => this.topicStates[t.id] === "active",
       )
 
       if (currentActiveTopicIndex == null) {
@@ -156,24 +156,24 @@ export default Vue.extend({
       const nextTopic = this.topics?.[currentActiveTopicIndex + 1]
 
       if (nextTopic != null) {
-        this.$emit('change-topic-state', nextTopic.id, 'active')
+        this.$emit("change-topic-state", nextTopic.id, "active")
       }
     },
   },
 })
 
 const ICONS = [
-  { icon: require('@/assets/img/tea.png') },
-  { icon: require('@/assets/img/sushi_akami.png') },
-  { icon: require('@/assets/img/sushi_ebi.png') },
-  { icon: require('@/assets/img/sushi_harasu.png') },
-  { icon: require('@/assets/img/sushi_ikura.png') },
-  { icon: require('@/assets/img/sushi_iwashi.png') },
-  { icon: require('@/assets/img/sushi_kai_hokkigai.png') },
-  { icon: require('@/assets/img/sushi_salmon.png') },
-  { icon: require('@/assets/img/sushi_shirasu.png') },
-  { icon: require('@/assets/img/sushi_tai.png') },
-  { icon: require('@/assets/img/sushi_uni.png') },
-  { icon: require('@/assets/img/sushi_syari.png') },
+  { icon: require("@/assets/img/tea.png") },
+  { icon: require("@/assets/img/sushi_akami.png") },
+  { icon: require("@/assets/img/sushi_ebi.png") },
+  { icon: require("@/assets/img/sushi_harasu.png") },
+  { icon: require("@/assets/img/sushi_ikura.png") },
+  { icon: require("@/assets/img/sushi_iwashi.png") },
+  { icon: require("@/assets/img/sushi_kai_hokkigai.png") },
+  { icon: require("@/assets/img/sushi_salmon.png") },
+  { icon: require("@/assets/img/sushi_shirasu.png") },
+  { icon: require("@/assets/img/sushi_tai.png") },
+  { icon: require("@/assets/img/sushi_uni.png") },
+  { icon: require("@/assets/img/sushi_syari.png") },
 ]
 </script>

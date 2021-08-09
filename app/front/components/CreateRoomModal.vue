@@ -56,26 +56,26 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import { Room, Topic } from '@/models/contents'
+import Vue from "vue"
+import { Room, Topic } from "@/models/contents"
 
 type DataType = {
-  topicsAdmin: Omit<Topic, 'id'>[]
+  topicsAdmin: Omit<Topic, "id">[]
   room: Room
-  inputText: String
-  MAX_TOPIC_LENGTH: Number
+  inputText: string
+  MAX_TOPIC_LENGTH: number
   isLongInputTopic: boolean
   isLongTopic: boolean[]
   canStart: boolean
 }
 
 export default Vue.extend({
-  name: 'CreateRoomModal',
+  name: "CreateRoomModal",
   data(): DataType {
     return {
       room: {} as Room,
       topicsAdmin: [],
-      inputText: '',
+      inputText: "",
       MAX_TOPIC_LENGTH: 100,
       isLongInputTopic: false,
       isLongTopic: [],
@@ -96,23 +96,23 @@ export default Vue.extend({
         set.add(topic.title)
       }
       // 入力を空白で区切る
-      const titles = this.inputText.split('\n')
+      const titles = this.inputText.split("\n")
       // 1つでも最大文字数を超えているトピックがあれば却下する
       const topicsTmp = this.topicsAdmin.slice(0, this.topicsAdmin.length)
       const isLongTopicsTmp: boolean[] = []
       for (const topicTitle of titles) {
         // 空白はカウントしない
-        if (topicTitle === '') continue
+        if (topicTitle === "") continue
         // 重複してるトピックはカウントしない
         if (set.has(topicTitle)) continue
         if (topicTitle.length > this.MAX_TOPIC_LENGTH) {
           this.isLongInputTopic = true
           return
         }
-        const t: Omit<Topic, 'id'> = {
+        const t: Omit<Topic, "id"> = {
           title: topicTitle,
           // description: '',
-          urls: { github: '', slide: '', product: '' },
+          urls: { github: "", slide: "", product: "" },
         }
         set.add(topicTitle)
         topicsTmp.push(t)
@@ -120,7 +120,7 @@ export default Vue.extend({
       }
       if (this.topicsAdmin.length === 0) this.canStart = true
       this.topicsAdmin = topicsTmp
-      this.inputText = ''
+      this.inputText = ""
       this.isLongInputTopic = false
       this.isLongTopic.concat(isLongTopicsTmp)
     },
@@ -128,16 +128,16 @@ export default Vue.extend({
     clickAddTopic(index: number, event: any) {
       // 日本語入力中のeventnterキー操作は無効にする
       if (event.keyCode !== 13) return
-      const t: Omit<Topic, 'id'> = {
-        title: '',
+      const t: Omit<Topic, "id"> = {
+        title: "",
         // description: '',
-        urls: { github: '', slide: '', product: '' },
+        urls: { github: "", slide: "", product: "" },
       }
       this.topicsAdmin.splice(index + 1, 0, t)
       this.isLongTopic.splice(index + 1, 0, false)
     },
     startChat() {
-      this.$emit('start-chat', this.room, this.topicsAdmin)
+      this.$emit("start-chat", this.room, this.topicsAdmin)
     },
     CheckTopicLength(index: number, event: any) {
       const topic = event.target.value
