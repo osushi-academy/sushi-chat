@@ -5,16 +5,7 @@ import Message from "../../../domain/chatItem/Message"
 import Question from "../../../domain/chatItem/Question"
 import Reaction from "../../../domain/chatItem/Reaction"
 
-class LocalMemoryChatItemRepository implements IChatItemRepository {
-  private static instance: LocalMemoryChatItemRepository
-  public static getInstance(): LocalMemoryChatItemRepository {
-    if (!this.instance) {
-      this.instance = new LocalMemoryChatItemRepository()
-    }
-    return this.instance
-  }
-  private constructor() {}
-
+class EphemeralChatItemRepository implements IChatItemRepository {
   private readonly chatItems: Record<string, ChatItem> = {}
 
   public find(chatItemId: string): Promise<ChatItem> {
@@ -38,4 +29,4 @@ class LocalMemoryChatItemRepository implements IChatItemRepository {
   }
 }
 
-export default LocalMemoryChatItemRepository
+export default EphemeralChatItemRepository
