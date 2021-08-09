@@ -122,12 +122,13 @@
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import UrlToLink from '@/components/UrlToLink.vue'
-import { ChatItemPropType } from '~/models/contents'
+import Vue, { PropOptions } from "vue"
+import UrlToLink from "@/components/UrlToLink.vue"
+import ICONS from "@/utils/icons"
+import { ChatItemPropType } from "~/models/contents"
 
 export default Vue.extend({
-  name: 'Message',
+  name: "Message",
   components: {
     UrlToLink,
   },
@@ -138,16 +139,16 @@ export default Vue.extend({
     } as PropOptions<ChatItemPropType>,
   },
   computed: {
-    icon(): { icon: unknown } {
-      return ICONS[this.$props.message.iconId]?.icon ?? ICONS[0].icon
+    icon() {
+      return ICONS[this.$props.message.iconId]?.png ?? ICONS[0].png
     },
   },
   methods: {
     clickCard() {
-      this.$emit('click-card', this.message)
+      this.$emit("click-card", this.message)
     },
     clickReply() {
-      this.$emit('click-reply')
+      this.$emit("click-reply")
     },
     // タイムスタンプを分、秒単位に変換
     showTimestamp(timeStamp: number): string {
@@ -155,26 +156,11 @@ export default Vue.extend({
       const min: number = Math.floor(sec / 60)
       sec %= 60
       if (sec < 10) {
-        return String(min) + ':0' + String(sec)
+        return String(min) + ":0" + String(sec)
       } else {
-        return String(min) + ':' + String(sec)
+        return String(min) + ":" + String(sec)
       }
     },
   },
 })
-
-const ICONS = [
-  { icon: require('@/assets/img/tea.png') },
-  { icon: require('@/assets/img/sushi_akami.png') },
-  { icon: require('@/assets/img/sushi_ebi.png') },
-  { icon: require('@/assets/img/sushi_harasu.png') },
-  { icon: require('@/assets/img/sushi_ikura.png') },
-  { icon: require('@/assets/img/sushi_iwashi.png') },
-  { icon: require('@/assets/img/sushi_kai_hokkigai.png') },
-  { icon: require('@/assets/img/sushi_salmon.png') },
-  { icon: require('@/assets/img/sushi_shirasu.png') },
-  { icon: require('@/assets/img/sushi_tai.png') },
-  { icon: require('@/assets/img/sushi_uni.png') },
-  { icon: require('@/assets/img/sushi_syari.png') },
-]
 </script>
