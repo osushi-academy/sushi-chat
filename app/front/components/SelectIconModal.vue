@@ -15,7 +15,10 @@
           class="icon-box"
           @click="selectIcon(index)"
         >
-          <img :src="icon.png" alt="" class="sushi-fit" />
+          <picture>
+            <source :srcset="icon.webp" type="image/webp" class="sushi-fit" />
+            <img :src="icon.png" alt="" class="sushi-fit" />
+          </picture>
         </button>
       </div>
       <div class="modal-actions">

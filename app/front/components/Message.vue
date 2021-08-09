@@ -6,7 +6,10 @@
       class="comment admin"
     >
       <div class="icon-wrapper">
-        <img :src="icon" alt="" />
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
         <div class="admin-badge">運 営</div>
       </div>
       <div class="text">
@@ -24,7 +27,10 @@
       @click="clickCard"
     >
       <div class="icon-wrapper">
-        <img :src="icon" alt="" />
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
       </div>
       <div v-if="message.target == null" class="text">
         <UrlToLink :text="message.content" />
@@ -50,7 +56,10 @@
       @click="clickCard"
     >
       <div class="icon-wrapper">
-        <img :src="icon" alt="" />
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
         <div class="question-badge">Q</div>
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
@@ -72,7 +81,10 @@
       @click="clickCard"
     >
       <div class="icon-wrapper">
-        <img :src="icon" alt="" />
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
         <div class="answer-badge">A</div>
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
@@ -96,7 +108,10 @@
     <!--Reaction Message-->
     <article v-else-if="message.type == 'reaction'" class="reaction">
       <div class="icon-wrapper">
-        <img :src="icon" alt="" />
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
       </div>
       <span class="material-icons"> thumb_up </span>
       <div class="long-text">
@@ -140,7 +155,7 @@ export default Vue.extend({
   },
   computed: {
     icon() {
-      return ICONS[this.$props.message.iconId]?.png ?? ICONS[0].png
+      return ICONS[this.$props.message.iconId] ?? ICONS[0]
     },
   },
   methods: {

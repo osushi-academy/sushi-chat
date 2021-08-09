@@ -3,7 +3,10 @@
     <div class="drawer-menu">
       <div class="header">
         <div class="icon-space">
-          <img class="icon-wrapper" :src="icon" alt="" />
+          <picture class="icon-wrapper">
+            <source :srcset="icon.webp" type="image/webp" />
+            <img :src="icon.png" alt="" />
+          </picture>
         </div>
         <div class="room-info">
           <div class="room-title">
@@ -105,8 +108,8 @@ export default Vue.extend({
     myIconId() {
       return UserItemStore.userItems.myIconId
     },
-    icon(): string {
-      return ICONS[UserItemStore.userItems.myIconId]?.png ?? ICONS[0].png
+    icon() {
+      return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
     },
     shareUrl() {
       return `${location.origin}?roomId=${encodeURIComponent(this.roomId)}`
@@ -162,5 +165,4 @@ export default Vue.extend({
     },
   },
 })
-
 </script>
