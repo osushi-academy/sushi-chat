@@ -34,6 +34,10 @@ https://user-images.githubusercontent.com/65712721/125596302-f5606786-3974-4ce7-
 ```
 yarn
 ```
+共通パッケージのビルド
+```
+yarn workspace sushi-chat-shared build
+```
 ### フロント
 フロントエンドの[README](/app/front/README.md)
 または
@@ -46,7 +50,7 @@ yarn dev:server
 ```
 バックエンドの[README](/server/README.md)
 
-### shared
+### shared（必要な場合は）
 ```
 yarn dev:shared
 ```
