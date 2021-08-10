@@ -75,15 +75,15 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from "vue"
-import { Topic, Message, TopicState, Question, Answer } from "@/models/contents"
 import throttle from "lodash.throttle"
+import { XIcon, ChevronUpIcon } from "vue-feather-icons"
+import AnalysisGraph from "./AnalysisGraph.vue"
+import { Topic, Message, TopicState, Question, Answer } from "@/models/contents"
 import TopicHeader from "@/components/TopicHeader.vue"
 import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
-import { XIcon, ChevronUpIcon } from "vue-feather-icons"
-import AnalysisGraph from "./AnalysisGraph.vue"
 import { ChatItemStore } from "~/store"
 
 type ChatDataPropType = {

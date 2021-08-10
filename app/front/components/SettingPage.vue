@@ -3,7 +3,10 @@
     <div class="drawer-menu">
       <div class="header">
         <div class="icon-space">
-          <img class="icon-wrapper" :src="icon" alt="" />
+          <picture class="icon-wrapper">
+            <source :srcset="icon.webp" type="image/webp" />
+            <img :src="icon.png" alt="" />
+          </picture>
         </div>
         <div class="room-info">
           <div class="room-title">
@@ -77,6 +80,7 @@
 
 <script lang="ts">
 import Vue, { PropOptions } from "vue"
+import ICONS from "@/utils/icons"
 import { TopicStatesPropType, Topic } from "@/models/contents"
 import { UserItemStore } from "~/store"
 
@@ -102,10 +106,10 @@ export default Vue.extend({
   },
   computed: {
     myIconId() {
-      return UserItemStore.userItems.myIconId + 1
+      return UserItemStore.userItems.myIconId
     },
-    icon(): { icon: string } {
-      return ICONS[UserItemStore.userItems.myIconId]?.icon ?? ICONS[0].icon
+    icon() {
+      return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
     },
     shareUrl() {
       return `${location.origin}?roomId=${encodeURIComponent(this.roomId)}`
@@ -161,19 +165,4 @@ export default Vue.extend({
     },
   },
 })
-
-const ICONS = [
-  { icon: require("@/assets/img/tea.png") },
-  { icon: require("@/assets/img/sushi_akami.png") },
-  { icon: require("@/assets/img/sushi_ebi.png") },
-  { icon: require("@/assets/img/sushi_harasu.png") },
-  { icon: require("@/assets/img/sushi_ikura.png") },
-  { icon: require("@/assets/img/sushi_iwashi.png") },
-  { icon: require("@/assets/img/sushi_kai_hokkigai.png") },
-  { icon: require("@/assets/img/sushi_salmon.png") },
-  { icon: require("@/assets/img/sushi_shirasu.png") },
-  { icon: require("@/assets/img/sushi_tai.png") },
-  { icon: require("@/assets/img/sushi_uni.png") },
-  { icon: require("@/assets/img/sushi_syari.png") },
-]
 </script>

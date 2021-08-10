@@ -15,7 +15,6 @@
       />
       <SelectIconModal
         v-if="!isAdmin"
-        :icons="icons"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
@@ -68,8 +67,6 @@ type DataType = {
   topicStates: { [key: string]: TopicState }
   room: Room
   isRoomStarted: boolean
-  // ユーザー関連
-  icons: any
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -90,20 +87,6 @@ export default Vue.extend({
       topicStates: {},
       room: {} as Room,
       isRoomStarted: false,
-      // ユーザー関連
-      icons: [
-        { url: require("@/assets/img/sushi_akami.png") },
-        { url: require("@/assets/img/sushi_ebi.png") },
-        { url: require("@/assets/img/sushi_harasu.png") },
-        { url: require("@/assets/img/sushi_ikura.png") },
-        { url: require("@/assets/img/sushi_iwashi.png") },
-        { url: require("@/assets/img/sushi_kai_hokkigai.png") },
-        { url: require("@/assets/img/sushi_salmon.png") },
-        { url: require("@/assets/img/sushi_shirasu.png") },
-        { url: require("@/assets/img/sushi_tai.png") },
-        { url: require("@/assets/img/sushi_uni.png") },
-        { url: require("@/assets/img/sushi_syari.png") },
-      ],
     }
   },
   computed: {
@@ -277,7 +260,7 @@ export default Vue.extend({
     // modalを消し、topic作成
     hide(): any {
       this.$modal.hide("sushi-modal")
-      this.enterRoom(UserItemStore.userItems.myIconId + 1)
+      this.enterRoom(UserItemStore.userItems.myIconId)
     },
     // ルーム入室
     enterRoom(iconId: number) {
