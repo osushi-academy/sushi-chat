@@ -1,0 +1,540 @@
+swagger: '2.0'
+info:
+  title: sushi-chat-api
+  version: '1.0'
+  description: sushi-chatのAPI定義です。
+host: 'localhost:8000'
+schemes:
+  - http
+produces:
+  - application/json
+consumes:
+  - application/json
+paths:
+  /login:
+    post:
+      summary: register user
+      tags: []
+      operationId: post-register
+      description: 登録、ログインを行うためのエンドポイント
+      parameters: []
+      responses:
+        '200':
+          $ref: '#/responses/success'
+        '400':
+          $ref: '#/responses/Failure'
+    parameters: []
+  /room:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+        '401':
+          $ref: '#/responses/NotAuthenticated'
+      operationId: get-room
+      description: 自分が管理しているルームの一覧を取得する
+    post:
+      summary: ''
+      operationId: post-room
+      description: 新しいルームを作成する
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                description: ルーム名
+              topics:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    description:
+                      type: string
+                    url:
+                      type: string
+                  required:
+                    - name
+              description:
+                type: string
+            required:
+              - name
+              - topics
+      responses:
+        '200':
+          $ref: '#/responses/success'
+        '400':
+          $ref: '#/responses/failure'
+  '/room/{id}':
+    parameters:
+      - type: string
+        name: id
+        in: path
+        required: true
+        description: ルームID
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      operationId: get-room-id
+      description: '**一般ユーザ**：ルーム情報を取得する（チャットページ）'
+      parameters: []
+      security: []
+  '/room/{id}/admin_invite_key':
+    parameters:
+      - type: string
+        name: id
+        in: path
+        required: true
+        description: ルームID
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+        '401':
+          $ref: '#/responses/NotAuthenticated'
+      operationId: get-room-id-admin_invite_key
+      description: '**管理者**：管理者招待キーを取得する'
+  '/room/{id}/history':
+    parameters:
+      - type: string
+        name: id
+        in: path
+        required: true
+        description: ルームID
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+        '401':
+          $ref: '#/responses/NotAuthenticated'
+      operationId: get-room-id-history
+      description: チャット履歴・スタンプ履歴を取得する
+  '/room/{id}/archive':
+    parameters:
+      - type: string
+        name: id
+        in: path
+        required: true
+        description: ルームID
+    put:
+      summary: ''
+      operationId: post-room-id-archive
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+      description: '**管理者**：ルームを公開停止にする'
+  '/room/{id}/invited':
+    parameters:
+      - type: string
+        name: id
+        in: path
+        required: true
+        description: ルームID
+    post:
+      summary: ''
+      operationId: post-room-id-invited
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+        '401':
+          $ref: '#/responses/NotAuthenticated'
+      parameters:
+        - type: string
+          in: query
+          name: admin_invite_key
+          description: 管理者招待キー
+      description: ''
+  /ENTER_ROOM:
+    put:
+      summary: ''
+      operationId: put-ENTER_ROOM
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              chatItems:
+                type: array
+                items:
+                  $ref: '#/definitions/ChatItem'
+              stamps:
+                type: array
+                items:
+                  $ref: '#/definitions/Stamp'
+              topics:
+                type: array
+                items:
+                  $ref: '#/definitions/Topic'
+              activeUserCount:
+                type: integer
+                description: アクティブユーザ数
+        '400':
+          $ref: '#/responses/Failure'
+      description: |-
+        **管理者・一般ユーザ** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
+
+        リクエストもレスポンスもあるので注意。
+
+        *※ 管理者の場合はiconIdを指定しない*
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              roomId:
+                type: string
+                format: uuid
+              iconId:
+                type: integer
+              speakerTopicId:
+                type: integer
+  /PUB_USER_COUNT:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              activeUserCount:
+                type: integer
+      operationId: get-PUB_USER_COUNT
+      description: '**管理者・一般ユーザ** アクティブユーザ数が変化した場合に、それを通知する'
+  /ADMIN_CHANGE_TOPIC_STATE:
+    put:
+      summary: ''
+      operationId: put-ADMIN_CHANGE_TOPIC_STATE
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      description: '**管理者**：トピックの状態を変更する'
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              roomId:
+                type: string
+                format: uuid
+              topicId:
+                type: number
+              state:
+                $ref: '#/definitions/TopicState'
+  /PUB_CHANGE_TOPIC_STATE:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              topicId:
+                type: number
+              state:
+                $ref: '#/definitions/TopicState'
+      operationId: get-PUB_CHANGE_TOPIC_STATE
+      description: '**管理者・一般ユーザ** トピックの状態の更新を通知する'
+  /POST_CHAT_ITEM:
+    post:
+      summary: ''
+      operationId: post-POST_CHAT_ITEM
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      description: '**管理者・一般ユーザ** チャットアイテムを投稿する'
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              roomId:
+                type: string
+                format: uuid
+              topicId:
+                type: number
+              type:
+                type: string
+                enum:
+                  - message
+                  - reaction
+                  - question
+                  - answer
+                  - admin-message
+              content:
+                type: string
+              quote:
+                type: string
+            required:
+              - id
+              - roomId
+              - topicId
+              - type
+  /PUB_CHAT_ITEM:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ChatItem'
+      operationId: get-PUB_CHAT_ITEM
+      description: '**管理者・一般ユーザ** チャットアイテムを配信する'
+  /POST_STAMP:
+    post:
+      summary: ''
+      operationId: post-POST_STAMP
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      description: '**管理者・一般ユーザ** スタンプを投稿する'
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              roomId:
+                type: string
+                format: uuid
+              topicId:
+                type: number
+          description: ''
+  /PUB_STAMP:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+      operationId: get-PUB_STAMP
+  /ADMIN_FINISH_ROOM:
+    put:
+      summary: ''
+      operationId: put-ADMIN_FINISH_ROOM
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      description: '**管理者** ルームを閉じる。これ以降はコメントやスタンプが投稿できなくなる。'
+      parameters: []
+definitions:
+  Topic:
+    title: Topic
+    type: object
+    properties:
+      id:
+        type: number
+        description: トピックID（0は雑談を表すため1以上）
+        minimum: 1
+      order:
+        type: integer
+        minimum: 1
+        description: トピックの順序を表すindex（1始まり）
+      name:
+        type: string
+      description:
+        type: string
+      url:
+        type: string
+        format: uri
+    required:
+      - id
+      - order
+      - name
+  Room:
+    title: Room
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      name:
+        type: string
+      topics:
+        type: array
+        items:
+          $ref: '#/definitions/Topic'
+      type:
+        type: string
+        enum:
+          - not-started
+          - ongoing
+          - closed
+      description:
+        type: string
+      startDate:
+        type: string
+        format: date
+        description: ルーム開始日。未開始の場合はnull
+      adminInviteKey:
+        type: string
+        description: 管理者招待キー（管理者がAPIを叩いた場合のみ含まれる）
+    required:
+      - id
+      - name
+      - topics
+      - type
+  ChatItem:
+    title: ChatItem
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      topicId:
+        type: integer
+      createdAt:
+        type: string
+        format: date
+      type:
+        $ref: '#/definitions/ChatItemType'
+      content:
+        type: string
+        description: ユーザーが投稿した内容。reactionの場合のみnullが入る
+      quote:
+        $ref: '#/definitions/ChatItem'
+      timestamp:
+        type: integer
+        description: 'タイムスタンプ [ms]（active時以外に投稿されたものはnullになる）'
+    required:
+      - id
+      - topicId
+      - createdAt
+      - type
+  Stamp:
+    title: Stamp
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      topicId:
+        type: integer
+      timestamp:
+        type: integer
+      createdAt:
+        type: string
+        format: date-time
+  TopicState:
+    type: string
+    title: TopicState
+    enum:
+      - OPEN
+      - PAUSE
+      - CLOSE
+  ChatItemType:
+    type: string
+    title: ChatItemType
+    enum:
+      - message
+      - reaction
+      - question
+      - answer
+      - speaker-message
+      - admin-message
+      - system-message
+basePath: /api
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+security:
+  - Bearer: []
+responses:
+  Success:
+    description: 成功
+    content:
+      application/json:
+        schema:
+          properties:
+            id:
+              type: string
+    schema:
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+            - success
+  Failure:
+    description: 失敗
+    content:
+      application/json:
+        schema:
+          properties:
+            id:
+              type: string
+    schema:
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+            - failure
+          example: failure
+        error:
+          type: string
+          description: エラーメッセージ
+  NotAuthenticated:
+    description: 認証エラー
+    content:
+      application/json:
+        schema:
+          properties:
+            id:
+              type: string
+    schema:
+      type: object
+      properties:
+        result:
+          type: string
+          enum:
+            - failure
+        error:
+          type: string
+          description: エラーメッセージ

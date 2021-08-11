@@ -14,8 +14,8 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
 
 # Data Structures
 ## Topic (object)
-+ id: 1 (number, required) - トピックID
-+ order: 0 (number, required) - トピックの順序を表すindex（0始まり）
++ id: 1 (number, required) - トピックID（1以上）
++ order: 0 (number, required) - トピックの順序を表すindex（1始まり）
 + name: `おすしアカデミー` (string, required)
 + description: `説明` (string, optional)
 + url: `https://sushi-chat.example.com` (string, optional)
@@ -174,7 +174,7 @@ sushi-chatのAPIです。WebSocketのAPIも無理やり書いています。
     + Attributes
         + roomId: `{roomId}` (string, required) - ルームID
         + topicId: `1` (number, required) - トピックID
-        + type: `OPEN` (enum[string], required) - トピックの状態
+        + state: `OPEN` (enum[string], required) - トピックの状態
             + `OPEN`
             + `PAUSE`
             + `CLOSE`
