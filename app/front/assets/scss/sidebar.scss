@@ -86,7 +86,7 @@
 
         &:not(.has-subchannel):hover,
         &:not(.has-subchannel):focus {
-          background: $primary-20;
+          background: rgba($primary, 0.2);
           outline: none;
         }
 
@@ -170,7 +170,7 @@
 
             &:hover,
             &:focus {
-              background: $primary-20;
+              background: rgba($primary, 0.2);
               outline: none;
             }
 
