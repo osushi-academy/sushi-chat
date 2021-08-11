@@ -18,13 +18,15 @@
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
-      <Sidebar
+      <SidebarDrawer
+        :title="'技育CAMPハッカソン vol.5'"
+        :description="'2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。'"
         :topics="[
           { id: 1, label: 'おすしアカデミー' },
           { id: 2, label: '量子力学セミナー' },
           { id: 3, label: 'だしまきたまご' },
         ]"
-      ></Sidebar>
+      ></SidebarDrawer>
       <SettingPage
         v-if="isDrawer && isAdmin"
         :room-id="room.id"
@@ -55,7 +57,7 @@ import { AdminBuildRoomResponse } from "@/models/event"
 import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
-import Sidebar from "@/components/Sidebar.vue"
+import SidebarDrawer from "~/components/Sidebar/SidebarDrawer.vue"
 import socket from "~/utils/socketIO"
 import { ChatItemStore, DeviceStore, UserItemStore } from "~/store"
 
@@ -83,7 +85,7 @@ export default Vue.extend({
     ChatRoom,
     SelectIconModal,
     CreateRoomModal,
-    Sidebar,
+    SidebarDrawer,
   },
   data(): DataType {
     return {

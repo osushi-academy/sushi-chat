@@ -1,17 +1,30 @@
 <template>
-  <nav class="sidebar">
+  <nav :class="['sidebar', this.class]">
     <div class="top-section">
-      <button class="menu-button">
+      <button class="menu-button" @click="clickHumberger">
         <menu-icon size="1x"></menu-icon>
       </button>
-      <div class="title">技育CAMPハッカソン vol.5</div>
+      <div class="title">{{ title }}</div>
     </div>
     <div class="event-logo">
-      <img src="~/assets/img/tea.png" alt="" width="72px" height="72px" />
+      <img
+        v-if="imageUrl != null"
+        :src="imageUrl"
+        alt=""
+        width="72px"
+        height="72px"
+      />
+      <img
+        v-else
+        src="~/assets/img/tea.png"
+        alt=""
+        width="72px"
+        height="72px"
+      />
     </div>
     <div class="event-description">
       <p>
-        2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。
+        {{ description }}
       </p>
     </div>
     <div class="channel-section">
@@ -76,6 +89,31 @@
               </li>
             </ul>
           </transition>
+          <ul
+            class="subchannel-list shorthand-view"
+            :style="{
+              transition:
+                !openSessions && selectedTopicId !== 0 ? 'all .1s .3s' : 'none',
+              opacity: !openSessions && selectedTopicId !== 0 ? 1 : 0,
+              visibility:
+                !openSessions && selectedTopicId !== 0 ? 'visible' : 'hidden',
+            }"
+          >
+            <li class="subchannel-wrapper">
+              <button class="subchannel selected">
+                <span class="subchannel-arrow first" aria-hidden="true"></span>
+                <span class="hashtag"
+                  >#<span class="subchannel-index">{{
+                    (topics.findIndex(({ id }) => id === selectedTopicId) ||
+                      0) + 1
+                  }}</span></span
+                >{{
+                  //@ts-ignore
+                  selectedTopic != null && selectedTopic.label
+                }}
+              </button>
+            </li>
+          </ul>
         </li>
       </ul>
     </div>
@@ -107,21 +145,52 @@ type DataType = {
 }
 
 export default Vue.extend({
-  name: "Sidebar",
+  name: "SidebarContent",
   components: {
     MenuIcon,
   },
   props: {
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
     topics: {
-      type: Object,
+      type: Array,
       required: true,
     } as PropOptions<{ id: number; label: string }[]>, // NOTE: ここの受け渡しの形は暫定
+    showHumberger: {
+      type: Boolean,
+      default: false,
+    },
+    clickHumberger: {
+      type: Function,
+      required: false,
+      default: undefined,
+    } as PropOptions<() => void | undefined>,
+    imageUrl: {
+      type: String,
+      default: undefined,
+    },
+    class: {
+      type: String,
+      default: "",
+    },
   },
   data(): DataType {
     return {
       openSessions: true,
       selectedTopicId: 0, // TODO: Vuexに移す
     }
+  },
+  computed: {
+    selectedTopic() {
+      const selectedTopicId = (this as any).selectedTopicId as number
+      return this.topics.find(({ id }) => id === selectedTopicId)
+    },
   },
   methods: {
     beforeEnter(el: HTMLElement) {
