@@ -1,24 +1,16 @@
 class User {
   public static readonly ADMIN_ICON_ID = "0"
 
-  private _roomId: string | undefined
-  private _iconId: string | undefined
+  private _roomId: string | null = null
+  private _iconId: string | null = null
 
   constructor(public readonly id: string) {}
 
-  public get roomId(): string {
-    if (this._roomId === undefined) {
-      throw new Error("Can't call roomId of User whose roomId is empty.")
-    }
-
+  public get roomId(): string | null {
     return this._roomId
   }
 
-  public get iconId(): string {
-    if (this._iconId === undefined) {
-      throw new Error("Can't call iconId of User whose iconId is empty.")
-    }
-
+  public get iconId(): string | null {
     return this._iconId
   }
 
