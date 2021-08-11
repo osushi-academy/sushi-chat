@@ -18,6 +18,13 @@
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
+      <Sidebar
+        :topics="[
+          { id: 1, label: 'おすしアカデミー' },
+          { id: 2, label: '量子力学セミナー' },
+          { id: 3, label: 'だしまきたまご' },
+        ]"
+      ></Sidebar>
       <SettingPage
         v-if="isDrawer && isAdmin"
         :room-id="room.id"
@@ -48,6 +55,7 @@ import { AdminBuildRoomResponse } from "@/models/event"
 import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
+import Sidebar from "@/components/Sidebar.vue"
 import socket from "~/utils/socketIO"
 import { ChatItemStore, DeviceStore, UserItemStore } from "~/store"
 
@@ -75,6 +83,7 @@ export default Vue.extend({
     ChatRoom,
     SelectIconModal,
     CreateRoomModal,
+    Sidebar,
   },
   data(): DataType {
     return {
