@@ -15,3 +15,13 @@ $text-gray: rgb(99, 99, 99);
 $hover-button-background: rgba(214, 214, 214, 0.3);
 
 $active-button-background: rgba(187, 187, 187, 0.3);
+
+$z-under: -1;
+$z-base: 0; // ベース
+$z-1: 1; // ベース
+$z-2: 2; // ベース
+
+$z-fixed: 30; // 固定要素（ヘッダーなど、ページに固定する要素）
+
+$z-modal-back: 49; // モーダル、ドロワーなどの背景要素（半透明のやつ）
+$z-modal: 50; // モーダル、ドロワーなど
