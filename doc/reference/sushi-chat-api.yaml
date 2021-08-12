@@ -359,12 +359,7 @@ paths:
               topicId:
                 type: number
               type:
-                type: string
-                enum:
-                  - message
-                  - reaction
-                  - question
-                  - answer
+                $ref: '#/definitions/ChatItemType'
               content:
                 type: string
               quote:
