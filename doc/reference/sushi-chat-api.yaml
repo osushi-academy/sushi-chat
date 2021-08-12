@@ -551,6 +551,7 @@ definitions:
   ChatItem:
     title: ChatItem
     type: object
+    description: ''
     properties:
       id:
         type: string
@@ -562,6 +563,8 @@ definitions:
         format: date
       type:
         $ref: '#/definitions/ChatItemType'
+      senderType:
+        $ref: '#/definitions/SenderType'
       content:
         type: string
         description: ユーザーが投稿した内容。reactionの場合のみnullが入る
@@ -575,6 +578,7 @@ definitions:
       - topicId
       - createdAt
       - type
+      - senderType
   Stamp:
     title: Stamp
     type: object
@@ -609,9 +613,6 @@ definitions:
       - reaction
       - question
       - answer
-      - speaker-message
-      - admin-message
-      - system-message
   Error:
     title: Error
     type: object
@@ -624,6 +625,14 @@ definitions:
       - code
       - message
     description: エラーレスポンス
+  SenderType:
+    type: string
+    title: SenderType
+    enum:
+      - general
+      - admin
+      - speaker
+      - system
 basePath: /api
 securityDefinitions:
   Bearer:
