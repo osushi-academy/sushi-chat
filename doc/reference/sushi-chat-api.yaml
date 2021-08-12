@@ -452,10 +452,13 @@ paths:
             required:
               - topicId
           description: ''
+      tags:
+        - SocketIO
   /PUB_TOPIC_INFO:
     get:
       summary: Your GET endpoint
-      tags: []
+      tags:
+        - SocketIO
       responses:
         '200':
           description: OK
