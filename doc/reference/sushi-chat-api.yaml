@@ -427,6 +427,54 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Stamp'
+  /CHANGE_TOPIC_INFO:
+    post:
+      summary: ''
+      operationId: post-CHANGE_TOPIC_INFO
+      responses:
+        '200':
+          description: OK
+        '400':
+          $ref: '#/responses/Failure'
+      description: トピック情報（descriptionとURL）を変更する
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              topicId:
+                type: number
+                minimum: 0
+                exclusiveMinimum: true
+              description:
+                type: string
+                description: 'description, urlのどちらか一方または両方を指定'
+              url:
+                type: string
+                format: uri
+                description: 'description, urlのどちらか一方または両方を指定'
+            required:
+              - topicId
+          description: ''
+  /PUB_TOPIC_INFO:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              result:
+                type: string
+                enum:
+                  - success
+              topic:
+                $ref: '#/definitions/Topic'
+      operationId: get-PUB_TOPIC_INFO
+      description: トピックの変更が通知される
   /ADMIN_FINISH_ROOM:
     put:
       summary: ルームを終了
