@@ -39,9 +39,9 @@
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import { randomWaitedLoog } from '@/utils/waitedLoop'
-import { HSLColor, getRandomColor } from '@/utils/color'
+import Vue, { PropOptions } from "vue"
+import { randomWaitedLoog } from "@/utils/waitedLoop"
+import { HSLColor, getRandomColor } from "@/utils/color"
 
 type FavoriteCallbackRegisterPropType = {
   favoriteCallbackRegister: (callback: (count: number) => void) => void
@@ -62,7 +62,7 @@ export type DataType = {
 }
 
 export default Vue.extend({
-  name: 'FavoriteButton',
+  name: "FavoriteButton",
   props: {
     favoriteCallbackRegister: {
       type: Function,
@@ -93,7 +93,7 @@ export default Vue.extend({
     clickFavorite() {
       if (this.disabled) return
       this.emitHeart()
-      this.$emit('favorite')
+      this.$emit("favorite")
     },
     emitHeart() {
       const colorSequence =
