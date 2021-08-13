@@ -362,8 +362,10 @@ paths:
                 $ref: '#/definitions/ChatItemType'
               content:
                 type: string
-              quote:
+                description: reactionの場合のみnull
+              quoteId:
                 type: string
+                description: answerでは回答先の質問、reactionではリアクション先のメッセージ、その他ではリプライ先のメッセージのChatItemId。answerとreactionの場合は必須、それ以外ではオプション
             required:
               - id
               - topicId
