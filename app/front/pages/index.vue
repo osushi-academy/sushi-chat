@@ -8,6 +8,7 @@
         ルームをオープンする
       </button>
     </header>
+    <p>{{topicList}}</p>
     <main>
       <CreateRoomModal
         v-if="isAdmin && room.id == null"
@@ -22,16 +23,13 @@
         v-if="isDrawer && isAdmin"
         :room-id="room.id"
         :title="''"
-        :topics="topics"
-        :topic-states="topicStates"
-        @change-topic-state="changeTopicState"
       />
       <div v-for="(chatData, index) in chatDataList" :key="index">
         <ChatRoom
           :topic-index="index"
           :chat-data="chatData"
           :favorite-callback-register="favoriteCallbackRegister"
-          :topic-state="topicStates[chatData.topic.id]"
+          :topic-state="topicStateList[chatData.topic.id]"
           @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
         />
@@ -49,7 +47,7 @@ import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
 import socket from "~/utils/socketIO"
-import { ChatItemStore, DeviceStore, UserItemStore } from "~/store"
+import { ChatItemStore, DeviceStore, UserItemStore, TopicItemStore } from "~/store"
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -62,9 +60,7 @@ type DataType = {
   hamburgerMenu: string
   isDrawer: boolean
   // ルーム情報
-  topics: Topic[]
   activeUserCount: number
-  topicStates: { [key: string]: TopicState }
   room: Room
   isRoomStarted: boolean
 }
@@ -82,21 +78,23 @@ export default Vue.extend({
       hamburgerMenu: "menu",
       isDrawer: false,
       // ルーム情報
-      topics: [],
       activeUserCount: 0,
-      topicStates: {},
       room: {} as Room,
       isRoomStarted: false,
     }
   },
   computed: {
     chatDataList(): ChatData[] {
-      return this.topics.map((topic) => ({
-        topic,
-      }))
+      return this.topicList.map((topic) => ({topic}))
     },
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
+    },
+    topicList(): Topic[] {
+      return TopicItemStore.topicItems.topics
+    },
+    topicStateList(): {[topicId: string]: TopicState } {
+      return TopicItemStore.topicItems.topicStates
     },
   },
   created(): any {
@@ -117,10 +115,10 @@ export default Vue.extend({
         },
         ({ chatItems, topics, activeUserCount }: any) => {
           topics.forEach(({ id, state }: any) => {
-            this.topicStates[id] = state
+            TopicItemStore.changeTopicState(id, state)
           })
           ChatItemStore.addList(chatItems)
-          this.topics = topics
+          TopicItemStore.setTopics(topics)
           this.activeUserCount = activeUserCount
           this.isRoomStarted = true // TODO: API側の対応が必要
         },
@@ -136,17 +134,17 @@ export default Vue.extend({
     socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
       if (res.type === "OPEN") {
         // 現在activeなトピックがあればfinishedにする
-        this.topicStates = Object.fromEntries(
-          Object.entries(this.topicStates).map(([topicId, topicState]) => [
+        this.topicStateList = Object.fromEntries(
+          Object.entries(this.topicStateList).map(([topicId, topicState]) => [
             topicId,
             topicState === "active" ? "finished" : topicState,
           ]),
         )
-        this.topicStates[res.topicId] = "active"
+        TopicItemStore.changeTopicState(res.topicId, "active")
       } else if (res.type === "PAUSE") {
-        this.topicStates[res.topicId] = "paused"
+        TopicItemStore.changeTopicState(res.topicId, "paused")
       } else if (res.type === "CLOSE") {
-        this.topicStates[res.topicId] = "finished"
+        TopicItemStore.changeTopicState(res.topicId, "finished")
       }
     })
     DeviceStore.determineOs()
@@ -160,19 +158,6 @@ export default Vue.extend({
       } else {
         this.hamburgerMenu = "menu"
       }
-    },
-    changeTopicState(topicId: string, state: TopicState) {
-      if (state === "not-started") {
-        return
-      }
-      this.topicStates[topicId] = state
-      const socket = (this as any).socket
-      socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-        roomId: this.room.id,
-        type:
-          state === "active" ? "OPEN" : state === "paused" ? "PAUSE" : "CLOSE",
-        topicId,
-      })
     },
     // ルーム情報
     // topic反映
@@ -189,7 +174,6 @@ export default Vue.extend({
       for (const t in topicsAdmin) {
         if (topicsAdmin[t].title) {
           topics.push(topicsAdmin[t])
-          // this.topicStates[this.topicsAdmin[t].id] = 'not-started'
         }
       }
 
@@ -226,10 +210,10 @@ export default Vue.extend({
             },
             ({ chatItems, topics, activeUserCount }: any) => {
               topics.forEach(({ id, state }: any) => {
-                this.topicStates[id] = state
+                TopicItemStore.changeTopicState(id, state)
               })
               ChatItemStore.addList(chatItems)
-              this.topics = topics
+              TopicItemStore.setTopics(topics)
               this.activeUserCount = activeUserCount
             },
           )
@@ -275,10 +259,10 @@ export default Vue.extend({
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (res: any) => {
-          this.topics = res.topics
+          TopicItemStore.setTopics(res.topics)
           ChatItemStore.addList(res.chatItems)
           res.topics.forEach((topic: any) => {
-            this.topicStates[topic.id] = topic.state
+            TopicItemStore.changeTopicState(topic.id, topic.state)
           })
         },
       )
@@ -311,101 +295,4 @@ export default Vue.extend({
     },
   },
 })
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const TOPICS = [
-  {
-    id: "1",
-    title: "TITLE 0",
-    urls: {},
-  },
-  {
-    id: "2",
-    title: "TITLE 0",
-    urls: {},
-  },
-  {
-    id: "3",
-    title: "TITLE 0",
-    urls: {},
-  },
-]
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const CHAT_DUMMY_DATA: ChatItem[] = [
-  {
-    timestamp: 60,
-    iconId: "2",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    id: "001",
-    topicId: "1",
-    type: "message",
-    content: "コメント",
-    target: null,
-  },
-  {
-    timestamp: 0,
-    iconId: "3",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    target: {
-      id: "001",
-      topicId: "0",
-      type: "message",
-      iconId: "2",
-      timestamp: 0,
-      createdAt: new Date("2021-05-08T00:00:00.000Z"),
-      content: "コメント",
-      target: null,
-    },
-    id: "002",
-    topicId: "1",
-    type: "reaction",
-  },
-  {
-    timestamp: 0,
-    iconId: "2",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    id: "003",
-    topicId: "1",
-    type: "question",
-    content: "質問",
-  },
-  {
-    timestamp: 0,
-    iconId: "3",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    id: "004",
-    topicId: "1",
-    type: "answer",
-    content: "回答",
-    target: {
-      id: "003",
-      topicId: "0",
-      type: "question",
-      iconId: "2",
-      timestamp: 0,
-      createdAt: new Date("2021-05-08T00:00:00.000Z"),
-      content: "質問",
-    },
-  },
-  {
-    timestamp: 0,
-    iconId: "4",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    target: {
-      id: "001",
-      topicId: "0",
-      type: "message",
-      iconId: "2",
-      timestamp: 0,
-      createdAt: new Date("2021-05-08T00:00:00.000Z"),
-      content: "コメント",
-      target: null,
-    },
-    id: "005",
-    topicId: "1",
-    type: "message",
-    content: "リプライ",
-  },
-]
 </script>

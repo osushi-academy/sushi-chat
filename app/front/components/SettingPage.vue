@@ -79,10 +79,9 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
 import ICONS from "@/utils/icons"
-import { TopicStatesPropType, Topic } from "@/models/contents"
-import { UserItemStore } from "~/store"
+import { UserItemStore, TopicItemStore } from "~/store"
 
 export default Vue.extend({
   name: "SettingPage",
@@ -95,18 +94,16 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    topics: {
-      type: Array,
-      required: true,
-    } as PropOptions<Topic[]>,
-    topicStates: {
-      type: Object,
-      required: true,
-    } as PropOptions<TopicStatesPropType>,
   },
   computed: {
     myIconId() {
       return UserItemStore.userItems.myIconId
+    },
+    topics() {
+      return TopicItemStore.topicItems.topics
+    },
+    topicStates() {
+      return TopicItemStore.topicItems.topicStates
     },
     icon() {
       return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
@@ -143,14 +140,13 @@ export default Vue.extend({
       if (
         confirm("本当にこのトピックを終了しますか？この操作は取り消せません")
       ) {
-        this.topicStates[topicId]! = "finished"
-        this.$emit("change-topic-state", topicId, "closed")
+        TopicItemStore.postTopicState(this.roomId, topicId, "finished")
       }
     },
     clickNextTopicButton() {
       // アクティブなトピックを探す
       const currentActiveTopicIndex = this.topics.findIndex(
-        (t) => this.topicStates[t.id] === "active",
+        (t) => TopicItemStore.changeTopicState(t.id, "active"),
       )
 
       if (currentActiveTopicIndex == null) {
