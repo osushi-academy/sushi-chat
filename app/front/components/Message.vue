@@ -27,7 +27,11 @@
           <UrlToLink :text="message.content" />
         </div>
         <div v-else class="text">
-          <span :style="{ color: 'gray', fontSize: '80%' }" @click.stop>
+          <span
+            class="long-text"
+            :style="{ color: 'gray', fontSize: '80%' }"
+            @click.stop
+          >
             <UrlToLink :text="`> ` + message.target.content" />
           </span>
           <UrlToLink :text="message.content" />
@@ -37,12 +41,22 @@
         <div class="comment-timestamp">
           {{ showTimestamp(message.timestamp) }}
         </div>
-        <div v-if="message.iconId != '0'" class="badges">
+        <div class="badges">
           <button class="reply-icon" @click="clickReply">
             <span class="material-icons"> reply </span>
           </button>
           <button class="bg-good-icon">
-            <span class="material-icons" @click="clickCard"> thumb_up </span>
+            <span
+              :style="{
+                backgroundColor: isLikedChatItem ? icon.colorCode : '',
+                color: isLikedChatItem ? 'white' : '',
+                transform: isLikedChatItem ? 'rotate(-20deg)' : '',
+              }"
+              class="material-icons"
+              @click="clickThumbUp"
+            >
+              thumb_up
+            </span>
           </button>
         </div>
       </div>
@@ -55,7 +69,12 @@
           <source :srcset="icon.webp" type="image/webp" />
           <img :src="icon.png" alt="" />
         </picture>
-        <div class="raction-badge">
+        <div
+          class="raction-badge"
+          :style="{
+            backgroundColor: targetIcon.colorCode,
+          }"
+        >
           <span class="material-icons"> thumb_up </span>
         </div>
       </div>
@@ -64,6 +83,11 @@
       </div>
       <span class="material-icons"> north_west </span>
     </article>
+
+    <!--System Message-->
+    <!--article class="system_message">
+      <UrlToLink :text="message.content" />
+    </article-->
   </div>
 </template>
 <script lang="ts">
@@ -71,6 +95,10 @@ import Vue, { PropOptions } from "vue"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
 import { ChatItemPropType } from "~/models/contents"
+
+type DataType = {
+  isLikedChatItem: boolean
+}
 
 export default Vue.extend({
   name: "Message",
@@ -83,14 +111,23 @@ export default Vue.extend({
       required: true,
     } as PropOptions<ChatItemPropType>,
   },
+  data(): DataType {
+    return {
+      isLikedChatItem: false,
+    }
+  },
   computed: {
     icon() {
       return ICONS[this.$props.message.iconId] ?? ICONS[0]
     },
+    targetIcon() {
+      return ICONS[this.$props.message.target.iconId]
+    },
   },
   methods: {
-    clickCard() {
-      this.$emit("click-card", this.message)
+    clickThumbUp() {
+      if (!this.isLikedChatItem) this.isLikedChatItem = true
+      this.$emit("click-thumb-up", this.message)
     },
     clickReply() {
       this.$emit("click-reply")

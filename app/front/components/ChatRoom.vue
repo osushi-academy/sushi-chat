@@ -21,7 +21,7 @@
           >
             <MessageComponent
               :message="message"
-              @click-card="clickReaction"
+              @click-thumb-up="clickReaction"
               @click-reply="selectedChatItem = message"
             />
           </div>

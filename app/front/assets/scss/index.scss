@@ -359,6 +359,14 @@
   padding: 0.5em 0;
   scroll-snap-align: end;
 
+  & > .system_message {
+    position: relative;
+    background-color: $placeholder-gray;
+    padding: 0.6em 1em;
+    border-radius: 5px;
+    color: $text-gray;
+  }
+
   & > .comment,.reaction {
     position: relative;
     min-height: 5rem;
@@ -379,6 +387,17 @@
         word-break: break-all;
         overflow-wrap: anywhere;
         margin-left: 0.5em;
+      }
+      .long-text {
+        flex: 1;
+        display: -webkit-box;
+        color: $text-gray;
+        word-break: break-all;
+        overflow-wrap: anywhere;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        margin-left: 0.6rem;
       }
     }
 
@@ -430,7 +449,7 @@
             padding: 0.3rem;
           }
           .selected{
-            transform: rotate(-10deg);
+            transform: rotate(-20deg);
           }
         }
       }
@@ -470,7 +489,7 @@
       & > .material-icons{
         margin-left: 1em;
         color: $text-gray;
-        font-size: 1.2rem;
+        font-size: 1rem;
       }
       .icon-wrapper {
         width: 1.5rem;

@@ -45,7 +45,7 @@ export type TopicPropType = Topic
 
 export type TopicStatesPropType = { [key: string]: TopicState }
 
-export type IconsDataType = { png: string, webp: string }[]
+export type IconsDataType = { png: string, webp: string, colorCode:string }[]
 
 // ルーム型
 export type Room = {
