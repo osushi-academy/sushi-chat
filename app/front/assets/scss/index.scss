@@ -398,6 +398,10 @@
         -webkit-line-clamp: 2;
         overflow: hidden;
         margin-left: 0.6rem;
+        &:hover{
+          text-decoration: underline;
+          cursor: pointer;
+        }
       }
     }
 
@@ -484,12 +488,17 @@
         -webkit-line-clamp: 1;
         overflow: hidden;
         margin-left: 0.6rem;
+        &:hover{
+          text-decoration: underline;
+          cursor: pointer;
+        }
       }
 
       & > .material-icons{
         margin-left: 1em;
         color: $text-gray;
         font-size: 1rem;
+        cursor: pointer;
       }
       .icon-wrapper {
         width: 1.5rem;

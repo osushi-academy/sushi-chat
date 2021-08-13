@@ -32,7 +32,11 @@
             :style="{ color: 'gray', fontSize: '80%' }"
             @click.stop
           >
-            <UrlToLink :text="`> ` + message.target.content" />
+            <UrlToLink
+              v-if="message.type != 'answer'"
+              :text="`> ` + message.target.content"
+            />
+            <UrlToLink v-else :text="`Q. ` + message.target.content" />
           </span>
           <UrlToLink :text="message.content" />
         </div>
