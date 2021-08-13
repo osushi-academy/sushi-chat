@@ -55,7 +55,7 @@
           <source :srcset="icon.webp" type="image/webp" />
           <img :src="icon.png" alt="" />
         </picture>
-        <div class="reply-badge">
+        <div class="raction-badge">
           <span class="material-icons"> thumb_up </span>
         </div>
       </div>
