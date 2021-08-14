@@ -70,13 +70,13 @@
     <article v-else-if="message.type == 'reaction'" class="reaction">
       <div class="icon-wrapper">
         <picture>
-          <source :srcset="icon.webp" type="image/webp" />
-          <img :src="icon.png" alt="" />
+          <source :srcset="targetIcon.webp" type="image/webp" />
+          <img :src="targetIcon.png" alt="" />
         </picture>
         <div
           class="raction-badge"
           :style="{
-            backgroundColor: targetIcon.colorCode,
+            backgroundColor: icon.colorCode,
           }"
         >
           <span class="material-icons"> thumb_up </span>
