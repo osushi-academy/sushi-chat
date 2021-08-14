@@ -139,6 +139,23 @@ paths:
       security: []
       tags:
         - room
+  '/rooms/{id}/start':
+    parameters:
+      - type: string
+        name: id
+        in: path
+        required: true
+    put:
+      summary: ''
+      operationId: put-rooms-id-start
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+        '401':
+          $ref: '#/responses/Unuthenticated'
+      description: ルームを開始する（これ以降トピックの開始などが可能になる。またアクセスしてきたユーザにはWebSocketが繋がれる）
   '/room/{id}/history':
     parameters:
       - type: string
@@ -525,7 +542,7 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Topic'
-      type:
+      state:
         type: string
         enum:
           - not-started
@@ -547,7 +564,7 @@ definitions:
       - id
       - name
       - topics
-      - type
+      - state
   ChatItem:
     title: ChatItem
     type: object
