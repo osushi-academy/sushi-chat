@@ -22,7 +22,6 @@
         v-if="isDrawer && isAdmin"
         :room-id="room.id"
         :title="''"
-        :topics="topics"
         :topic-states="topicStates"
         @change-topic-state="changeTopicState"
       />
@@ -49,7 +48,7 @@ import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
 import socket from "~/utils/socketIO"
-import { ChatItemStore, DeviceStore, UserItemStore } from "~/store"
+import { ChatItemStore, DeviceStore, UserItemStore, TopicStore } from "~/store"
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -62,7 +61,6 @@ type DataType = {
   hamburgerMenu: string
   isDrawer: boolean
   // ルーム情報
-  topics: Topic[]
   activeUserCount: number
   topicStates: { [key: string]: TopicState }
   room: Room
@@ -82,7 +80,6 @@ export default Vue.extend({
       hamburgerMenu: "menu",
       isDrawer: false,
       // ルーム情報
-      topics: [],
       activeUserCount: 0,
       topicStates: {},
       room: {} as Room,
@@ -98,6 +95,9 @@ export default Vue.extend({
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
     },
+    topics(): Topic[] {
+      return TopicStore.topics
+    }
   },
   created(): any {
     if (this.$route.query.user === "admin") {
@@ -120,7 +120,7 @@ export default Vue.extend({
             this.topicStates[id] = state
           })
           ChatItemStore.addList(chatItems)
-          this.topics = topics
+          TopicStore.set(topics)
           this.activeUserCount = activeUserCount
           this.isRoomStarted = true // TODO: API側の対応が必要
         },
@@ -229,7 +229,7 @@ export default Vue.extend({
                 this.topicStates[id] = state
               })
               ChatItemStore.addList(chatItems)
-              this.topics = topics
+              TopicStore.set(topics)
               this.activeUserCount = activeUserCount
             },
           )
@@ -275,7 +275,7 @@ export default Vue.extend({
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (res: any) => {
-          this.topics = res.topics
+          TopicStore.set(res.topics)
           ChatItemStore.addList(res.chatItems)
           res.topics.forEach((topic: any) => {
             this.topicStates[topic.id] = topic.state
@@ -311,101 +311,4 @@ export default Vue.extend({
     },
   },
 })
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const TOPICS = [
-  {
-    id: "1",
-    title: "TITLE 0",
-    urls: {},
-  },
-  {
-    id: "2",
-    title: "TITLE 0",
-    urls: {},
-  },
-  {
-    id: "3",
-    title: "TITLE 0",
-    urls: {},
-  },
-]
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const CHAT_DUMMY_DATA: ChatItem[] = [
-  {
-    timestamp: 60,
-    iconId: "2",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    id: "001",
-    topicId: "1",
-    type: "message",
-    content: "コメント",
-    target: null,
-  },
-  {
-    timestamp: 0,
-    iconId: "3",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    target: {
-      id: "001",
-      topicId: "0",
-      type: "message",
-      iconId: "2",
-      timestamp: 0,
-      createdAt: new Date("2021-05-08T00:00:00.000Z"),
-      content: "コメント",
-      target: null,
-    },
-    id: "002",
-    topicId: "1",
-    type: "reaction",
-  },
-  {
-    timestamp: 0,
-    iconId: "2",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    id: "003",
-    topicId: "1",
-    type: "question",
-    content: "質問",
-  },
-  {
-    timestamp: 0,
-    iconId: "3",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    id: "004",
-    topicId: "1",
-    type: "answer",
-    content: "回答",
-    target: {
-      id: "003",
-      topicId: "0",
-      type: "question",
-      iconId: "2",
-      timestamp: 0,
-      createdAt: new Date("2021-05-08T00:00:00.000Z"),
-      content: "質問",
-    },
-  },
-  {
-    timestamp: 0,
-    iconId: "4",
-    createdAt: new Date("2021-05-08T00:00:00.000Z"),
-    target: {
-      id: "001",
-      topicId: "0",
-      type: "message",
-      iconId: "2",
-      timestamp: 0,
-      createdAt: new Date("2021-05-08T00:00:00.000Z"),
-      content: "コメント",
-      target: null,
-    },
-    id: "005",
-    topicId: "1",
-    type: "message",
-    content: "リプライ",
-  },
-]
 </script>

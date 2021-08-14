@@ -82,7 +82,7 @@
 import Vue, { PropOptions } from "vue"
 import ICONS from "@/utils/icons"
 import { TopicStatesPropType, Topic } from "@/models/contents"
-import { UserItemStore } from "~/store"
+import { UserItemStore, TopicStore } from "~/store"
 
 export default Vue.extend({
   name: "SettingPage",
@@ -95,16 +95,15 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    topics: {
-      type: Array,
-      required: true,
-    } as PropOptions<Topic[]>,
     topicStates: {
       type: Object,
       required: true,
     } as PropOptions<TopicStatesPropType>,
   },
   computed: {
+    topics(): Topic[]{
+      return TopicStore.topics
+    },
     myIconId() {
       return UserItemStore.userItems.myIconId
     },
