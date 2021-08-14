@@ -27,15 +27,6 @@
         </div>
       </div>
 
-      <button
-        v-if="myIconId === 0"
-        class="next-topic-button"
-        @click="clickNextTopicButton"
-      >
-        <span class="material-icons"> fast_forward </span>
-        次のトピックに遷移
-      </button>
-
       <div class="topic-list">
         <div
           v-for="(topic, index) in topics"
@@ -53,7 +44,7 @@
               >一時停止</span
             >
           </div>
-          <div v-if="myIconId === 0" class="buttons">
+          <div class="buttons">
             <button
               v-if="topicStateItems[topic.id] != 'finished'"
               @click="clickPlayPauseButton(topic.id)"
@@ -103,9 +94,6 @@ export default Vue.extend({
     topicStateItems() {
       return TopicStateItemStore.topicStateItems
     },
-    myIconId() {
-      return UserItemStore.userItems.myIconId
-    },
     icon() {
       return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
     },
@@ -143,22 +131,6 @@ export default Vue.extend({
       ) {
         TopicStateItemStore.change({key: topicId, state: "finished"})
         this.$emit("change-topic-state", topicId, "closed")
-      }
-    },
-    clickNextTopicButton() {
-      // アクティブなトピックを探す
-      const currentActiveTopicIndex = this.topics.findIndex(
-        (t) => this.topicStateItems[t.id] === "active",
-      )
-
-      if (currentActiveTopicIndex == null) {
-        return
-      }
-
-      const nextTopic = this.topics?.[currentActiveTopicIndex + 1]
-
-      if (nextTopic != null) {
-        this.$emit("change-topic-state", nextTopic.id, "active")
       }
     },
   },
