@@ -1,4 +1,4 @@
-issue #xxx
+close #xxx
 
 ## やったこと
 
