@@ -156,6 +156,8 @@ paths:
         '401':
           $ref: '#/responses/Unuthenticated'
       description: ルームを開始する（これ以降トピックの開始などが可能になる。またアクセスしてきたユーザにはWebSocketが繋がれる）
+      tags:
+        - room
   '/room/{id}/history':
     parameters:
       - type: string
