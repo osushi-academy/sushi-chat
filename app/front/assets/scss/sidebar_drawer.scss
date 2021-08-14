@@ -1,0 +1,48 @@
+.sidebar-drawer {
+  & .sidebar-drawer-transition {
+    &-enter-active,
+    &-leave-active {
+      transition: all 0.3s;
+    }
+    &-enter,
+    &-leave-to {
+      transform: translateX(-100%);
+    }
+    &-enter-to,
+    &-leave {
+      transform: translateX(0);
+    }
+  }
+
+  & > .sidebar-content {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: $z-modal;
+  }
+
+  & > .menu-button-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: transparent;
+    fill: $black;
+    z-index: 40;
+
+    & > .menu-button {
+      width: 64px;
+      height: 64px;
+      // border: none;
+      // background: transparent;
+      border-radius: 99px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover,
+      &:focus {
+        background: $gray;
+      }
+    }
+  }
+}
