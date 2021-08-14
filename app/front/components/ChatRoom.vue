@@ -84,7 +84,7 @@ import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
-import { ChatItemStore } from "~/store"
+import { ChatItemStore, StampStore } from "~/store"
 
 type ChatDataPropType = {
   topic: Topic
@@ -195,13 +195,15 @@ export default Vue.extend({
       this.clickScroll()
       this.selectedChatItem = null
     },
+    // リアクションボタン
     clickReaction(message: Message) {
       ChatItemStore.postReaction({ message })
     },
-    // ハートボタン
+    // スタンプボタン
     clickFavorite() {
-      this.$emit("send-stamp", this.chatData.topic.id)
+      StampStore.sendFavorite(this.chatData.topic.id)
     },
+    // スクロール
     handleScroll: throttle(function (this: any, e: Event) {
       if (!this.isScrollBottom(e.target)) {
         this.isNotify = true

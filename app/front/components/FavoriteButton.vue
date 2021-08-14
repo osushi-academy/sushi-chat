@@ -48,7 +48,6 @@ type FavoriteCallbackRegisterPropType = {
 }
 
 export type DataType = {
-  show: boolean
   count: {
     id: number
     color: HSLColor
@@ -75,7 +74,6 @@ export default Vue.extend({
   },
   data(): DataType {
     return {
-      show: false,
       count: [],
       lastClicked: 0,
       colorSequence: 0,
@@ -92,9 +90,13 @@ export default Vue.extend({
   methods: {
     clickFavorite() {
       if (this.disabled) return
+      // スタンプのアニメーション
       this.emitHeart()
+      // Storeに追加し、サーバーに反映
       this.$emit("favorite")
     },
+
+    // スタンプのアニメーション
     emitHeart() {
       const colorSequence =
         new Date().getTime() - this.lastClicked < 1000

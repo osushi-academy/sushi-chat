@@ -32,7 +32,6 @@
           :chat-data="chatData"
           :favorite-callback-register="favoriteCallbackRegister"
           :topic-state="topicStates[chatData.topic.id]"
-          @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
         />
       </div>
@@ -287,13 +286,7 @@ export default Vue.extend({
     clickIcon(index: number) {
       UserItemStore.changeMyIcon(index)
     },
-
-    sendFavorite(topicId: string) {
-      const socket = (this as any).socket
-      socket.emit("POST_STAMP", { topicId })
-    },
     // スタンプが通知された時に実行されるコールバックの登録
-    // NOTE: スタンプ周りのUI表示が複雑なため、少しややこしい実装を採用しています。
     favoriteCallbackRegister(
       topicId: string,
       callback: (count: number) => void,
