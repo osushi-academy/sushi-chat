@@ -545,11 +545,7 @@ definitions:
         items:
           $ref: '#/definitions/Topic'
       state:
-        type: string
-        enum:
-          - not-started
-          - ongoing
-          - closed
+        $ref: '#/definitions/RoomState'
       description:
         type: string
       startDate:
@@ -567,6 +563,7 @@ definitions:
       - name
       - topics
       - state
+    x-examples: {}
   ChatItem:
     title: ChatItem
     type: object
@@ -652,6 +649,13 @@ definitions:
       - admin
       - speaker
       - system
+  RoomState:
+    type: string
+    title: RoomState
+    enum:
+      - not-started
+      - ongoing
+      - finished
 basePath: /api
 securityDefinitions:
   Bearer:
