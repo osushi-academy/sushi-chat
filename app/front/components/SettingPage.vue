@@ -119,9 +119,7 @@ export default Vue.extend({
     clickPlayPauseButton(topicId: string) {
       if (this.topicStateItems[topicId] === "active") {
         this.$emit("change-topic-state", topicId, "paused")
-      } else if (this.topicStateItems[topicId] === "paused") {
-        this.$emit("change-topic-state", topicId, "active")
-      } else if (this.topicStateItems[topicId] === "not-started") {
+      } else if (this.topicStateItems[topicId] === ("paused" || "not-started")) {
         this.$emit("change-topic-state", topicId, "active")
       }
     },

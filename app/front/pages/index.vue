@@ -279,7 +279,7 @@ export default Vue.extend({
           TopicStore.set(res.topics)
           ChatItemStore.addList(res.chatItems)
           res.topics.forEach((topic: any) => {
-            TopicStateItemStore.change({key: res.topicId, state: topic.state})
+            TopicStateItemStore.change({key: topic.id, state: topic.state})
           })
         },
       )
