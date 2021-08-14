@@ -22,7 +22,6 @@
         v-if="isDrawer && isAdmin"
         :room-id="room.id"
         :title="''"
-        :topic-states="topicStates"
         @change-topic-state="changeTopicState"
       />
       <div v-for="(chatData, index) in chatDataList" :key="index">
@@ -30,7 +29,7 @@
           :topic-index="index"
           :chat-data="chatData"
           :favorite-callback-register="favoriteCallbackRegister"
-          :topic-state="topicStates[chatData.topic.id]"
+          :topic-state="topicStateItems[chatData.topic.id]"
           @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
         />
@@ -48,7 +47,7 @@ import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
 import socket from "~/utils/socketIO"
-import { ChatItemStore, DeviceStore, UserItemStore, TopicStore } from "~/store"
+import { ChatItemStore, DeviceStore, UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -62,7 +61,6 @@ type DataType = {
   isDrawer: boolean
   // ルーム情報
   activeUserCount: number
-  topicStates: { [key: string]: TopicState }
   room: Room
   isRoomStarted: boolean
 }
@@ -81,7 +79,6 @@ export default Vue.extend({
       isDrawer: false,
       // ルーム情報
       activeUserCount: 0,
-      topicStates: {},
       room: {} as Room,
       isRoomStarted: false,
     }
@@ -97,7 +94,10 @@ export default Vue.extend({
     },
     topics(): Topic[] {
       return TopicStore.topics
-    }
+    },
+    topicStateItems() {
+      return TopicStateItemStore.topicStateItems
+    },
   },
   created(): any {
     if (this.$route.query.user === "admin") {
@@ -117,7 +117,7 @@ export default Vue.extend({
         },
         ({ chatItems, topics, activeUserCount }: any) => {
           topics.forEach(({ id, state }: any) => {
-            this.topicStates[id] = state
+            this.topicStateItems[id] = state
           })
           ChatItemStore.addList(chatItems)
           TopicStore.set(topics)
@@ -136,17 +136,19 @@ export default Vue.extend({
     socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
       if (res.type === "OPEN") {
         // 現在activeなトピックがあればfinishedにする
-        this.topicStates = Object.fromEntries(
-          Object.entries(this.topicStates).map(([topicId, topicState]) => [
+        const t = Object.fromEntries(
+          Object.entries(this.topicStateItems).map(([topicId, topicState]) => [
             topicId,
             topicState === "active" ? "finished" : topicState,
           ]),
         )
-        this.topicStates[res.topicId] = "active"
+        TopicStateItemStore.set(t)
+        // クリックしたTopicのStateを変える
+        TopicStateItemStore.change({key: res.topicId, state: "active"})
       } else if (res.type === "PAUSE") {
-        this.topicStates[res.topicId] = "paused"
+        TopicStateItemStore.change({key: res.topicId, state: "paused"})
       } else if (res.type === "CLOSE") {
-        this.topicStates[res.topicId] = "finished"
+        TopicStateItemStore.change({key: res.topicId, state: "finished"})
       }
     })
     DeviceStore.determineOs()
@@ -165,7 +167,7 @@ export default Vue.extend({
       if (state === "not-started") {
         return
       }
-      this.topicStates[topicId] = state
+      TopicStateItemStore.change({key: topicId, state})
       const socket = (this as any).socket
       socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
         roomId: this.room.id,
@@ -189,7 +191,6 @@ export default Vue.extend({
       for (const t in topicsAdmin) {
         if (topicsAdmin[t].title) {
           topics.push(topicsAdmin[t])
-          // this.topicStates[this.topicsAdmin[t].id] = 'not-started'
         }
       }
 
@@ -226,7 +227,7 @@ export default Vue.extend({
             },
             ({ chatItems, topics, activeUserCount }: any) => {
               topics.forEach(({ id, state }: any) => {
-                this.topicStates[id] = state
+                TopicStateItemStore.change({key: id, state})
               })
               ChatItemStore.addList(chatItems)
               TopicStore.set(topics)
@@ -278,7 +279,7 @@ export default Vue.extend({
           TopicStore.set(res.topics)
           ChatItemStore.addList(res.chatItems)
           res.topics.forEach((topic: any) => {
-            this.topicStates[topic.id] = topic.state
+            TopicStateItemStore.change({key: res.topicId, state: topic.state})
           })
         },
       )
