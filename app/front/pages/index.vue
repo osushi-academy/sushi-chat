@@ -29,7 +29,6 @@
           :topic-index="index"
           :chat-data="chatData"
           :favorite-callback-register="favoriteCallbackRegister"
-          :topic-state="topicStateItems[chatData.topic.id]"
           @send-stamp="sendFavorite"
           @topic-activate="changeActiveTopic"
         />

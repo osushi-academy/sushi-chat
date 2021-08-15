@@ -68,7 +68,7 @@
     </div>
     <TextArea
       :topic="chatData.topic"
-      :disabled="isNotStartedTopic"
+      :disabled="topicState !== 'not-started'"
       @submit="clickSubmit"
     />
   </article>
@@ -78,13 +78,13 @@ import Vue, { PropOptions } from "vue"
 import throttle from "lodash.throttle"
 import { XIcon, ChevronUpIcon } from "vue-feather-icons"
 import AnalysisGraph from "./AnalysisGraph.vue"
-import { Topic, Message, TopicState, Question, Answer } from "@/models/contents"
+import { Topic, Message, Question, Answer } from "@/models/contents"
 import TopicHeader from "@/components/TopicHeader.vue"
 import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
-import { ChatItemStore } from "~/store"
+import { ChatItemStore, TopicStateItemStore } from "~/store"
 
 type ChatDataPropType = {
   topic: Topic
@@ -127,10 +127,6 @@ export default Vue.extend({
       type: Function,
       required: true,
     } as PropOptions<FavoriteCallbackRegisterPropType>,
-    topicState: {
-      type: String,
-      required: true,
-    } as PropOptions<TopicState>,
   },
   data(): DataType {
     return {
@@ -140,13 +136,13 @@ export default Vue.extend({
     }
   },
   computed: {
-    isNotStartedTopic() {
-      return this.topicState === "not-started"
-    },
     chatItems() {
       return ChatItemStore.chatItems.filter(
         ({ topicId }) => topicId === this.chatData.topic.id,
       )
+    },
+    topicState() {
+      return TopicStateItemStore.topicStateItems[this.chatData.topic.id]
     },
   },
   watch: {

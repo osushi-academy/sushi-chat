@@ -1,4 +1,4 @@
-import { Module, VuexModule, Mutation } from "vuex-module-decorators"
+import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
 import { TopicState } from "~/models/contents"
 
 type TopicStateItem = { [key: string]: TopicState }
