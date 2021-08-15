@@ -2,15 +2,27 @@ import { Server, Socket } from "socket.io"
 import { Server as HttpServer } from "http"
 import { v4 as uuid } from "uuid"
 import RoomClass from "./domain/room/Room"
-import SaveChatItemClass from "./saveChatItem"
 import { ReceiveEventParams, ReceiveEventResponses } from "./events"
-import ServerSocket from "./serverSocket"
-import { clientCreate, insertRoom, insertTopics } from "./database/database"
-import { Client } from "pg"
 import { instrument } from "@socket.io/admin-ui"
 import { generateHash } from "./utils/crypt"
+import RoomService from "./service/room/RoomService"
+import StampService from "./service/stamp/StampService"
+import UserService from "./service/user/UserService"
+import ChatItemService from "./service/chatItem/ChatItemService"
+import { PostChatItemCommand } from "./service/chatItem/commands"
+import StampDelivery from "./infra/delivery/stamp/StampDelivery"
+import IUserRepository from "./domain/user/IUserRepository"
+import IRoomRepository from "./domain/room/IRoomRepository"
+import IChatItemRepository from "./domain/chatItem/IChatItemRepository"
+import IStampRepository from "./domain/stamp/IStampRepository"
 
-const createSocketIOServer = async (httpServer: HttpServer) => {
+const createSocketIOServer = async (
+  httpServer: HttpServer,
+  userRepository: IUserRepository,
+  roomRepository: IRoomRepository,
+  chatItemRepository: IChatItemRepository,
+  stampRepository: IStampRepository,
+) => {
   const io = new Server(httpServer, {
     cors: {
       origin: "*",
@@ -35,20 +47,7 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
   })
   RoomClass.globalSocket = io
 
-  const rooms: Record<string, RoomClass> = {}
-  const client: Client = clientCreate()
-  SaveChatItemClass.client = client
-
   let activeUserCount = 0
-  let serverAwakerTimer: NodeJS.Timeout
-  let chatItemIntervalSaverTimer: NodeJS.Timeout
-
-  //サーバー起こしておくため
-  function serverAwaker() {
-    return setInterval(() => {
-      io.sockets.emit("")
-    }, 30000)
-  }
 
   //本体
   io.on(
@@ -64,58 +63,50 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
         Record<string, never>
       >,
     ) => {
+      new UserService(userRepository, roomRepository).createUser({
+        userId: socket.id,
+      })
+
       activeUserCount++
       console.log("user joined, now", activeUserCount)
-      if (activeUserCount === 1) {
-        //サーバー起こしておくため
-        serverAwakerTimer = serverAwaker()
-        //1分ごとにchatItemをDBに保存するため
-        chatItemIntervalSaverTimer = SaveChatItemClass.chatItemIntervalSaver()
-      }
 
       // ルームをたてる
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
         try {
           const roomId = uuid()
-          const newRoom = new RoomClass(
-            roomId,
-            received.title,
-            received.topics,
-            client,
+          const roomService = new RoomService(
+            roomRepository,
+            userRepository,
+            StampDelivery.getInstance(io),
           )
-          rooms[roomId] = newRoom
-          console.log(`new room build: ${roomId}`)
-          //DBにセーブ
-          insertRoom(client, newRoom.id, "", newRoom.title, 0)
-          insertTopics(client, roomId, newRoom.topics)
+          const newRoom = roomService.build({
+            id: roomId,
+            title: received.title,
+            topics: received.topics,
+          })
+
           callback({
             id: newRoom.id,
             title: newRoom.title,
             topics: newRoom.topics,
           })
         } catch (e) {
-          console.log(
+          console.error(
             `${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
             new Date().toISOString(),
           )
         }
       })
 
-      /** @var roomId このユーザーが参加しているルームID */
-      let roomId: string
-
       // 管理者がルームに参加する
       socket.on("ADMIN_ENTER_ROOM", (received, callback) => {
         try {
-          if (!(received.roomId in rooms)) {
-            throw new Error("[sushi-chat-server] Room does not exists.")
-          }
-
-          const room = rooms[received.roomId]
-          const serverSocket = new ServerSocket(socket, received.roomId)
-          room.joinUser(serverSocket, "0")
-
-          roomId = room.id
+          const userService = new UserService(userRepository, roomRepository)
+          const room = userService.adminEnterRoom({
+            adminId: socket.id,
+            roomId: received.roomId,
+            adminSocket: socket,
+          })
 
           callback({
             chatItems: room.getChatItems(),
@@ -123,7 +114,7 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
             activeUserCount: room.activeUserCount,
           })
         } catch (e) {
-          console.log(
+          console.error(
             `${e.message ?? "Unknown error."} (ADMIN_ENTER_ROOM)`,
             new Date().toISOString(),
           )
@@ -133,15 +124,13 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
       // ルームに参加する
       socket.on("ENTER_ROOM", (received, callback) => {
         try {
-          if (!(received.roomId in rooms)) {
-            throw new Error("[sushi-chat-server] Room does not exists.")
-          }
-
-          const room = rooms[received.roomId]
-          const serverSocket = new ServerSocket(socket, received.roomId)
-          room.joinUser(serverSocket, received.iconId)
-
-          roomId = room.id
+          const userService = new UserService(userRepository, roomRepository)
+          const room = userService.enterRoom({
+            userId: socket.id,
+            roomId: received.roomId,
+            userSocket: socket,
+            iconId: received.iconId,
+          })
 
           callback({
             chatItems: room.getChatItems(),
@@ -157,13 +146,14 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
       })
 
       // ルームを開始する
-      socket.on("ADMIN_START_ROOM", (_) => {
+      socket.on("ADMIN_START_ROOM", () => {
         try {
-          if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room")
-          }
-          const room = rooms[roomId]
-          room.startRoom()
+          const roomService = new RoomService(
+            roomRepository,
+            userRepository,
+            StampDelivery.getInstance(io),
+          )
+          roomService.start(socket.id)
         } catch (e) {
           console.log(
             `${e.message ?? "Unknown error."} (ADMIN_START_ROOM)`,
@@ -175,14 +165,18 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
       // トピック状態の変更
       socket.on("ADMIN_CHANGE_TOPIC_STATE", (received) => {
         try {
-          if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room")
-          }
-          const room = rooms[roomId]
-          console.log(received)
-          room.changeTopicState(received)
+          const roomService = new RoomService(
+            roomRepository,
+            userRepository,
+            StampDelivery.getInstance(io),
+          )
+          roomService.changeTopicState({
+            userId: socket.id,
+            topicId: received.topicId,
+            type: received.type,
+          })
         } catch (e) {
-          console.log(
+          console.error(
             `${e.message ?? "Unknown error."} (ADMIN_CHANGE_TOPIC_STATE)`,
             new Date().toISOString(),
           )
@@ -190,27 +184,51 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
       })
 
       //messageで送られてきたときの処理
-      // @ts-ignore
-      socket.on("POST_CHAT_ITEM", (received: ChatItemReceive) => {
+      socket.on("POST_CHAT_ITEM", (received) => {
         try {
-          console.log(
-            received.type === "message"
-              ? "message: " + received.content + " (id: " + received.id + ")"
-              : received.type === "reaction"
-              ? "reaction: to " + received.reactionToId
-              : received.type === "question"
-              ? "question: " + received.content + " (id: " + received.id + ")"
-              : "answer: " + received.content + " (id: " + received.id + ")",
+          const chatItemService = new ChatItemService(
+            chatItemRepository,
+            roomRepository,
+            userRepository,
           )
-
-          if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room")
+          const commandBase: PostChatItemCommand = {
+            userId: socket.id,
+            chatItemId: received.id,
+            topicId: received.topicId,
           }
-          const room = rooms[roomId]
-
-          room.postChatItem(socket.id, received)
+          const chatItemType = received.type
+          switch (received.type) {
+            case "message":
+              chatItemService.postMessage({
+                ...commandBase,
+                content: received.content,
+                targetId: received.target,
+              })
+              break
+            case "reaction":
+              chatItemService.postReaction({
+                ...commandBase,
+                targetId: received.reactionToId,
+              })
+              break
+            case "question":
+              chatItemService.postQuestion({
+                ...commandBase,
+                content: received.content,
+              })
+              break
+            case "answer":
+              chatItemService.postAnswer({
+                ...commandBase,
+                content: received.content,
+                targetId: received.target,
+              })
+              break
+            default:
+              throw new Error(`Invalid received.type(${chatItemType})`)
+          }
         } catch (e) {
-          console.log(
+          console.error(
             `${e.message ?? "Unknown error."} (POST_CHAT_ITEM)`,
             new Date().toISOString(),
           )
@@ -218,15 +236,20 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
       })
 
       // スタンプを投稿する
-      socket.on("POST_STAMP", (params) => {
+      socket.on("POST_STAMP", (received) => {
         try {
-          if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room")
-          }
-          const room = rooms[roomId]
-          room.postStamp(socket.id, params)
+          const stampService = new StampService(
+            stampRepository,
+            roomRepository,
+            userRepository,
+            StampDelivery.getInstance(io),
+          )
+          stampService.post({
+            userId: socket.id,
+            topicId: received.topicId,
+          })
         } catch (e) {
-          console.log(
+          console.error(
             `${e.message ?? "Unknown error."} (POST_STAMP)`,
             new Date().toISOString(),
           )
@@ -236,13 +259,14 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
       // ルームを終了する
       socket.on("ADMIN_FINISH_ROOM", () => {
         try {
-          if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room")
-          }
-          const room = rooms[roomId]
-          room.finishRoom()
+          const roomService = new RoomService(
+            roomRepository,
+            userRepository,
+            StampDelivery.getInstance(io),
+          )
+          roomService.finish(socket.id)
         } catch (e) {
-          console.log(
+          console.error(
             `${e.message ?? "Unknown error."} (ADMIN_FINISH_ROOM)`,
             new Date().toISOString(),
           )
@@ -252,13 +276,14 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
       // ルームを閉じる
       socket.on("ADMIN_CLOSE_ROOM", () => {
         try {
-          if (roomId == null) {
-            throw new Error("[sushi-chat-server] You do not joined in any room")
-          }
-          const room = rooms[roomId]
-          room.closeRoom()
+          const roomService = new RoomService(
+            roomRepository,
+            userRepository,
+            StampDelivery.getInstance(io),
+          )
+          roomService.close(socket.id)
         } catch (e) {
-          console.log(
+          console.error(
             `${e.message ?? "Unknown error."} (ADMIN_CLOSE_ROOM)`,
             new Date().toISOString(),
           )
@@ -266,15 +291,8 @@ const createSocketIOServer = async (httpServer: HttpServer) => {
       })
 
       //接続解除時に行う処理
-      socket.on("disconnect", (reason) => {
+      socket.on("disconnect", () => {
         activeUserCount--
-        if (activeUserCount === 0) {
-          //サーバー起こしておくこ
-          clearInterval(serverAwakerTimer) //DBに保存する子
-          clearInterval(chatItemIntervalSaverTimer)
-          //残っているものをセーブしておく
-          SaveChatItemClass.saveChatItem()
-        }
       })
     },
   )

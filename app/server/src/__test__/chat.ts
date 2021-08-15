@@ -5,6 +5,10 @@ import { ArrayRange } from "../utils/range"
 import createSocketIOServer from "../ioServer"
 import { AdminBuildRoomParams } from "../events"
 import { Topic } from "../topic"
+import LocalMemoryUserRepository from "../infra/repository/User/LocalMemoryUserRepository"
+import EphemeralChatItemRepository from "../infra/repository/chatItem/EphemeralChatItemRepository"
+import EphemeralRoomRepository from "../infra/repository/room/EphemeralRoomRepository"
+import EphemeralStampRepository from "../infra/repository/stamp/EphemeralStampRepository"
 
 describe("機能テスト", () => {
   let io: Server
@@ -14,7 +18,13 @@ describe("機能テスト", () => {
   // テストのセットアップ
   beforeAll(async (done) => {
     const httpServer = createServer()
-    io = await createSocketIOServer(httpServer)
+    io = await createSocketIOServer(
+      httpServer,
+      LocalMemoryUserRepository.getInstance(),
+      new EphemeralRoomRepository(),
+      new EphemeralChatItemRepository(),
+      new EphemeralStampRepository(),
+    )
     httpServer.listen(async () => {
       const port = (httpServer as any).address().port
       ;[adminSocket, ...clientSockets] = ArrayRange(5).map(() =>

@@ -23,7 +23,7 @@ CREATE TABLE ChatItems (
   roomId UUID NOT NULL REFERENCES Rooms(id),
   topicId INT NOT NULL,
   iconId VARCHAR(10) NOT NULL,
-  timestamp INT NOT NULL,
+  timestamp INT,
   createdAt TIMESTAMP NOT NULL,
   content TEXT,
   targetId UUID REFERENCES ChatItems(id)
