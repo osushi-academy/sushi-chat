@@ -233,42 +233,39 @@
 }
 
 .input-area {
-  //position: sticky;
-  height: 150px;
+  height: 130px;
   bottom: 0;
   padding: 0.5em 1em;
   background: white;
   border-top: 2px solid $gray;
-  // box-shadow: rgba(100, 100, 111, 0.2) 0px 2px 4px 0px;
 
-  & > .main-line {
+  & > .textarea {
+    padding: 0.5em 0;
+    border: none;
+    background: transparent;
+    margin-right: 1em;
+    line-height: 1.5;
+    width: 100%;
+    min-height: 70px;
+    white-space: pre-line;
+    resize: none;
+
+    &:empty::before {
+      content: attr(placeholder);
+      pointer-events: none;
+      display: block;
+      color: rgb(167, 167, 167);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+
+  & > .textarea-footer {
     display: flex;
     align-items: flex-end;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-
-    & > .textarea {
-      padding: 0.5em;
-      border: none;
-      background: transparent;
-      border-radius: 5px;
-      margin-right: 1em;
-      line-height: 1.5;
-      width: 100%;
-      min-height: 5em;
-      white-space: pre-line;
-
-      &:empty::before {
-        content: attr(placeholder);
-        pointer-events: none;
-        display: block;
-        color: rgb(167, 167, 167);
-      }
-
-      &:focus {
-        outline: none;
-      }
-    }
 
     & > .submit-button {
       position: relative;
@@ -281,7 +278,8 @@
       background: transparent;
       border-radius: 10px;
       display: grid;
-      align-items: center;
+      align-items: end;
+      color: $primary;
 
       &:disabled {
         color: rgb(172, 172, 172);
@@ -298,41 +296,49 @@
         text-align: center;
         background: rgb(48, 135, 248);
         color: white;
-        bottom: 0.25rem;
-        right: 0.5rem;
+        bottom: -0.15rem;
+        right: 0.4rem;
       }
     }
-  }
-  .instruction {
-    display: flex;
-    justify-content: flex-end;
+    .admin{
+      color: $black;
+    }
 
-    & > .key-instruct {
-      font-size: 70%;
-      color: gray;
-      margin-bottom: 0.5rem;
-      text-align: end;
+    & > .instruction {
+      display: inline-block;
       flex: 1;
+  
+      & > .key-instruct {
+        font-size: 70%;
+        color: gray;
+        user-select: none;
+      }
+  
+    }
+
+    & > .question-checkbox {
+      font-size: 85%;
+      margin-right: 3em;
       user-select: none;
     }
 
-    & > .text-counter {
-      font-size: 70%;
-      user-select: none;
-      display: none;
-    }
-
-    & > .over {
-      color: red;
-      display: inline;
-    }
   }
 
-  & > .question-checkbox {
-    font-size: 85%;
-    margin-left: 0.5em;
+  & > .text-counter {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 70%;
     user-select: none;
+    display: none;
+    padding: 0.7em;
   }
+
+  & > .over {
+    color: red;
+    display: inline;
+  }
+
 }
 
 .sender-badge {

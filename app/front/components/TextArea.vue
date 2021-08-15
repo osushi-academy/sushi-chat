@@ -1,14 +1,20 @@
 <template>
   <section class="input-area" role="form">
-    <div class="main-line">
-      <textarea
-        v-model="text"
-        :disabled="disabled"
-        class="textarea"
-        contenteditable
-        :placeholder="placeholder"
-        @keydown.enter="enterSendMessage"
-      />
+    <textarea
+      v-model="text"
+      :disabled="disabled"
+      class="textarea"
+      contenteditable
+      :placeholder="placeholder"
+      @keydown.enter="enterSendMessage"
+    />
+    <div class="textarea-footer">
+      <div class="instruction">
+        <KeyInstruction />
+      </div>
+      <label class="question-checkbox">
+        <input v-model="isQuestion" type="checkbox" />質問として投稿
+      </label>
       <button
         type="submit"
         class="submit-button"
@@ -19,17 +25,9 @@
         <div v-show="isQuestion" class="question-badge">Q</div>
       </button>
     </div>
-    <div class="instruction">
-      <KeyInstruction />
-      <span
-        class="text-counter"
-        :class="{ over: maxMessageLength < text.length }"
-        >文字数をオーバーしています。 {{ maxMessageLength - text.length }}</span
-      >
-    </div>
-    <label class="question-checkbox">
-      <input v-model="isQuestion" type="checkbox" />質問として投稿する
-    </label>
+    <span class="text-counter" :class="{ over: maxMessageLength < text.length }"
+      >文字数をオーバーしています。 {{ maxMessageLength - text.length }}</span
+    >
   </section>
 </template>
 <script lang="ts">
