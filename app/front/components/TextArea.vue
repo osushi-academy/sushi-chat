@@ -1,5 +1,13 @@
 <template>
   <section class="input-area" role="form">
+    <div
+      class="sender-badge"
+      :class="{
+        admin: isAdmin,
+      }"
+    >
+      from おすしアカデミー
+    </div>
     <textarea
       v-model="text"
       :disabled="disabled"
@@ -19,6 +27,9 @@
         type="submit"
         class="submit-button"
         :disabled="disabled"
+        :class="{
+          admin: isAdmin,
+        }"
         @click="sendMessage"
       >
         <span class="material-icons"> send </span>
@@ -34,6 +45,7 @@
 import Vue, { PropOptions } from "vue"
 import { TopicPropType } from "@/models/contents"
 import KeyInstruction from "@/components/KeyInstruction.vue"
+import { UserItemStore } from "~/store"
 
 // Data型
 type DataType = {
@@ -68,6 +80,9 @@ export default Vue.extend({
       return this.$props.disabled
         ? "※ まだコメントはオープンしていません"
         : "ここにコメントを入力して盛り上げよう 🎉🎉"
+    },
+    isAdmin() {
+      return UserItemStore.userItems.isAdmin
     },
   },
   methods: {
