@@ -48,14 +48,6 @@ const createSocketIOServer = async (
   RoomClass.globalSocket = io
 
   let activeUserCount = 0
-  let serverAwakerTimer: NodeJS.Timeout
-
-  //サーバー起こしておくため
-  function serverAwaker() {
-    return setInterval(() => {
-      io.sockets.emit("")
-    }, 30000)
-  }
 
   //本体
   io.on(
@@ -77,10 +69,6 @@ const createSocketIOServer = async (
 
       activeUserCount++
       console.log("user joined, now", activeUserCount)
-      if (activeUserCount === 1) {
-        //サーバー起こしておくため
-        serverAwakerTimer = serverAwaker()
-      }
 
       // ルームをたてる
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
@@ -305,10 +293,6 @@ const createSocketIOServer = async (
       //接続解除時に行う処理
       socket.on("disconnect", () => {
         activeUserCount--
-        if (activeUserCount === 0) {
-          //サーバー起こしておくこ
-          clearInterval(serverAwakerTimer)
-        }
       })
     },
   )
