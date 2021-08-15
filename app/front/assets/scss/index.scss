@@ -234,17 +234,29 @@
 
 .input-area {
   bottom: 0;
-  padding: 0.5em 1em;
   background: white;
   border-top: 2px solid $gray;
+  position: relative;
+  
+  .textarea-header{
+    width: 100%;
+    display: flex;
+    margin-right: -4px;
+    padding: 0.5em 1em;
+    border-bottom: 2px solid $gray;
+    align-items: center;
+    color: #808080;
+    font-weight: bold; 
+  }
 
   & > .sender-badge {
-    display: inline;
+    display: inline-block;
     font-size: 75%;
     background-color: $primary;
     color: white;
-    padding: 0.25em 0.5em;
+    padding: 0.15em 0.5em;
     border-radius: 5px;
+    margin: 0.5em 1em;
   }
 
   .admin {
@@ -252,13 +264,13 @@
   }
 
   & > .textarea {
-    padding: 0.5em 0;
+    padding: 0.5em 1em;
     border: none;
     background: transparent;
     margin-right: 1em;
     line-height: 1.5;
     width: 100%;
-    min-height: 70px;
+    min-height: 60px;
     white-space: pre-line;
     resize: none;
 
@@ -278,6 +290,7 @@
   & > .textarea-footer {
     display: flex;
     align-items: flex-end;
+    padding: 0.5em 1em;
 
     & > .submit-button {
       position: relative;
@@ -349,6 +362,55 @@
   & > .over {
     color: red;
     display: inline;
+  }
+
+  & > .reply-bar {
+    background-color: $placeholder-gray;
+    width: 100%;
+    display: flex;
+    margin-right: -4px;
+    padding: 0.5em 1em;
+    align-items: center;
+    font-size: 80%;
+    
+    & > .reply-type{
+      color: white;
+    }
+
+    .reply{
+      background-color: $syoyu;
+      border-radius: 5px;
+      padding: 0.15em 0.5em;
+    }
+
+    .answer{
+      background-color: $answer-label;
+      border-radius: 5px;
+      padding: 0.15em 0.5em;
+    }
+    
+    & > .reply-content {
+      display: -webkit-box;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+      overflow: hidden;
+      color: $text-gray;
+      flex: 1;
+      margin: 0 0.5rem;
+    }
+    & > .material-icons {
+      display: inline;
+      font-size: 16px;
+      color: $text-gray;
+      &:hover {
+        color: $black;
+      }
+      &:active {
+        color: $black;
+      }
+    }
   }
 
 }
@@ -459,10 +521,10 @@
           }
           & > .answer-reply {
             &:hover {
-              color: $pink;
+              color: $answer-label;
             }
             &:active {
-              color: $pink;
+              color: $answer-label;
             }
           }
         }
@@ -570,7 +632,7 @@
         font-size: 10px;
         font-weight: bold;
         text-align: center;
-        background: $pink;
+        background: $answer-label;
         color: white;
         position: absolute;
         bottom: -0.2rem;
@@ -597,28 +659,6 @@
           transform: rotate(-15deg);
         }
       }
-    }
-  }
-}
-
-.reply-bar {
-  background-color: $gray;
-  display: flex;
-  justify-content: flex-end;
-  & > .reply-content {
-    display: inline;
-    color: $text-gray;
-    font-size: 80%;
-  }
-  & > .material-icons {
-    display: inline;
-    font-size: 20px;
-    color: $text-gray;
-    &:hover {
-      color: $black;
-    }
-    &:active {
-      color: $black;
     }
   }
 }

@@ -1,6 +1,20 @@
 <template>
   <section class="input-area" role="form">
+    <div class="textarea-header">#{{ topic.id }} {{ topic.title }}</div>
+    <div v-if="selectedChatItem" class="reply-bar">
+      <span class="reply-type">
+        <span v-if="selectedChatItem.type == 'question'" class="answer"
+          >回答中</span
+        >
+        <span v-else class="reply">リプライ中</span>
+      </span>
+      <div class="reply-content">
+        {{ selectedChatItem.content }}
+      </div>
+      <div class="material-icons" @click="deselectChatItem">close</div>
+    </div>
     <div
+      v-if="selectedChatItem === null"
       class="sender-badge"
       :class="{
         admin: isAdmin,
@@ -43,7 +57,7 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from "vue"
-import { TopicPropType } from "@/models/contents"
+import { TopicPropType, ChatItemPropType } from "@/models/contents"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 import { UserItemStore } from "~/store"
 
@@ -67,6 +81,10 @@ export default Vue.extend({
       type: Boolean,
       required: true,
     },
+    selectedChatItem: {
+      type: Object,
+      default: null,
+    } as PropOptions<ChatItemPropType>,
   },
   data(): DataType {
     return {
@@ -116,6 +134,10 @@ export default Vue.extend({
     },
     enterSendMessage(e: any) {
       if (e.ctrlKey || e.metaKey) this.sendMessage()
+    },
+    // 選択したアイテム取り消し
+    deselectChatItem() {
+      this.$emit("deselectChatItem")
     },
   },
 })
