@@ -10,7 +10,7 @@ import {
 } from "../../chatItem"
 import { AdminChangeTopicStateParams } from "../../events"
 import { IServerSocket } from "../../serverSocket"
-import { v4 as getUUID } from "uuid"
+import { v4 as uuid } from "uuid"
 import ChatItemClass from "../chatItem/ChatItem"
 import StampClass from "../stamp/Stamp"
 import MessageClass from "../chatItem/Message"
@@ -329,7 +329,7 @@ class RoomClass {
   // Botメッセージ
   private postBotMessage = (topicId: string, content: string): MessageClass => {
     const botMessage = new MessageClass(
-      getUUID(),
+      uuid(),
       topicId,
       this.id,
       UserClass.ADMIN_ICON_ID,
