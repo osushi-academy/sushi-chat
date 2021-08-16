@@ -66,14 +66,16 @@ class RoomService {
     const roomId = user.getRoomIdOrThrow()
 
     const room = this.find(roomId)
-    const { message, activeTopic } = room.changeTopicState({
+    const { messages, activeTopic } = room.changeTopicState({
       roomId: roomId,
       type: command.type,
       topicId: command.topicId,
     })
 
     this.roomDelivery.changeTopicState(command.type, roomId, command.topicId)
-    if (message !== null) this.chatItemDelivery.postMessage(message)
+    for (const m of messages) {
+      this.chatItemDelivery.postMessage(m)
+    }
     if (activeTopic !== null) {
       this.stampDelivery.startIntervalDelivery()
     } else {

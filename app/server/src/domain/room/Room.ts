@@ -110,7 +110,7 @@ class RoomClass {
    */
   public changeTopicState = (
     params: AdminChangeTopicStateParams,
-  ): { message: MessageClass | null; activeTopic: Topic | null } => {
+  ): { messages: MessageClass[]; activeTopic: Topic | null } => {
     if (!this.isOpened) {
       throw new Error("[sushi-chat-server] Room is not opened.")
     }
@@ -121,11 +121,14 @@ class RoomClass {
     }
 
     if (params.type === "OPEN") {
+      const messages: MessageClass[] = []
+
       // 現在activeであるトピックをfinishedする
       const currentActiveTopic = this.activeTopic
       if (currentActiveTopic != null) {
         currentActiveTopic.state = "finished"
-        this.finishTopic(currentActiveTopic.id)
+        const message = this.finishTopic(currentActiveTopic.id)
+        messages.push(message)
       }
 
       // 指定されたトピックをOpenにする
@@ -143,14 +146,16 @@ class RoomClass {
           new Date().getTime() - pausedDate
       }
 
+      const message = this.postBotMessage(
+        params.topicId,
+        isFirstOpen
+          ? "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n"
+          : "【運営Bot】\n 発表が再開されました",
+      )
+      messages.push(message)
       // トピック開始のBotメッセージ
       return {
-        message: this.postBotMessage(
-          params.topicId,
-          isFirstOpen
-            ? "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n"
-            : "【運営Bot】\n 発表が再開されました",
-        ),
+        messages,
         activeTopic: this.activeTopic,
       }
     }
@@ -158,20 +163,22 @@ class RoomClass {
     if (params.type === "PAUSE") {
       targetTopic.state = "paused"
       this.topicTimeData[targetTopic.id].pausedDate = new Date().getTime()
+
+      const botMessage = this.postBotMessage(
+        params.topicId,
+        "【運営Bot】\n 発表が中断されました",
+      )
       return {
-        message: this.postBotMessage(
-          params.topicId,
-          "【運営Bot】\n 発表が中断されました",
-        ),
+        messages: [botMessage],
         activeTopic: this.activeTopic,
       }
     }
 
     if (params.type === "CLOSE") {
       targetTopic.state = "finished"
-      const botMessage = this.finishTopic(params.topicId)
 
-      return { message: botMessage, activeTopic: this.activeTopic }
+      const botMessage = this.finishTopic(params.topicId)
+      return { messages: [botMessage], activeTopic: this.activeTopic }
     }
 
     throw new Error(
