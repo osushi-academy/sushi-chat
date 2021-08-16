@@ -1,6 +1,6 @@
 import { ChatItem } from "./chatItem"
 import { Room } from "./room"
-import { Topic, TopicLinkType, TopicState } from "./topic"
+import Topic from "./domain/room/Topic"
 
 /**
  * クライアントからサーバに送られるイベント名
@@ -38,11 +38,7 @@ export type EventName = ReceiveEventName | SendEventName
  */
 export type AdminBuildRoomParams = {
   title: string
-  topics: {
-    title: string
-    description: string
-    urls: Partial<Record<TopicLinkType, string>>
-  }[]
+  topics: Omit<Topic, "id" | "state">[]
 }
 
 /**
@@ -115,7 +111,7 @@ export type PubStampParams = { iconId: string; topicId: string }
  */
 export type AdminChangeTopicStateParams = {
   roomId: string // 変更対象のroomId
-  type: "CLOSE_AND_OPEN" | "PAUSE" | "OPEN" | "CLOSE" // 変更の種別
+  type: "CLOSE_AND_OPEN" | "PAUSE" | "OPEN" | "CLOSE"
   topicId: string // 変更対象のtopicId
 }
 
@@ -136,7 +132,7 @@ export type EnterRoomParams = {
  */
 export type EnterRoomResponse = {
   chatItems: ChatItem[]
-  topics: (Topic & { state: TopicState })[]
+  topics: Topic[]
   activeUserCount: number
 }
 
@@ -156,7 +152,7 @@ export type AdminEnterRoomParams = {
  */
 export type AdminEnterRoomResponse = {
   chatItems: ChatItem[]
-  topics: (Topic & { state: TopicState })[]
+  topics: Topic[]
   activeUserCount: number
 }
 

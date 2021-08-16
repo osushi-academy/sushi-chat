@@ -1,5 +1,5 @@
 import { ChatItem } from "./chatItem"
-import { Topic } from "./topic"
+import Topic from "./domain/room/Topic"
 
 export type Room = {
   id: string

@@ -5,24 +5,23 @@ import {
   ChatItem,
   ChatItemStore,
   Message,
-  MessageStore,
   Question,
   QuestionStore,
   User,
 } from "../../chatItem"
 import { AdminChangeTopicStateParams, PostChatItemParams } from "../../events"
 import { IServerSocket } from "../../serverSocket"
-import { Topic, TopicState } from "../../topic"
 import { v4 as getUUID } from "uuid"
 import ChatItemClass from "../chatItem/ChatItem"
 import StampClass from "../stamp/Stamp"
+import Topic from "./Topic"
 
 class RoomClass {
   public static globalSocket: Server
 
   private users: (User & { socket: IServerSocket })[] = []
   private chatItems: ChatItemStore[] = []
-  public topics: (Topic & { state: TopicState })[]
+  public topics: Topic[]
   private stamps: StampClass[] = []
   private isOpened = false
 
@@ -45,7 +44,7 @@ class RoomClass {
   constructor(
     public readonly id: string,
     public readonly title: string,
-    topics: Omit<Topic, "id">[],
+    topics: Omit<Topic, "id" | "state">[],
   ) {
     this.topics = topics.map((topic, i) => ({
       ...topic,

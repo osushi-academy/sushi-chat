@@ -4,11 +4,11 @@ import { io as Client, Socket as ClientSocket } from "socket.io-client"
 import { ArrayRange } from "../utils/range"
 import createSocketIOServer from "../ioServer"
 import { AdminBuildRoomParams } from "../events"
-import { Topic } from "../topic"
 import LocalMemoryUserRepository from "../infra/repository/User/LocalMemoryUserRepository"
 import EphemeralChatItemRepository from "../infra/repository/chatItem/EphemeralChatItemRepository"
 import EphemeralRoomRepository from "../infra/repository/room/EphemeralRoomRepository"
 import EphemeralStampRepository from "../infra/repository/stamp/EphemeralStampRepository"
+import Topic from "../domain/room/Topic"
 
 describe("機能テスト", () => {
   let io: Server
@@ -42,7 +42,7 @@ describe("機能テスト", () => {
   })
 
   let roomId: string
-  let topics: Topic[]
+  let topics: Omit<Topic, "state">[]
   const roomDataParams: AdminBuildRoomParams = {
     title: "TEST_ROOM_TITLE",
     topics: ArrayRange(10).map((i) => ({

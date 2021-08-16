@@ -1,9 +1,9 @@
-import { Topic } from "../../topic"
+import Topic from "../../domain/room/Topic"
 
 export type BuildRoomCommand = {
   id: string
   title: string
-  topics: Omit<Topic, "id">[]
+  topics: Omit<Topic, "id" | "state">[]
 }
 
 export type ChangeTopicStateCommand = {
