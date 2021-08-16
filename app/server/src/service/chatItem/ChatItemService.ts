@@ -13,12 +13,14 @@ import {
 } from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
+import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 
 class ChatItemService {
   constructor(
     private readonly chatItemRepository: IChatItemRepository,
     private readonly roomRepository: IRoomRepository,
     private readonly userRepository: IUserRepository,
+    private readonly chatItemDelivery: IChatItemDelivery,
   ) {}
 
   public async postMessage(command: PostMessageCommand): Promise<void> {
@@ -48,6 +50,7 @@ class ChatItemService {
     room.postChatItem(command.userId, message)
     console.log(`message: ${command.content}(id: ${command.chatItemId})`)
 
+    this.chatItemDelivery.postMessage(message)
     this.chatItemRepository.saveMessage(message)
   }
 
@@ -72,9 +75,10 @@ class ChatItemService {
       room.getTimestamp(command.topicId),
     )
 
-    console.log(`reaction: to ${command.targetId}`)
     room.postChatItem(command.userId, reaction)
+    console.log(`reaction: to ${command.targetId}`)
 
+    this.chatItemDelivery.postReaction(reaction)
     this.chatItemRepository.saveReaction(reaction)
   }
 
@@ -98,6 +102,7 @@ class ChatItemService {
     room.postChatItem(command.userId, question)
     console.log(`question: ${command.content}(id: ${command.chatItemId})`)
 
+    this.chatItemDelivery.postQuestion(question)
     this.chatItemRepository.saveQuestion(question)
   }
 
@@ -125,6 +130,7 @@ class ChatItemService {
     room.postChatItem(command.userId, answer)
     console.log(`answer: ${command.content}(id: ${command.chatItemId})`)
 
+    this.chatItemDelivery.postAnswer(answer)
     this.chatItemRepository.saveAnswer(answer)
   }
 

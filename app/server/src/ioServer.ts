@@ -1,7 +1,6 @@
 import { Server, Socket } from "socket.io"
 import { Server as HttpServer } from "http"
 import { v4 as uuid } from "uuid"
-import RoomClass from "./domain/room/Room"
 import { ReceiveEventParams, ReceiveEventResponses } from "./events"
 import { instrument } from "@socket.io/admin-ui"
 import { generateHash } from "./utils/crypt"
@@ -15,6 +14,9 @@ import IUserRepository from "./domain/user/IUserRepository"
 import IRoomRepository from "./domain/room/IRoomRepository"
 import IChatItemRepository from "./domain/chatItem/IChatItemRepository"
 import IStampRepository from "./domain/stamp/IStampRepository"
+import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
+import RoomDelivery from "./infra/delivery/room/RoomDelivery"
+import UserDelivery from "./infra/delivery/user/UserDelivery"
 
 const createSocketIOServer = async (
   httpServer: HttpServer,
@@ -45,8 +47,6 @@ const createSocketIOServer = async (
       password: hashed,
     },
   })
-  RoomClass.globalSocket = io
-
   let activeUserCount = 0
 
   //本体
@@ -63,7 +63,11 @@ const createSocketIOServer = async (
         Record<string, never>
       >,
     ) => {
-      new UserService(userRepository, roomRepository).createUser({
+      new UserService(
+        userRepository,
+        roomRepository,
+        new UserDelivery(socket, io),
+      ).createUser({
         userId: socket.id,
       })
 
@@ -77,6 +81,8 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            new RoomDelivery(io),
+            new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
           const newRoom = roomService.build({
@@ -101,7 +107,11 @@ const createSocketIOServer = async (
       // 管理者がルームに参加する
       socket.on("ADMIN_ENTER_ROOM", (received, callback) => {
         try {
-          const userService = new UserService(userRepository, roomRepository)
+          const userService = new UserService(
+            userRepository,
+            roomRepository,
+            new UserDelivery(socket, io),
+          )
           const room = userService.adminEnterRoom({
             adminId: socket.id,
             roomId: received.roomId,
@@ -124,7 +134,11 @@ const createSocketIOServer = async (
       // ルームに参加する
       socket.on("ENTER_ROOM", (received, callback) => {
         try {
-          const userService = new UserService(userRepository, roomRepository)
+          const userService = new UserService(
+            userRepository,
+            roomRepository,
+            new UserDelivery(socket, io),
+          )
           const room = userService.enterRoom({
             userId: socket.id,
             roomId: received.roomId,
@@ -151,6 +165,8 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            new RoomDelivery(io),
+            new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
           roomService.start(socket.id)
@@ -168,6 +184,8 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            new RoomDelivery(io),
+            new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
           roomService.changeTopicState({
@@ -190,6 +208,7 @@ const createSocketIOServer = async (
             chatItemRepository,
             roomRepository,
             userRepository,
+            new ChatItemDelivery(io),
           )
           const commandBase: PostChatItemCommand = {
             userId: socket.id,
@@ -262,6 +281,8 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            new RoomDelivery(io),
+            new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
           roomService.finish(socket.id)
@@ -279,6 +300,8 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            new RoomDelivery(io),
+            new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
           roomService.close(socket.id)
@@ -293,7 +316,11 @@ const createSocketIOServer = async (
       //接続解除時に行う処理
       socket.on("disconnect", () => {
         try {
-          const userService = new UserService(userRepository, roomRepository)
+          const userService = new UserService(
+            userRepository,
+            roomRepository,
+            new UserDelivery(socket, io),
+          )
           userService.leaveRoom({ userId: socket.id })
         } catch (e) {
           console.log(

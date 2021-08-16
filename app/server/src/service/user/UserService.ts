@@ -9,11 +9,13 @@ import User from "../../domain/user/User"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
 import ServerSocket from "../../serverSocket"
+import IUserDelivery from "../../domain/user/IUserDelivery"
 
 class UserService {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly roomRepository: IRoomRepository,
+    private readonly userDelivery: IUserDelivery,
   ) {}
 
   public createUser(command: CreateUserCommand): void {
@@ -24,11 +26,13 @@ class UserService {
   public adminEnterRoom(command: AdminEnterCommand): RoomClass {
     const admin = this.userRepository.find(command.adminId)
     admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
-    this.userRepository.update(admin)
 
     const room = this.findRoom(command.roomId)
     const serverSocket = new ServerSocket(command.adminSocket, command.roomId)
-    room.joinUser(serverSocket, User.ADMIN_ICON_ID)
+    const activeUserCount = room.joinUser(serverSocket, User.ADMIN_ICON_ID)
+
+    this.userDelivery.enterRoom(admin, activeUserCount)
+    this.userRepository.update(admin)
     this.roomRepository.update(room)
 
     return room
@@ -37,11 +41,13 @@ class UserService {
   public enterRoom(command: UserEnterCommand): RoomClass {
     const user = this.userRepository.find(command.userId)
     user.enterRoom(command.roomId, command.iconId)
-    this.userRepository.update(user)
 
     const room = this.findRoom(command.roomId)
     const serverSocket = new ServerSocket(command.userSocket, command.roomId)
-    room.joinUser(serverSocket, command.iconId)
+    const activeUserCount = room.joinUser(serverSocket, command.iconId)
+
+    this.userDelivery.enterRoom(user, activeUserCount)
+    this.userRepository.update(user)
     this.roomRepository.update(room)
 
     return room
@@ -56,6 +62,7 @@ class UserService {
     user.leaveRoom()
     const activeUserCount = room.leaveUser(user.id)
 
+    this.userDelivery.leaveRoom(user, activeUserCount)
     this.userRepository.update(user)
     this.roomRepository.update(room)
   }

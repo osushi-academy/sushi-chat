@@ -1,25 +1,23 @@
-import { Server } from "socket.io"
 import {
   Answer,
   AnswerStore,
   ChatItem,
   ChatItemStore,
   Message,
-  MessageStore,
   Question,
   QuestionStore,
   User,
 } from "../../chatItem"
-import { AdminChangeTopicStateParams, PostChatItemParams } from "../../events"
+import { AdminChangeTopicStateParams } from "../../events"
 import { IServerSocket } from "../../serverSocket"
 import { v4 as getUUID } from "uuid"
 import ChatItemClass from "../chatItem/ChatItem"
 import StampClass from "../stamp/Stamp"
+import MessageClass from "../chatItem/Message"
+import UserClass from "../user/User"
 import Topic from "./Topic"
 
 class RoomClass {
-  public static globalSocket: Server
-
   private users: (User & { socket: IServerSocket })[] = []
   private chatItems: ChatItemStore[] = []
   public topics: Topic[]
@@ -69,17 +67,16 @@ class RoomClass {
       throw new Error("[sushi-chat-server] Room has already opened.")
     }
     this.isOpened = true
-    RoomClass.globalSocket.to(this.id).emit("PUB_START_ROOM", {})
   }
 
   public finishRoom = () => {
+    // TODO: startRoomと同じようにthis.isOpenedのチェックした方がいい気がする
     this.isOpened = false
-    RoomClass.globalSocket.to(this.id).emit("PUB_FINISH_ROOM", {})
   }
 
   public closeRoom = () => {
+    // TODO: startRoomと同じようにthis.isOpenedのチェックした方がいい気がする
     this.isOpened = false
-    RoomClass.globalSocket.to(this.id).emit("PUB_CLOSE_ROOM", {})
   }
 
   /**
@@ -88,41 +85,41 @@ class RoomClass {
    * @param iconId
    * @returns
    */
-  public joinUser = (socket: IServerSocket, iconId: string) => {
+  public joinUser = (socket: IServerSocket, iconId: string): number => {
     this.users.push({ id: socket.id, iconId, socket })
-    socket.broadcast("PUB_ENTER_ROOM", {
-      iconId,
-      activeUserCount: this.users.length,
-    })
+
+    return this.activeUserCount
   }
 
   /**
    * ユーザーがルームから退室した場合に呼ばれる関数
    * @param userId
    */
-  public leaveUser = (userId: string) => {
-    const leavedUser = this.users.find((user) => user.id !== userId)
-    if (leavedUser == null) {
+  public leaveUser = (userId: string): number => {
+    const leftUser = this.users.find((user) => user.id !== userId)
+    if (leftUser == null) {
       throw new Error("[sushi-chat-server] User does not exists.")
     }
-    this.users = this.users.filter((user) => user.id !== leavedUser.id)
-    RoomClass.globalSocket.to(this.id).emit("PUB_LEAVE_ROOM", {
-      iconId: leavedUser.iconId,
-      activeUserCount: this.users.length,
-    })
+    this.users = this.users.filter((user) => user.id !== leftUser.id)
+
+    return this.activeUserCount
   }
 
   /**
    * トピックの状態を変更するときに呼ばれる関数
    */
-  public changeTopicState = (params: AdminChangeTopicStateParams) => {
+  public changeTopicState = (
+    params: AdminChangeTopicStateParams,
+  ): { message: MessageClass | null; activeTopic: Topic | null } => {
     if (!this.isOpened) {
       throw new Error("[sushi-chat-server] Room is not opened.")
     }
+
     const targetTopic = this.getTopicById(params.topicId)
     if (targetTopic == null) {
       throw new Error("[sushi-chat-server] Topic does not exists.")
     }
+
     if (params.type === "OPEN") {
       // 現在activeであるトピックをfinishedする
       const currentActiveTopic = this.activeTopic
@@ -147,34 +144,46 @@ class RoomClass {
       }
 
       // トピック開始のBotメッセージ
-      this.sendBotMessage(
-        params.topicId,
-        isFirstOpen
-          ? "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n"
-          : "【運営Bot】\n 発表が再開されました",
-      )
-    } else if (params.type === "PAUSE") {
+      return {
+        message: this.postBotMessage(
+          params.topicId,
+          isFirstOpen
+            ? "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n"
+            : "【運営Bot】\n 発表が再開されました",
+        ),
+        activeTopic: this.activeTopic,
+      }
+    }
+
+    if (params.type === "PAUSE") {
       targetTopic.state = "paused"
       this.topicTimeData[targetTopic.id].pausedDate = new Date().getTime()
-      this.sendBotMessage(params.topicId, "【運営Bot】\n 発表が中断されました")
-    } else if (params.type === "CLOSE") {
-      targetTopic.state = "finished"
-      this.finishTopic(params.topicId)
-    } else {
-      throw new Error("[sushi-chat-server] Type is invalid.")
+      return {
+        message: this.postBotMessage(
+          params.topicId,
+          "【運営Bot】\n 発表が中断されました",
+        ),
+        activeTopic: this.activeTopic,
+      }
     }
-    // stateの変更を送信する
-    RoomClass.globalSocket.to(this.id).emit("PUB_CHANGE_TOPIC_STATE", {
-      type: params.type,
-      topicId: params.topicId,
-    })
+
+    if (params.type === "CLOSE") {
+      targetTopic.state = "finished"
+      const botMessage = this.finishTopic(params.topicId)
+
+      return { message: botMessage, activeTopic: this.activeTopic }
+    }
+
+    throw new Error(
+      `[sushi-chat-server] params.type(${params.type}) is invalid.`,
+    )
   }
 
   /**
    * トピック終了時の処理を行う
    * @param topicId 終了させるトピックID
    */
-  private finishTopic = (topicId: string) => {
+  private finishTopic = (topicId: string): MessageClass => {
     // 質問の集計
     const questions = this.chatItems.filter<QuestionStore>(
       (chatItemStore): chatItemStore is QuestionStore =>
@@ -194,7 +203,7 @@ class RoomClass {
     )
 
     // トピック終了のBotメッセージ
-    this.sendBotMessage(
+    return this.postBotMessage(
       topicId,
       [
         "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
@@ -239,41 +248,6 @@ class RoomClass {
     const chatItemStore = chatItem.toChatItemStore()
     // 配列に保存
     this.chatItems.push(chatItemStore)
-    // サーバでの保存形式をフロントに返すレスポンスの形式に変換して配信する
-    RoomClass.globalSocket.emit(
-      "PUB_CHAT_ITEM",
-      this.chatItemStoreToChatItem(chatItemStore),
-    )
-  }
-
-  /**
-   * フロントから送られてきたチャットアイテムにサーバーの情報を付与する
-   * @param userId ユーザID
-   * @param chatItem チャットアイテム
-   * @returns
-   */
-  private addServerInfo = (
-    userId: string,
-    chatItem: PostChatItemParams,
-  ): ChatItemStore => {
-    const timestamp = this.getTimestamp(chatItem.topicId)
-    if (chatItem.type === "reaction") {
-      const { reactionToId, ...rest } = chatItem
-      return {
-        iconId: this.getIconId(userId) as string,
-        createdAt: new Date(),
-        target: reactionToId,
-        timestamp,
-        ...rest,
-      }
-    } else {
-      return {
-        iconId: this.getIconId(userId) as string,
-        createdAt: new Date(),
-        timestamp,
-        ...chatItem,
-      }
-    }
   }
 
   /**
@@ -353,21 +327,20 @@ class RoomClass {
   }
 
   // Botメッセージ
-  private sendBotMessage = (topicId: string, content: string) => {
-    const botMessage: MessageStore = {
-      type: "message",
-      id: getUUID(),
-      topicId: topicId,
-      iconId: "0",
-      timestamp: this.getTimestamp(topicId),
-      createdAt: new Date(),
-      content: content,
-      target: null,
-    }
-    this.chatItems.push(botMessage)
-    RoomClass.globalSocket
-      .to(this.id)
-      .emit("PUB_CHAT_ITEM", this.chatItemStoreToChatItem(botMessage))
+  private postBotMessage = (topicId: string, content: string): MessageClass => {
+    const botMessage = new MessageClass(
+      getUUID(),
+      topicId,
+      this.id,
+      UserClass.ADMIN_ICON_ID,
+      new Date(),
+      content,
+      null,
+      this.getTimestamp(topicId),
+    )
+    this.chatItems.push(botMessage.toChatItemStore())
+
+    return botMessage
   }
 
   // utils
@@ -385,22 +358,6 @@ class RoomClass {
 
   private userIdExistCheck = (userId: string) => {
     return this.users.find(({ id }) => id === userId) != null
-  }
-
-  private getIconId = (userId: string) => {
-    const iconId = this.users.find(({ id }) => id === userId)?.iconId
-    if (iconId == null) {
-      throw new Error("[sushi-chat-server] User does not exists.")
-    }
-    return iconId
-  }
-
-  private getSocketByUserId = (userId: string) => {
-    const socket = this.users.find(({ id }) => id === userId)?.socket
-    if (socket == null) {
-      throw new Error("[sushi-chat-server] User does not exists.")
-    }
-    return socket
   }
 
   private get activeTopic() {
