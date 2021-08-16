@@ -122,6 +122,8 @@ class ChatItemRepository implements IChatItemRepository {
     const query = "SELECT * FROM chatitems WHERE id = $1"
     const res = (await this.pgClient.query(query, [chatItemId])).rows[0]
 
+    const topicId = `${res.topicid}`
+
     // NOTE: 複数回クエリを発行するとパフォーマンスの低下につながるので、一回のクエリでとってこれるならそうしたい
     let target = null
     switch (res.type) {
@@ -131,7 +133,7 @@ class ChatItemRepository implements IChatItemRepository {
         }
         return new Message(
           res.id,
-          res.topicid,
+          topicId,
           res.roomid,
           res.iconid,
           res.createdat,
@@ -143,7 +145,7 @@ class ChatItemRepository implements IChatItemRepository {
         target = (await this.find(res.targetid)) as Message | Question | Answer
         return new Reaction(
           res.id,
-          res.topicid,
+          topicId,
           res.roomid,
           res.iconid,
           res.createdat,
@@ -153,7 +155,7 @@ class ChatItemRepository implements IChatItemRepository {
       case "question":
         return new Question(
           res.id,
-          res.topicid,
+          topicId,
           res.roomid,
           res.iconid,
           res.createdat,
@@ -164,7 +166,7 @@ class ChatItemRepository implements IChatItemRepository {
         target = (await this.find(res.targetid)) as Question
         return new Answer(
           res.id,
-          res.topicid,
+          topicId,
           res.roomid,
           res.iconid,
           res.createdat,
