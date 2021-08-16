@@ -23,7 +23,10 @@ class ChatItemService {
 
   public async postMessage(command: PostMessageCommand): Promise<void> {
     const user = this.findUser(command.userId)
-    const room = this.findRoom(user.roomId)
+    const roomId = user.getRoomIdOrThrow()
+    const iconId = user.getIconIdOrThrow()
+
+    const room = this.findRoom(roomId)
     const target =
       command.targetId !== undefined && command.targetId !== null
         ? ((await this.chatItemRepository.find(command.targetId)) as
@@ -34,8 +37,8 @@ class ChatItemService {
     const message = new Message(
       command.chatItemId,
       command.topicId,
-      user.roomId,
-      user.iconId,
+      roomId,
+      iconId,
       new Date(),
       command.content,
       target,
@@ -50,7 +53,10 @@ class ChatItemService {
 
   public async postReaction(command: PostReactionCommand): Promise<void> {
     const user = this.findUser(command.userId)
-    const room = this.findRoom(user.roomId)
+    const roomId = user.getRoomIdOrThrow()
+    const iconId = user.getIconIdOrThrow()
+
+    const room = this.findRoom(roomId)
     const target = (await this.chatItemRepository.find(command.targetId)) as
       | Message
       | Question
@@ -59,8 +65,8 @@ class ChatItemService {
     const reaction = new Reaction(
       command.chatItemId,
       command.topicId,
-      user.roomId,
-      user.iconId,
+      roomId,
+      iconId,
       new Date(),
       target,
       room.getTimestamp(command.topicId),
@@ -74,13 +80,16 @@ class ChatItemService {
 
   public postQuestion(command: PostQuestionCommand): void {
     const user = this.findUser(command.userId)
-    const room = this.findRoom(user.roomId)
+    const roomId = user.getRoomIdOrThrow()
+    const iconId = user.getIconIdOrThrow()
+
+    const room = this.findRoom(roomId)
 
     const question = new Question(
       command.chatItemId,
       command.topicId,
-      user.roomId,
-      user.iconId,
+      roomId,
+      iconId,
       new Date(),
       command.content,
       room.getTimestamp(command.topicId),
@@ -94,7 +103,10 @@ class ChatItemService {
 
   public async postAnswer(command: PostAnswerCommand): Promise<void> {
     const user = this.findUser(command.userId)
-    const room = this.findRoom(user.roomId)
+    const roomId = user.getRoomIdOrThrow()
+    const iconId = user.getIconIdOrThrow()
+
+    const room = this.findRoom(roomId)
     const target = (await this.chatItemRepository.find(
       command.targetId,
     )) as Question
@@ -102,8 +114,8 @@ class ChatItemService {
     const answer = new Answer(
       command.chatItemId,
       command.topicId,
-      user.roomId,
-      user.iconId,
+      roomId,
+      iconId,
       new Date(),
       command.content,
       target,

@@ -17,15 +17,12 @@ class StampService {
 
   public post(command: PostStampCommand): void {
     const user = this.findUser(command.userId)
-    const room = this.findRoom(user.roomId)
+    const roomId = user.getRoomIdOrThrow()
+
+    const room = this.findRoom(roomId)
     const timestamp = room.getTimestamp(command.topicId)
 
-    const stamp = new Stamp(
-      command.userId,
-      user.roomId,
-      command.topicId,
-      timestamp,
-    )
+    const stamp = new Stamp(command.userId, roomId, command.topicId, timestamp)
     room.postStamp(stamp)
 
     this.stampDelivery.pushStamp(stamp)

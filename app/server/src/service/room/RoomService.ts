@@ -23,26 +23,31 @@ class RoomService {
 
   public start(userId: string): void {
     const user = this.findUser(userId)
+    const roomId = user.getRoomIdOrThrow()
 
-    const room = this.find(user.roomId)
+    const room = this.find(roomId)
     room.startRoom()
 
     this.roomRepository.update(room)
   }
 
+  // Roomを終了し、投稿をできなくする。閲覧は可能
   public finish(userId: string): void {
     const user = this.findUser(userId)
+    const roomId = user.getRoomIdOrThrow()
 
-    const room = this.find(user.roomId)
+    const room = this.find(roomId)
     room.finishRoom()
 
     this.roomRepository.update(room)
   }
 
+  // Roomをアーカイブし、閲覧できなくする。RESTのエンドポイントに移行予定
   public close(userId: string): void {
     const user = this.findUser(userId)
+    const roomId = user.getRoomIdOrThrow()
 
-    const room = this.find(user.roomId)
+    const room = this.find(roomId)
     room.closeRoom()
 
     this.roomRepository.update(room)
@@ -50,10 +55,11 @@ class RoomService {
 
   public changeTopicState(command: ChangeTopicStateCommand): void {
     const user = this.findUser(command.userId)
+    const roomId = user.getRoomIdOrThrow()
 
-    const room = this.find(user.roomId)
+    const room = this.find(roomId)
     room.changeTopicState({
-      roomId: user.roomId,
+      roomId: roomId,
       type: command.type,
       topicId: command.topicId,
     })
