@@ -11,7 +11,7 @@ class Reaction extends ChatItem {
     roomId: string,
     userIconId: string,
     createdAt: Date,
-    private readonly target: Message | Question | Answer,
+    public readonly target: Message | Question | Answer,
     timestamp?: number,
   ) {
     super(id, topicId, roomId, userIconId, createdAt, timestamp)

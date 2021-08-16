@@ -8,7 +8,7 @@ class Question extends ChatItem {
     roomId: string,
     userIconId: string,
     createdAt: Date,
-    private readonly content: string,
+    public readonly content: string,
     timestamp?: number,
   ) {
     super(id, topicId, roomId, userIconId, createdAt, timestamp)

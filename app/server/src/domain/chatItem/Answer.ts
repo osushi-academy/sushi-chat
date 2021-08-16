@@ -9,8 +9,8 @@ class Answer extends ChatItem {
     roomId: string,
     userIconId: string,
     createdAt: Date,
-    private readonly content: string,
-    private readonly target: Question,
+    public readonly content: string,
+    public readonly target: Question,
     timestamp?: number,
   ) {
     super(id, topicId, roomId, userIconId, createdAt, timestamp)
