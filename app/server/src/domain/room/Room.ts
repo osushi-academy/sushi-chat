@@ -5,6 +5,7 @@ import {
   ChatItem,
   ChatItemStore,
   Message,
+  MessageStore,
   Question,
   QuestionStore,
   User,

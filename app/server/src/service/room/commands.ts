@@ -1,3 +1,4 @@
+import { ChangeTopicStateType } from "../../events"
 import Topic from "../../domain/room/Topic"
 
 export type BuildRoomCommand = {
@@ -9,5 +10,5 @@ export type BuildRoomCommand = {
 export type ChangeTopicStateCommand = {
   userId: string
   topicId: string
-  type: "CLOSE_AND_OPEN" | "PAUSE" | "OPEN" | "CLOSE"
+  type: ChangeTopicStateType
 }

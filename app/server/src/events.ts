@@ -104,6 +104,8 @@ export type PostStampParams = { topicId: string }
  */
 export type PubStampParams = { iconId: string; topicId: string }
 
+export type ChangeTopicStateType = "CLOSE_AND_OPEN" | "PAUSE" | "OPEN" | "CLOSE"
+
 /**
  * トピックの状態を変更する
  * @user Admin
@@ -111,7 +113,7 @@ export type PubStampParams = { iconId: string; topicId: string }
  */
 export type AdminChangeTopicStateParams = {
   roomId: string // 変更対象のroomId
-  type: "CLOSE_AND_OPEN" | "PAUSE" | "OPEN" | "CLOSE"
+  type: ChangeTopicStateType
   topicId: string // 変更対象のtopicId
 }
 
@@ -179,10 +181,10 @@ export type PubLeaveRoomParams = {
 /**
  * トピックの状態を変更する
  * @user General
- * @type PUB_CHANGE_TOPIC_STATE
+ * @event PUB_CHANGE_TOPIC_STATE
  */
 export type PubChangeTopicStateParams = {
-  type: "CLOSE_AND_OPEN" | "PAUSE" | "OPEN" | "CLOSE" // 変更の種別
+  type: ChangeTopicStateType
   topicId: string // 変更対象のtopicId
 }
 
