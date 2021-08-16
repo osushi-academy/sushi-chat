@@ -23,11 +23,8 @@ class StampDelivery implements IStampDelivery {
   private constructor(private readonly globalSocket: Server) {}
 
   finishIntervalDelivery(): void {
-    if (this.intervalDeliveryTimer === null) {
-      throw new Error(
-        "Can't finish StampDelivery whose intervalDeliveryTimer is empty.",
-      )
-    }
+    if (this.intervalDeliveryTimer === null) return
+
     clearInterval(this.intervalDeliveryTimer)
     this.intervalDeliveryTimer = null
   }
