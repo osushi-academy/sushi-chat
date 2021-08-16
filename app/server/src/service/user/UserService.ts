@@ -2,6 +2,7 @@ import {
   AdminEnterCommand,
   CreateUserCommand,
   UserEnterCommand,
+  UserLeaveCommand,
 } from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
@@ -44,6 +45,19 @@ class UserService {
     this.roomRepository.update(room)
 
     return room
+  }
+
+  public leaveRoom(command: UserLeaveCommand): void {
+    const user = this.userRepository.find(command.userId)
+    // まだRoomに参加していないユーザーなら何もしない
+    if (user.roomId === null) return
+
+    const room = this.findRoom(user.roomId)
+    user.leaveRoom()
+    const activeUserCount = room.leaveUser(user.id)
+
+    this.userRepository.update(user)
+    this.roomRepository.update(room)
   }
 
   private findRoom(roomId: string): RoomClass {

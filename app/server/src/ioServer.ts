@@ -292,6 +292,16 @@ const createSocketIOServer = async (
 
       //接続解除時に行う処理
       socket.on("disconnect", () => {
+        try {
+          const userService = new UserService(userRepository, roomRepository)
+          userService.leaveRoom({ userId: socket.id })
+        } catch (e) {
+          console.log(
+            `${e.message ?? "Unknown error."} (LEAVE_ROOM)`,
+            new Date().toISOString(),
+          )
+        }
+
         activeUserCount--
       })
     },

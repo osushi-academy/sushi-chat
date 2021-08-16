@@ -16,3 +16,7 @@ export type UserEnterCommand = {
   iconId: string
   userSocket: Socket
 }
+
+export type UserLeaveCommand = {
+  userId: string
+}
