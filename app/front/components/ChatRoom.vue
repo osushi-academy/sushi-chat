@@ -21,7 +21,7 @@
           >
             <MessageComponent
               :message="message"
-              @click-card="clickReaction"
+              @click-thumb-up="clickReaction"
               @click-reply="selectedChatItem = message"
             />
           </div>
@@ -62,14 +62,12 @@
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
-    <div v-if="selectedChatItem" class="reply-bar">
-      <div class="reply-content">{{ selectedChatItem.content }} に返信中</div>
-      <div class="material-icons" @click="deselectChatItem">close</div>
-    </div>
     <TextArea
       :topic="chatData.topic"
       :disabled="isNotStartedTopic"
+      :selected-chat-item="selectedChatItem"
       @submit="clickSubmit"
+      @deselectChatItem="deselectChatItem"
     />
   </article>
 </template>

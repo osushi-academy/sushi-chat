@@ -1,10 +1,41 @@
 // 変数定義
-$black: #333;
-$gray: rgb(228, 228, 228);
-$pink: #f83060;
+$black: #333333;
+$white: #ffffff;
+$text-gray: #6f6f6f;
+$disabled-gray: #acacac;
+$primary: #f28d2f;
+$admin-primary: #7091c3;
+$danger: #e19393;
+$placeholder-gray: #F2F2F2;
 
-$text-gray: rgb(99, 99, 99);
+$gray: #e4e4e4;
+$answer-label: #f83060;
+$syoyu: #AD5E5E;
 
 $hover-button-background: rgba(214, 214, 214, 0.3);
 
 $active-button-background: rgba(187, 187, 187, 0.3);
+
+// sushi-icons
+$tea: #849456;
+$maguro: #D12222;
+$salmon: #F57A45;
+$ikura: #F15E2F;
+$ebi: #F57070;
+$uni: #D2A83A;
+$iwashi: #8997A9;
+$tai: #E8A9A9;
+$shirasu: #8DA8C8;
+$hokki: #D85B5B;
+$harasu: #F3A07D;
+$syari: #A3A3A3;
+
+$z-under: -1;
+$z-base: 0; // ベース
+$z-1: 1; // ベース
+$z-2: 2; // ベース
+
+$z-fixed: 30; // 固定要素（ヘッダーなど、ページに固定する要素）
+
+$z-modal-back: 49; // モーダル、ドロワーなどの背景要素（半透明のやつ）
+$z-modal: 50; // モーダル、ドロワーなど
