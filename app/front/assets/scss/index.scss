@@ -252,6 +252,7 @@
   &>.sender-badge-wrapper{
     width: 100%;
     display: inline-flex;
+    flex-wrap: nowrap;
     & > .sender-badge {
       display: -webkit-box;
       word-break: break-all;

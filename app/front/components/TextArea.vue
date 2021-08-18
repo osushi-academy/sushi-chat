@@ -14,7 +14,7 @@
       <div class="material-icons" @click="deselectChatItem">close</div>
     </div>
     <div class="sender-badge-wrapper">
-      <div
+      <span
         v-if="selectedChatItem === null"
         class="sender-badge"
         :class="{
@@ -23,7 +23,7 @@
         }"
       >
         from おすしアカデミー
-      </div>
+      </span>
     </div>
     <textarea
       v-model="text"
@@ -46,7 +46,9 @@
         <KeyInstruction />
       </div>
       <label class="question-checkbox">
-        <input v-model="isQuestion" type="checkbox" />質問として投稿
+        <input v-model="isQuestion" type="checkbox" /><span
+          >質問として投稿</span
+        >
       </label>
       <button
         type="submit"
