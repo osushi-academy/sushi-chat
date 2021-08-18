@@ -30,6 +30,14 @@
       :placeholder="placeholder"
       @keydown.enter="enterSendMessage"
     />
+    <div class="error-message">
+      <span
+        class="text-counter"
+        :class="{ over: maxMessageLength < text.length }"
+      >
+        文字数をオーバーしています ({{ text.length - maxMessageLength }}文字)
+      </span>
+    </div>
     <div class="textarea-footer">
       <div class="instruction">
         <KeyInstruction />
@@ -40,7 +48,9 @@
       <button
         type="submit"
         class="submit-button"
-        :disabled="disabled"
+        :disabled="
+          disabled || maxMessageLength < text.length || text.length == 0
+        "
         :class="{
           admin: isAdmin,
         }"
@@ -50,9 +60,6 @@
         <div v-show="isQuestion" class="question-badge">Q</div>
       </button>
     </div>
-    <span class="text-counter" :class="{ over: maxMessageLength < text.length }"
-      >文字数をオーバーしています。 {{ maxMessageLength - text.length }}</span
-    >
   </section>
 </template>
 <script lang="ts">

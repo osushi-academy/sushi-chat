@@ -290,7 +290,7 @@
   & > .textarea-footer {
     display: flex;
     align-items: flex-end;
-    padding: 0.5em 1em;
+    padding: 0em 1em 0.5em;
 
     & > .submit-button {
       position: relative;
@@ -305,7 +305,6 @@
       display: grid;
       align-items: end;
       color: $primary;
-
       &:disabled {
         color: rgb(172, 172, 172);
       }
@@ -348,21 +347,23 @@
     }
 
   }
-
-  & > .text-counter {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    font-size: 70%;
-    user-select: none;
-    display: none;
-    padding: 0.7em;
-  }
-
-  & > .over {
-    color: red;
-    display: inline;
-  }
+  & > .error-message{
+    display: block;
+    text-align: right;
+    padding: 0 1em;
+    margin-bottom: -13px;
+    & > .text-counter {
+      font-size: 70%;
+      user-select: none;
+      display: none;
+      position: relative;
+      right: 0;
+    }
+    & > .over {
+      color: red;
+      display: inline;
+    }
+  } 
 
   & > .reply-bar {
     background-color: $placeholder-gray;
