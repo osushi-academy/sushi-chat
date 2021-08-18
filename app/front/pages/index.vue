@@ -295,7 +295,7 @@ export default Vue.extend({
       socket.on("PUB_STAMP", (stamps: Stamp[]) => {
         const stampsAboutTopicId = stamps.filter(
           // スタンプは自分が押したものも通知されるため省く処理を入れています
-          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id,
+          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id
         )
         if (stampsAboutTopicId.length > 0) {
           callback(stampsAboutTopicId.length)
