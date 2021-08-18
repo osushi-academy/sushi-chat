@@ -249,16 +249,17 @@
     font-weight: bold; 
   }
 
-  & > .sender-badge {
-    display: inline-block;
-    font-size: 75%;
-    background-color: $primary;
-    color: white;
-    padding: 0.15em 0.5em;
-    border-radius: 5px;
-    margin: 0.5em 1em;
+  &>.sender-badge-wrapper{
+    & > .sender-badge {
+      display: inline-block;
+      font-size: 75%;
+      background-color: $primary;
+      color: white;
+      padding: 0.15em 0.5em;
+      border-radius: 5px;
+      margin: 0.5em 1em;
+    }
   }
-
   .admin {
     background-color: $text-gray;
   }

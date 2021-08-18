@@ -13,14 +13,16 @@
       </div>
       <div class="material-icons" @click="deselectChatItem">close</div>
     </div>
-    <div
-      v-if="selectedChatItem === null"
-      class="sender-badge"
-      :class="{
-        admin: isAdmin,
-      }"
-    >
-      from おすしアカデミー
+    <div class="sender-badge-wrapper">
+      <div
+        v-if="selectedChatItem === null"
+        class="sender-badge"
+        :class="{
+          admin: isAdmin,
+        }"
+      >
+        from おすしアカデミー
+      </div>
     </div>
     <textarea
       v-model="text"
