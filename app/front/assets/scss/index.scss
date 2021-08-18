@@ -251,13 +251,19 @@
 
   &>.sender-badge-wrapper{
     width: 100%;
-    display: flex;
+    display: inline-flex;
     & > .sender-badge {
-      font-size: 75%;
+      display: -webkit-box;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+      font-size: 8px;
       color: white;
       padding: 0.15em 0.5em;
       border-radius: 5px;
       margin: 0.5em 1em;
+      min-width: 0;
     }
   }
   .presenter {
@@ -427,7 +433,7 @@
   scroll-snap-align: end;
 
   .sender-badge {
-    display: inline;
+    display: inline-block;
     vertical-align: top;
     font-size: 8px;
     background-color: $primary;
