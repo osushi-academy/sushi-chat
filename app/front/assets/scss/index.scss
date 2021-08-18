@@ -251,20 +251,12 @@
 
   &>.sender-badge-wrapper{
     width: 100%;
-    display: inline-flex;
-    flex-wrap: nowrap;
     & > .sender-badge {
-      display: -webkit-box;
-      word-break: break-all;
-      overflow-wrap: anywhere;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 1;
       font-size: 75%;
       color: white;
       padding: 0.15em 0.5em;
       border-radius: 5px;
       margin: 0.5em 1em;
-      min-width: 0;
     }
   }
   .presenter {
@@ -327,7 +319,7 @@
         height: 0.75rem;
         line-height: 0.75rem;
         border-radius: 100%;
-        font-size: 7.5px;
+        font-size: 0.5rem;
         font-weight: bold;
         text-align: center;
         background: rgb(48, 135, 248);
