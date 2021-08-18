@@ -258,7 +258,7 @@
       overflow-wrap: anywhere;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 1;
-      font-size: 8px;
+      font-size: 75%;
       color: white;
       padding: 0.15em 0.5em;
       border-radius: 5px;
@@ -301,6 +301,7 @@
     display: flex;
     align-items: flex-end;
     padding: 0em 1em 0.5em;
+    justify-content: flex-end;
 
     & > .submit-button {
       position: relative;
