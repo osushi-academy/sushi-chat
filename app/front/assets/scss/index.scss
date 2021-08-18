@@ -251,15 +251,17 @@
 
   &>.sender-badge-wrapper{
     width: 100%;
+    display: flex;
     & > .sender-badge {
-      display: inline-block;
       font-size: 75%;
-      background-color: $primary;
       color: white;
       padding: 0.15em 0.5em;
       border-radius: 5px;
       margin: 0.5em 1em;
     }
+  }
+  .presenter {
+    background-color: $primary;
   }
   .admin {
     background-color: $text-gray;

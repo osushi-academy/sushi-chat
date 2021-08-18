@@ -18,7 +18,8 @@
         v-if="selectedChatItem === null"
         class="sender-badge"
         :class="{
-          admin: isAdmin,
+          admin: isAdmin === true,
+          presenter: isAdmin === false,
         }"
       >
         from おすしアカデミー
