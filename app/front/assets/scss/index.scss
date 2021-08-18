@@ -252,7 +252,6 @@
   &>.sender-badge-wrapper{
     width: 100%;
     display: flex;
-    background-color: aqua;
     & > .sender-badge {
       font-size: 75%;
       color: white;
@@ -428,7 +427,7 @@
   scroll-snap-align: end;
 
   .sender-badge {
-    display: inline-block;
+    display: inline;
     vertical-align: top;
     font-size: 8px;
     background-color: $primary;
