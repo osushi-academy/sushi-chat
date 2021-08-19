@@ -68,7 +68,7 @@
     </div>
     <TextArea
       :topic="chatData.topic"
-      :disabled="topicState !== 'not-started'"
+      :disabled="topicState == 'not-started'"
       @submit="clickSubmit"
     />
   </article>
