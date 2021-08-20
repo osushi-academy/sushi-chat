@@ -23,25 +23,26 @@
   }
 
   & > .menu-button-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
+    //position: fixed;
+    //top: 0;
+    //left: 0;
     background: transparent;
     fill: $black;
     z-index: 40;
 
     & > .menu-button {
-      width: 64px;
-      height: 64px;
-      // border: none;
-      // background: transparent;
+      width: 2.5em;
+      height: 2.5em;
+      border: none;
+      background: transparent;
       border-radius: 99px;
       display: flex;
       align-items: center;
       justify-content: center;
+      color: white;
       &:hover,
       &:focus {
-        background: $gray;
+        background: $hover-button-background;
       }
     }
   }
