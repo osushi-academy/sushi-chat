@@ -5,31 +5,33 @@ class EphemeralStampDelivery implements IStampDelivery {
   private stamps: Stamp[] = []
   private intervalDeliveryTimer: NodeJS.Timeout | null = null
 
-  constructor(private readonly subscribers: Stamp[][]) {}
+  constructor(private readonly _subscribers: Stamp[][]) {}
 
-  finishIntervalDelivery(): void {
-    if (this.intervalDeliveryTimer === null) {
-      throw new Error(
-        "Can't finish StampDelivery whose intervalDeliveryTimer is empty.",
-      )
-    }
+  public get subscribers() {
+    return [...this._subscribers.map((s) => [...s])]
+  }
+
+  public finishIntervalDelivery(): void {
+    if (this.intervalDeliveryTimer === null) return
+
     clearInterval(this.intervalDeliveryTimer)
     this.intervalDeliveryTimer = null
   }
 
-  pushStamp(stamp: Stamp): void {
+  public pushStamp(stamp: Stamp): void {
     this.stamps.push(stamp)
   }
 
-  startIntervalDelivery(): void {
+  // テストようなのでintervalは短めにしている
+  public startIntervalDelivery(): void {
     if (this.intervalDeliveryTimer !== null) return
 
     this.intervalDeliveryTimer = setInterval(() => {
       if (this.stamps.length > 0) {
-        this.subscribers.forEach((s) => s.push(...this.stamps))
+        this._subscribers.forEach((s) => s.push(...this.stamps))
         this.stamps.length = 0
       }
-    }, 2000)
+    }, 100)
   }
 }
 
