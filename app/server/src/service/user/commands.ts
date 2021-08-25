@@ -7,14 +7,12 @@ export type CreateUserCommand = {
 export type AdminEnterCommand = {
   adminId: string
   roomId: string
-  adminSocket: Socket
 }
 
 export type UserEnterCommand = {
   userId: string
   roomId: string
   iconId: string
-  userSocket: Socket
 }
 
 export type UserLeaveCommand = {

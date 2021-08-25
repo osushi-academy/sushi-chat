@@ -115,7 +115,6 @@ const createSocketIOServer = async (
           const room = userService.adminEnterRoom({
             adminId: socket.id,
             roomId: received.roomId,
-            adminSocket: socket,
           })
 
           callback({
@@ -142,7 +141,6 @@ const createSocketIOServer = async (
           const room = userService.enterRoom({
             userId: socket.id,
             roomId: received.roomId,
-            userSocket: socket,
             iconId: received.iconId,
           })
 
