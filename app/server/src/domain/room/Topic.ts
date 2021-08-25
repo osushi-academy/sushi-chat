@@ -6,7 +6,7 @@ type Topic = {
   state: TopicState
 }
 
-type TopicLinkType = "github" | "slide" | "product"
-type TopicState = "not-started" | "active" | "paused" | "finished"
+export type TopicLinkType = "github" | "slide" | "product"
+export type TopicState = "not-started" | "active" | "paused" | "finished"
 
 export default Topic
