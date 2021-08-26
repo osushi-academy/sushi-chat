@@ -4,11 +4,12 @@ import { io as Client, Socket as ClientSocket } from "socket.io-client"
 import { ArrayRange } from "../utils/range"
 import createSocketIOServer from "../ioServer"
 import { AdminBuildRoomParams } from "../events"
-import { Topic } from "../topic"
 import LocalMemoryUserRepository from "../infra/repository/User/LocalMemoryUserRepository"
-import EphemeralChatItemRepository from "../infra/repository/chatItem/EphemeralChatItemRepository"
-import EphemeralRoomRepository from "../infra/repository/room/EphemeralRoomRepository"
-import EphemeralStampRepository from "../infra/repository/stamp/EphemeralStampRepository"
+import Topic from "../domain/room/Topic"
+import { v4 as uuid } from "uuid"
+import RoomRepository from "../infra/repository/room/RoomRepository"
+import ChatItemRepository from "../infra/repository/chatItem/ChatItemRepository"
+import StampRepository from "../infra/repository/stamp/StampRepository"
 
 describe("機能テスト", () => {
   let io: Server
@@ -21,9 +22,9 @@ describe("機能テスト", () => {
     io = await createSocketIOServer(
       httpServer,
       LocalMemoryUserRepository.getInstance(),
-      new EphemeralRoomRepository(),
-      new EphemeralChatItemRepository(),
-      new EphemeralStampRepository(),
+      RoomRepository.getInstance(),
+      new ChatItemRepository(),
+      new StampRepository(),
     )
     httpServer.listen(async () => {
       const port = (httpServer as any).address().port
@@ -42,7 +43,7 @@ describe("機能テスト", () => {
   })
 
   let roomId: string
-  let topics: Topic[]
+  let topics: Omit<Topic, "state">[]
   const roomDataParams: AdminBuildRoomParams = {
     title: "TEST_ROOM_TITLE",
     topics: ArrayRange(10).map((i) => ({
@@ -61,6 +62,11 @@ describe("機能テスト", () => {
     id: expect.any(String),
     state: "not-started",
   }))
+
+  const messageId = uuid()
+  const reactionId = uuid()
+  const questionId = uuid()
+  const answerId = uuid()
 
   describe("ルームを立てる", () => {
     test("管理者がルームを立てる", async (resolve) => {
@@ -239,7 +245,7 @@ describe("機能テスト", () => {
     test("Messageの投稿", (resolve) => {
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
         expect(res).toStrictEqual({
-          id: "001",
+          id: messageId,
           topicId: topics[0].id,
           type: "message",
           iconId: "2",
@@ -253,7 +259,7 @@ describe("機能テスト", () => {
         resolve()
       })
       clientSockets[1].emit("POST_CHAT_ITEM", {
-        id: "001",
+        id: messageId,
         topicId: topics[0].id,
         type: "message",
         content: "コメント",
@@ -263,7 +269,7 @@ describe("機能テスト", () => {
     test("Reactionの投稿", (resolve) => {
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
         expect(res).toStrictEqual({
-          id: "002",
+          id: reactionId,
           topicId: topics[0].id,
           type: "reaction",
           iconId: "3",
@@ -272,7 +278,7 @@ describe("機能テスト", () => {
             /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
           ),
           target: {
-            id: "001",
+            id: messageId,
             topicId: topics[0].id,
             type: "message",
             iconId: "2",
@@ -287,17 +293,17 @@ describe("機能テスト", () => {
         resolve()
       })
       clientSockets[2].emit("POST_CHAT_ITEM", {
-        id: "002",
+        id: reactionId,
         topicId: topics[0].id,
         type: "reaction",
-        reactionToId: "001",
+        reactionToId: messageId,
       })
     })
 
     test("Questionの投稿", (resolve) => {
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
         expect(res).toStrictEqual({
-          id: "003",
+          id: questionId,
           topicId: topics[0].id,
           type: "question",
           iconId: "2",
@@ -310,7 +316,7 @@ describe("機能テスト", () => {
         resolve()
       })
       clientSockets[1].emit("POST_CHAT_ITEM", {
-        id: "003",
+        id: questionId,
         topicId: topics[0].id,
         type: "question",
         content: "質問",
@@ -320,7 +326,7 @@ describe("機能テスト", () => {
     test("Answerの投稿", (resolve) => {
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
         expect(res).toStrictEqual({
-          id: "004",
+          id: answerId,
           topicId: topics[0].id,
           type: "answer",
           iconId: "3",
@@ -330,7 +336,7 @@ describe("機能テスト", () => {
           ),
           content: "回答",
           target: {
-            id: "003",
+            id: questionId,
             topicId: topics[0].id,
             type: "question",
             iconId: "2",
@@ -344,11 +350,11 @@ describe("機能テスト", () => {
         resolve()
       })
       clientSockets[2].emit("POST_CHAT_ITEM", {
-        id: "004",
+        id: answerId,
         topicId: topics[0].id,
         type: "answer",
         content: "回答",
-        target: "003",
+        target: questionId,
       })
     })
   })
@@ -472,7 +478,7 @@ describe("機能テスト", () => {
                 createdAt: expect.stringMatching(
                   /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
                 ),
-                id: "001",
+                id: messageId,
                 topicId: "1",
                 type: "message",
                 content: "コメント",
@@ -485,7 +491,7 @@ describe("機能テスト", () => {
                   /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
                 ),
                 target: {
-                  id: "001",
+                  id: messageId,
                   topicId: topics[0].id,
                   type: "message",
                   iconId: "2",
@@ -496,7 +502,7 @@ describe("機能テスト", () => {
                   content: "コメント",
                   target: null,
                 },
-                id: "002",
+                id: reactionId,
                 topicId: "1",
                 type: "reaction",
               },
@@ -506,7 +512,7 @@ describe("機能テスト", () => {
                 createdAt: expect.stringMatching(
                   /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
                 ),
-                id: "003",
+                id: questionId,
                 topicId: "1",
                 type: "question",
                 content: "質問",
@@ -517,12 +523,12 @@ describe("機能テスト", () => {
                 createdAt: expect.stringMatching(
                   /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
                 ),
-                id: "004",
+                id: answerId,
                 topicId: "1",
                 type: "answer",
                 content: "回答",
                 target: {
-                  id: "003",
+                  id: questionId,
                   topicId: topics[0].id,
                   type: "question",
                   iconId: "2",

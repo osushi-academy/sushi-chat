@@ -13,17 +13,22 @@ import {
 } from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
+import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 
 class ChatItemService {
   constructor(
     private readonly chatItemRepository: IChatItemRepository,
     private readonly roomRepository: IRoomRepository,
     private readonly userRepository: IUserRepository,
+    private readonly chatItemDelivery: IChatItemDelivery,
   ) {}
 
   public async postMessage(command: PostMessageCommand): Promise<void> {
     const user = this.findUser(command.userId)
-    const room = this.findRoom(user.roomId)
+    const roomId = user.getRoomIdOrThrow()
+    const iconId = user.getIconIdOrThrow()
+
+    const room = this.findRoom(roomId)
     const target =
       command.targetId !== undefined && command.targetId !== null
         ? ((await this.chatItemRepository.find(command.targetId)) as
@@ -34,8 +39,8 @@ class ChatItemService {
     const message = new Message(
       command.chatItemId,
       command.topicId,
-      user.roomId,
-      user.iconId,
+      roomId,
+      iconId,
       new Date(),
       command.content,
       target,
@@ -45,12 +50,16 @@ class ChatItemService {
     room.postChatItem(command.userId, message)
     console.log(`message: ${command.content}(id: ${command.chatItemId})`)
 
+    this.chatItemDelivery.postMessage(message)
     this.chatItemRepository.saveMessage(message)
   }
 
   public async postReaction(command: PostReactionCommand): Promise<void> {
     const user = this.findUser(command.userId)
-    const room = this.findRoom(user.roomId)
+    const roomId = user.getRoomIdOrThrow()
+    const iconId = user.getIconIdOrThrow()
+
+    const room = this.findRoom(roomId)
     const target = (await this.chatItemRepository.find(command.targetId)) as
       | Message
       | Question
@@ -59,28 +68,32 @@ class ChatItemService {
     const reaction = new Reaction(
       command.chatItemId,
       command.topicId,
-      user.roomId,
-      user.iconId,
+      roomId,
+      iconId,
       new Date(),
       target,
       room.getTimestamp(command.topicId),
     )
 
-    console.log(`reaction: to ${command.targetId}`)
     room.postChatItem(command.userId, reaction)
+    console.log(`reaction: to ${command.targetId}`)
 
+    this.chatItemDelivery.postReaction(reaction)
     this.chatItemRepository.saveReaction(reaction)
   }
 
   public postQuestion(command: PostQuestionCommand): void {
     const user = this.findUser(command.userId)
-    const room = this.findRoom(user.roomId)
+    const roomId = user.getRoomIdOrThrow()
+    const iconId = user.getIconIdOrThrow()
+
+    const room = this.findRoom(roomId)
 
     const question = new Question(
       command.chatItemId,
       command.topicId,
-      user.roomId,
-      user.iconId,
+      roomId,
+      iconId,
       new Date(),
       command.content,
       room.getTimestamp(command.topicId),
@@ -89,12 +102,16 @@ class ChatItemService {
     room.postChatItem(command.userId, question)
     console.log(`question: ${command.content}(id: ${command.chatItemId})`)
 
+    this.chatItemDelivery.postQuestion(question)
     this.chatItemRepository.saveQuestion(question)
   }
 
   public async postAnswer(command: PostAnswerCommand): Promise<void> {
     const user = this.findUser(command.userId)
-    const room = this.findRoom(user.roomId)
+    const roomId = user.getRoomIdOrThrow()
+    const iconId = user.getIconIdOrThrow()
+
+    const room = this.findRoom(roomId)
     const target = (await this.chatItemRepository.find(
       command.targetId,
     )) as Question
@@ -102,8 +119,8 @@ class ChatItemService {
     const answer = new Answer(
       command.chatItemId,
       command.topicId,
-      user.roomId,
-      user.iconId,
+      roomId,
+      iconId,
       new Date(),
       command.content,
       target,
@@ -113,6 +130,7 @@ class ChatItemService {
     room.postChatItem(command.userId, answer)
     console.log(`answer: ${command.content}(id: ${command.chatItemId})`)
 
+    this.chatItemDelivery.postAnswer(answer)
     this.chatItemRepository.saveAnswer(answer)
   }
 
