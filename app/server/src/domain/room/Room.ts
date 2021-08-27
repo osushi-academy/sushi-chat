@@ -17,7 +17,7 @@ import UserClass from "../user/User"
 import Topic from "./Topic"
 
 class RoomClass {
-  private _topics: Topic[]
+  private readonly _topics: Topic[]
   private users: User[] = []
   private chatItems: ChatItemStore[] = []
   private stamps: StampClass[] = []
