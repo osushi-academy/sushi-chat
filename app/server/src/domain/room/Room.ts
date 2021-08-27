@@ -77,7 +77,7 @@ class RoomClass {
   }
 
   public finishRoom = () => {
-    // TODO: startRoomと同じようにthis.isOpenedのチェックした方がいい気がする
+    this.assertRoomIsOpen()
     this.isOpened = false
   }
 
@@ -120,9 +120,7 @@ class RoomClass {
   public changeTopicState = (
     params: AdminChangeTopicStateParams,
   ): { messages: MessageClass[]; activeTopic: Topic | null } => {
-    if (!this.isOpened) {
-      throw new Error("[sushi-chat-server] Room is not opened.")
-    }
+    this.assertRoomIsOpen()
 
     const targetTopic = this.getTopicById(params.topicId)
     if (targetTopic == null) {
@@ -236,9 +234,7 @@ class RoomClass {
    * @param stamp
    */
   public postStamp = (stamp: StampClass) => {
-    if (!this.isOpened) {
-      throw new Error("[sushi-chat-server] Room is not opened.")
-    }
+    this.assertRoomIsOpen()
     // ユーザーの存在チェック
     if (!this.userIdExistCheck(stamp.userId)) {
       throw new Error("[sushi-chat-server] User does not exists.")
@@ -252,9 +248,7 @@ class RoomClass {
    * @param chatItem
    */
   public postChatItem = (userId: string, chatItem: ChatItemClass) => {
-    if (!this.isOpened) {
-      throw new Error("[sushi-chat-server] Room is not opened.")
-    }
+    this.assertRoomIsOpen()
     // TODO: not-startedなルームには投稿できない
     // ユーザーの存在チェック
     if (!this.userIdExistCheck(userId)) {
@@ -379,6 +373,12 @@ class RoomClass {
       throw new Error(`openedDate of topicId(id: ${topicId}) is null.`)
     }
     return openedDate
+  }
+
+  private assertRoomIsOpen() {
+    if (!this.isOpened) {
+      throw new Error(`Room(id: ${this.id}) is not opened.`)
+    }
   }
 }
 
