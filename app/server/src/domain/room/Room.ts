@@ -95,9 +95,11 @@ class RoomClass {
    * @param userId
    */
   public leaveUser = (userId: string): number => {
-    const leftUser = this.users.find((user) => user.id !== userId)
+    const leftUser = this.users.find((user) => user.id === userId)
     if (leftUser == null) {
-      throw new Error("[sushi-chat-server] User does not exists.")
+      throw new Error(
+        `[sushi-chat-server] User(id: ${userId}) does not exists.`,
+      )
     }
     this.users = this.users.filter((user) => user.id !== leftUser.id)
 
