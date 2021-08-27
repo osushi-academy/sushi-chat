@@ -46,7 +46,7 @@ class UserService {
     return {
       chatItems: chatItemResponses,
       topics: room.topics,
-      activeUserCount: room.activeUserCount,
+      activeUserCount,
     }
   }
 
@@ -71,7 +71,7 @@ class UserService {
     return {
       chatItems: chatItemResponses,
       topics: room.topics,
-      activeUserCount: room.activeUserCount,
+      activeUserCount,
     }
   }
 
