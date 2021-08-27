@@ -132,29 +132,9 @@ class RoomClass {
         messages.push(message)
       }
 
-      // 指定されたトピックをOpenにする
-      targetTopic.state = "active"
-
-      const isFirstOpen = this.topicTimeData[targetTopic.id].openedDate == null
-
-      // タイムスタンプの計算
-      if (isFirstOpen) {
-        this.topicTimeData[targetTopic.id].openedDate = new Date().getTime()
-      }
-      const pausedDate = this.topicTimeData[targetTopic.id].pausedDate
-      if (pausedDate != null) {
-        this.topicTimeData[targetTopic.id].offsetTime +=
-          new Date().getTime() - pausedDate
-      }
-
-      const message = this.postBotMessage(
-        params.topicId,
-        isFirstOpen
-          ? "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n"
-          : "【運営Bot】\n 発表が再開されました",
-      )
+      const message = this.startTopic(targetTopic)
       messages.push(message)
-      // トピック開始のBotメッセージ
+
       return {
         messages,
         activeTopic: this.activeTopic,
@@ -185,6 +165,35 @@ class RoomClass {
     throw new Error(
       `[sushi-chat-server] params.type(${params.type}) is invalid.`,
     )
+  }
+
+  /**
+   * トピックを開始する
+   * @param topic 開始されるトピックID
+   */
+  private startTopic(topic: Topic): MessageClass {
+    topic.state = "active"
+
+    const timeData = this.topicTimeData[topic.id]
+    const isFirstOpen = timeData.openedDate === null
+
+    // 初めてOpenされたトピックならopenedDateをセット
+    if (isFirstOpen) {
+      timeData.openedDate = new Date().getTime()
+    }
+    //pauseされていた時間をoffsetTimeに追加
+    const pausedDate = timeData.pausedDate
+    if (pausedDate !== null) {
+      timeData.offsetTime += new Date().getTime() - pausedDate
+    }
+
+    const message =
+      "【運営Bot】\n " +
+      (isFirstOpen
+        ? "発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n"
+        : "発表が再開されました")
+
+    return this.postBotMessage(topic.id, message)
   }
 
   /**
