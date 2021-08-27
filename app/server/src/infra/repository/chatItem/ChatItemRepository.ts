@@ -119,66 +119,86 @@ class ChatItemRepository implements IChatItemRepository {
     }
   }
 
-  public async find(chatItemId: string): Promise<ChatItem> {
+  // NOTE: arrow functionにしないとthisの挙動のせいでバグる
+  public find = async (chatItemId: string): Promise<ChatItem> => {
     const query = "SELECT * FROM chatitems WHERE id = $1"
-    const res = (await this.pgClient.query(query, [chatItemId])).rows[0]
+    const row = (await this.pgClient.query(query, [chatItemId])).rows[0]
 
-    const topicId = `${res.topicid}`
+    return await this.buildChatItem(row)
+  }
+
+  public async selectByRoomId(roomId: string): Promise<ChatItem[]> {
+    const query = "SELECT * FROM chatitems WHERE roomid = $1"
+    const rows = (await this.pgClient.query(query, [roomId])).rows
+
+    return Promise.all(rows.map(this.buildChatItem))
+  }
+
+  // NOTE: arrow functionにしないとthisの挙動のせいでバグる
+  private buildChatItem = async (row: any) => {
+    // ChatItemモデルのtopicIdの型がstringなので、DB上ではINTで保存しているtopicIdをキャストする
+    const topicId = `${row.topicid}`
 
     // NOTE: 複数回クエリを発行するとパフォーマンスの低下につながるので、一回のクエリでとってこれるならそうしたい
-    let target = null
-    switch (res.type) {
-      case "message":
-        if (res.targetid !== null) {
-          target = (await this.find(res.targetid)) as Message | Answer
-        }
+    switch (row.type) {
+      case "message": {
+        const target =
+          row.targetid !== null
+            ? ((await this.find(row.targetid)) as Message | Answer)
+            : null
         return new Message(
-          res.id,
+          row.id,
           topicId,
-          res.roomid,
-          res.iconid,
-          res.createdat,
-          res.content,
+          row.roomid,
+          row.iconid,
+          row.createdat,
+          row.content,
           target,
-          res.timestamp,
+          row.timestamp,
         )
-      case "reaction":
-        target = (await this.find(res.targetid)) as Message | Question | Answer
+      }
+      case "reaction": {
+        const target = (await this.find(row.targetid)) as
+          | Message
+          | Question
+          | Answer
         return new Reaction(
-          res.id,
+          row.id,
           topicId,
-          res.roomid,
-          res.iconid,
-          res.createdat,
+          row.roomid,
+          row.iconid,
+          row.createdat,
           target,
-          res.timestamp,
+          row.timestamp,
         )
-      case "question":
+      }
+      case "question": {
         return new Question(
-          res.id,
+          row.id,
           topicId,
-          res.roomid,
-          res.iconid,
-          res.createdat,
-          res.content,
-          res.timestamp,
+          row.roomid,
+          row.iconid,
+          row.createdat,
+          row.content,
+          row.timestamp,
         )
-      case "answer":
-        target = (await this.find(res.targetid)) as Question
+      }
+      case "answer": {
+        const target = (await this.find(row.targetid)) as Question
         return new Answer(
-          res.id,
+          row.id,
           topicId,
-          res.roomid,
-          res.iconid,
-          res.createdat,
-          res.content,
+          row.roomid,
+          row.iconid,
+          row.createdat,
+          row.content,
           target,
-          res.timestamp,
+          row.timestamp,
         )
-      default:
-        throw new Error(
-          `ChatItemId(id: ${chatItemId}) was not found. (FIND ROOM)`,
-        )
+      }
+      default: {
+        throw new Error(`row.type(${row.type}) is invalid.`)
+      }
     }
   }
 
