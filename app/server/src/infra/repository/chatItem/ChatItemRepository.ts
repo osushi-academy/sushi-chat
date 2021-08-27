@@ -5,27 +5,28 @@ import Reaction from "../../../domain/chatItem/Reaction"
 import Question from "../../../domain/chatItem/Question"
 import Answer from "../../../domain/chatItem/Answer"
 import ChatItem from "../../../domain/chatItem/ChatItem"
+import { ChatItemType } from "../../../chatItem"
 
 class ChatItemRepository implements IChatItemRepository {
   private readonly pgClient = PGClientFactory.create()
 
   public async saveMessage(message: Message): Promise<void> {
-    const m = message.toChatItemStore()
     const query =
       "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
       "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
 
+    const type: ChatItemType = "message"
     try {
       await this.pgClient.query(query, [
-        m.id,
-        m.type,
+        message.id,
+        type,
         message.roomId,
-        m.topicId,
-        m.iconId,
-        m.timestamp,
-        ChatItemRepository.formatDate(m.createdAt),
-        m.content,
-        m.target,
+        message.topicId,
+        message.userIconId,
+        message.timestamp,
+        ChatItemRepository.formatDate(message.createdAt),
+        message.content,
+        message.target ? message.target.id : null,
       ])
     } catch (e) {
       console.error(
@@ -37,21 +38,21 @@ class ChatItemRepository implements IChatItemRepository {
   }
 
   public async saveReaction(reaction: Reaction): Promise<void> {
-    const r = reaction.toChatItemStore()
     const query =
       "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
       "VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, $8)"
 
+    const type: ChatItemType = "reaction"
     try {
       await this.pgClient.query(query, [
-        r.id,
-        r.type,
+        reaction.id,
+        type,
         reaction.roomId,
-        r.topicId,
-        r.iconId,
-        r.timestamp,
-        ChatItemRepository.formatDate(r.createdAt),
-        r.target,
+        reaction.topicId,
+        reaction.userIconId,
+        reaction.timestamp,
+        ChatItemRepository.formatDate(reaction.createdAt),
+        reaction.target.id,
       ])
     } catch (e) {
       console.log(
@@ -64,21 +65,21 @@ class ChatItemRepository implements IChatItemRepository {
   }
 
   public async saveQuestion(question: Question): Promise<void> {
-    const q = question.toChatItemStore()
     const query =
       "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
       "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NULL)"
 
+    const type: ChatItemType = "question"
     try {
       await this.pgClient.query(query, [
-        q.id,
-        q.type,
+        question.id,
+        type,
         question.roomId,
-        q.topicId,
-        q.iconId,
-        q.timestamp,
-        ChatItemRepository.formatDate(q.createdAt),
-        q.content,
+        question.topicId,
+        question.userIconId,
+        question.timestamp,
+        ChatItemRepository.formatDate(question.createdAt),
+        question.content,
       ])
     } catch (e) {
       console.log(
@@ -91,22 +92,22 @@ class ChatItemRepository implements IChatItemRepository {
   }
 
   public async saveAnswer(answer: Answer): Promise<void> {
-    const a = answer.toChatItemStore()
     const query =
       "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
       "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
 
+    const type: ChatItemType = "answer"
     try {
       await this.pgClient.query(query, [
-        a.id,
-        a.type,
+        answer.id,
+        type,
         answer.roomId,
-        a.topicId,
-        a.iconId,
-        a.timestamp,
-        ChatItemRepository.formatDate(a.createdAt),
-        a.content,
-        a.target,
+        answer.topicId,
+        answer.userIconId,
+        answer.timestamp,
+        ChatItemRepository.formatDate(answer.createdAt),
+        answer.content,
+        answer.target.id,
       ])
     } catch (e) {
       console.error(
