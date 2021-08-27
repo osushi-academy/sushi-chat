@@ -124,11 +124,10 @@ class RoomClass {
     if (params.type === "OPEN") {
       const messages: MessageClass[] = []
 
-      // 現在activeであるトピックをfinishedする
+      // 現在のactiveトピックをfinishedにする
       const currentActiveTopic = this.activeTopic
-      if (currentActiveTopic != null) {
-        currentActiveTopic.state = "finished"
-        const message = this.finishTopic(currentActiveTopic.id)
+      if (currentActiveTopic !== null) {
+        const message = this.finishTopic(currentActiveTopic)
         messages.push(message)
       }
 
@@ -143,16 +142,11 @@ class RoomClass {
 
     if (params.type === "PAUSE") {
       const messages = [this.pauseTopic(targetTopic)]
-      return {
-        messages,
-        activeTopic: this.activeTopic,
-      }
+      return { messages, activeTopic: this.activeTopic }
     }
 
     if (params.type === "CLOSE") {
-      targetTopic.state = "finished"
-
-      const botMessage = this.finishTopic(params.topicId)
+      const botMessage = this.finishTopic(targetTopic)
       return { messages: [botMessage], activeTopic: this.activeTopic }
     }
 
@@ -204,19 +198,21 @@ class RoomClass {
 
   /**
    * トピック終了時の処理を行う
-   * @param topicId 終了させるトピックID
+   * @param topic 終了させるトピック
    */
-  private finishTopic = (topicId: string): MessageClass => {
+  private finishTopic = (topic: Topic): MessageClass => {
+    topic.state = "finished"
+
     // 質問の集計
     const questions = this.chatItems.filter<QuestionStore>(
       (chatItemStore): chatItemStore is QuestionStore =>
-        chatItemStore.type === "question" && chatItemStore.topicId === topicId,
+        chatItemStore.type === "question" && chatItemStore.topicId === topic.id,
     )
     // 回答済みの質問の集計
     const answeredIds = this.chatItems
       .filter<AnswerStore>(
         (chatItemStore): chatItemStore is AnswerStore =>
-          chatItemStore.type === "answer" && chatItemStore.topicId === topicId,
+          chatItemStore.type === "answer" && chatItemStore.topicId === topic.id,
       )
       .map(({ target }) => target)
 
@@ -227,7 +223,7 @@ class RoomClass {
 
     // トピック終了のBotメッセージ
     return this.postBotMessage(
-      topicId,
+      topic.id,
       [
         "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
         questionMessages.length > 0 ? "" : null,
