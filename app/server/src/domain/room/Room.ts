@@ -70,9 +70,7 @@ class RoomClass {
    * ルームを開始する
    */
   public startRoom = () => {
-    if (this.isOpened) {
-      throw new Error("[sushi-chat-server] Room has already opened.")
-    }
+    this.assertRoomIsNotOpen()
     this.isOpened = true
   }
 
@@ -379,6 +377,14 @@ class RoomClass {
   private assertRoomIsOpen() {
     if (!this.isOpened) {
       throw new Error(`Room(id: ${this.id}) is not opened.`)
+    }
+  }
+
+  private assertRoomIsNotOpen() {
+    if (this.isOpened) {
+      throw new Error(
+        `[sushi-chat-server] Room(id: ${this.id}) has already opened.`,
+      )
     }
   }
 
