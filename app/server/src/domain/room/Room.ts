@@ -17,9 +17,9 @@ import UserClass from "../user/User"
 import Topic from "./Topic"
 
 class RoomClass {
+  private _topics: Topic[]
   private users: User[] = []
   private chatItems: ChatItemStore[] = []
-  public topics: Topic[]
   private stamps: StampClass[] = []
   private isOpened = false
 
@@ -32,6 +32,10 @@ class RoomClass {
     string,
     { openedDate: number | null; pausedDate: number | null; offsetTime: number }
   > = {}
+
+  public get topics(): Topic[] {
+    return [...this._topics]
+  }
 
   public get activeUserCount(): number {
     return this.users.length
@@ -52,12 +56,12 @@ class RoomClass {
     public readonly title: string,
     topics: Omit<Topic, "id" | "state">[],
   ) {
-    this.topics = topics.map((topic, i) => ({
+    this._topics = topics.map((topic, i) => ({
       ...topic,
       id: `${i + 1}`,
       state: "not-started",
     }))
-    this.topics.forEach(({ id }) => {
+    this._topics.forEach(({ id }) => {
       this.topicTimeData[id] = {
         openedDate: null,
         pausedDate: null,
@@ -339,11 +343,11 @@ class RoomClass {
   }
 
   private get activeTopic(): Topic | null {
-    return this.topics.find(({ state }) => state === "active") ?? null
+    return this._topics.find(({ state }) => state === "active") ?? null
   }
 
   private getTopicById = (topicId: string) => {
-    return this.topics.find((topic) => topic.id === topicId)
+    return this._topics.find((topic) => topic.id === topicId)
   }
 
   private findTopicOrThrow(topicId: string) {
