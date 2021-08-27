@@ -112,16 +112,12 @@ const createSocketIOServer = async (
             roomRepository,
             new UserDelivery(socket, io),
           )
-          const room = userService.adminEnterRoom({
+          const response = userService.adminEnterRoom({
             adminId: socket.id,
             roomId: received.roomId,
           })
 
-          callback({
-            chatItems: room.getChatItems(),
-            topics: room.topics,
-            activeUserCount: room.activeUserCount,
-          })
+          callback(response)
         } catch (e) {
           console.error(
             `${e.message ?? "Unknown error."} (ADMIN_ENTER_ROOM)`,
@@ -138,17 +134,13 @@ const createSocketIOServer = async (
             roomRepository,
             new UserDelivery(socket, io),
           )
-          const room = userService.enterRoom({
+          const response = userService.enterRoom({
             userId: socket.id,
             roomId: received.roomId,
             iconId: received.iconId,
           })
 
-          callback({
-            chatItems: room.getChatItems(),
-            topics: room.topics,
-            activeUserCount: room.activeUserCount,
-          })
+          callback(response)
         } catch (e) {
           console.log(
             `${e.message ?? "Unknown error."} (ENTER_ROOM)`,

@@ -1,13 +1,4 @@
-import {
-  Answer,
-  AnswerStore,
-  ChatItem,
-  ChatItemStore,
-  Message,
-  Question,
-  QuestionStore,
-  User,
-} from "../../chatItem"
+import { User } from "../../chatItem"
 import { AdminChangeTopicStateParams } from "../../events"
 import { v4 as uuid } from "uuid"
 import ChatItemClass from "../chatItem/ChatItem"
@@ -15,11 +6,13 @@ import StampClass from "../stamp/Stamp"
 import MessageClass from "../chatItem/Message"
 import UserClass from "../user/User"
 import Topic from "./Topic"
+import Question from "../chatItem/Question"
+import Answer from "../chatItem/Answer"
 
 class RoomClass {
   private readonly _topics: Topic[]
   private users: User[] = []
-  private chatItems: ChatItemStore[] = []
+  private _chatItems: ChatItemClass[] = []
   private stamps: StampClass[] = []
   private isOpened = false
 
@@ -41,7 +34,9 @@ class RoomClass {
     return this.users.length
   }
 
-  public getChatItems = () => this.chatItems.map(this.chatItemStoreToChatItem)
+  public get chatItems(): ChatItemClass[] {
+    return [...this._chatItems]
+  }
 
   public calcTimestamp = (topicId: string): number => {
     const openedDate = this.findOpenedDateOrThrow(topicId)
@@ -208,17 +203,15 @@ class RoomClass {
     topic.state = "finished"
 
     // 質問の集計
-    const questions = this.chatItems.filter<QuestionStore>(
-      (chatItemStore): chatItemStore is QuestionStore =>
-        chatItemStore.type === "question" && chatItemStore.topicId === topic.id,
+    const questions = this._chatItems.filter<Question>(
+      (c): c is Question => c instanceof Question && c.topicId === topic.id,
     )
     // 回答済みの質問の集計
-    const answeredIds = this.chatItems
-      .filter<AnswerStore>(
-        (chatItemStore): chatItemStore is AnswerStore =>
-          chatItemStore.type === "answer" && chatItemStore.topicId === topic.id,
+    const answeredIds = this._chatItems
+      .filter<Answer>(
+        (c): c is Answer => c instanceof Answer && c.topicId === topic.id,
       )
-      .map(({ target }) => target)
+      .map(({ id }) => id)
 
     const questionMessages = questions.map(
       ({ id, content }) =>
@@ -258,89 +251,9 @@ class RoomClass {
     this.assertRoomIsOpen()
     this.assertUserExists(userId)
 
-    // 保存する形式に変換
-    const chatItemStore = chatItem.toChatItemStore()
-    // 配列に保存
-    this.chatItems.push(chatItemStore)
+    this._chatItems.push(chatItem)
   }
 
-  /**
-   * フロントに返すチャットアイテムを整形する関数
-   * 具体的にはリプライ先のChatItemなどで、IDのみ保存されている部分をChatItemに置き換えて返す
-   *
-   * @param chatItemStore
-   * @returns フロントに返すためのデータ
-   */
-  private chatItemStoreToChatItem = (
-    chatItemStore: ChatItemStore,
-  ): ChatItem => {
-    if (chatItemStore.type === "message") {
-      if (chatItemStore.target == null) {
-        // 通常メッセージ
-        return {
-          ...chatItemStore,
-          target: null,
-        }
-      } else {
-        // リプライメッセージ
-        // リプライ先のメッセージを取得する
-        const targetChatItemStore = this.chatItems.find(
-          ({ id, type }) =>
-            id === chatItemStore.target &&
-            (type === "answer" || type === "message"),
-        )
-        if (targetChatItemStore == null) {
-          throw new Error(
-            "[sushi-chat-server] Reply target message does not exists.",
-          )
-        }
-        return {
-          ...chatItemStore,
-          target: this.chatItemStoreToChatItem(targetChatItemStore) as
-            | Answer
-            | Message,
-        }
-      }
-    } else if (chatItemStore.type === "reaction") {
-      // リアクション
-      const targetChatItemStore = this.chatItems.find(
-        ({ id, type }) =>
-          id === chatItemStore.target &&
-          (type === "message" || type === "question" || type === "answer"),
-      )
-      if (targetChatItemStore == null) {
-        throw new Error(
-          "[sushi-chat-server] Reaction target message does not exists.",
-        )
-      }
-      return {
-        ...chatItemStore,
-        target: this.chatItemStoreToChatItem(targetChatItemStore) as
-          | Message
-          | Answer
-          | Question,
-      }
-    } else if (chatItemStore.type === "question") {
-      // 質問
-      return chatItemStore
-    } else {
-      // 回答
-      const targetChatItemStore = this.chatItems.find(
-        ({ id, type }) => id === chatItemStore.target && type === "question",
-      )
-      if (targetChatItemStore == null) {
-        throw new Error(
-          "[sushi-chat-server] Answer target message does not exists.",
-        )
-      }
-      return {
-        ...chatItemStore,
-        target: this.chatItemStoreToChatItem(targetChatItemStore) as Question,
-      }
-    }
-  }
-
-  // Botメッセージ
   private postBotMessage = (topicId: string, content: string): MessageClass => {
     const botMessage = new MessageClass(
       uuid(),
@@ -352,7 +265,7 @@ class RoomClass {
       null,
       this.calcTimestamp(topicId),
     )
-    this.chatItems.push(botMessage.toChatItemStore())
+    this._chatItems.push(botMessage)
 
     return botMessage
   }
