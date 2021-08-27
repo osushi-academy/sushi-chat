@@ -142,15 +142,9 @@ class RoomClass {
     }
 
     if (params.type === "PAUSE") {
-      targetTopic.state = "paused"
-      this.topicTimeData[targetTopic.id].pausedDate = new Date().getTime()
-
-      const botMessage = this.postBotMessage(
-        params.topicId,
-        "【運営Bot】\n 発表が中断されました",
-      )
+      const messages = [this.pauseTopic(targetTopic)]
       return {
-        messages: [botMessage],
+        messages,
         activeTopic: this.activeTopic,
       }
     }
@@ -169,7 +163,7 @@ class RoomClass {
 
   /**
    * トピックを開始する
-   * @param topic 開始されるトピックID
+   * @param topic 開始されるトピック
    */
   private startTopic(topic: Topic): MessageClass {
     topic.state = "active"
@@ -194,6 +188,18 @@ class RoomClass {
         : "発表が再開されました")
 
     return this.postBotMessage(topic.id, message)
+  }
+
+  /**
+   * トピックを中断する
+   * @param topic 中断されるトピック
+   */
+  private pauseTopic(topic: Topic): MessageClass {
+    topic.state = "paused"
+
+    this.topicTimeData[topic.id].pausedDate = new Date().getTime()
+
+    return this.postBotMessage(topic.id, "【運営Bot】\n 発表が中断されました")
   }
 
   /**
