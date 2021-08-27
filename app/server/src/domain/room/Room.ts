@@ -1,9 +1,9 @@
 import { User } from "../../chatItem"
-import { AdminChangeTopicStateParams, ChangeTopicStateType } from "../../events"
+import { ChangeTopicStateType } from "../../events"
 import { v4 as uuid } from "uuid"
-import ChatItemClass from "../chatItem/ChatItem"
-import StampClass from "../stamp/Stamp"
-import MessageClass from "../chatItem/Message"
+import ChatItem from "../chatItem/ChatItem"
+import Stamp from "../stamp/Stamp"
+import Message from "../chatItem/Message"
 import UserClass from "../user/User"
 import Topic from "./Topic"
 import Question from "../chatItem/Question"
@@ -12,8 +12,8 @@ import Answer from "../chatItem/Answer"
 class RoomClass {
   private readonly _topics: Topic[]
   private users: User[] = []
-  private _chatItems: ChatItemClass[] = []
-  private stamps: StampClass[] = []
+  private _chatItems: ChatItem[] = []
+  private stamps: Stamp[] = []
   private isOpened = false
 
   /**
@@ -34,7 +34,7 @@ class RoomClass {
     return this.users.length
   }
 
-  public get chatItems(): ChatItemClass[] {
+  public get chatItems(): ChatItem[] {
     return [...this._chatItems]
   }
 
@@ -119,14 +119,14 @@ class RoomClass {
   public changeTopicState = (
     topicId: string,
     type: ChangeTopicStateType,
-  ): { messages: MessageClass[]; activeTopic: Topic | null } => {
+  ): { messages: Message[]; activeTopic: Topic | null } => {
     this.assertRoomIsOpen()
 
     const targetTopic = this.findTopicOrThrow(topicId)
 
     switch (type) {
       case "OPEN": {
-        const messages: MessageClass[] = []
+        const messages: Message[] = []
 
         // 現在のactiveトピックをfinishedにする
         const currentActiveTopic = this.activeTopic
@@ -165,7 +165,7 @@ class RoomClass {
    * @param topic 開始されるトピック
    * @returns MessageClass 運営botメッセージ
    */
-  private startTopic(topic: Topic): MessageClass {
+  private startTopic(topic: Topic): Message {
     topic.state = "active"
 
     const timeData = this.topicTimeData[topic.id]
@@ -195,7 +195,7 @@ class RoomClass {
    * @param topic 中断されるトピック
    * @returns MessageClass 運営botメッセージ
    */
-  private pauseTopic(topic: Topic): MessageClass {
+  private pauseTopic(topic: Topic): Message {
     topic.state = "paused"
 
     this.topicTimeData[topic.id].pausedDate = new Date().getTime()
@@ -208,7 +208,7 @@ class RoomClass {
    * @param topic 終了させるトピック
    * @returns MessageClass 運営botメッセージ
    */
-  private finishTopic = (topic: Topic): MessageClass => {
+  private finishTopic = (topic: Topic): Message => {
     topic.state = "finished"
 
     // 質問の集計
@@ -244,7 +244,7 @@ class RoomClass {
    * スタンプの投稿
    * @param stamp 投稿されたstamp
    */
-  public postStamp = (stamp: StampClass) => {
+  public postStamp = (stamp: Stamp) => {
     this.assertRoomIsOpen()
     this.assertUserExists(stamp.userId)
 
@@ -256,15 +256,15 @@ class RoomClass {
    * @param userId
    * @param chatItem
    */
-  public postChatItem = (userId: string, chatItem: ChatItemClass) => {
+  public postChatItem = (userId: string, chatItem: ChatItem) => {
     this.assertRoomIsOpen()
     this.assertUserExists(userId)
 
     this._chatItems.push(chatItem)
   }
 
-  private postBotMessage = (topicId: string, content: string): MessageClass => {
-    const botMessage = new MessageClass(
+  private postBotMessage = (topicId: string, content: string): Message => {
+    const botMessage = new Message(
       uuid(),
       topicId,
       this.id,
