@@ -37,7 +37,7 @@ class UserService {
     const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
       room.chatItems,
     )
-    const activeUserCount = room.joinUser(command.adminId, User.ADMIN_ICON_ID)
+    const activeUserCount = room.joinUser(command.adminId)
 
     this.userDelivery.enterRoom(admin, activeUserCount)
     this.userRepository.update(admin)
@@ -62,7 +62,7 @@ class UserService {
     const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
       room.chatItems,
     )
-    const activeUserCount = room.joinUser(command.userId, command.iconId)
+    const activeUserCount = room.joinUser(command.userId)
 
     this.userDelivery.enterRoom(user, activeUserCount)
     this.userRepository.update(user)

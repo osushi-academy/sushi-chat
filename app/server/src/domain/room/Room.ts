@@ -1,4 +1,3 @@
-import { User } from "../../chatItem"
 import { ChangeTopicStateType } from "../../events"
 import { v4 as uuid } from "uuid"
 import ChatItem from "../chatItem/ChatItem"
@@ -11,7 +10,7 @@ import Answer from "../chatItem/Answer"
 
 class RoomClass {
   private readonly _topics: Topic[]
-  private users: User[] = []
+  private userIds: string[] = []
   private _chatItems: ChatItem[] = []
   private stamps: Stamp[] = []
   private isOpened = false
@@ -31,7 +30,7 @@ class RoomClass {
   }
 
   public get activeUserCount(): number {
-    return this.users.length
+    return this.userIds.length
   }
 
   public get chatItems(): ChatItem[] {
@@ -92,11 +91,10 @@ class RoomClass {
   /**
    * ユーザーがルームに参加する
    * @param userId 参加するユーザーのID
-   * @param iconId 参加するユーザーのiconId
    * @returns number アクティブなユーザー数
    */
-  public joinUser = (userId: string, iconId: string): number => {
-    this.users.push({ id: userId, iconId })
+  public joinUser = (userId: string): number => {
+    this.userIds.push(userId)
     return this.activeUserCount
   }
 
@@ -106,8 +104,8 @@ class RoomClass {
    * @returns number アクティブなユーザー数
    */
   public leaveUser = (userId: string): number => {
-    const leftUser = this.findUserOrThrow(userId)
-    this.users = this.users.filter((user) => user.id !== leftUser.id)
+    this.assertUserExists(userId)
+    this.userIds = this.userIds.filter((id) => id !== userId)
     return this.activeUserCount
   }
 
@@ -297,16 +295,6 @@ class RoomClass {
     return topic
   }
 
-  private findUserOrThrow(userId: string): User {
-    const user = this.users.find((user) => user.id === userId)
-    if (user === undefined) {
-      throw new Error(
-        `[sushi-chat-server] User(id: ${userId}) does not exists.`,
-      )
-    }
-    return user
-  }
-
   private findOpenedDateOrThrow(topicId: string): number {
     const openedDate = this.topicTimeData[topicId].openedDate
     if (openedDate === null) {
@@ -330,7 +318,7 @@ class RoomClass {
   }
 
   private assertUserExists(userId: string) {
-    const exists = this.users.find(({ id }) => id === userId) !== null
+    const exists = this.userIds.find((id) => id === userId) !== null
     if (!exists) {
       throw new Error(
         `[sushi-chat-server] User(id: ${userId}) does not exists.`,

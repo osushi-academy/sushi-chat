@@ -60,8 +60,3 @@ export type ChatItemStore =
   | ReactionStore
   | QuestionStore
   | AnswerStore
-
-export type User = {
-  id: string
-  iconId: string
-}
