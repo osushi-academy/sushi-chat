@@ -4,29 +4,24 @@ import ChatItem from "../chatItem/ChatItem"
 import Stamp from "../stamp/Stamp"
 import Message from "../chatItem/Message"
 import UserClass from "../user/User"
-import Topic from "./Topic"
+import Topic, { TopicTimeData } from "./Topic"
 import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
 
 class RoomClass {
   private readonly _topics: Topic[]
-  private readonly userIds = new Set<string>([])
-  private _chatItems: ChatItem[] = []
-  private stampsCount = 0
-  private isOpened = false
-
-  /**
-   * @var {number} topicTimeData.openedDate トピックの開始時刻
-   * @var {number} topicTimeData.pausedDate トピックが最後に一時停止された時刻
-   * @var {number} topicTimeData.offsetTime トピックが一時停止されていた総時間
-   */
-  private topicTimeData: Record<
-    string,
-    { openedDate: number | null; pausedDate: number | null; offsetTime: number }
-  > = {}
+  private _topicTimeData: Record<string, TopicTimeData> = {}
 
   public get topics(): Topic[] {
     return [...this._topics]
+  }
+
+  public get topicTimeData(): Record<string, TopicTimeData> {
+    const timeData: Record<string, TopicTimeData> = {}
+    for (const [id, data] of Object.entries(this._topicTimeData)) {
+      timeData[id] = { ...data }
+    }
+    return timeData
   }
 
   public get activeUserCount(): number {
@@ -37,9 +32,13 @@ class RoomClass {
     return [...this._chatItems]
   }
 
+  public get isOpened(): boolean {
+    return this._isOpened
+  }
+
   public calcTimestamp = (topicId: string): number => {
     const openedDate = this.findOpenedDateOrThrow(topicId)
-    const offsetTime = this.topicTimeData[topicId].offsetTime
+    const offsetTime = this._topicTimeData[topicId].offsetTime
     const timestamp = new Date().getTime() - openedDate - offsetTime
 
     return Math.max(timestamp, 0)
@@ -48,15 +47,21 @@ class RoomClass {
   constructor(
     public readonly id: string,
     public readonly title: string,
-    topics: Omit<Topic, "id" | "state">[],
+    topics: (Omit<Topic, "id" | "state"> &
+      Partial<Pick<Topic, "id" | "state">>)[],
+    topicTimeData: Record<string, TopicTimeData> = {},
+    private userIds = new Set<string>([]),
+    private _chatItems: ChatItem[] = [],
+    private stampsCount = 0,
+    private _isOpened = false,
   ) {
     this._topics = topics.map((topic, i) => ({
       ...topic,
-      id: `${i + 1}`,
-      state: "not-started",
+      id: topic.id ?? `${i + 1}`,
+      state: topic.state ?? "not-started",
     }))
     this._topics.forEach(({ id }) => {
-      this.topicTimeData[id] = {
+      this._topicTimeData[id] = topicTimeData[id] ?? {
         openedDate: null,
         pausedDate: null,
         offsetTime: 0,
@@ -69,7 +74,7 @@ class RoomClass {
    */
   public startRoom = () => {
     this.assertRoomIsNotOpen()
-    this.isOpened = true
+    this._isOpened = true
   }
 
   /**
@@ -77,7 +82,7 @@ class RoomClass {
    */
   public finishRoom = () => {
     this.assertRoomIsOpen()
-    this.isOpened = false
+    this._isOpened = false
   }
 
   /**
@@ -85,7 +90,7 @@ class RoomClass {
    */
   public closeRoom = () => {
     // TODO: 「ルームを閉じる」=「過去の履歴の閲覧もできなくなる」らしいので、isOpenedとは別のフラグを持つべき。
-    this.isOpened = false
+    this._isOpened = false
   }
 
   /**
@@ -166,7 +171,7 @@ class RoomClass {
   private startTopic(topic: Topic): Message {
     topic.state = "active"
 
-    const timeData = this.topicTimeData[topic.id]
+    const timeData = this._topicTimeData[topic.id]
     const isFirstOpen = timeData.openedDate === null
 
     // 初めてOpenされたトピックならopenedDateをセット
@@ -196,7 +201,7 @@ class RoomClass {
   private pauseTopic(topic: Topic): Message {
     topic.state = "paused"
 
-    this.topicTimeData[topic.id].pausedDate = new Date().getTime()
+    this._topicTimeData[topic.id].pausedDate = new Date().getTime()
 
     return this.postBotMessage(topic.id, "【運営Bot】\n 発表が中断されました")
   }
@@ -296,7 +301,7 @@ class RoomClass {
   }
 
   private findOpenedDateOrThrow(topicId: string): number {
-    const openedDate = this.topicTimeData[topicId].openedDate
+    const openedDate = this._topicTimeData[topicId].openedDate
     if (openedDate === null) {
       throw new Error(`openedDate of topicId(id: ${topicId}) is null.`)
     }
@@ -304,13 +309,13 @@ class RoomClass {
   }
 
   private assertRoomIsOpen() {
-    if (!this.isOpened) {
+    if (!this._isOpened) {
       throw new Error(`Room(id: ${this.id}) is not opened.`)
     }
   }
 
   private assertRoomIsNotOpen() {
-    if (this.isOpened) {
+    if (this._isOpened) {
       throw new Error(
         `[sushi-chat-server] Room(id: ${this.id}) has already opened.`,
       )

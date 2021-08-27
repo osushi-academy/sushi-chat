@@ -27,11 +27,11 @@ class RoomService {
     return room
   }
 
-  public start(userId: string): void {
+  public async start(userId: string) {
     const user = this.findUser(userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = this.find(roomId)
+    const room = await this.find(roomId)
     room.startRoom()
 
     this.roomDelivery.start(room.id)
@@ -39,11 +39,11 @@ class RoomService {
   }
 
   // Roomを終了し、投稿をできなくする。閲覧は可能
-  public finish(userId: string): void {
+  public async finish(userId: string) {
     const user = this.findUser(userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = this.find(roomId)
+    const room = await this.find(roomId)
     room.finishRoom()
 
     this.roomDelivery.finish(room.id)
@@ -52,22 +52,22 @@ class RoomService {
   }
 
   // Roomをアーカイブし、閲覧できなくする。RESTのエンドポイントに移行予定
-  public close(userId: string): void {
+  public async close(userId: string) {
     const user = this.findUser(userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = this.find(roomId)
+    const room = await this.find(roomId)
     room.closeRoom()
 
     this.roomDelivery.close(room.id)
     this.roomRepository.update(room)
   }
 
-  public changeTopicState(command: ChangeTopicStateCommand): void {
+  public async changeTopicState(command: ChangeTopicStateCommand) {
     const user = this.findUser(command.userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = this.find(roomId)
+    const room = await this.find(roomId)
     const { messages, activeTopic } = room.changeTopicState(
       command.topicId,
       command.type,
@@ -88,8 +88,8 @@ class RoomService {
     }
   }
 
-  private find(roomId: string): RoomClass {
-    const room = this.roomRepository.find(roomId)
+  private async find(roomId: string): Promise<RoomClass> {
+    const room = await this.roomRepository.find(roomId)
     if (!room) {
       throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
     }

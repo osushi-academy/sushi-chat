@@ -1,7 +1,7 @@
 import RoomClass from "./Room"
 
 interface IRoomRepository {
-  find(roomId: string): RoomClass | null
+  find(roomId: string): Promise<RoomClass | null>
   build(room: RoomClass): void
   update(room: RoomClass): void
 }

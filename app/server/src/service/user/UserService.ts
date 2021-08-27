@@ -25,15 +25,15 @@ class UserService {
     this.userRepository.create(newUser)
   }
 
-  public adminEnterRoom(command: AdminEnterCommand): {
+  public async adminEnterRoom(command: AdminEnterCommand): Promise<{
     chatItems: ChatItem[]
     topics: Topic[]
     activeUserCount: number
-  } {
+  }> {
     const admin = this.userRepository.find(command.adminId)
     admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
 
-    const room = this.findRoom(command.roomId)
+    const room = await this.findRoom(command.roomId)
     const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
       room.chatItems,
     )
@@ -50,15 +50,15 @@ class UserService {
     }
   }
 
-  public enterRoom(command: UserEnterCommand): {
+  public async enterRoom(command: UserEnterCommand): Promise<{
     chatItems: ChatItem[]
     topics: Topic[]
     activeUserCount: number
-  } {
+  }> {
     const user = this.userRepository.find(command.userId)
     user.enterRoom(command.roomId, command.iconId)
 
-    const room = this.findRoom(command.roomId)
+    const room = await this.findRoom(command.roomId)
     const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
       room.chatItems,
     )
@@ -75,12 +75,12 @@ class UserService {
     }
   }
 
-  public leaveRoom(command: UserLeaveCommand): void {
+  public async leaveRoom(command: UserLeaveCommand) {
     const user = this.userRepository.find(command.userId)
     // まだRoomに参加していないユーザーなら何もしない
     if (user.roomId === null) return
 
-    const room = this.findRoom(user.roomId)
+    const room = await this.findRoom(user.roomId)
     const activeUserCount = room.leaveUser(user.id)
 
     this.userDelivery.leaveRoom(user, activeUserCount)
@@ -90,8 +90,8 @@ class UserService {
     this.roomRepository.update(room)
   }
 
-  private findRoom(roomId: string): RoomClass {
-    const room = this.roomRepository.find(roomId)
+  private async findRoom(roomId: string): Promise<RoomClass> {
+    const room = await this.roomRepository.find(roomId)
     if (!room) {
       throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
     }

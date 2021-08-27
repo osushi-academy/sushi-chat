@@ -106,14 +106,14 @@ const createSocketIOServer = async (
       })
 
       // 管理者がルームに参加する
-      socket.on("ADMIN_ENTER_ROOM", (received, callback) => {
+      socket.on("ADMIN_ENTER_ROOM", async (received, callback) => {
         try {
           const userService = new UserService(
             userRepository,
             roomRepository,
             new UserDelivery(socket, io),
           )
-          const response = userService.adminEnterRoom({
+          const response = await userService.adminEnterRoom({
             adminId: socket.id,
             roomId: received.roomId,
           })
@@ -128,14 +128,14 @@ const createSocketIOServer = async (
       })
 
       // ルームに参加する
-      socket.on("ENTER_ROOM", (received, callback) => {
+      socket.on("ENTER_ROOM", async (received, callback) => {
         try {
           const userService = new UserService(
             userRepository,
             roomRepository,
             new UserDelivery(socket, io),
           )
-          const response = userService.enterRoom({
+          const response = await userService.enterRoom({
             userId: socket.id,
             roomId: received.roomId,
             iconId: received.iconId,
