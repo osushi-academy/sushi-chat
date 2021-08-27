@@ -117,10 +117,7 @@ class RoomClass {
   ): { messages: MessageClass[]; activeTopic: Topic | null } => {
     this.assertRoomIsOpen()
 
-    const targetTopic = this.getTopicById(params.topicId)
-    if (targetTopic == null) {
-      throw new Error("[sushi-chat-server] Topic does not exists.")
-    }
+    const targetTopic = this.findTopicOrThrow(params)
 
     if (params.type === "OPEN") {
       const messages: MessageClass[] = []
@@ -343,14 +340,22 @@ class RoomClass {
     return botMessage
   }
 
-  // utils
-
-  private get activeTopic() {
+  private get activeTopic(): Topic | null {
     return this.topics.find(({ state }) => state === "active") ?? null
   }
 
   private getTopicById = (topicId: string) => {
     return this.topics.find((topic) => topic.id === topicId)
+  }
+
+  private findTopicOrThrow(topicId: string) {
+    const topic = this.getTopicById(topicId)
+    if (topic === undefined) {
+      throw new Error(
+        `[sushi-chat-server] Topic(id: ${topicId}) does not exists.`,
+      )
+    }
+    return topic
   }
 
   private findUserOrThrow(userId: string): User {
