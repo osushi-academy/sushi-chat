@@ -39,6 +39,14 @@ class RoomClass {
 
   public getChatItems = () => this.chatItems.map(this.chatItemStoreToChatItem)
 
+  public calcTimestamp = (topicId: string): number => {
+    const openedDate = this.findOpenedDateOrThrow(topicId)
+    const offsetTime = this.topicTimeData[topicId].offsetTime
+    const timestamp = new Date().getTime() - openedDate - offsetTime
+
+    return Math.max(timestamp, 0)
+  }
+
   constructor(
     public readonly id: string,
     public readonly title: string,
@@ -353,17 +361,6 @@ class RoomClass {
 
   // utils
 
-  public calcTimestamp = (topicId: string) => {
-    const openedDate = this.topicTimeData[topicId].openedDate
-    if (openedDate == null) {
-      // NOTE: エラー
-      return 0
-    }
-    const timestamp =
-      new Date().getTime() - openedDate - this.topicTimeData[topicId].offsetTime
-    return timestamp < 0 ? 0 : timestamp
-  }
-
   private userIdExistCheck = (userId: string) => {
     return this.users.find(({ id }) => id === userId) != null
   }
@@ -374,6 +371,14 @@ class RoomClass {
 
   private getTopicById = (topicId: string) => {
     return this.topics.find((topic) => topic.id === topicId)
+  }
+
+  private findOpenedDateOrThrow(topicId: string): number {
+    const openedDate = this.topicTimeData[topicId].openedDate
+    if (openedDate === null) {
+      throw new Error(`openedDate of topicId(id: ${topicId}) is null.`)
+    }
+    return openedDate
   }
 }
 
