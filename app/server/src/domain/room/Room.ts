@@ -1,5 +1,5 @@
 import { User } from "../../chatItem"
-import { AdminChangeTopicStateParams } from "../../events"
+import { AdminChangeTopicStateParams, ChangeTopicStateType } from "../../events"
 import { v4 as uuid } from "uuid"
 import ChatItemClass from "../chatItem/ChatItem"
 import StampClass from "../stamp/Stamp"
@@ -113,15 +113,18 @@ class RoomClass {
 
   /**
    * トピックの状態を変更する
+   * @param topicId 状態が更新されるトピックのID
+   * @param type 状態更新の種類
    */
   public changeTopicState = (
-    params: AdminChangeTopicStateParams,
+    topicId: string,
+    type: ChangeTopicStateType,
   ): { messages: MessageClass[]; activeTopic: Topic | null } => {
     this.assertRoomIsOpen()
 
-    const targetTopic = this.findTopicOrThrow(params.topicId)
+    const targetTopic = this.findTopicOrThrow(topicId)
 
-    switch (params.type) {
+    switch (type) {
       case "OPEN": {
         const messages: MessageClass[] = []
 
@@ -152,9 +155,7 @@ class RoomClass {
       }
 
       default: {
-        throw new Error(
-          `[sushi-chat-server] params.type(${params.type}) is invalid.`,
-        )
+        throw new Error(`[sushi-chat-server] params.type(${type}) is invalid.`)
       }
     }
   }

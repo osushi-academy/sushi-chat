@@ -66,11 +66,10 @@ class RoomService {
     const roomId = user.getRoomIdOrThrow()
 
     const room = this.find(roomId)
-    const { messages, activeTopic } = room.changeTopicState({
-      roomId: roomId,
-      type: command.type,
-      topicId: command.topicId,
-    })
+    const { messages, activeTopic } = room.changeTopicState(
+      command.topicId,
+      command.type,
+    )
 
     this.roomDelivery.changeTopicState(command.type, roomId, command.topicId)
     for (const m of messages) {
