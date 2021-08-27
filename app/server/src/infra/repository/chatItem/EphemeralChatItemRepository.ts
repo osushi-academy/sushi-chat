@@ -29,9 +29,9 @@ class EphemeralChatItemRepository implements IChatItemRepository {
   }
 
   public selectByRoomId(roomId: string): Promise<ChatItem[]> {
-    return Promise.resolve(
-      Object.values(this.chatItems).filter((c) => c.roomId === roomId),
-    )
+    return Promise.resolve([
+      ...Object.values(this.chatItems).filter((c) => c.roomId === roomId),
+    ])
   }
 }
 
