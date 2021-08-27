@@ -10,7 +10,7 @@ import Answer from "../chatItem/Answer"
 
 class RoomClass {
   private readonly _topics: Topic[]
-  private userIds: string[] = []
+  private readonly userIds = new Set<string>([])
   private _chatItems: ChatItem[] = []
   private stampsCount = 0
   private isOpened = false
@@ -30,7 +30,7 @@ class RoomClass {
   }
 
   public get activeUserCount(): number {
-    return this.userIds.length
+    return this.userIds.size
   }
 
   public get chatItems(): ChatItem[] {
@@ -94,7 +94,7 @@ class RoomClass {
    * @returns number アクティブなユーザー数
    */
   public joinUser = (userId: string): number => {
-    this.userIds.push(userId)
+    this.userIds.add(userId)
     return this.activeUserCount
   }
 
@@ -105,7 +105,7 @@ class RoomClass {
    */
   public leaveUser = (userId: string): number => {
     this.assertUserExists(userId)
-    this.userIds = this.userIds.filter((id) => id !== userId)
+    this.userIds.delete(userId)
     return this.activeUserCount
   }
 
@@ -318,7 +318,7 @@ class RoomClass {
   }
 
   private assertUserExists(userId: string) {
-    const exists = this.userIds.find((id) => id === userId) !== null
+    const exists = this.userIds.has(userId)
     if (!exists) {
       throw new Error(
         `[sushi-chat-server] User(id: ${userId}) does not exists.`,
