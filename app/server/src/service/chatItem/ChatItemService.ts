@@ -44,7 +44,7 @@ class ChatItemService {
       new Date(),
       command.content,
       target,
-      room.getTimestamp(command.topicId),
+      room.calcTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, message)
@@ -72,7 +72,7 @@ class ChatItemService {
       iconId,
       new Date(),
       target,
-      room.getTimestamp(command.topicId),
+      room.calcTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, reaction)
@@ -96,7 +96,7 @@ class ChatItemService {
       iconId,
       new Date(),
       command.content,
-      room.getTimestamp(command.topicId),
+      room.calcTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, question)
@@ -124,7 +124,7 @@ class ChatItemService {
       new Date(),
       command.content,
       target,
-      room.getTimestamp(command.topicId),
+      room.calcTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, answer)

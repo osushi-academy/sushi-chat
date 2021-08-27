@@ -344,7 +344,7 @@ class RoomClass {
       new Date(),
       content,
       null,
-      this.getTimestamp(topicId),
+      this.calcTimestamp(topicId),
     )
     this.chatItems.push(botMessage.toChatItemStore())
 
@@ -353,7 +353,7 @@ class RoomClass {
 
   // utils
 
-  public getTimestamp = (topicId: string) => {
+  public calcTimestamp = (topicId: string) => {
     const openedDate = this.topicTimeData[topicId].openedDate
     if (openedDate == null) {
       // NOTE: エラー

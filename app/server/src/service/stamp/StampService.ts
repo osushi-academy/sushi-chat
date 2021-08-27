@@ -20,7 +20,7 @@ class StampService {
     const roomId = user.getRoomIdOrThrow()
 
     const room = this.findRoom(roomId)
-    const timestamp = room.getTimestamp(command.topicId)
+    const timestamp = room.calcTimestamp(command.topicId)
 
     const stamp = new Stamp(command.userId, roomId, command.topicId, timestamp)
     room.postStamp(stamp)
