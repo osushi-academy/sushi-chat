@@ -56,10 +56,11 @@ class UserService {
     if (user.roomId === null) return
 
     const room = this.findRoom(user.roomId)
-    user.leaveRoom()
     const activeUserCount = room.leaveUser(user.id)
 
     this.userDelivery.leaveRoom(user, activeUserCount)
+    user.leaveRoom()
+
     this.userRepository.update(user)
     this.roomRepository.update(room)
   }
