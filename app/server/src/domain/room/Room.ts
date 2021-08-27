@@ -235,10 +235,8 @@ class RoomClass {
    */
   public postStamp = (stamp: StampClass) => {
     this.assertRoomIsOpen()
-    // ユーザーの存在チェック
-    if (!this.userIdExistCheck(stamp.userId)) {
-      throw new Error("[sushi-chat-server] User does not exists.")
-    }
+    this.assertUserExists(stamp.userId)
+
     this.stamps.push(stamp)
   }
 
@@ -249,11 +247,8 @@ class RoomClass {
    */
   public postChatItem = (userId: string, chatItem: ChatItemClass) => {
     this.assertRoomIsOpen()
-    // TODO: not-startedなルームには投稿できない
-    // ユーザーの存在チェック
-    if (!this.userIdExistCheck(userId)) {
-      throw new Error("[sushi-chat-server] User does not exists.")
-    }
+    this.assertUserExists(userId)
+
     // 保存する形式に変換
     const chatItemStore = chatItem.toChatItemStore()
     // 配列に保存
@@ -355,10 +350,6 @@ class RoomClass {
 
   // utils
 
-  private userIdExistCheck = (userId: string) => {
-    return this.users.find(({ id }) => id === userId) != null
-  }
-
   private get activeTopic() {
     return this.topics.find(({ state }) => state === "active") ?? null
   }
@@ -378,6 +369,15 @@ class RoomClass {
   private assertRoomIsOpen() {
     if (!this.isOpened) {
       throw new Error(`Room(id: ${this.id}) is not opened.`)
+    }
+  }
+
+  private assertUserExists(userId: string) {
+    const exists = this.users.find(({ id }) => id === userId) !== null
+    if (!exists) {
+      throw new Error(
+        `[sushi-chat-server] User(id: ${userId}) does not exists.`,
+      )
     }
   }
 }
