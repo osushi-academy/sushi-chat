@@ -6,11 +6,13 @@ import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import IRoomDelivery from "../../domain/room/IRoomDelivery"
+import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
 
 class RoomService {
   constructor(
     private readonly roomRepository: IRoomRepository,
     private readonly userRepository: IUserRepository,
+    private readonly chatItemRepository: IChatItemRepository,
     private readonly roomDelivery: IRoomDelivery,
     private readonly chatItemDelivery: IChatItemDelivery,
     private readonly stampDelivery: IStampDelivery,
@@ -72,16 +74,18 @@ class RoomService {
     )
 
     this.roomDelivery.changeTopicState(command.type, roomId, command.topicId)
+    this.roomRepository.update(room)
+
     for (const m of messages) {
       this.chatItemDelivery.postMessage(m)
+      this.chatItemRepository.saveMessage(m)
     }
+
     if (activeTopic !== null) {
       this.stampDelivery.startIntervalDelivery()
     } else {
       this.stampDelivery.finishIntervalDelivery()
     }
-
-    this.roomRepository.update(room)
   }
 
   private find(roomId: string): RoomClass {

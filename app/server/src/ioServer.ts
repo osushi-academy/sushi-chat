@@ -81,6 +81,7 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            chatItemRepository,
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
@@ -155,6 +156,7 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            chatItemRepository,
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
@@ -174,6 +176,7 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            chatItemRepository,
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
@@ -271,6 +274,7 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            chatItemRepository,
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
@@ -290,6 +294,7 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            chatItemRepository,
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
