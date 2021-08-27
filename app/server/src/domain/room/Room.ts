@@ -73,41 +73,46 @@ class RoomClass {
     this.isOpened = true
   }
 
+  /**
+   * ルームを終了する
+   */
   public finishRoom = () => {
     this.assertRoomIsOpen()
     this.isOpened = false
   }
 
+  /**
+   * ルームを閉じる
+   */
   public closeRoom = () => {
-    // TODO: startRoomと同じようにthis.isOpenedのチェックした方がいい気がする
+    // TODO: 「ルームを閉じる」=「過去の履歴の閲覧もできなくなる」らしいので、isOpenedとは別のフラグを持つべき。
     this.isOpened = false
   }
 
   /**
-   * ユーザーがルームに参加した場合に呼ばれる関数
-   * @param userId
-   * @param iconId
-   * @returns
+   * ユーザーがルームに参加する
+   * @param userId 参加するユーザーのID
+   * @param iconId 参加するユーザーのiconId
+   * @returns number アクティブなユーザー数
    */
   public joinUser = (userId: string, iconId: string): number => {
     this.users.push({ id: userId, iconId })
-
     return this.activeUserCount
   }
 
   /**
-   * ユーザーがルームから退室した場合に呼ばれる関数
-   * @param userId
+   * ユーザーがルームから退室する
+   * @param userId 退室するユーザーのID
+   * @returns number アクティブなユーザー数
    */
   public leaveUser = (userId: string): number => {
     const leftUser = this.findUserOrThrow(userId)
     this.users = this.users.filter((user) => user.id !== leftUser.id)
-
     return this.activeUserCount
   }
 
   /**
-   * トピックの状態を変更するときに呼ばれる関数
+   * トピックの状態を変更する
    */
   public changeTopicState = (
     params: AdminChangeTopicStateParams,
@@ -157,6 +162,7 @@ class RoomClass {
   /**
    * トピックを開始する
    * @param topic 開始されるトピック
+   * @returns MessageClass 運営botメッセージ
    */
   private startTopic(topic: Topic): MessageClass {
     topic.state = "active"
@@ -186,6 +192,7 @@ class RoomClass {
   /**
    * トピックを中断する
    * @param topic 中断されるトピック
+   * @returns MessageClass 運営botメッセージ
    */
   private pauseTopic(topic: Topic): MessageClass {
     topic.state = "paused"
@@ -198,6 +205,7 @@ class RoomClass {
   /**
    * トピック終了時の処理を行う
    * @param topic 終了させるトピック
+   * @returns MessageClass 運営botメッセージ
    */
   private finishTopic = (topic: Topic): MessageClass => {
     topic.state = "finished"
@@ -232,8 +240,8 @@ class RoomClass {
   }
 
   /**
-   * 新しくスタンプが投稿された時に呼ばれる関数。
-   * @param stamp
+   * スタンプの投稿
+   * @param stamp 投稿されたstamp
    */
   public postStamp = (stamp: StampClass) => {
     this.assertRoomIsOpen()
@@ -243,7 +251,7 @@ class RoomClass {
   }
 
   /**
-   * 新しくチャットが投稿された時に呼ばれる関数。
+   * チャットの投稿
    * @param userId
    * @param chatItem
    */
