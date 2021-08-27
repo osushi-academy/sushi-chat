@@ -12,7 +12,7 @@ class RoomClass {
   private readonly _topics: Topic[]
   private userIds: string[] = []
   private _chatItems: ChatItem[] = []
-  private stamps: Stamp[] = []
+  private stampsCount = 0
   private isOpened = false
 
   /**
@@ -246,7 +246,7 @@ class RoomClass {
     this.assertRoomIsOpen()
     this.assertUserExists(stamp.userId)
 
-    this.stamps.push(stamp)
+    this.stampsCount++
   }
 
   /**
