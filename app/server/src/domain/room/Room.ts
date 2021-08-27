@@ -121,38 +121,42 @@ class RoomClass {
 
     const targetTopic = this.findTopicOrThrow(params.topicId)
 
-    if (params.type === "OPEN") {
-      const messages: MessageClass[] = []
+    switch (params.type) {
+      case "OPEN": {
+        const messages: MessageClass[] = []
 
-      // 現在のactiveトピックをfinishedにする
-      const currentActiveTopic = this.activeTopic
-      if (currentActiveTopic !== null) {
-        const message = this.finishTopic(currentActiveTopic)
+        // 現在のactiveトピックをfinishedにする
+        const currentActiveTopic = this.activeTopic
+        if (currentActiveTopic !== null) {
+          const message = this.finishTopic(currentActiveTopic)
+          messages.push(message)
+        }
+
+        const message = this.startTopic(targetTopic)
         messages.push(message)
+
+        return {
+          messages,
+          activeTopic: this.activeTopic,
+        }
       }
 
-      const message = this.startTopic(targetTopic)
-      messages.push(message)
+      case "PAUSE": {
+        const messages = [this.pauseTopic(targetTopic)]
+        return { messages, activeTopic: this.activeTopic }
+      }
 
-      return {
-        messages,
-        activeTopic: this.activeTopic,
+      case "CLOSE": {
+        const botMessage = this.finishTopic(targetTopic)
+        return { messages: [botMessage], activeTopic: this.activeTopic }
+      }
+
+      default: {
+        throw new Error(
+          `[sushi-chat-server] params.type(${params.type}) is invalid.`,
+        )
       }
     }
-
-    if (params.type === "PAUSE") {
-      const messages = [this.pauseTopic(targetTopic)]
-      return { messages, activeTopic: this.activeTopic }
-    }
-
-    if (params.type === "CLOSE") {
-      const botMessage = this.finishTopic(targetTopic)
-      return { messages: [botMessage], activeTopic: this.activeTopic }
-    }
-
-    throw new Error(
-      `[sushi-chat-server] params.type(${params.type}) is invalid.`,
-    )
   }
 
   /**
