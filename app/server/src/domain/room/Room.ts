@@ -103,12 +103,7 @@ class RoomClass {
    * @param userId
    */
   public leaveUser = (userId: string): number => {
-    const leftUser = this.users.find((user) => user.id === userId)
-    if (leftUser == null) {
-      throw new Error(
-        `[sushi-chat-server] User(id: ${userId}) does not exists.`,
-      )
-    }
+    const leftUser = this.findUserOrThrow(userId)
     this.users = this.users.filter((user) => user.id !== leftUser.id)
 
     return this.activeUserCount
@@ -356,6 +351,16 @@ class RoomClass {
 
   private getTopicById = (topicId: string) => {
     return this.topics.find((topic) => topic.id === topicId)
+  }
+
+  private findUserOrThrow(userId: string): User {
+    const user = this.users.find((user) => user.id === userId)
+    if (user === undefined) {
+      throw new Error(
+        `[sushi-chat-server] User(id: ${userId}) does not exists.`,
+      )
+    }
+    return user
   }
 
   private findOpenedDateOrThrow(topicId: string): number {
