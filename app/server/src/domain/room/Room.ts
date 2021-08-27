@@ -119,7 +119,7 @@ class RoomClass {
   ): { messages: MessageClass[]; activeTopic: Topic | null } => {
     this.assertRoomIsOpen()
 
-    const targetTopic = this.findTopicOrThrow(params)
+    const targetTopic = this.findTopicOrThrow(params.topicId)
 
     if (params.type === "OPEN") {
       const messages: MessageClass[] = []
