@@ -37,7 +37,7 @@ CREATE TABLE Stamps (
     timestamp INT NOT NULL,
     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (roomId, topicId) REFERENCES topics(roomId, id)
-)
+);
 
 -- ChatItemsに統合したから使っていないらしい↓
 
