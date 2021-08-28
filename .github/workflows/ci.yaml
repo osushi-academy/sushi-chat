@@ -7,7 +7,7 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
 
     services:
@@ -30,9 +30,8 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
-          cache: 'yarn'
-      - run: yarn
+          node-version: '14.x'
+      - run: yarn --cwd ./app/server
       - run: psql -f ./app/server/src/databaes/ini.sql postgres://root:pass@localhost:5432/test
       - run: yarn --cwd ./app/server test
         env:
