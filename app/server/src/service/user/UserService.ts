@@ -8,7 +8,6 @@ import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
-import ServerSocket from "../../serverSocket"
 import IUserDelivery from "../../domain/user/IUserDelivery"
 
 class UserService {
@@ -28,8 +27,7 @@ class UserService {
     admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
 
     const room = this.findRoom(command.roomId)
-    const serverSocket = new ServerSocket(command.adminSocket, command.roomId)
-    const activeUserCount = room.joinUser(serverSocket, User.ADMIN_ICON_ID)
+    const activeUserCount = room.joinUser(command.adminId, User.ADMIN_ICON_ID)
 
     this.userDelivery.enterRoom(admin, activeUserCount)
     this.userRepository.update(admin)
@@ -43,8 +41,7 @@ class UserService {
     user.enterRoom(command.roomId, command.iconId)
 
     const room = this.findRoom(command.roomId)
-    const serverSocket = new ServerSocket(command.userSocket, command.roomId)
-    const activeUserCount = room.joinUser(serverSocket, command.iconId)
+    const activeUserCount = room.joinUser(command.userId, command.iconId)
 
     this.userDelivery.enterRoom(user, activeUserCount)
     this.userRepository.update(user)

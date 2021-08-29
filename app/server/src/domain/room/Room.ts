@@ -9,7 +9,6 @@ import {
   User,
 } from "../../chatItem"
 import { AdminChangeTopicStateParams } from "../../events"
-import { IServerSocket } from "../../serverSocket"
 import { v4 as uuid } from "uuid"
 import ChatItemClass from "../chatItem/ChatItem"
 import StampClass from "../stamp/Stamp"
@@ -18,7 +17,7 @@ import UserClass from "../user/User"
 import Topic from "./Topic"
 
 class RoomClass {
-  private users: (User & { socket: IServerSocket })[] = []
+  private users: User[] = []
   private chatItems: ChatItemStore[] = []
   public topics: Topic[]
   private stamps: StampClass[] = []
@@ -81,12 +80,12 @@ class RoomClass {
 
   /**
    * ユーザーがルームに参加した場合に呼ばれる関数
-   * @param socket
+   * @param userId
    * @param iconId
    * @returns
    */
-  public joinUser = (socket: IServerSocket, iconId: string): number => {
-    this.users.push({ id: socket.id, iconId, socket })
+  public joinUser = (userId: string, iconId: string): number => {
+    this.users.push({ id: userId, iconId })
 
     return this.activeUserCount
   }
