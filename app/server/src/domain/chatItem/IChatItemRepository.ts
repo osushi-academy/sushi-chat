@@ -10,6 +10,7 @@ interface IChatItemRepository {
   saveQuestion(question: Question): void
   saveAnswer(answer: Answer): void
   find(chatItemId: string): Promise<ChatItem>
+  selectByRoomId(roomId: string): Promise<ChatItem[]>
 }
 
 export default IChatItemRepository

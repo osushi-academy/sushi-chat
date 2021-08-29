@@ -15,12 +15,12 @@ class StampService {
     private readonly stampDelivery: IStampDelivery,
   ) {}
 
-  public post(command: PostStampCommand): void {
+  public async post(command: PostStampCommand) {
     const user = this.findUser(command.userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = this.findRoom(roomId)
-    const timestamp = room.getTimestamp(command.topicId)
+    const room = await this.findRoom(roomId)
+    const timestamp = room.calcTimestamp(command.topicId)
 
     const stamp = new Stamp(command.userId, roomId, command.topicId, timestamp)
     room.postStamp(stamp)
@@ -29,8 +29,8 @@ class StampService {
     this.stampRepository.store(stamp)
   }
 
-  private findRoom(roomId: string): RoomClass {
-    const room = this.roomRepository.find(roomId)
+  private async findRoom(roomId: string): Promise<RoomClass> {
+    const room = await this.roomRepository.find(roomId)
     if (!room) {
       throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
     }

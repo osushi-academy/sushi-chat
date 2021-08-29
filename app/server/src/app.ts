@@ -9,12 +9,15 @@ import RoomRepository from "./infra/repository/room/RoomRepository"
 const app = express()
 const httpServer = createServer(app)
 
+const userRepository = LocalMemoryUserRepository.getInstance()
+const chatItemRepository = new ChatItemRepository()
+const stampRepository = new StampRepository()
 createSocketIOServer(
   httpServer,
-  LocalMemoryUserRepository.getInstance(),
-  RoomRepository.getInstance(),
-  new ChatItemRepository(),
-  new StampRepository(),
+  userRepository,
+  new RoomRepository(userRepository, chatItemRepository, stampRepository),
+  chatItemRepository,
+  stampRepository,
 )
 
 const PORT = process.env.PORT || 7000

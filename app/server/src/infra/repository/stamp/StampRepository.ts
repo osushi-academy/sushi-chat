@@ -28,21 +28,22 @@ class StampRepository implements IStampRepository {
 
   public async count(
     roomId: string,
-    topicId: string,
+    topicId?: string,
     userId?: string,
   ): Promise<number> {
     try {
-      const query =
-        "SELECT COUNT(*) FROM stamps WHERE roomid = $1 AND topicid = $2" +
-        userId
-          ? " AND userid = $3"
-          : ""
-      return (
-        await this.pgClient.query(
-          query,
-          userId ? [roomId, topicId, userId] : [roomId, topicId],
-        )
-      ).rows[0].count as number
+      let query = "SELECT COUNT(*) FROM stamps WHERE roomid = $1"
+      const values = [roomId]
+      if (topicId) {
+        query += " AND topicid = $2"
+        values.push(topicId)
+      }
+      if (userId) {
+        query += " AND userid = $3"
+        values.push(userId)
+      }
+
+      return (await this.pgClient.query(query, values)).rows[0].count as number
     } catch (e) {
       console.error(
         `${e.message ?? "Unknown error."} (COUNT STAMP(${

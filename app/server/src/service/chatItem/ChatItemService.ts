@@ -23,12 +23,12 @@ class ChatItemService {
     private readonly chatItemDelivery: IChatItemDelivery,
   ) {}
 
-  public async postMessage(command: PostMessageCommand): Promise<void> {
+  public async postMessage(command: PostMessageCommand) {
     const user = this.findUser(command.userId)
     const roomId = user.getRoomIdOrThrow()
     const iconId = user.getIconIdOrThrow()
 
-    const room = this.findRoom(roomId)
+    const room = await this.findRoom(roomId)
     const target =
       command.targetId !== undefined && command.targetId !== null
         ? ((await this.chatItemRepository.find(command.targetId)) as
@@ -44,7 +44,7 @@ class ChatItemService {
       new Date(),
       command.content,
       target,
-      room.getTimestamp(command.topicId),
+      room.calcTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, message)
@@ -54,12 +54,12 @@ class ChatItemService {
     this.chatItemRepository.saveMessage(message)
   }
 
-  public async postReaction(command: PostReactionCommand): Promise<void> {
+  public async postReaction(command: PostReactionCommand) {
     const user = this.findUser(command.userId)
     const roomId = user.getRoomIdOrThrow()
     const iconId = user.getIconIdOrThrow()
 
-    const room = this.findRoom(roomId)
+    const room = await this.findRoom(roomId)
     const target = (await this.chatItemRepository.find(command.targetId)) as
       | Message
       | Question
@@ -72,7 +72,7 @@ class ChatItemService {
       iconId,
       new Date(),
       target,
-      room.getTimestamp(command.topicId),
+      room.calcTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, reaction)
@@ -82,12 +82,12 @@ class ChatItemService {
     this.chatItemRepository.saveReaction(reaction)
   }
 
-  public postQuestion(command: PostQuestionCommand): void {
+  public async postQuestion(command: PostQuestionCommand) {
     const user = this.findUser(command.userId)
     const roomId = user.getRoomIdOrThrow()
     const iconId = user.getIconIdOrThrow()
 
-    const room = this.findRoom(roomId)
+    const room = await this.findRoom(roomId)
 
     const question = new Question(
       command.chatItemId,
@@ -96,7 +96,7 @@ class ChatItemService {
       iconId,
       new Date(),
       command.content,
-      room.getTimestamp(command.topicId),
+      room.calcTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, question)
@@ -111,10 +111,10 @@ class ChatItemService {
     const roomId = user.getRoomIdOrThrow()
     const iconId = user.getIconIdOrThrow()
 
-    const room = this.findRoom(roomId)
-    const target = (await this.chatItemRepository.find(
-      command.targetId,
-    )) as Question
+    const [room, target] = await Promise.all([
+      await this.findRoom(roomId),
+      (await this.chatItemRepository.find(command.targetId)) as Question,
+    ])
 
     const answer = new Answer(
       command.chatItemId,
@@ -124,7 +124,7 @@ class ChatItemService {
       new Date(),
       command.content,
       target,
-      room.getTimestamp(command.topicId),
+      room.calcTimestamp(command.topicId),
     )
 
     room.postChatItem(command.userId, answer)
@@ -134,8 +134,8 @@ class ChatItemService {
     this.chatItemRepository.saveAnswer(answer)
   }
 
-  private findRoom(roomId: string): RoomClass {
-    const room = this.roomRepository.find(roomId)
+  private async findRoom(roomId: string): Promise<RoomClass> {
+    const room = await this.roomRepository.find(roomId)
     if (!room) {
       throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
     }

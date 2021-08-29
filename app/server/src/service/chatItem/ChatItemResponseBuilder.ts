@@ -1,4 +1,5 @@
 import {
+  ChatItem as ChatItemResponse,
   Answer as AnswerResponse,
   Message as MessageResponse,
   Question as QuestionResponse,
@@ -8,8 +9,20 @@ import Message from "../../domain/chatItem/Message"
 import Answer from "../../domain/chatItem/Answer"
 import Question from "../../domain/chatItem/Question"
 import Reaction from "../../domain/chatItem/Reaction"
+import ChatItem from "../../domain/chatItem/ChatItem"
 
 class ChatItemResponseBuilder {
+  public static buildChatItems(chatItems: ChatItem[]): ChatItemResponse[] {
+    return chatItems.map((c) => {
+      if (c instanceof Message) return this.buildMessage(c)
+      if (c instanceof Reaction) return this.buildReaction(c)
+      if (c instanceof Question) return this.buildQuestion(c)
+      if (c instanceof Answer) return this.buildAnswer(c)
+
+      throw new Error(`instance type of chatItem(id ${c.id}) is invalid.`)
+    })
+  }
+
   public static buildMessage(message: Message): MessageResponse {
     const t = message.target
     let target = null
