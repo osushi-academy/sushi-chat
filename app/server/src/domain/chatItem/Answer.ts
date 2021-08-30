@@ -1,6 +1,5 @@
 import Question from "./Question"
 import ChatItem from "./ChatItem"
-import { AnswerStore } from "../../chatItem"
 
 class Answer extends ChatItem {
   constructor(
@@ -14,15 +13,6 @@ class Answer extends ChatItem {
     timestamp?: number,
   ) {
     super(id, topicId, roomId, userIconId, createdAt, timestamp)
-  }
-
-  public toChatItemStore(): AnswerStore {
-    return {
-      ...super.toChatItemStoreBase(),
-      type: "answer",
-      content: this.content,
-      target: this.target.id,
-    }
   }
 }
 

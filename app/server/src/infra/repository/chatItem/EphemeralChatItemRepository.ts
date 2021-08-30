@@ -27,6 +27,12 @@ class EphemeralChatItemRepository implements IChatItemRepository {
   public saveReaction(reaction: Reaction): void {
     this.chatItems[reaction.id] = reaction
   }
+
+  public selectByRoomId(roomId: string): Promise<ChatItem[]> {
+    return Promise.resolve([
+      ...Object.values(this.chatItems).filter((c) => c.roomId === roomId),
+    ])
+  }
 }
 
 export default EphemeralChatItemRepository

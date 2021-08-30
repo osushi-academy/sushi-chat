@@ -19,12 +19,15 @@ describe("機能テスト", () => {
   // テストのセットアップ
   beforeAll(async (done) => {
     const httpServer = createServer()
+    const userRepository = LocalMemoryUserRepository.getInstance()
+    const chatItemRepository = new ChatItemRepository()
+    const stampRepository = new StampRepository()
     io = await createSocketIOServer(
       httpServer,
-      LocalMemoryUserRepository.getInstance(),
-      RoomRepository.getInstance(),
-      new ChatItemRepository(),
-      new StampRepository(),
+      userRepository,
+      new RoomRepository(userRepository, chatItemRepository, stampRepository),
+      chatItemRepository,
+      stampRepository,
     )
     httpServer.listen(async () => {
       const port = (httpServer as any).address().port

@@ -2,7 +2,6 @@ import Message from "./Message"
 import Question from "./Question"
 import Answer from "./Answer"
 import ChatItem from "./ChatItem"
-import { ReactionStore } from "../../chatItem"
 
 class Reaction extends ChatItem {
   constructor(
@@ -15,14 +14,6 @@ class Reaction extends ChatItem {
     timestamp?: number,
   ) {
     super(id, topicId, roomId, userIconId, createdAt, timestamp)
-  }
-
-  public toChatItemStore(): ReactionStore {
-    return {
-      ...super.toChatItemStoreBase(),
-      type: "reaction",
-      target: this.target.id,
-    }
   }
 }
 
