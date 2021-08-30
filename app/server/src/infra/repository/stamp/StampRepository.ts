@@ -34,12 +34,13 @@ class StampRepository implements IStampRepository {
     try {
       let query = "SELECT COUNT(*) FROM stamps WHERE roomid = $1"
       const values = [roomId]
+      let cnt = 2
       if (topicId) {
-        query += " AND topicid = $2"
+        query += ` AND topicid = $${cnt++}`
         values.push(topicId)
       }
       if (userId) {
-        query += " AND userid = $3"
+        query += ` AND userid = $${cnt++}`
         values.push(userId)
       }
 
