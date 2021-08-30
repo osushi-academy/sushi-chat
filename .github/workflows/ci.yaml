@@ -31,6 +31,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14.x'
+          cache: 'yarn'
       - run: yarn --cwd ./app/server
       - run: psql -f ./app/server/src/database/ini.sql postgres://root:pass@localhost:5432/test
       - run: yarn --cwd ./app/server test
