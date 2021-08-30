@@ -71,7 +71,7 @@ class RoomRepository implements IRoomRepository {
   public async find(roomId: string): Promise<RoomClass> {
     const roomQuery = "SELECT title, status FROM rooms WHERE id = $1"
     const topicsQuery =
-      "SELECT t.id, t.title, t.description, t.githuburl, t.slideurl, t.producturl, t.state, t.offset_time, toa.opened_at_mil_sec, tpa.paused_at_mil_sec " +
+      "SELECT t.id, t.title, t.description, t.githuburl, t.slideurl, t.producturl, t.state, t.offset_mil_sec, toa.opened_at_mil_sec, tpa.paused_at_mil_sec " +
       "FROM topics t " +
       "LEFT OUTER JOIN topic_opened_at toa on t.id = toa.topic_id AND t.roomid = toa.room_id " +
       "LEFT OUTER JOIN topic_paused_at tpa on t.id = tpa.topic_id AND t.roomid = tpa.room_id " +
@@ -107,7 +107,7 @@ class RoomRepository implements IRoomRepository {
       topicTimeData[id] = {
         openedDate: r.opened_at_mil_sec ?? null,
         pausedDate: r.paused_at_mil_sec ?? null,
-        offsetTime: r.offset_time,
+        offsetTime: r.offset_mil_sec,
       }
     }
 
@@ -132,7 +132,7 @@ class RoomRepository implements IRoomRepository {
     // NOTE: できたら1クエリで処理したい
     for (const t of room.topics) {
       const topicQuery =
-        "UPDATE topics SET state = $1, offset_time = $2 WHERE roomid = $3 AND id = $4"
+        "UPDATE topics SET state = $1, offset_mil_sec = $2 WHERE roomid = $3 AND id = $4"
       this.pgClient.query(topicQuery, [
         RoomRepository.topicStateMap[t.state],
         room.topicTimeData[t.id].offsetTime,
