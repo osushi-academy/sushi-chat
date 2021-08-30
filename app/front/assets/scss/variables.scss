@@ -7,6 +7,7 @@ $primary: #f28d2f;
 $admin-primary: #7091c3;
 $danger: #e19393;
 $placeholder-gray: #F2F2F2;
+$bg: #FBFBFB;
 
 $gray: #e4e4e4;
 $answer-label: #f83060;
@@ -39,3 +40,10 @@ $z-fixed: 30; // 固定要素（ヘッダーなど、ページに固定する要
 
 $z-modal-back: 49; // モーダル、ドロワーなどの背景要素（半透明のやつ）
 $z-modal: 50; // モーダル、ドロワーなど
+
+// break-points
+$huge: 1440;
+$large: 1170;
+$medium: 768;
+$small: 600;
+$tiny: 320;

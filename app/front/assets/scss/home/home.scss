@@ -1,0 +1,39 @@
+.home{
+  background-color: $bg;
+  min-height: 100vh;
+  &__header{
+    position: sticky;
+    top: 0;
+    background-color: $admin-primary;
+    color: white;
+    font-size: 1.5rem;
+    @include home-padding-layout(0.5)
+  }
+  &__main{
+    @include home-padding-layout(1)
+  }
+}
+
+.home-top{
+  &__add-new-event-button{
+    @include home-button-text
+  }
+}
+
+.home-create{
+  &__create-new-event-button{
+    @include home-button-text
+  }
+}
+
+.home-add-sessions-modal{
+  &__completed-button{
+    @include home-button-text
+  }
+}
+
+.home-creation-completed-modal{
+  &__to-home-button{
+    @include home-button-text
+  }
+}
