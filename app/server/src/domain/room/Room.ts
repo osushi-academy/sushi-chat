@@ -94,8 +94,8 @@ class RoomClass {
   }
 
   /**
-   * ユーザーがルームに参加する
-   * @param userId 参加するユーザーのID
+   * ユーザーをルームに参加させる
+   * @param userId 参加させるユーザーのID
    * @returns number アクティブなユーザー数
    */
   public joinUser = (userId: string): number => {
@@ -104,8 +104,8 @@ class RoomClass {
   }
 
   /**
-   * ユーザーがルームから退室する
-   * @param userId 退室するユーザーのID
+   * ユーザーをルームから退室させる
+   * @param userId 退室させるユーザーのID
    * @returns number アクティブなユーザー数
    */
   public leaveUser = (userId: string): number => {
