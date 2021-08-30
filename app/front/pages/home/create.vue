@@ -16,8 +16,8 @@
 <script lang="ts">
 import Vue from "vue"
 import VModal from "vue-js-modal"
-import AddSessionsModal from "@/components/Home/AddSessionsModal"
-import CreationCompletedModal from "@/components/Home/CreationCompletedModal"
+import AddSessionsModal from "@/components/Home/AddSessionsModal.vue"
+import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue"
 
 Vue.use(VModal)
 
