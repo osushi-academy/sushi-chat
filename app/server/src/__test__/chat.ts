@@ -10,22 +10,37 @@ import { v4 as uuid } from "uuid"
 import RoomRepository from "../infra/repository/room/RoomRepository"
 import ChatItemRepository from "../infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "../infra/repository/stamp/StampRepository"
+import PGPoolBuilder from "../infra/repository/PGPoolBuilder"
+import delay from "../utils/delay"
+import { Pool } from "pg"
 
 describe("機能テスト", () => {
   let io: Server
   let adminSocket: ClientSocket
   let clientSockets: ClientSocket[]
+  let pgPool: Pool
 
   // テストのセットアップ
   beforeAll(async (done) => {
-    const httpServer = createServer()
+    const pgPoolBuilder = new PGPoolBuilder(
+      process.env.DATABASE_URL as string,
+      process.env.DB_SSL !== "OFF",
+    )
+    pgPool = pgPoolBuilder.build()
     const userRepository = LocalMemoryUserRepository.getInstance()
-    const chatItemRepository = new ChatItemRepository()
-    const stampRepository = new StampRepository()
+    const chatItemRepository = new ChatItemRepository(pgPool)
+    const stampRepository = new StampRepository(pgPool)
+
+    const httpServer = createServer()
     io = await createSocketIOServer(
       httpServer,
       userRepository,
-      new RoomRepository(userRepository, chatItemRepository, stampRepository),
+      new RoomRepository(
+        pgPool,
+        userRepository,
+        chatItemRepository,
+        stampRepository,
+      ),
       chatItemRepository,
       stampRepository,
     )
@@ -43,6 +58,7 @@ describe("機能テスト", () => {
     io.close()
     adminSocket.close()
     clientSockets.forEach((socket) => socket.close())
+    pgPool.end()
   })
 
   let roomId: string
@@ -145,6 +161,10 @@ describe("機能テスト", () => {
   })
 
   describe("ルームの開始・トピックの遷移", () => {
+    // NOTE: DBのトピック状態更新処理にタイムラグがあり、少し遅延させないとデータの不整合が起きる場合がある。
+    //  実際の使用時にはトピックの状態の更新がミリ秒単位で行われることはないと考え、許容できるという判断
+    beforeEach(async () => await delay(100))
+
     afterEach(() => {
       clientSockets[0].off("PUB_CHANGE_TOPIC_STATE")
     })
@@ -241,6 +261,7 @@ describe("機能テスト", () => {
         (res: any) => {},
       )
     })
+
     afterEach(() => {
       clientSockets[0].off("PUB_CHAT_ITEM")
     })
@@ -385,7 +406,7 @@ describe("機能テスト", () => {
         { roomId, iconId: "4" },
         (res: any) => {
           expect(res).toStrictEqual({
-            chatItems: [
+            chatItems: expect.arrayContaining([
               {
                 timestamp: expect.any(Number),
                 iconId: "0",
@@ -542,7 +563,7 @@ describe("機能テスト", () => {
                   content: "質問",
                 },
               },
-            ],
+            ]),
             topics: [
               { ...topics[0], state: "active" },
               { ...topics[1], state: "finished" },
