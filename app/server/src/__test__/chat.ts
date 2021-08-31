@@ -10,23 +10,21 @@ import { v4 as uuid } from "uuid"
 import RoomRepository from "../infra/repository/room/RoomRepository"
 import ChatItemRepository from "../infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "../infra/repository/stamp/StampRepository"
-import PGPoolBuilder from "../infra/repository/PGPoolBuilder"
+import PGPool from "../infra/repository/PGPool"
 import delay from "../utils/delay"
-import { Pool } from "pg"
 
 describe("機能テスト", () => {
   let io: Server
   let adminSocket: ClientSocket
   let clientSockets: ClientSocket[]
-  let pgPool: Pool
+  let pgPool: PGPool
 
   // テストのセットアップ
   beforeAll(async (done) => {
-    const pgPoolBuilder = new PGPoolBuilder(
+    pgPool = new PGPool(
       process.env.DATABASE_URL as string,
       process.env.DB_SSL !== "OFF",
     )
-    pgPool = pgPoolBuilder.build()
     const userRepository = LocalMemoryUserRepository.getInstance()
     const chatItemRepository = new ChatItemRepository(pgPool)
     const stampRepository = new StampRepository(pgPool)

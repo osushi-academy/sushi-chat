@@ -6,18 +6,18 @@ import IChatItemRepository from "../../../domain/chatItem/IChatItemRepository"
 import IStampRepository from "../../../domain/stamp/IStampRepository"
 import Topic, { TopicTimeData } from "../../../domain/room/Topic"
 import { TopicState } from "sushi-chat-front/models/contents"
-import { Pool } from "pg"
+import PGPool from "../PGPool"
 
 class RoomRepository implements IRoomRepository {
   constructor(
-    private readonly pgPool: Pool,
+    private readonly pgPoo: PGPool,
     private readonly userRepository: IUserRepository,
     private readonly chatItemRepository: IChatItemRepository,
     private readonly stampRepository: IStampRepository,
   ) {}
 
   public async build(room: RoomClass): Promise<void> {
-    const pgClient = await this.pgPool.connect()
+    const pgClient = await this.pgPoo.client()
 
     try {
       const insertRoomQuery =
@@ -57,7 +57,7 @@ class RoomRepository implements IRoomRepository {
   }
 
   public async find(roomId: string): Promise<RoomClass> {
-    const pgClient = await this.pgPool.connect()
+    const pgClient = await this.pgPoo.client()
 
     const roomQuery = "SELECT title, status FROM rooms WHERE id = $1"
     const topicsQuery =
@@ -116,7 +116,7 @@ class RoomRepository implements IRoomRepository {
   }
 
   public async update(room: RoomClass) {
-    const pgClient = await this.pgPool.connect()
+    const pgClient = await this.pgPoo.client()
 
     try {
       const roomQuery = "UPDATE rooms SET status = $1 WHERE id = $2"

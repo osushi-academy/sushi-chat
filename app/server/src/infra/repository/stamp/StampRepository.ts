@@ -1,12 +1,12 @@
 import IStampRepository from "../../../domain/stamp/IStampRepository"
 import Stamp from "../../../domain/stamp/Stamp"
-import { Pool } from "pg"
+import PGPool from "../PGPool"
 
 class StampRepository implements IStampRepository {
-  constructor(private readonly pgPool: Pool) {}
+  constructor(private readonly pgPool: PGPool) {}
 
   public async store(stamp: Stamp): Promise<void> {
-    const pgClient = await this.pgPool.connect()
+    const pgClient = await this.pgPool.client()
 
     const query = `INSERT INTO Stamps (roomId, topicId, userId, timestamp) VALUES ($1, $2, $3, $4)`
 
@@ -36,7 +36,7 @@ class StampRepository implements IStampRepository {
     topicId?: string,
     userId?: string,
   ): Promise<number> {
-    const pgClient = await this.pgPool.connect()
+    const pgClient = await this.pgPool.client()
 
     let query = "SELECT COUNT(*) FROM stamps WHERE roomid = $1"
     const values = [roomId]
