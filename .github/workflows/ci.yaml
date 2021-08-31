@@ -26,6 +26,10 @@ jobs:
         ports:
           - 5432:5432
 
+    env:
+      DATABASE_URL: postgres://root:pass@localhost:5432/test
+      DB_SSL: OFF
+
     steps:
       - uses: actions/checkout@v2
       - name: Setup Node.js
@@ -40,9 +44,6 @@ jobs:
       - name: Run format dry-run
         run: yarn fix:dry-run
       - name: Initialize DB
-        run: psql -f ./app/server/src/database/ini.sql postgres://root:pass@localhost:5432/test
+        run: psql -f ./app/server/src/database/ini.sql ${{ env.DATABASE_URL }}
       - name: Run test
         run: yarn --cwd ./app/server test
-        env:
-          DB_SSL: OFF
-          DATABASE_URL: postgres://root:pass@localhost:5432/test
