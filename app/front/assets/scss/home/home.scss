@@ -74,6 +74,7 @@
     width: 100%;
     @media screen and (min-width: $small+px) {
       padding: 1.5rem;
+      min-height: 150px;
     }
   }
 }
