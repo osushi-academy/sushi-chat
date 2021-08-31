@@ -264,6 +264,8 @@ describe("機能テスト", () => {
       clientSockets[0].off("PUB_CHAT_ITEM")
     })
 
+    beforeEach(async () => await delay(100))
+
     test("Messageの投稿", (resolve) => {
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
         expect(res).toStrictEqual({
@@ -398,6 +400,8 @@ describe("機能テスト", () => {
   })
 
   describe("途中から入室した場合", () => {
+    beforeAll(async () => await delay(100))
+
     test("途中から入室した場合に履歴が見れる", (resolve) => {
       clientSockets[3].emit(
         "ENTER_ROOM",
