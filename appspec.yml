@@ -80,7 +80,7 @@ hooks:
   ApplicationStop:
     - location: scripts/stop_app.sh
       timeout: 60
-      runas: ec2-user
+      runas: app
 # During the BeforeInstall deployment lifecycle event, run the commands
 #   in the script specified in "location".
 #  BeforeInstall:
