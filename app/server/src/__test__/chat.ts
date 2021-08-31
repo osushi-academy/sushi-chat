@@ -408,6 +408,9 @@ describe("機能テスト", () => {
         { roomId, iconId: "4" },
         (res: any) => {
           expect(res).toStrictEqual({
+            // NOTE: changeTopicStateで現在開いているトピックを閉じた際のbotメッセージと、次のトピックが開いた際の
+            //  botメッセージが同時に追加されるが、それらがDBに格納される順序が不安定だったため、順序を考慮しないように
+            //  している。アプリケーションの挙動としてはそれらは別トピックに投稿されるメッセージのため、問題はないはず。
             chatItems: expect.arrayContaining([
               {
                 timestamp: expect.any(Number),
