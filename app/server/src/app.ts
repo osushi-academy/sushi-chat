@@ -5,17 +5,27 @@ import LocalMemoryUserRepository from "./infra/repository/User/LocalMemoryUserRe
 import ChatItemRepository from "./infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "./infra/repository/stamp/StampRepository"
 import RoomRepository from "./infra/repository/room/RoomRepository"
+import PGPool from "./infra/repository/PGPool"
 
 const app = express()
 const httpServer = createServer(app)
 
+const pgPool = new PGPool(
+  process.env.DATABASE_URL as string,
+  process.env.DB_SSL !== "OFF",
+)
 const userRepository = LocalMemoryUserRepository.getInstance()
-const chatItemRepository = new ChatItemRepository()
-const stampRepository = new StampRepository()
+const chatItemRepository = new ChatItemRepository(pgPool)
+const stampRepository = new StampRepository(pgPool)
 createSocketIOServer(
   httpServer,
   userRepository,
-  new RoomRepository(userRepository, chatItemRepository, stampRepository),
+  new RoomRepository(
+    pgPool,
+    userRepository,
+    chatItemRepository,
+    stampRepository,
+  ),
   chatItemRepository,
   stampRepository,
 )
