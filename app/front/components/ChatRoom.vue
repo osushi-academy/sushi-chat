@@ -1,7 +1,7 @@
 <template>
   <article class="topic-block">
     <TopicHeader
-      :title="topicIndex + '. ' + chatData.topic.title"
+      :title="topicIndex + '. ' + topicTitle"
       :topic-state="topicState"
       @topic-activate="clickTopicActivate"
       @download="clickDownload"
@@ -9,7 +9,7 @@
     <div class="chat-area">
       <div class="text-zone">
         <transition-group
-          :id="chatData.topic.id"
+          :id="topicId"
           ref="scrollable"
           class="scrollable list-complete"
           tag="div"
@@ -32,11 +32,11 @@
               <XIcon></XIcon>
             </button>
           </div>
-          <AnalysisGraph :chat-data="chatData" />
+          <AnalysisGraph :topic-title="topicTitle" :topic-id="topicId" />
         </div>
         <button
           v-if="topicState === 'finished' && !showGraph"
-          :key="chatData.topic.id"
+          :key="topicId"
           class="show-graph-button"
           @click="showGraph = true"
         >
@@ -47,7 +47,7 @@
       <div class="stamp-zone">
         <FavoriteButton
           :favorite-callback-register="
-            (callback) => favoriteCallbackRegister(chatData.topic.id, callback)
+            (callback) => favoriteCallbackRegister(topicId, callback)
           "
           :disabled="topicState !== 'active'"
           @favorite="clickFavorite"
@@ -67,7 +67,7 @@
       <div class="material-icons" @click="deselectChatItem">close</div>
     </div>
     <TextArea
-      :topic="chatData.topic"
+      :topic-id="topicId"
       :disabled="topicState == 'not-started'"
       @submit="clickSubmit"
     />
@@ -78,17 +78,13 @@ import Vue, { PropOptions } from "vue"
 import throttle from "lodash.throttle"
 import { XIcon, ChevronUpIcon } from "vue-feather-icons"
 import AnalysisGraph from "./AnalysisGraph.vue"
-import { Topic, Message, Question, Answer } from "@/models/contents"
+import { Message, Question, Answer } from "@/models/contents"
 import TopicHeader from "@/components/TopicHeader.vue"
 import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
 import { ChatItemStore, StampStore, TopicStateItemStore } from "~/store"
-
-type ChatDataPropType = {
-  topic: Topic
-}
 
 type FavoriteCallbackRegisterPropType = (
   topicId: string,
@@ -114,14 +110,17 @@ export default Vue.extend({
     ChevronUpIcon,
   },
   props: {
-    chatData: {
-      type: Object,
+    topicId: {
+      type: String,
       required: true,
-    } as PropOptions<ChatDataPropType>,
+    },
+    topicTitle: {
+      type: String,
+      required: true,
+    },
     topicIndex: {
       type: Number,
       required: true,
-      default: 0,
     },
     favoriteCallbackRegister: {
       type: Function,
@@ -138,11 +137,11 @@ export default Vue.extend({
   computed: {
     chatItems() {
       return ChatItemStore.chatItems.filter(
-        ({ topicId }) => topicId === this.chatData.topic.id,
+        ({ topicId }) => topicId === this.topicId,
       )
     },
     topicState() {
-      return TopicStateItemStore.topicStateItems[this.chatData.topic.id]
+      return TopicStateItemStore.topicStateItems[this.topicId]
     },
   },
   watch: {
@@ -172,7 +171,7 @@ export default Vue.extend({
     // 送信ボタン
     clickSubmit(text: string, isQuestion: boolean) {
       const target = this.selectedChatItem
-      const topicId = this.chatData.topic.id
+      const topicId = this.topicId
       if (target == null) {
         if (isQuestion) {
           // 質問
@@ -197,7 +196,7 @@ export default Vue.extend({
     },
     // スタンプボタン
     clickFavorite() {
-      StampStore.sendFavorite(this.chatData.topic.id)
+      StampStore.sendFavorite(this.topicId)
     },
     // スクロール
     handleScroll: throttle(function (this: any, e: Event) {
@@ -237,7 +236,7 @@ export default Vue.extend({
       )
     },
     clickTopicActivate() {
-      this.$emit("topic-activate", this.chatData.topic.id)
+      this.$emit("topic-activate", this.topicId)
     },
     clickDownload() {
       const messages = ChatItemStore.chatItems
@@ -247,8 +246,8 @@ export default Vue.extend({
           (message) =>
             "🍣: " + (message as Message).content.replaceAll("\n", "\n") + "\n",
         )
-      exportText(`${this.topicIndex}_${this.chatData.topic.title}_comments`, [
-        this.chatData.topic.title + "\n",
+      exportText(`${this.topicIndex}_${this.topicTitle}_comments`, [
+        this.topicTitle + "\n",
         ...messages,
       ])
     },

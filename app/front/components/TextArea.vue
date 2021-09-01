@@ -33,8 +33,7 @@
   </section>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
-import { TopicPropType } from "@/models/contents"
+import Vue from "vue"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 
 // Data型
@@ -49,10 +48,10 @@ export default Vue.extend({
     KeyInstruction,
   },
   props: {
-    topic: {
-      type: Object,
+    topicId: {
+      type: String,
       required: true,
-    } as PropOptions<TopicPropType>,
+    },
     disabled: {
       type: Boolean,
       required: true,
@@ -92,7 +91,7 @@ export default Vue.extend({
       this.isQuestion = false
 
       // スクロール
-      const element: HTMLElement | null = document.getElementById(this.topic.id)
+      const element: HTMLElement | null = document.getElementById(this.topicId)
       if (element) {
         element.scrollTo({
           top: element.scrollHeight,
