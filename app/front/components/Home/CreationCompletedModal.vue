@@ -11,7 +11,7 @@
       </section>
       <section class="home-creation-completed-modal__event-detail">
         <div class="home-creation-completed-modal__event-detail--description">
-          <a href="/">イベントページをみる→</a>
+          <NuxtLink to="/">イベントページをみる→</NuxtLink>
         </div>
         <div class="home-creation-completed-modal__event-detail--additional">
           （イベントページはマイページからも確認できます）
@@ -31,16 +31,12 @@
             class="home-creation-completed-modal__invitation__content__detail"
           >
             <div
-              class="
-                home-creation-completed-modal__invitation__content__detail--url
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--url"
             >
               https://sushi-chat.cyan/12345?user=admin
             </div>
             <button
-              class="
-                home-creation-completed-modal__invitation__content__detail--button
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--button"
             >
               コピーする
             </button>
@@ -48,7 +44,9 @@
         </div>
       </section>
     </template>
-    <template #hide-button><a href="/home"> マイページに戻る </a></template>
+    <template #hide-button
+      ><NuxtLink to="/home"> マイページに戻る </NuxtLink></template
+    >
   </Modal>
 </template>
 

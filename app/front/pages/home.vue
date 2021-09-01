@@ -2,9 +2,9 @@
   <div class="home-top">
     <div>マイページ</div>
     <button class="home-top__add-new-event-button">
-      <a href="/room/create">
+      <NuxtLink to="/room/create">
         <span class="material-icons"> add </span>新しいイベントを追加
-      </a>
+      </NuxtLink>
     </button>
   </div>
 </template>
