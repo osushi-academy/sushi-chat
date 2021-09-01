@@ -11,8 +11,8 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from "vue"
-import { Topic } from "@/models/contents"
 import { ChartData, ChartOptions } from "chart.js"
+import { Topic } from "@/models/contents"
 import ChartLine from "~/utils/ChartLine"
 import { ChatItemStore } from "~/store"
 

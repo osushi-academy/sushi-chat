@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "dev": "tsc -w",
+    "build": "tsc",
     "lint": "eslint --ext \".js,.ts,.vue\" --ignore-path .gitignore ./src",
     "fix": "prettier --write \"**/*.{js,ts}\" --ignore-path .gitignore ./src",
     "fix:dry-run": "prettier --check \"**/*.{js,ts}\" --ignore-path .gitignore ./src",

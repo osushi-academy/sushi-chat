@@ -6,21 +6,24 @@
     <div class="modal-body">
       <div class="icon-list">
         <button
-          v-for="(icon, index) in icons"
+          v-for="(icon, index) in userIcons"
           :key="index"
           :class="{
-            'icon-selected': myIconId == index,
+            'icon-selected': myIconId - 1 == index,
             'icon-shari': index === 10,
           }"
           class="icon-box"
           @click="selectIcon(index)"
         >
-          <img :src="icon.url" alt="" class="sushi-fit" />
+          <picture>
+            <source :srcset="icon.webp" type="image/webp" class="sushi-fit" />
+            <img :src="icon.png" alt="" class="sushi-fit" />
+          </picture>
         </button>
       </div>
       <div class="modal-actions">
         <button
-          :disabled="myIconId < 0"
+          :disabled="myIconId < 1"
           type="button"
           class="primary-button"
           @click="hideModal"
@@ -33,26 +36,23 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
-import { IconsPropType } from "@/models/contents"
+import Vue from "vue"
+import ICONS from "@/utils/icons"
 import { UserItemStore } from "~/store"
 
 export default Vue.extend({
   name: "SelectIconModal",
-  props: {
-    icons: {
-      type: Array,
-      required: true,
-    } as PropOptions<IconsPropType>,
-  },
   computed: {
     myIconId() {
       return UserItemStore.userItems.myIconId
     },
+    userIcons() {
+      return ICONS.slice(1)
+    },
   },
   methods: {
     selectIcon(index: number) {
-      this.$emit("click-icon", index)
+      this.$emit("click-icon", index + 1)
     },
     hideModal() {
       this.$emit("hide-modal")
