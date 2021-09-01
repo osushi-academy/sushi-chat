@@ -1,6 +1,6 @@
 <template>
   <div class="home__header">
-    <slot />
+    <a href="/home"><slot /></a>
   </div>
 </template>
 
