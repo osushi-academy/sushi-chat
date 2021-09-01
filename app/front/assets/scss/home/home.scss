@@ -1,0 +1,237 @@
+.home{
+  background-color: $bg;
+  min-height: 100vh;
+  &__header{
+    position: sticky;
+    top: 0;
+    background-color: $admin-primary;
+    color: white;
+    @include text-size("lg");
+    @include home-padding-layout(0.5);
+    a{
+      @include invalidated-a-style;
+    }
+  }
+  &__main{
+    @include home-padding-layout(1);
+  }
+}
+
+.home-top{
+  &__add-new-event-button{
+    @include home-button-text;
+  }
+}
+
+.home-create{
+  &__header{
+    margin: 0 0 1.5rem 0;
+    @include text-size("lg")
+  }
+  &__event-name{
+    margin: 0 0 1.5rem 0;
+    &--title{
+      margin: 0 0 0.5rem 0;
+      @include text-size("mdi")
+    }
+    &--input{
+      width: 100%;
+      @include white-text-box($expand:"true");
+      &:focus{
+        outline: none;
+      }
+    }
+  }
+  &__room{
+    margin: 0 0 2rem 0;
+    &--title{
+      @include text-size("mdi")
+    }
+    &__sessions{
+      display: grid;
+      margin: 1rem 0;
+      grid-template-columns: auto 1fr;
+      &__index{
+        grid-column: 1;
+        margin: 0 0.5rem 0 0;
+        &--element{
+          margin: 0 0 0.5rem 0;
+          padding: 0.625rem 0;
+        }
+      }
+      &__list{
+        grid-column: 2;
+        &--element{
+          display: flex;
+          align-items: center;
+          width: 85%;
+          margin: 0 0 0.5rem 0;
+          &--input{
+            display: flex;
+            flex: 1;
+            margin: 0 0.5rem 0 0;
+            @include white-text-box($expand:"true");
+            input{
+              border: none;
+              flex: 1;
+              padding: 0;
+              margin: 0 0.5rem 0 0;
+              &:focus{
+                outline: none;
+              }
+            }
+          }
+          &--remove{
+            width: 24px;
+            height: 24px;
+            border: 2px solid;
+            color: #F07B7B;
+            border-radius: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            .material-icons{
+              font-weight: bold;
+            }
+            &:hover{
+              cursor: pointer;
+            }
+          }
+          &--sort{
+            cursor: grab;
+            color: $text-gray;
+            &--dragging{
+              cursor: grabbing !important;
+            }
+          }
+        }
+    }
+    
+    }
+    &__add{
+      display: flex;
+      &--button, &--collective-button{
+        display: flex;
+        align-items: center;
+        color: $admin-primary;
+        cursor: pointer;
+        margin: 0 1rem 0 0;
+        .material-icons{
+          font-size: 0.9rem;
+        }
+        @include text-size("sm")
+      }
+    }
+  }
+  &__create-new-event-button{
+    @include home-button-text;
+  }
+}
+
+.home-modal{
+  display: flex;
+  flex-direction: column;
+  background-color: $bg !important;
+  padding: 1.5rem;
+  &__header{
+    @include text-size("mdi")
+  }
+  &__content{
+    flex: 1;
+    margin: 1rem 0;
+  }
+  &__footer{
+    align-self: flex-end;
+  }
+  &__hide-button{
+    @include home-button-text;
+  }
+}
+.vm--overlay{
+  background-color: rgba(10,10,10,0.5) !important;
+}
+
+.home-add-sessions-modal{
+  &__separators{
+    color: $text-gray;
+    margin: 0 0 1rem 0;
+    @include text-size;
+    @media screen and (min-width: $small+px) {
+      display: flex;
+    }
+    input{
+      position: relative;
+      top: 2px;
+      margin: 0;
+    }
+    label{
+      margin: 0 1rem 0 0;
+    }
+  }
+  &__textarea{
+    resize: vertical;
+    width: 100%;
+    @include white-text-box;
+    @media screen and (min-width: $small+px) {
+      padding: 1.5rem !important;
+      min-height: 150px;
+    }
+  }
+}
+
+.home-creation-completed-modal{
+  &__event-name{
+    margin: 0 0 1rem 0;
+    b{
+      margin-left: 0.5rem;
+      @include text-size("mdi")
+    }
+  }
+  &__event-detail{
+    margin: 0 0 1rem 0;
+    &--description{
+      a{
+        text-decoration: underline !important;
+        @include invalidated-a-style;
+      }
+    }
+  }
+  &__invitation{
+    &--title{
+      margin: 0 0 0.5rem 0;
+    }
+    &__content{
+      @media screen and (min-width: $small+px) {
+        display: flex;
+      }
+      &--title{
+        margin: 0 0 5px 0;
+        @include text-size("sm");
+        @media screen and (min-width: $small+px) {
+          margin: 10px 5px 0 0;
+        }
+      }
+      &__detail{
+        @include text-size("sm");
+        @include white-text-box;
+        @media screen and (min-width: $small+px) {
+          display: flex;
+          flex: 1;
+          align-items: flex-start;
+        }
+        &--url{
+          @media screen and (min-width: $small+px) {
+            flex: 1;
+	          overflow-x: scroll;
+          }
+        }
+        &--button{
+          border: none;
+          background:rgba(255, 255, 255, 0);
+          color: $admin-primary;
+          padding: 0;
+        }
+      }
+    }
+  }
+}
