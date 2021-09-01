@@ -12,6 +12,7 @@ import EphemeralRoomDelivery from "../infra/delivery/room/EphemeralRoomDelivery"
 import EphemeralChatItemDelivery from "../infra/delivery/chatItem/EphemeralChatItemDelivery"
 import UserService from "../service/user/UserService"
 import EphemeralUserDelivery from "../infra/delivery/user/EphemeralUserDelivery"
+import EphemeralChatItemRepository from "../infra/repository/chatItem/EphemeralChatItemRepository"
 
 describe("StampServiceのテスト", () => {
   let adminId: string
@@ -24,7 +25,7 @@ describe("StampServiceのテスト", () => {
   let userService: UserService
   let roomService: RoomService
 
-  beforeEach(() => {
+  beforeEach(async () => {
     adminId = getUUID()
     userId = getUUID()
     roomId = getUUID()
@@ -33,7 +34,6 @@ describe("StampServiceのテスト", () => {
     stampRepository = new EphemeralStampRepository()
     const roomRepository = new EphemeralRoomRepository()
     const userRepository = new EphemeralUserRepository()
-
     stampDeliverySubscribers = [[]]
     const stampDelivery = new EphemeralStampDelivery(stampDeliverySubscribers)
     const roomDelivery = new EphemeralRoomDelivery([])
@@ -50,6 +50,7 @@ describe("StampServiceのテスト", () => {
     roomService = new RoomService(
       roomRepository,
       userRepository,
+      new EphemeralChatItemRepository(),
       roomDelivery,
       chatItemDelivery,
       stampDelivery,
@@ -65,16 +66,16 @@ describe("StampServiceのテスト", () => {
         urls: {},
       })),
     })
-    userService.adminEnterRoom({ adminId, roomId })
-    roomService.start(adminId)
-    roomService.changeTopicState({
+    await userService.adminEnterRoom({ adminId, roomId })
+    await roomService.start(adminId)
+    await roomService.changeTopicState({
       userId: adminId,
       topicId: topicIdToBePosted,
       type: "OPEN",
     })
     // スタンプを投稿する一般ユーザーが入室
     userService.createUser({ userId })
-    userService.enterRoom({ userId, roomId, iconId: "1" })
+    await userService.enterRoom({ userId, roomId, iconId: "1" })
   })
 
   afterEach(() => {
@@ -94,7 +95,7 @@ describe("StampServiceのテスト", () => {
       ).toBe(0)
       expect(stampDeliverySubscribers[0].length).toBe(0)
 
-      stampService.post({ userId, topicId: topicIdToBePosted })
+      await stampService.post({ userId, topicId: topicIdToBePosted })
       // stampIntervalDeliveryのインターバル処理でスタンプで配信されるのを待つ
       await delay(1000)
 
@@ -108,22 +109,22 @@ describe("StampServiceのテスト", () => {
       expect(deliveredStamp.userId).toBe(userId)
     })
 
-    test("異常系_Roomに参加していないユーザーはスタンプを投稿できない", () => {
+    test("異常系_Roomに参加していないユーザーはスタンプを投稿できない", async () => {
       const notJoiningUserId = getUUID()
       userService.createUser({ userId: notJoiningUserId })
 
-      expect(() =>
+      await expect(() =>
         stampService.post({
           userId: notJoiningUserId,
           topicId: topicIdToBePosted,
         }),
-      ).toThrowError()
+      ).rejects.toThrowError()
     })
 
-    // TODO: スタンプ投稿時のトピック状態の確認とハンドリングがまだされていないので、このテストは落ちます。
-    //    実装を修正する必要があります。
     test("異常系_OPEN状態でないTopicへはスタンプを投稿できない", async () => {
-      expect(() => stampService.post({ userId, topicId: "2" })).toThrowError()
+      await expect(() =>
+        stampService.post({ userId, topicId: "2" }),
+      ).rejects.toThrowError()
     })
   })
 })

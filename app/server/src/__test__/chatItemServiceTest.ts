@@ -74,6 +74,7 @@ describe("ChatItemServiceのテスト", () => {
     roomService = new RoomService(
       roomRepository,
       userRepository,
+      chatItemRepository,
       roomDelivery,
       chatItemDelivery,
       stampDelivery,
@@ -89,19 +90,19 @@ describe("ChatItemServiceのテスト", () => {
         urls: {},
       })),
     })
-    userService.adminEnterRoom({ adminId, roomId })
-    roomService.start(adminId)
-    roomService.changeTopicState({
+    await userService.adminEnterRoom({ adminId, roomId })
+    await roomService.start(adminId)
+    await roomService.changeTopicState({
       userId: adminId,
       topicId: topicIdToBePosted,
       type: "OPEN",
     })
     // スタンプを投稿する一般ユーザーが入室
     userService.createUser({ userId })
-    userService.enterRoom({ userId, roomId, iconId: userIconId })
+    await userService.enterRoom({ userId, roomId, iconId: userIconId })
 
     userService.createUser({ userId: targetChatItemUserId })
-    userService.enterRoom({
+    await userService.enterRoom({
       userId: targetChatItemUserId,
       roomId: roomId,
       iconId: targetChatItemUserIconId,

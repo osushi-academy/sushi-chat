@@ -13,6 +13,7 @@ import IRoomRepository from "../domain/room/IRoomRepository"
 import ChatItem from "../domain/chatItem/ChatItem"
 import UserService from "../service/user/UserService"
 import Topic, { TopicLinkType, TopicState } from "../domain/room/Topic"
+import EphemeralChatItemRepository from "../infra/repository/chatItem/EphemeralChatItemRepository"
 
 describe("RoomServiceのテスト", () => {
   let adminId: string
@@ -54,6 +55,7 @@ describe("RoomServiceのテスト", () => {
     roomService = new RoomService(
       roomRepository,
       userRepository,
+      new EphemeralChatItemRepository(),
       new EphemeralRoomDelivery(roomDeliverySubscribers),
       new EphemeralChatItemDelivery(chatItemDeliverySubscribers),
       new EphemeralStampDelivery([]),
@@ -68,12 +70,12 @@ describe("RoomServiceのテスト", () => {
   })
 
   describe("buildのテスト", () => {
-    test("正常系_buildによりRoomが作成される", () => {
+    test("正常系_buildによりRoomが作成される", async () => {
       buildRoom()
 
       const result = roomRepository.find(roomId)
       expect(result).not.toBeNull()
-      const room = result as RoomClass
+      const room = (await result) as RoomClass
       expect(room.id).toBe(roomId)
       expect(room.title).toBe(roomTitle)
       expect(room.topics).toHaveLength(topics.length)
@@ -104,8 +106,8 @@ describe("RoomServiceのテスト", () => {
       buildRoom()
     })
 
-    test("正常系_startによりRoomが開始が配信される", () => {
-      adminEnterAndStartRoom()
+    test("正常系_startによりRoomが開始が配信される", async () => {
+      await adminEnterAndStartRoom()
 
       expect(roomDeliverySubscribers[0]).toHaveLength(1)
       const deliveredContent = roomDeliverySubscribers[0][0]
@@ -113,15 +115,19 @@ describe("RoomServiceのテスト", () => {
       expect(deliveredContent.content).toStrictEqual({ roomId })
     })
 
-    test("異常系_存在しないUserはRoomをstartできない", () => {
+    test("異常系_存在しないUserはRoomをstartできない", async () => {
       const notExistUserId = uuid()
-      expect(() => roomService.start(notExistUserId)).toThrowError()
+      await expect(() =>
+        roomService.start(notExistUserId),
+      ).rejects.toThrowError()
     })
 
-    test("異常系＿Roomに参加していないUserはRoomをstartできない", () => {
+    test("異常系＿Roomに参加していないUserはRoomをstartできない", async () => {
       const notJoiningUserId = uuid()
       userService.createUser({ userId: notJoiningUserId })
-      expect(() => roomService.start(notJoiningUserId)).toThrowError()
+      await expect(() =>
+        roomService.start(notJoiningUserId),
+      ).rejects.toThrowError()
     })
   })
 
@@ -129,11 +135,11 @@ describe("RoomServiceのテスト", () => {
     let deliveredRoomContentsCount: number
     let deliveredChatItemContentsCount: number
 
-    beforeEach(() => {
+    beforeEach(async () => {
       buildRoom()
-      adminEnterAndStartRoom()
+      await adminEnterAndStartRoom()
 
-      roomService.changeTopicState({
+      await roomService.changeTopicState({
         userId: adminId,
         topicId: "1",
         type: "OPEN",
@@ -144,19 +150,19 @@ describe("RoomServiceのテスト", () => {
     })
 
     // IntervalStampDeliveryが停止しないとテストが停止しないので、強制終了させている
-    afterEach(() => {
-      roomService.finish(adminId)
+    afterEach(async () => {
+      await roomService.finish(adminId)
     })
 
-    test("正常系_changeTopicState(type: OPEN)によりOPENだったTopicがCLOSEされ、指定されたTopicがOPENし、それが配信され、運営ボットのメッセージがpostされる", () => {
+    test("正常系_changeTopicState(type: OPEN)によりOPENだったTopicがCLOSEされ、指定されたTopicがOPENし、それが配信され、運営ボットのメッセージがpostされる", async () => {
       const topicIdToBeOpen = "2"
-      roomService.changeTopicState({
+      await roomService.changeTopicState({
         userId: adminId,
         topicId: topicIdToBeOpen,
         type: "OPEN",
       })
 
-      const room = roomRepository.find(roomId) as RoomClass
+      const room = (await roomRepository.find(roomId)) as RoomClass
       expect(room.topics[0].state).toBe<TopicState>("finished")
       expect(room.topics[1].state).toBe<TopicState>("active")
 
@@ -178,15 +184,15 @@ describe("RoomServiceのテスト", () => {
       )
     })
 
-    test("正常系_changeTopicState(type: CLOSE)により指定されたTopicがCLOSEし、それが配信され、運営ボットのメッセージがpostされる", () => {
+    test("正常系_changeTopicState(type: CLOSE)により指定されたTopicがCLOSEし、それが配信され、運営ボットのメッセージがpostされる", async () => {
       const topicIdToBeClose = "1"
-      roomService.changeTopicState({
+      await roomService.changeTopicState({
         userId: adminId,
         topicId: topicIdToBeClose,
         type: "CLOSE",
       })
 
-      const room = roomRepository.find(roomId) as RoomClass
+      const room = (await roomRepository.find(roomId)) as RoomClass
       expect(room.topics[0].state).toBe<TopicState>("finished")
 
       expect(roomDeliverySubscribers[0]).toHaveLength(
@@ -207,15 +213,15 @@ describe("RoomServiceのテスト", () => {
       )
     })
 
-    test("正常系_changeTopicState(type: PAUSE)により指定されたTopicがPAUSEし、それが配信され、運営ボットのメッセージがpostされる", () => {
+    test("正常系_changeTopicState(type: PAUSE)により指定されたTopicがPAUSEし、それが配信され、運営ボットのメッセージがpostされる", async () => {
       const topicIdToBePAUSE = "1"
-      roomService.changeTopicState({
+      await roomService.changeTopicState({
         userId: adminId,
         topicId: topicIdToBePAUSE,
         type: "PAUSE",
       })
 
-      const room = roomRepository.find(roomId) as RoomClass
+      const room = (await roomRepository.find(roomId)) as RoomClass
       expect(room.topics[0].state).toBe<TopicState>("paused")
 
       expect(roomDeliverySubscribers[0]).toHaveLength(
@@ -238,14 +244,14 @@ describe("RoomServiceのテスト", () => {
   })
 
   describe("finishのテスト", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       buildRoom()
-      adminEnterAndStartRoom()
+      await adminEnterAndStartRoom()
     })
 
-    test("正常系_finishによりRoomのfinishが配信される", () => {
+    test("正常系_finishによりRoomのfinishが配信される", async () => {
       const deliveredContentsCount = roomDeliverySubscribers[0].length
-      roomService.finish(adminId)
+      await roomService.finish(adminId)
 
       expect(roomDeliverySubscribers[0]).toHaveLength(
         deliveredContentsCount + 1,
@@ -256,27 +262,31 @@ describe("RoomServiceのテスト", () => {
       expect(deliveredContent.content).toStrictEqual({ roomId })
     })
 
-    test("異常系_存在しないUserはRoomをfinishできない", () => {
+    test("異常系_存在しないUserはRoomをfinishできない", async () => {
       const notExistUserId = uuid()
-      expect(() => roomService.finish(notExistUserId)).toThrowError()
+      await expect(() =>
+        roomService.finish(notExistUserId),
+      ).rejects.toThrowError()
     })
 
-    test("異常系_Roomに参加していないUserはRoomをfinishできない", () => {
+    test("異常系_Roomに参加していないUserはRoomをfinishできない", async () => {
       const notJoiningUserId = uuid()
       userService.createUser({ userId: notJoiningUserId })
-      expect(() => roomService.finish(notJoiningUserId)).toThrowError()
+      await expect(() =>
+        roomService.finish(notJoiningUserId),
+      ).rejects.toThrowError()
     })
   })
 
   describe("closeのテスト", () => {
-    beforeEach(() => {
+    beforeEach(async () => {
       buildRoom()
-      adminEnterAndStartRoom()
+      await adminEnterAndStartRoom()
     })
 
-    test("正常系_closeによりRoomのcloseが配信される", () => {
+    test("正常系_closeによりRoomのcloseが配信される", async () => {
       const deliveredContentsCount = roomDeliverySubscribers[0].length
-      roomService.close(adminId)
+      await roomService.close(adminId)
 
       expect(roomDeliverySubscribers[0]).toHaveLength(
         deliveredContentsCount + 1,
@@ -287,15 +297,19 @@ describe("RoomServiceのテスト", () => {
       expect(deliveredContent.content).toStrictEqual({ roomId })
     })
 
-    test("異常系_存在しないUserはRoomをcloseできない", () => {
+    test("異常系_存在しないUserはRoomをcloseできない", async () => {
       const notExistUserId = uuid()
-      expect(() => roomService.close(notExistUserId)).toThrowError()
+      await expect(() =>
+        roomService.close(notExistUserId),
+      ).rejects.toThrowError()
     })
 
-    test("異常系_Roomに参加していないUserはRoomをcloseできない", () => {
+    test("異常系_Roomに参加していないUserはRoomをcloseできない", async () => {
       const notJoiningUserId = uuid()
       userService.createUser({ userId: notJoiningUserId })
-      expect(() => roomService.close(notJoiningUserId)).toThrowError()
+      await expect(() =>
+        roomService.close(notJoiningUserId),
+      ).rejects.toThrowError()
     })
   })
 
@@ -306,11 +320,11 @@ describe("RoomServiceのテスト", () => {
       topics,
     })
 
-  const adminEnterAndStartRoom = () => {
-    userService.adminEnterRoom({
+  const adminEnterAndStartRoom = async () => {
+    await userService.adminEnterRoom({
       roomId,
       adminId,
     })
-    roomService.start(adminId)
+    await roomService.start(adminId)
   }
 })
