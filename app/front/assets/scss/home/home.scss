@@ -16,8 +16,80 @@
 }
 
 .home-top{
-  &__add-new-event-button{
-    @include home-button-text;
+  &__header{
+    margin: 0 0 1.5rem 0;
+    @include text-size("lg");
+  }
+  &__new-event{
+    margin: 0 0 2rem 0;
+    &--input{
+      width: 100%;
+      margin: 0 0 1rem 0;
+      @include white-text-box($expand:"true");
+    }
+    &--button{
+      margin:  0 auto;
+      @include home-button-text;
+    }
+  }
+  &__event{
+    margin: 0 0 1.5rem 0;
+    &--title{
+      margin: 0 0 0.7rem 0;
+      @include text-size("mdi");
+    }
+    &__list{
+      @include home-event-list-element;
+    }
+  }
+  &__inquiry{
+    margin: 3rem 0;
+    &--title{
+      margin: 0 0 0.5rem 0;
+      @include text-size("mdi");
+    }
+    &--content{
+      a{
+        text-decoration: underline !important;
+      }
+      @include invalidated-a-style;
+    }
+  }
+  &__account{
+    margin: 0 0 2rem 0;
+    &--title{
+      margin: 0 0 0.5rem 0;
+      @include text-size("mdi");
+    }
+    &--content{
+      @media screen and (min-width: $small+px) {
+        display: flex;
+        align-items: center;
+      }
+    }
+    &--name{
+      margin: 0 1rem 1rem 0;
+      @media screen and (min-width: $small+px) {
+        display: flex;
+        align-items: center;
+        margin: 0 1rem 0 0;
+      }
+    }
+    &--logout-button{
+      display: inline !important;
+      @include home-button-text;
+    }
+  }
+  &__other{
+    margin: 0 0 1.5rem 0;
+    &--title{
+      margin: 0 0 1rem 0;
+      @include text-size("mdi");
+    }
+    &--delete-button{
+      display: inline !important;
+      @include home-button-text($danger);
+    }
   }
 }
 
@@ -35,15 +107,12 @@
     &--input{
       width: 100%;
       @include white-text-box($expand:"true");
-      &:focus{
-        outline: none;
-      }
     }
   }
   &__room{
     margin: 0 0 2rem 0;
     &--title{
-      @include text-size("mdi")
+      @include text-size("mdi");
     }
     &__sessions{
       display: grid;

@@ -1,5 +1,6 @@
 @mixin home-padding-layout($py:0) {
   padding: $py+rem 5%;
+  margin-bottom: 2rem;
   @media screen and (min-width: $small+px) {
     padding: $py+rem 10%;
   }
@@ -65,6 +66,9 @@
   @if $expand=="true"{
     padding: 0.5rem 1rem;
   }
+  &:focus{
+    outline: none;
+  }
 }
 
 @mixin material-icon-button($size:"normal",$color:$text-gray,$border:"none"){
@@ -92,9 +96,40 @@
     }
     @if $border=="solid"{
       border: 2px solid;
+      font-weight: bold;
     }
-    font-weight: bold;
     color: $color;
     border-radius: 100%;
   }
+}
+
+
+@mixin home-event-list-element{
+  display: flex;
+  width: 100%;
+  margin: 0 0 0.5rem 0;
+  @include white-text-box($expand:"true");
+  &--name{
+    width: 30%;
+    @media screen and (min-width: $small+px) {
+      width: 50%;
+    }
+  }
+  &--date{
+    margin: 0 0.5rem;
+    @media screen and (min-width: $small+px) {
+      margin: 0 2rem;
+    }
+  }
+  &--role{
+    flex: 1;
+  }
+  &--status{
+    &--label{
+      padding: 0px 6px !important;
+      color: $danger;
+      border-radius: 4px;
+      border: 1px solid;
+    }
+  }  
 }
