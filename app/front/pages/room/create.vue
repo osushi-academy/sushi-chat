@@ -42,10 +42,7 @@
                   </div>
                 </div>
                 <span
-                  class="
-                    material-icons
-                    home-create__room__sessions__list--element--sort
-                  "
+                  class=" material-icons home-create__room__sessions__list--element--sort"
                   :class="{
                     'home-create__room__sessions__list--element--sort--dragging':
                       isDragging === true,
@@ -60,7 +57,7 @@
       </div>
       <div class="home-create__room__add">
         <div class="home-create__room__add--button" @click="addSession">
-          <span class="material-icons"> add </span>セッション作成
+          <span class="material-icons"> add </span>セッションを追加
         </div>
         <div
           class="home-create__room__add--collective-button"
@@ -74,7 +71,7 @@
       class="home-create__create-new-event-button"
       @click="$modal.show('home-creation-completed-modal')"
     >
-      イベントを作成
+      この内容で作成
     </button>
     <AddSessionsModal />
     <CreationCompletedModal />

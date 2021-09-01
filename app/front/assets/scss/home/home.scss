@@ -6,7 +6,7 @@
     top: 0;
     background-color: $admin-primary;
     color: white;
-    @include text-size("lg");
+    @include text-size("xl");
     @include home-padding-layout(0.5);
     a{
       @include invalidated-a-style;
@@ -26,13 +26,13 @@
 .home-create{
   &__header{
     margin: 0 0 1.5rem 0;
-    @include text-size("lg")
+    @include text-size("xl")
   }
   &__event-name{
     margin: 0 0 1.5rem 0;
     &--title{
       margin: 0 0 0.5rem 0;
-      @include text-size("mdi")
+      @include text-size("lg")
     }
     &--input{
       width: 100%;
@@ -45,7 +45,7 @@
   &__room{
     margin: 0 0 2rem 0;
     &--title{
-      @include text-size("mdi")
+      @include text-size("lg")
     }
     &__sessions{
       display: grid;
@@ -119,7 +119,7 @@
         .material-icons{
           font-size: 0.9rem;
         }
-        @include text-size("sm")
+        @include text-size("normal")
       }
     }
   }
@@ -206,13 +206,13 @@
       }
       &--title{
         margin: 0 0 5px 0;
-        @include text-size("sm");
+        @include text-size("normal");
         @media screen and (min-width: $small+px) {
           margin: 10px 5px 0 0;
         }
       }
       &__detail{
-        @include text-size("sm");
+        @include text-size("normal");
         @include white-text-box;
         @media screen and (min-width: $small+px) {
           display: flex;

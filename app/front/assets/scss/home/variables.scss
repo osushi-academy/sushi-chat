@@ -15,7 +15,7 @@
   border: 2px solid;
   border-radius: 4px;
   background:rgba(255, 255, 255, 0);
-  padding: 3px 6px;
+  padding: 12px 20px;
   text-decoration:none;
   .material-icons{
     margin-left: -3px;
@@ -31,8 +31,11 @@
   @if $size=="normal"{
     font-size: 0.9rem;
   }
-  @else if $size=="lg"{
+  @else if $size=="xl"{
     font-size: 1.5rem;
+  }
+  @else if $size=="lg"{
+    font-size: 1.2rem;
   }
   @else if $size=="mdi"{
     font-size: 1rem;
