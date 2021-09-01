@@ -32,7 +32,7 @@ createSocketIOServer(
 
 const PORT = process.env.PORT || 7000
 // サーバーをたてる
-httpServer.listen(PORT, function () {
+httpServer.listen(PORT, () => {
   console.log("server listening. Port:" + PORT)
 })
 
