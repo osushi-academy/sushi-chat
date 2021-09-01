@@ -4,16 +4,20 @@ import User from "../../../domain/user/User"
 class EphemeralUserRepository implements IUserRepository {
   private readonly users: Record<string, User> = {}
 
-  create(user: User): void {
+  public create(user: User): void {
     this.users[user.id] = user
   }
 
-  update(user: User): void {
+  public update(user: User): void {
     this.users[user.id] = user
   }
 
-  find(userId: string): User {
+  public find(userId: string): User {
     return this.users[userId]
+  }
+
+  public selectByRoomId(roomId: string): User[] {
+    return [...Object.values(this.users).filter((u) => u.roomId === roomId)]
   }
 }
 

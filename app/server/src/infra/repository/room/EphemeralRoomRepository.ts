@@ -8,8 +8,8 @@ class EphemeralRoomRepository implements IRoomRepository {
     this.rooms[room.id] = room
   }
 
-  public find(roomId: string): RoomClass {
-    return this.rooms[roomId]
+  public async find(roomId: string): Promise<RoomClass> {
+    return Promise.resolve(this.rooms[roomId])
   }
 
   public update(room: RoomClass): void {

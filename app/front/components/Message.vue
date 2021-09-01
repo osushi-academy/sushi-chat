@@ -6,7 +6,10 @@
       class="comment admin"
     >
       <div class="icon-wrapper">
-        <img :src="icon" alt="" />
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
         <div class="admin-badge">運 営</div>
       </div>
       <div class="text">
@@ -24,7 +27,10 @@
       @click="clickCard"
     >
       <div class="icon-wrapper">
-        <img :src="icon" alt="" />
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
       </div>
       <div v-if="message.target == null" class="text">
         <UrlToLink :text="message.content" />
@@ -50,7 +56,10 @@
       @click="clickCard"
     >
       <div class="icon-wrapper">
-        <img :src="icon" alt="" />
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
         <div class="question-badge">Q</div>
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
@@ -72,7 +81,10 @@
       @click="clickCard"
     >
       <div class="icon-wrapper">
-        <img :src="icon" alt="" />
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
         <div class="answer-badge">A</div>
         <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
       </div>
@@ -96,7 +108,10 @@
     <!--Reaction Message-->
     <article v-else-if="message.type == 'reaction'" class="reaction">
       <div class="icon-wrapper">
-        <img :src="icon" alt="" />
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
       </div>
       <span class="material-icons"> thumb_up </span>
       <div class="long-text">
@@ -124,6 +139,7 @@
 <script lang="ts">
 import Vue, { PropOptions } from "vue"
 import UrlToLink from "@/components/UrlToLink.vue"
+import ICONS from "@/utils/icons"
 import { ChatItemPropType } from "~/models/contents"
 
 export default Vue.extend({
@@ -138,8 +154,8 @@ export default Vue.extend({
     } as PropOptions<ChatItemPropType>,
   },
   computed: {
-    icon(): { icon: unknown } {
-      return ICONS[this.$props.message.iconId]?.icon ?? ICONS[0].icon
+    icon() {
+      return ICONS[this.$props.message.iconId] ?? ICONS[0]
     },
   },
   methods: {
@@ -162,19 +178,4 @@ export default Vue.extend({
     },
   },
 })
-
-const ICONS = [
-  { icon: require("@/assets/img/tea.png") },
-  { icon: require("@/assets/img/sushi_akami.png") },
-  { icon: require("@/assets/img/sushi_ebi.png") },
-  { icon: require("@/assets/img/sushi_harasu.png") },
-  { icon: require("@/assets/img/sushi_ikura.png") },
-  { icon: require("@/assets/img/sushi_iwashi.png") },
-  { icon: require("@/assets/img/sushi_kai_hokkigai.png") },
-  { icon: require("@/assets/img/sushi_salmon.png") },
-  { icon: require("@/assets/img/sushi_shirasu.png") },
-  { icon: require("@/assets/img/sushi_tai.png") },
-  { icon: require("@/assets/img/sushi_uni.png") },
-  { icon: require("@/assets/img/sushi_syari.png") },
-]
 </script>

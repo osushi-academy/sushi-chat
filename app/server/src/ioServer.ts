@@ -81,6 +81,7 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            chatItemRepository,
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
@@ -105,23 +106,19 @@ const createSocketIOServer = async (
       })
 
       // 管理者がルームに参加する
-      socket.on("ADMIN_ENTER_ROOM", (received, callback) => {
+      socket.on("ADMIN_ENTER_ROOM", async (received, callback) => {
         try {
           const userService = new UserService(
             userRepository,
             roomRepository,
             new UserDelivery(socket, io),
           )
-          const room = userService.adminEnterRoom({
+          const response = await userService.adminEnterRoom({
             adminId: socket.id,
             roomId: received.roomId,
           })
 
-          callback({
-            chatItems: room.getChatItems(),
-            topics: room.topics,
-            activeUserCount: room.activeUserCount,
-          })
+          callback(response)
         } catch (e) {
           console.error(
             `${e.message ?? "Unknown error."} (ADMIN_ENTER_ROOM)`,
@@ -131,24 +128,20 @@ const createSocketIOServer = async (
       })
 
       // ルームに参加する
-      socket.on("ENTER_ROOM", (received, callback) => {
+      socket.on("ENTER_ROOM", async (received, callback) => {
         try {
           const userService = new UserService(
             userRepository,
             roomRepository,
             new UserDelivery(socket, io),
           )
-          const room = userService.enterRoom({
+          const response = await userService.enterRoom({
             userId: socket.id,
             roomId: received.roomId,
             iconId: received.iconId,
           })
 
-          callback({
-            chatItems: room.getChatItems(),
-            topics: room.topics,
-            activeUserCount: room.activeUserCount,
-          })
+          callback(response)
         } catch (e) {
           console.log(
             `${e.message ?? "Unknown error."} (ENTER_ROOM)`,
@@ -163,6 +156,7 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            chatItemRepository,
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
@@ -182,6 +176,7 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            chatItemRepository,
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
@@ -279,6 +274,7 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            chatItemRepository,
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
@@ -298,6 +294,7 @@ const createSocketIOServer = async (
           const roomService = new RoomService(
             roomRepository,
             userRepository,
+            chatItemRepository,
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),

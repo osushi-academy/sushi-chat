@@ -24,8 +24,8 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from "vue"
-import { TopicState } from "@/models/contents"
 import { DownloadIcon, ZapIcon } from "vue-feather-icons"
+import { TopicState } from "@/models/contents"
 import { UserItemStore } from "~/store"
 
 export default Vue.extend({
