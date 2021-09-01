@@ -11,7 +11,7 @@
         <div class="home-create__room__sessions__index">
           <div v-for="num in sessionList.length" :key="num">
             <div class="home-create__room__sessions__index--element">
-              <span v-if="device != 'smartphone'">セッション</span>{{ num }}
+              {{ num }}.
             </div>
           </div>
         </div>
@@ -42,13 +42,13 @@
                   </div>
                 </div>
                 <span
-                  class=" material-icons home-create__room__sessions__list--element--sort"
+                  class="home-create__room__sessions__list--element--sort"
                   :class="{
                     'home-create__room__sessions__list--element--sort--dragging':
                       isDragging === true,
                   }"
                 >
-                  menu
+                  <span class="material-icons">menu</span>
                 </span>
               </div>
             </transition-group>
@@ -84,7 +84,6 @@ import VModal from "vue-js-modal"
 import draggable from "vuedraggable"
 import AddSessionsModal from "@/components/Home/AddSessionsModal.vue"
 import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue"
-import { DeviceStore } from "~/store"
 
 Vue.use(VModal)
 type DataType = {
@@ -112,9 +111,6 @@ export default Vue.extend({
     }
   },
   computed: {
-    device() {
-      return DeviceStore.device
-    },
     dragOptions() {
       return {
         animation: 200,

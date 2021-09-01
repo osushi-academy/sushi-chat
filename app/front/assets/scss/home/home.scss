@@ -8,9 +8,7 @@
     color: white;
     @include text-size("xl");
     @include home-padding-layout(0.5);
-    a{
-      @include invalidated-a-style;
-    }
+    @include invalidated-a-style;
   }
   &__main{
     @include home-padding-layout(1);
@@ -18,8 +16,80 @@
 }
 
 .home-top{
-  &__add-new-event-button{
-    @include home-button-text;
+  &__header{
+    margin: 0 0 1.5rem 0;
+    @include text-size("lg");
+  }
+  &__new-event{
+    margin: 0 0 2rem 0;
+    &--input{
+      width: 100%;
+      margin: 0 0 1rem 0;
+      @include white-text-box($expand:"true");
+    }
+    &--button{
+      margin:  0 auto;
+      @include home-button-text;
+    }
+  }
+  &__event{
+    margin: 0 0 1.5rem 0;
+    &--title{
+      margin: 0 0 0.7rem 0;
+      @include text-size("mdi");
+    }
+    &__list{
+      @include home-event-list-element;
+    }
+  }
+  &__inquiry{
+    margin: 3rem 0;
+    &--title{
+      margin: 0 0 0.5rem 0;
+      @include text-size("mdi");
+    }
+    &--content{
+      a{
+        text-decoration: underline !important;
+      }
+      @include invalidated-a-style;
+    }
+  }
+  &__account{
+    margin: 0 0 2rem 0;
+    &--title{
+      margin: 0 0 0.5rem 0;
+      @include text-size("mdi");
+    }
+    &--content{
+      @media screen and (min-width: $small+px) {
+        display: flex;
+        align-items: center;
+      }
+    }
+    &--name{
+      margin: 0 1rem 1rem 0;
+      @media screen and (min-width: $small+px) {
+        display: flex;
+        align-items: center;
+        margin: 0 1rem 0 0;
+      }
+    }
+    &--logout-button{
+      display: inline !important;
+      @include home-button-text;
+    }
+  }
+  &__other{
+    margin: 0 0 1.5rem 0;
+    &--title{
+      margin: 0 0 1rem 0;
+      @include text-size("mdi");
+    }
+    &--delete-button{
+      display: inline !important;
+      @include home-button-text($danger);
+    }
   }
 }
 
@@ -37,9 +107,6 @@
     &--input{
       width: 100%;
       @include white-text-box($expand:"true");
-      &:focus{
-        outline: none;
-      }
     }
   }
   &__room{
@@ -56,7 +123,7 @@
         margin: 0 0.5rem 0 0;
         &--element{
           margin: 0 0 0.5rem 0;
-          padding: 0.625rem 0;
+          padding: 0.5rem 0;
         }
       }
       &__list{
@@ -70,36 +137,24 @@
             display: flex;
             flex: 1;
             margin: 0 0.5rem 0 0;
+            padding: 0 !important;
             @include white-text-box($expand:"true");
             input{
               border: none;
               flex: 1;
               padding: 0;
-              margin: 0 0.5rem 0 0;
+              @include white-text-box($expand:"true");
               &:focus{
                 outline: none;
               }
             }
           }
           &--remove{
-            width: 24px;
-            height: 24px;
-            border: 2px solid;
-            color: #F07B7B;
-            border-radius: 100%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            .material-icons{
-              font-weight: bold;
-            }
-            &:hover{
-              cursor: pointer;
-            }
+            @include material-icon-button($size:"sm",$color:#F07B7B,$border:"solid");
           }
           &--sort{
-            cursor: grab;
-            color: $text-gray;
+            cursor: grab !important;
+            @include material-icon-button;
             &--dragging{
               cursor: grabbing !important;
             }
@@ -192,8 +247,8 @@
     &--description{
       a{
         text-decoration: underline !important;
-        @include invalidated-a-style;
       }
+      @include invalidated-a-style;
     }
   }
   &__invitation{
