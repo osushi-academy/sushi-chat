@@ -29,6 +29,8 @@ https://user-images.githubusercontent.com/65712721/125596302-f5606786-3974-4ce7-
 - その他：Github Discord Notion GithubActions（自動デプロイ）
 
 ## ローカルでの実行方法
+※サーバーサイドの実行にはDB等の設定が必要です([詳しくはこちら](./app/server/README.md#1.-DBの準備))
+
 ### 初回のみ
 ライブラリのインストール
 ```
