@@ -4,6 +4,7 @@ resource "aws_autoscaling_group" "main" {
   min_size            = 2
   vpc_zone_identifier = [aws_subnet.public_a.id, aws_subnet.public_c.id]
   target_group_arns   = [aws_lb_target_group.main.arn]
+  health_check_type   = "ELB"
 
   depends_on = [aws_db_instance.main, aws_elasticache_cluster.main]
 
