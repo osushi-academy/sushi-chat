@@ -1,4 +1,4 @@
-import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
+import { Module, VuexModule, Mutation } from "vuex-module-decorators"
 import { TopicState } from "~/models/contents"
 
 type TopicStateItem = { [key: string]: TopicState }
@@ -9,7 +9,7 @@ type TopicStateItem = { [key: string]: TopicState }
   namespaced: true,
 })
 export default class TopicStateItems extends VuexModule {
-  private _topicStateItems: TopicStateItem = {};
+  private _topicStateItems: TopicStateItem = {}
 
   public get topicStateItems(): TopicStateItem {
     return this._topicStateItems
@@ -21,7 +21,7 @@ export default class TopicStateItems extends VuexModule {
   }
 
   @Mutation
-  public change({key, state}: {key: string, state: TopicState}) {
+  public change({ key, state }: { key: string; state: TopicState }) {
     this._topicStateItems[key] = state
   }
 }

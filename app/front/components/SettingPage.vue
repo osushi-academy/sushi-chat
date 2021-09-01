@@ -17,7 +17,8 @@
             <button
               class="material-icons copy-button"
               :disabled="
-                topics.findIndex((t) => topicStateItems[t.id] === 'active') == null
+                topics.findIndex((t) => topicStateItems[t.id] === 'active') ==
+                null
               "
               @click="writeToClipboard"
             >
@@ -70,7 +71,7 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
 import ICONS from "@/utils/icons"
 import { Topic } from "@/models/contents"
 import { UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
@@ -88,7 +89,7 @@ export default Vue.extend({
     },
   },
   computed: {
-    topics(): Topic[]{
+    topics(): Topic[] {
       return TopicStore.topics
     },
     topicStateItems() {
@@ -119,7 +120,9 @@ export default Vue.extend({
     clickPlayPauseButton(topicId: string) {
       if (this.topicStateItems[topicId] === "active") {
         this.$emit("change-topic-state", topicId, "paused")
-      } else if (this.topicStateItems[topicId] === ("paused" || "not-started")) {
+      } else if (
+        this.topicStateItems[topicId] === ("paused" || "not-started")
+      ) {
         this.$emit("change-topic-state", topicId, "active")
       }
     },
@@ -127,7 +130,7 @@ export default Vue.extend({
       if (
         confirm("本当にこのトピックを終了しますか？この操作は取り消せません")
       ) {
-        TopicStateItemStore.change({key: topicId, state: "finished"})
+        TopicStateItemStore.change({ key: topicId, state: "finished" })
         this.$emit("change-topic-state", topicId, "closed")
       }
     },

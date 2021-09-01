@@ -39,7 +39,8 @@
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
+import type { PropOptions } from "vue"
 import { randomWaitedLoog } from "@/utils/waitedLoop"
 import { HSLColor, getRandomColor } from "@/utils/color"
 
