@@ -5,16 +5,22 @@ import ChatItems from "~/store/chatItems"
 import Device from "~/store/device"
 import UserItems from "~/store/userItems"
 import Stamps from "~/store/stamps"
+import Topics from "~/store/topics"
+import TopicStateItems from "~/store/topicStateItems"
 
 let ChatItemStore: ChatItems
 let DeviceStore: Device
 let UserItemStore: UserItems
 let StampStore: Stamps
+let TopicStore: Topics
+let TopicStateItemStore: TopicStateItems
 function initialiseStores(store: Store<any>): void {
   ChatItemStore = getModule(ChatItems, store)
   DeviceStore = getModule(Device, store)
   UserItemStore = getModule(UserItems, store)
   StampStore = getModule(Stamps, store)
+  TopicStore = getModule(Topics, store)
+  TopicStateItemStore = getModule(TopicStateItems, store)
 }
 
-export { initialiseStores, ChatItemStore, DeviceStore, UserItemStore, StampStore }
+export { initialiseStores, ChatItemStore, DeviceStore, UserItemStore, StampStore, TopicStore, TopicStateItemStore }

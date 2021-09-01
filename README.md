@@ -69,7 +69,7 @@ yarn dev:shared
         <img src="https://github.com/yuta-ike.png" width="50px;">
       </a>
     </th>
-    <td>yuta-ike・フロントエンド/バックエンド担当
+    <td>yuta-ike・フロントエンド/バックエンド/デザイン担当
       <br>
       <a href="http://twitter.com/Selria1">
         <img height="20" src="https://img.shields.io/twitter/follow/Selria1?label=Twitter&logo=twitter&style=flat">
@@ -130,7 +130,7 @@ yarn dev:shared
 </table>
 <br>
 
-継続開発2からはインフラ担当として新たにメンバー1名を迎え、5人体制で開発をしています。
+継続開発2からは新たにメンバー1名を迎え、5人体制で開発をしています。
 <table>
   <tr>
     <th>
@@ -138,7 +138,7 @@ yarn dev:shared
         <img src="https://github.com/TOMOFUMI-KONDO.png" width="50px;">
       </a>
     </th>
-    <td>tomokon・インフラ担当
+    <td>tomokon・バックエンド/インフラ担当
       <br>
       <a href="http://twitter.com/tomokon_0314">
         <img height="20" src="https://img.shields.io/twitter/follow/tomokon_0314?label=Twitter&logo=twitter&style=flat">
