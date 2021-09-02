@@ -10,6 +10,7 @@ import { v4 as uuid } from "uuid"
 import RoomRepository from "../infra/repository/room/RoomRepository"
 import ChatItemRepository from "../infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "../infra/repository/stamp/StampRepository"
+import RoomFactory from "../infra/factory/RoomFactory"
 
 describe("機能テスト", () => {
   let io: Server
@@ -28,6 +29,7 @@ describe("機能テスト", () => {
       new RoomRepository(userRepository, chatItemRepository, stampRepository),
       chatItemRepository,
       stampRepository,
+      new RoomFactory(),
     )
     httpServer.listen(async () => {
       const port = (httpServer as any).address().port

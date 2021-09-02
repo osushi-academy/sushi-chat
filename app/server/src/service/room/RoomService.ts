@@ -7,6 +7,7 @@ import User from "../../domain/user/User"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import IRoomDelivery from "../../domain/room/IRoomDelivery"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
+import IRoomFactory from "../../domain/room/IRoomFactory"
 
 class RoomService {
   constructor(
@@ -16,13 +17,14 @@ class RoomService {
     private readonly roomDelivery: IRoomDelivery,
     private readonly chatItemDelivery: IChatItemDelivery,
     private readonly stampDelivery: IStampDelivery,
+    private readonly roomFactory: IRoomFactory,
   ) {}
 
   public build(command: BuildRoomCommand): RoomClass {
-    const room = new RoomClass(command.id, command.title, command.topics)
+    const room = this.roomFactory.create(command.title, command.topics)
     this.roomRepository.build(room)
 
-    console.log(`new room build: ${command.id}`)
+    console.log(`new room build: ${room.id}`)
 
     return room
   }

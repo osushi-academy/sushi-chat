@@ -1,6 +1,5 @@
 import { Server, Socket } from "socket.io"
 import { Server as HttpServer } from "http"
-import { v4 as uuid } from "uuid"
 import { ReceiveEventParams, ReceiveEventResponses } from "./events"
 import { instrument } from "@socket.io/admin-ui"
 import { generateHash } from "./utils/crypt"
@@ -17,6 +16,7 @@ import IStampRepository from "./domain/stamp/IStampRepository"
 import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
 import RoomDelivery from "./infra/delivery/room/RoomDelivery"
 import UserDelivery from "./infra/delivery/user/UserDelivery"
+import IRoomFactory from "./domain/room/IRoomFactory"
 
 const createSocketIOServer = async (
   httpServer: HttpServer,
@@ -24,6 +24,7 @@ const createSocketIOServer = async (
   roomRepository: IRoomRepository,
   chatItemRepository: IChatItemRepository,
   stampRepository: IStampRepository,
+  roomFactory: IRoomFactory,
 ) => {
   const io = new Server(httpServer, {
     cors: {
@@ -81,8 +82,6 @@ const createSocketIOServer = async (
       // ルームをたてる
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
         try {
-          // TODO: roomIdの生成ってRepositoryの責務？
-          const roomId = uuid()
           // xxxServiceってUserServiceと同様に"connect"イベント直後にインスタンス化して使いまわした方が良いと思ったんだけどどうです？
           const roomService = new RoomService(
             roomRepository,
@@ -91,9 +90,9 @@ const createSocketIOServer = async (
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
+            roomFactory,
           )
           const newRoom = roomService.build({
-            id: roomId,
             title: received.title,
             topics: received.topics,
           })
@@ -167,6 +166,7 @@ const createSocketIOServer = async (
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
+            roomFactory,
           )
           roomService.start(socket.id)
         } catch (e) {
@@ -187,6 +187,7 @@ const createSocketIOServer = async (
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
+            roomFactory,
           )
           roomService.changeTopicState({
             userId: socket.id,
@@ -285,6 +286,7 @@ const createSocketIOServer = async (
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
+            roomFactory,
           )
           roomService.finish(socket.id)
         } catch (e) {
@@ -305,6 +307,7 @@ const createSocketIOServer = async (
             new RoomDelivery(io),
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
+            roomFactory,
           )
           roomService.close(socket.id)
           // TODO: 全ユーザーをSocketIO Roomから強制退室（leave）させる処理があった方が良いかも？（なくても良さそうだけど）
