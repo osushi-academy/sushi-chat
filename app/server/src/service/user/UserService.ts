@@ -30,6 +30,7 @@ class UserService {
     topics: Topic[]
     activeUserCount: number
   }> {
+    // TODO: roomIdの存在チェック挟んだ方が良さそう
     const admin = this.userRepository.find(command.adminId)
     admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
 
@@ -55,6 +56,7 @@ class UserService {
     topics: Topic[]
     activeUserCount: number
   }> {
+    // TODO: roomIdの存在チェック挟んだ方が良さそう
     const user = this.userRepository.find(command.userId)
     user.enterRoom(command.roomId, command.iconId)
 

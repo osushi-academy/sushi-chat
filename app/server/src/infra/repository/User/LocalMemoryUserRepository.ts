@@ -2,6 +2,7 @@ import IUserRepository from "../../../domain/user/IUserRepository"
 import User from "../../../domain/user/User"
 
 class LocalMemoryUserRepository implements IUserRepository {
+  // FIXME: シングルトンじゃなくて良いかも?
   private static instance: LocalMemoryUserRepository
   public static getInstance(): LocalMemoryUserRepository {
     if (!this.instance) {
@@ -28,6 +29,7 @@ class LocalMemoryUserRepository implements IUserRepository {
   }
 
   public selectByRoomId(roomId: string): User[] {
+    // FIXME: filterは新しい配列を返すので[...  ]をかます必要はなさそう！
     return [...Object.values(this.users).filter((u) => u.roomId === roomId)]
   }
 }

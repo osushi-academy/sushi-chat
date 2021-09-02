@@ -27,10 +27,13 @@ const createSocketIOServer = async (
 ) => {
   const io = new Server(httpServer, {
     cors: {
+      // TODO: 正しいOrigin情報を指定する
       origin: "*",
       methods: ["GET", "POST"],
     },
   })
+
+  // SocketIO Adminの設定
   if (
     process.env.NODE_ENV == "production" &&
     process.env.SOCKET_IO_ADMIN_UI_PASSWORD === undefined
@@ -47,6 +50,8 @@ const createSocketIOServer = async (
       password: hashed,
     },
   })
+
+  // TODO: 削除して良い?
   let activeUserCount = 0
 
   //本体
@@ -63,6 +68,8 @@ const createSocketIOServer = async (
         Record<string, never>
       >,
     ) => {
+      // TODO: ↓変数に切り出したさを感じたんだけどどうだろう（socket.id = userIdを意識するのが後のコード読むときコストになるかも）
+      // const userId = socket.id
       new UserService(
         userRepository,
         roomRepository,
@@ -77,7 +84,9 @@ const createSocketIOServer = async (
       // ルームをたてる
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
         try {
+          // TODO: roomIdの生成ってRepositoryの責務？
           const roomId = uuid()
+          // xxxServiceってUserServiceと同様に"connect"イベント直後にインスタンス化して使いまわした方が良いと思ったんだけどどうです？
           const roomService = new RoomService(
             roomRepository,
             userRepository,
@@ -135,6 +144,7 @@ const createSocketIOServer = async (
             roomRepository,
             new UserDelivery(socket, io),
           )
+          // TODO: iconIdのバリデーション挟んだ方が良いかね？
           const response = await userService.enterRoom({
             userId: socket.id,
             roomId: received.roomId,
@@ -194,7 +204,7 @@ const createSocketIOServer = async (
         }
       })
 
-      //messageで送られてきたときの処理
+      // messageで送られてきたときの処理
       socket.on("POST_CHAT_ITEM", (received) => {
         try {
           const chatItemService = new ChatItemService(
@@ -300,6 +310,7 @@ const createSocketIOServer = async (
             StampDelivery.getInstance(io),
           )
           roomService.close(socket.id)
+          // TODO: 全ユーザーをSocketIO Roomから強制退室（leave）させる処理があった方が良いかも？（なくても良さそうだけど）
         } catch (e) {
           console.error(
             `${e.message ?? "Unknown error."} (ADMIN_CLOSE_ROOM)`,

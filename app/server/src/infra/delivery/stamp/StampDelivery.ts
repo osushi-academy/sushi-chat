@@ -34,6 +34,7 @@ class StampDelivery implements IStampDelivery {
 
     this.intervalDeliveryTimer = setInterval(() => {
       if (this.stamps.length > 0) {
+        // TODO: 動作未確認なんだけど、this.stampsに複数のルームのスタンプ情報入ることってないっけ？
         const roomId = this.stamps[0].roomId
         const deliveredStamps: DeliveredStamp[] = this.stamps.map((s) => ({
           userId: s.userId,

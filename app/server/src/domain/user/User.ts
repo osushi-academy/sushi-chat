@@ -1,3 +1,5 @@
+import RoomClass from "../room/Room"
+
 class User {
   public static readonly ADMIN_ICON_ID = "0"
 
@@ -11,8 +13,8 @@ class User {
   }
 
   public getRoomIdOrThrow(): string {
-    this.assertIsInRoom()
-    return this._roomId as string
+    this.assertIsInRoom(this._roomId)
+    return this._roomId
   }
 
   public get iconId(): string | null {
@@ -20,8 +22,8 @@ class User {
   }
 
   public getIconIdOrThrow(): string {
-    this.assertHasIconId()
-    return this._iconId as string
+    this.assertHasIconId(this._iconId)
+    return this._iconId
   }
 
   public enterRoom(roomId: string, iconId: string): void {
@@ -30,21 +32,23 @@ class User {
   }
 
   public leaveRoom(): void {
-    this.assertIsInRoom()
-    this.assertHasIconId()
+    this.assertIsInRoom(this._roomId)
+    this.assertHasIconId(this._iconId)
 
     this._roomId = null
     this._iconId = null
   }
 
-  private assertIsInRoom(): void {
-    if (this._roomId === null) {
+  // NOTE: こうするとasを撲滅できる.（純関数になるので切り出しても良いかも?）
+  //       が、毎度引数を指定する必要があってめんどいのでそこまでやるメリットがあるかと言われれば...
+  private assertIsInRoom(roomId: string | null): asserts roomId is string {
+    if (roomId === null) {
       throw new Error(`User(id:${this.id}) is not in any room.`)
     }
   }
 
-  private assertHasIconId(): void {
-    if (this._iconId === null) {
+  private assertHasIconId(iconId: string | null): asserts iconId is string {
+    if (iconId === null) {
       throw new Error(`User(id:${this.id}) doesn't have iconId.`)
     }
   }

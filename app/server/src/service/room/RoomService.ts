@@ -96,6 +96,7 @@ class RoomService {
     return room
   }
 
+  // TODO: findUserOrThrowの方が良い?ServiceはOrThrow付けないルールで揃えたりする？
   private findUser(userId: string): User {
     const user = this.userRepository.find(userId)
     if (!user) {
