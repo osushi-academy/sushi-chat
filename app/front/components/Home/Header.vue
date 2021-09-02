@@ -1,6 +1,6 @@
 <template>
   <div class="home__header">
-    <a href="/home"><slot /></a>
+    <NuxtLink to="/home"><slot /></NuxtLink>
   </div>
 </template>
 

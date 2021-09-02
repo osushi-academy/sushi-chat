@@ -7,9 +7,9 @@
         placeholder="新しいイベントの名前を入力"
       />
       <button class="home-top__new-event--button">
-        <a href="/room/create">
+        <NuxtLink to="/room/create">
           <span class="material-icons"> add </span>新しいイベントを追加
-        </a>
+        </NuxtLink>
       </button>
     </section>
     <section class="home-top__event">
