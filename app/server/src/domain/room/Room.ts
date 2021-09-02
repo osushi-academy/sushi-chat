@@ -316,9 +316,9 @@ class RoomClass {
 
   private assertRoomIsNotOpen() {
     if (this._isOpened) {
-      // TODO: エラーの種別を捕捉できる仕組みが必要かも？カスタムエラーを投げるかエラーコードを含めるか
-      // → 複数管理者がほぼ同時にルーム終了をリクエストした場合、2番手のエラーは揉み消す必要があるので
-      //   serviceかcontrollerでエラーの種別を捕捉できた方が良さそう
+      // TODO: エラーの種別を捕捉できる仕組みが必要。カスタムのエラーを定義する。
+      //  → 例：複数管理者がほぼ同時にルーム開始/終了をリクエストした場合、2番手のエラーはserviceかcontrollerでエラーの
+      //         種別を捕捉できた方が良さそう
       throw new Error(
         `[sushi-chat-server] Room(id: ${this.id}) has already opened.`,
       )
