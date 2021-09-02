@@ -181,6 +181,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/Stamp'
+              pinnedChatItemIds:
+                type: array
+                items:
+                  type: string
             required:
               - result
               - chatItems
@@ -256,6 +260,10 @@ paths:
               activeUserCount:
                 type: integer
                 description: アクティブユーザ数
+              pinnedChatItemIds:
+                type: array
+                items:
+                  type: string
         '400':
           $ref: '#/responses/Failure'
       description: |-
@@ -435,20 +443,7 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Stamp'
-  /ADMIN_FINISH_ROOM:
-    put:
-      summary: ルームを終了
-      operationId: put-ADMIN_FINISH_ROOM
-      responses:
-        '200':
-          $ref: '#/responses/Success'
-        '400':
-          $ref: '#/responses/Failure'
-      description: '**管理者** ルームを終了する。これ以降はコメントやスタンプが投稿できなくなる。'
-      parameters: []
-      tags:
-        - SocketIO
-  /POST_PIN_MESSAGE:
+  /POST_PINNED_MESSAGE:
     put:
       summary: Your GET endpoint
       tags: []
@@ -471,7 +466,7 @@ paths:
                 type: string
           description: ''
     parameters: []
-  /PUB_PIN_MESSAGE:
+  /PUB_PINNED_MESSAGE:
     get:
       summary: Your GET endpoint
       tags: []
@@ -490,6 +485,20 @@ paths:
             properties:
               topicId:
                 type: number
+    parameters: []
+  /ADMIN_FINISH_ROOM:
+    put:
+      summary: ルームを終了
+      operationId: put-ADMIN_FINISH_ROOM
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      description: '**管理者** ルームを終了する。これ以降はコメントやスタンプが投稿できなくなる。'
+      parameters: []
+      tags:
+        - SocketIO
 definitions:
   Topic:
     title: Topic
