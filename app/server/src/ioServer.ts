@@ -68,15 +68,12 @@ const createSocketIOServer = async (
         Record<string, never>
       >,
     ) => {
-      // TODO: ↓変数に切り出したさを感じたんだけどどうだろう（socket.id = userIdを意識するのが後のコード読むときコストになるかも）
-      // const userId = socket.id
+      const userId = socket.id
       new UserService(
         userRepository,
         roomRepository,
         new UserDelivery(socket, io),
-      ).createUser({
-        userId: socket.id,
-      })
+      ).createUser({ userId })
 
       activeUserCount++
       console.log("user joined, now", activeUserCount)
