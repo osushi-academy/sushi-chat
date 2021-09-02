@@ -33,17 +33,27 @@ class StampDelivery implements IStampDelivery {
     if (this.intervalDeliveryTimer !== null) return
 
     this.intervalDeliveryTimer = setInterval(() => {
-      if (this.stamps.length > 0) {
-        // TODO: 動作未確認なんだけど、this.stampsに複数のルームのスタンプ情報入ることってないっけ？
-        const roomId = this.stamps[0].roomId
-        const deliveredStamps: DeliveredStamp[] = this.stamps.map((s) => ({
+      if (this.stamps.length < 1) return
+
+      const stampsPerRoom: Record<string, DeliveredStamp[]> = {}
+      for (const s of this.stamps) {
+        const stamp = {
           userId: s.userId,
           topicId: s.topicId,
           timestamp: s.timestamp,
-        }))
-        this.globalSocket.to(roomId).emit("PUB_STAMP", deliveredStamps)
-        this.stamps.length = 0
+        }
+        if (s.roomId in stampsPerRoom) {
+          stampsPerRoom[s.roomId].push(stamp)
+        } else {
+          stampsPerRoom[s.roomId] = [stamp]
+        }
       }
+
+      for (const [roomId, stamps] of Object.entries(stampsPerRoom)) {
+        this.globalSocket.to(roomId).emit("PUB_STAMP", stamps)
+      }
+
+      this.stamps.length = 0
     }, 2000)
   }
 
