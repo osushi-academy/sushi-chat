@@ -29,8 +29,7 @@ class LocalMemoryUserRepository implements IUserRepository {
   }
 
   public selectByRoomId(roomId: string): User[] {
-    // FIXME: filterは新しい配列を返すので[...  ]をかます必要はなさそう！
-    return [...Object.values(this.users).filter((u) => u.roomId === roomId)]
+    return Object.values(this.users).filter((u) => u.roomId === roomId)
   }
 }
 
