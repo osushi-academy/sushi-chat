@@ -576,6 +576,7 @@ definitions:
       timestamp:
         type: integer
         description: 'タイムスタンプ [ms]（active時以外に投稿されたものはnullになる）'
+        x-nullable: true
     required:
       - id
       - topicId
