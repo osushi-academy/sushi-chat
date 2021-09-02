@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   title: sushi-chat-api
-  version: '1.0'
+  version: 1.0.1
   description: |-
     sushi-chatのAPI定義です。
 
@@ -74,10 +74,6 @@ paths:
                   type: object
                   properties:
                     name:
-                      type: string
-                    description:
-                      type: string
-                    url:
                       type: string
                   required:
                     - name
@@ -257,10 +253,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/Stamp'
-              topics:
-                type: array
-                items:
-                  $ref: '#/definitions/Topic'
               activeUserCount:
                 type: integer
                 description: アクティブユーザ数
@@ -443,57 +435,6 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Stamp'
-  /CHANGE_TOPIC_INFO:
-    post:
-      summary: ''
-      operationId: post-CHANGE_TOPIC_INFO
-      responses:
-        '200':
-          description: OK
-        '400':
-          $ref: '#/responses/Failure'
-      description: トピック情報（descriptionとURL）を変更する
-      parameters:
-        - in: body
-          name: body
-          schema:
-            type: object
-            properties:
-              topicId:
-                type: number
-                minimum: 0
-                exclusiveMinimum: true
-              description:
-                type: string
-                description: 'description, urlのどちらか一方または両方を指定'
-              url:
-                type: string
-                format: uri
-                description: 'description, urlのどちらか一方または両方を指定'
-            required:
-              - topicId
-          description: ''
-      tags:
-        - SocketIO
-  /PUB_TOPIC_INFO:
-    get:
-      summary: Your GET endpoint
-      tags:
-        - SocketIO
-      responses:
-        '200':
-          description: OK
-          schema:
-            type: object
-            properties:
-              result:
-                type: string
-                enum:
-                  - success
-              topic:
-                $ref: '#/definitions/Topic'
-      operationId: get-PUB_TOPIC_INFO
-      description: トピックの変更が通知される
   /ADMIN_FINISH_ROOM:
     put:
       summary: ルームを終了
@@ -507,6 +448,48 @@ paths:
       parameters: []
       tags:
         - SocketIO
+  /POST_PIN_MESSAGE:
+    put:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      operationId: get-SPEAKER_PIN_MESSAGE
+      description: '**スピーカー** メッセージをピン留めする。既にピン留めメッセージがある場合は上書きする'
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              topicId:
+                type: number
+              chatItemId:
+                type: string
+          description: ''
+    parameters: []
+  /PUB_PIN_MESSAGE:
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      operationId: get-PUB_PIN_MESSAGE
+      description: '**スピーカー** メッセージのピン留めを解除する。新しくピン留めする場合は`/POST_PIN_MESSAGE`を使い、単に解除したい場合のみこちらを利用する'
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              topicId:
+                type: number
 definitions:
   Topic:
     title: Topic
@@ -522,11 +505,6 @@ definitions:
         description: トピックの順序を表すindex（1始まり）
       name:
         type: string
-      description:
-        type: string
-      url:
-        type: string
-        format: uri
     required:
       - id
       - order
@@ -656,6 +634,7 @@ definitions:
       - not-started
       - ongoing
       - finished
+      - archived
 basePath: /api
 securityDefinitions:
   Bearer:
