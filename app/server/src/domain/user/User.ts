@@ -1,5 +1,3 @@
-import RoomClass from "../room/Room"
-
 class User {
   public static readonly ADMIN_ICON_ID = "0"
 
@@ -39,8 +37,6 @@ class User {
     this._iconId = null
   }
 
-  // NOTE: こうするとasを撲滅できる.（純関数になるので切り出しても良いかも?）
-  //       が、毎度引数を指定する必要があってめんどいのでそこまでやるメリットがあるかと言われれば...
   private assertIsInRoom(roomId: string | null): asserts roomId is string {
     if (roomId === null) {
       throw new Error(`User(id:${this.id}) is not in any room.`)
