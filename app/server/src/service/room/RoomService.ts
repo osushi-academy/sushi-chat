@@ -30,10 +30,10 @@ class RoomService {
   }
 
   public async start(userId: string) {
-    const user = this.findUser(userId)
+    const user = this.findUserOrThrow(userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = await this.find(roomId)
+    const room = await this.findRoomOrThrow(roomId)
     room.startRoom()
 
     this.roomDelivery.start(room.id)
@@ -42,10 +42,10 @@ class RoomService {
 
   // Roomを終了し、投稿をできなくする。閲覧は可能
   public async finish(userId: string) {
-    const user = this.findUser(userId)
+    const user = this.findUserOrThrow(userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = await this.find(roomId)
+    const room = await this.findRoomOrThrow(roomId)
     room.finishRoom()
 
     this.roomDelivery.finish(room.id)
@@ -55,10 +55,10 @@ class RoomService {
 
   // Roomをアーカイブし、閲覧できなくする。RESTのエンドポイントに移行予定
   public async close(userId: string) {
-    const user = this.findUser(userId)
+    const user = this.findUserOrThrow(userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = await this.find(roomId)
+    const room = await this.findRoomOrThrow(roomId)
     room.closeRoom()
 
     this.roomDelivery.close(room.id)
@@ -66,10 +66,10 @@ class RoomService {
   }
 
   public async changeTopicState(command: ChangeTopicStateCommand) {
-    const user = this.findUser(command.userId)
+    const user = this.findUserOrThrow(command.userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = await this.find(roomId)
+    const room = await this.findRoomOrThrow(roomId)
     const { messages, activeTopic } = room.changeTopicState(
       command.topicId,
       command.type,
@@ -90,7 +90,7 @@ class RoomService {
     }
   }
 
-  private async find(roomId: string): Promise<RoomClass> {
+  private async findRoomOrThrow(roomId: string): Promise<RoomClass> {
     const room = await this.roomRepository.find(roomId)
     if (!room) {
       throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
@@ -98,8 +98,7 @@ class RoomService {
     return room
   }
 
-  // TODO: findUserOrThrowの方が良い?ServiceはOrThrow付けないルールで揃えたりする？
-  private findUser(userId: string): User {
+  private findUserOrThrow(userId: string): User {
     const user = this.userRepository.find(userId)
     if (!user) {
       throw new Error(`User(id :${userId}) was not found.`)

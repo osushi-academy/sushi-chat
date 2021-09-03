@@ -34,7 +34,7 @@ class UserService {
     const admin = this.userRepository.find(command.adminId)
     admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
 
-    const room = await this.findRoom(command.roomId)
+    const room = await this.findRoomOrThrow(command.roomId)
     const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
       room.chatItems,
     )
@@ -60,7 +60,7 @@ class UserService {
     const user = this.userRepository.find(command.userId)
     user.enterRoom(command.roomId, command.iconId)
 
-    const room = await this.findRoom(command.roomId)
+    const room = await this.findRoomOrThrow(command.roomId)
     const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
       room.chatItems,
     )
@@ -82,7 +82,7 @@ class UserService {
     // まだRoomに参加していないユーザーなら何もしない
     if (user.roomId === null) return
 
-    const room = await this.findRoom(user.roomId)
+    const room = await this.findRoomOrThrow(user.roomId)
     const activeUserCount = room.leaveUser(user.id)
 
     this.userDelivery.leaveRoom(user, activeUserCount)
@@ -92,7 +92,7 @@ class UserService {
     this.roomRepository.update(room)
   }
 
-  private async findRoom(roomId: string): Promise<RoomClass> {
+  private async findRoomOrThrow(roomId: string): Promise<RoomClass> {
     const room = await this.roomRepository.find(roomId)
     if (!room) {
       throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
