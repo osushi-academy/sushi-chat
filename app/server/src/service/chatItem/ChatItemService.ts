@@ -29,9 +29,8 @@ class ChatItemService {
     const iconId = user.getIconIdOrThrow()
 
     const room = await this.findRoom(roomId)
-    // NOTE: 好みによるけど command.targetId != null でも良いかもー （nullとundefinedを区別する派ならすまん（無視してくれい））
     const target =
-      command.targetId !== undefined && command.targetId !== null
+      command.targetId != null
         ? ((await this.chatItemRepository.find(command.targetId)) as
             | Message
             | Answer)
