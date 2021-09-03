@@ -28,7 +28,6 @@ const createSocketIOServer = async (
 ) => {
   const io = new Server(httpServer, {
     cors: {
-      // TODO: 正しいOrigin情報を指定する
       origin: "*",
       methods: ["GET", "POST"],
     },
