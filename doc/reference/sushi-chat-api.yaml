@@ -446,7 +446,8 @@ paths:
   /POST_PINNED_MESSAGE:
     put:
       summary: Your GET endpoint
-      tags: []
+      tags:
+        - SocketIO
       responses:
         '200':
           $ref: '#/responses/Success'
@@ -469,7 +470,8 @@ paths:
   /PUB_PINNED_MESSAGE:
     get:
       summary: Your GET endpoint
-      tags: []
+      tags:
+        - SocketIO
       responses:
         '200':
           $ref: '#/responses/Success'
@@ -577,6 +579,8 @@ definitions:
         type: integer
         description: 'タイムスタンプ [ms]（active時以外に投稿されたものはnullになる）'
         x-nullable: true
+      iconId:
+        type: integer
     required:
       - id
       - topicId
