@@ -183,6 +183,7 @@ paths:
                   $ref: '#/definitions/Stamp'
               pinnedChatItemIds:
                 type: array
+                description: ピン留めされているChatItemのID
                 items:
                   type: string
             required:
@@ -262,6 +263,7 @@ paths:
                 description: アクティブユーザ数
               pinnedChatItemIds:
                 type: array
+                description: ピン留めされているChatItemのID
                 items:
                   type: string
         '400':
