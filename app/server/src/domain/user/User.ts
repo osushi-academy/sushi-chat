@@ -25,6 +25,11 @@ class User {
   }
 
   public enterRoom(roomId: string, iconId: string): void {
+    const iconIdInt = parseInt(iconId)
+    if (iconIdInt < 0 || iconIdInt > 10) {
+      throw new Error(`iconId(${iconId}) is invalid: out of 1 to 10`)
+    }
+
     this._roomId = roomId
     this._iconId = iconId
   }
