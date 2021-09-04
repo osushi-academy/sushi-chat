@@ -86,9 +86,13 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { DeviceStore } from "~/store"
 
 export default Vue.extend({
   name: "Home",
   layout: "home",
+  mounted(): void {
+    DeviceStore.determineOs()
+  },
 })
 </script>

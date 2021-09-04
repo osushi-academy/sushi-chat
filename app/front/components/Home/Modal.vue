@@ -41,7 +41,7 @@ export default Vue.extend({
   computed: {
     width() {
       if (DeviceStore.device === "smartphone") {
-        return "90%"
+        return "100%"
       } else {
         return "50%"
       }
