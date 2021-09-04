@@ -85,13 +85,6 @@ entity topics {
     #updated_at: timestamp
 }
 
-entity topics_pinned_chat_items {
-    ~room_id: uuid
-    ~topic_id: int
-    ~chat_item_id: uuid
-    --
-}
-
 entity topic_states {
     +id: int
     --
@@ -124,6 +117,7 @@ entity chat_items {
     ~sender_type_id:
     ~quote_id uuid
     content: string
+    #is_pinned: boolean
     #timestamp: int
     #created_at: timestamp
 }
@@ -170,11 +164,9 @@ admins ||--o{ rooms_admins
 rooms ||--|{ rooms_admins
 rooms }o--|| room_states
 topics }|--|| rooms
-topics ||--o{ topics_pinned_chat_items
 topics }o--|| topic_states
 topics ||--o| topic_opened_at
 topics ||--o| topic_paused_at
-chat_items||--o{ topics_pinned_chat_items
 chat_items }o--|| topics
 chat_items }o--|| users
 chat_items }o--|| chat_item_types
