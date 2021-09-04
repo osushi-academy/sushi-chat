@@ -24,11 +24,10 @@
         :title="''"
         @change-topic-state="changeTopicState"
       />
-      <div v-for="(chatData, index) in chatDataList" :key="index">
+      <div v-for="(topic, index) in topics" :key="index">
         <ChatRoom
           :topic-index="index"
-          :topic-id="chatData.topic.id"
-          :topic-title="chatData.topic.title"
+          :topic-id="topic.id"
           :favorite-callback-register="favoriteCallbackRegister"
           @topic-activate="changeActiveTopic"
         />
@@ -53,11 +52,6 @@ import {
   TopicStore,
   TopicStateItemStore,
 } from "~/store"
-
-// 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
-type ChatData = {
-  topic: Topic
-}
 
 // Data型
 type DataType = {
@@ -89,18 +83,15 @@ export default Vue.extend({
     }
   },
   computed: {
-    chatDataList(): ChatData[] {
-      return this.topics.map((topic) => ({
-        topic,
-      }))
-    },
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
     },
     topics(): Topic[] {
+      // 各トピックの情報
       return TopicStore.topics
     },
     topicStateItems() {
+      // 各トピックの状態
       return TopicStateItemStore.topicStateItems
     },
   },

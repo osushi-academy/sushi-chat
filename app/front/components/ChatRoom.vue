@@ -1,7 +1,7 @@
 <template>
-  <article class="topic-block">
+  <article v-if="topic" class="topic-block">
     <TopicHeader
-      :title="topicIndex + '. ' + topicTitle"
+      :title="topicIndex + '. ' + topic.title"
       :topic-state="topicState"
       @topic-activate="clickTopicActivate"
       @download="clickDownload"
@@ -32,7 +32,7 @@
               <XIcon></XIcon>
             </button>
           </div>
-          <AnalysisGraph :topic-title="topicTitle" :topic-id="topicId" />
+          <AnalysisGraph :topic-title="topic.title" :topic-id="topicId" />
         </div>
         <button
           v-if="topicState === 'finished' && !showGraph"
@@ -84,7 +84,12 @@ import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
-import { ChatItemStore, StampStore, TopicStateItemStore } from "~/store"
+import {
+  ChatItemStore,
+  StampStore,
+  TopicStore,
+  TopicStateItemStore,
+} from "~/store"
 
 type FavoriteCallbackRegisterPropType = (
   topicId: string,
@@ -114,10 +119,6 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    topicTitle: {
-      type: String,
-      required: true,
-    },
     topicIndex: {
       type: Number,
       required: true,
@@ -139,6 +140,9 @@ export default Vue.extend({
       return ChatItemStore.chatItems.filter(
         ({ topicId }) => topicId === this.topicId,
       )
+    },
+    topic() {
+      return TopicStore.topics.find(({ id }) => id === this.topicId)
     },
     topicState() {
       return TopicStateItemStore.topicStateItems[this.topicId]
@@ -246,10 +250,12 @@ export default Vue.extend({
           (message) =>
             "🍣: " + (message as Message).content.replaceAll("\n", "\n") + "\n",
         )
-      exportText(`${this.topicIndex}_${this.topicTitle}_comments`, [
-        this.topicTitle + "\n",
-        ...messages,
-      ])
+      if (this.topic) {
+        exportText(`${this.topicIndex}_${this.topic.title}_comments`, [
+          this.topic.title + "\n",
+          ...messages,
+        ])
+      }
     },
     // 選択したアイテム取り消し
     deselectChatItem() {
