@@ -50,7 +50,7 @@
             (callback) => favoriteCallbackRegister(topicId, callback)
           "
           :disabled="topicState !== 'active'"
-          @favorite="clickFavorite"
+          :topic-id="topicId"
         />
       </div>
       <button
@@ -84,12 +84,7 @@ import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
-import {
-  ChatItemStore,
-  StampStore,
-  TopicStore,
-  TopicStateItemStore,
-} from "~/store"
+import { ChatItemStore, TopicStore, TopicStateItemStore } from "~/store"
 
 type FavoriteCallbackRegisterPropType = (
   topicId: string,
@@ -197,10 +192,6 @@ export default Vue.extend({
     // リアクションボタン
     clickReaction(message: Message) {
       ChatItemStore.postReaction({ message })
-    },
-    // スタンプボタン
-    clickFavorite() {
-      StampStore.sendFavorite(this.topicId)
     },
     // スクロール
     handleScroll: throttle(function (this: any, e: Event) {

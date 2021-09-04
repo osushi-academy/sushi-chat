@@ -39,7 +39,7 @@
 <script lang="ts">
 import Vue from "vue"
 import VModal from "vue-js-modal"
-import { Room, ChatItem, Topic, TopicState, Stamp } from "@/models/contents"
+import { Room, ChatItem, Stamp, Topic, TopicState } from "@/models/contents"
 import { AdminBuildRoomResponse } from "@/models/event"
 import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
@@ -49,6 +49,7 @@ import {
   ChatItemStore,
   DeviceStore,
   UserItemStore,
+  StampStore,
   TopicStore,
   TopicStateItemStore,
 } from "~/store"
@@ -289,13 +290,15 @@ export default Vue.extend({
       topicId: string,
       callback: (count: number) => void,
     ) {
-      const socket = (this as any).socket
       socket.on("PUB_STAMP", (stamps: Stamp[]) => {
         const stampsAboutTopicId = stamps.filter(
-          // スタンプは自分が押したものも通知されるため省く処理を入れています
+          // 自分が押したものも通知されるため省く処理
           (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id,
         )
         if (stampsAboutTopicId.length > 0) {
+          stampsAboutTopicId.forEach((stamp) => {
+            StampStore.add(stamp)
+          })
           callback(stampsAboutTopicId.length)
         }
       })

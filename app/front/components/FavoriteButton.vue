@@ -40,8 +40,9 @@
 </template>
 <script lang="ts">
 import Vue, { PropOptions } from "vue"
-import { randomWaitedLoog } from "@/utils/waitedLoop"
+import { randomWaitedLoop } from "@/utils/waitedLoop"
 import { HSLColor, getRandomColor } from "@/utils/color"
+import { StampStore } from "~/store"
 
 type FavoriteCallbackRegisterPropType = {
   favoriteCallbackRegister: (callback: (count: number) => void) => void
@@ -71,6 +72,10 @@ export default Vue.extend({
       type: Boolean,
       required: true,
     },
+    topicId: {
+      type: String,
+      required: true,
+    },
   },
   data(): DataType {
     return {
@@ -82,7 +87,7 @@ export default Vue.extend({
   },
   mounted() {
     this.$props.favoriteCallbackRegister((count: number) => {
-      randomWaitedLoog(2000 / count, 500, count, () => {
+      randomWaitedLoop(2000 / count, 500, count, () => {
         this.emitHeart()
       })
     })
@@ -93,7 +98,7 @@ export default Vue.extend({
       // スタンプのアニメーション
       this.emitHeart()
       // Storeに追加し、サーバーに反映
-      this.$emit("favorite")
+      StampStore.sendFavorite(this.topicId)
     },
 
     // スタンプのアニメーション
