@@ -49,20 +49,20 @@ class StampRepository implements IStampRepository {
       values.push(userId)
     }
 
-    const res = await pgClient
-      .query(query, values)
-      .catch((e) => {
-        console.error(
-          `${e.message ?? "Unknown error."} (COUNT STAMP(${
-            userId && "userId: " + userId + ", "
-          }roomId: ${roomId}, topicId: ${topicId}) IN DB)`,
-          new Date().toISOString(),
-        )
-        throw e
-      })
-      .finally(pgClient.release)
-
-    return res.rows[0].count as number
+    try {
+      const res = await pgClient.query(query, values)
+      return res.rows[0].count as number
+    } catch (e) {
+      console.error(
+        `${e.message ?? "Unknown error."} (COUNT STAMP(${
+          userId && "userId: " + userId + ", "
+        }roomId: ${roomId}, topicId: ${topicId}) IN DB)`,
+        new Date().toISOString(),
+      )
+      throw e
+    } finally {
+      pgClient.release()
+    }
   }
 }
 
