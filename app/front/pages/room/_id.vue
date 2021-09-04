@@ -46,7 +46,13 @@ import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
 import socket from "~/utils/socketIO"
-import { ChatItemStore, DeviceStore, UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
+import {
+  ChatItemStore,
+  DeviceStore,
+  UserItemStore,
+  TopicStore,
+  TopicStateItemStore,
+} from "~/store"
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -98,21 +104,24 @@ export default Vue.extend({
       return TopicStateItemStore.topicStateItems
     },
   },
-  created(): any {
+  created() {
     if (this.$route.query.user === "admin") {
       UserItemStore.changeIsAdmin(true)
     }
   },
-  mounted(): any {
-    if (this.$route.query.roomId != null) {
-      // TODO: redirect
+  mounted() {
+    // roomIdを取り出す
+    const roomId = this.$router.currentRoute.path.split("/").slice(2)[0]
+    if (roomId === "") {
+      // TODO:roomIdがなければindexにリダイレクト
+      // this.$router.push({ path: "/" })
     }
     ;(this as any).socket = socket
-    if (this.isAdmin && this.$route.query.roomId != null) {
+    if (this.isAdmin && roomId !== "") {
       socket.emit(
         "ADMIN_ENTER_ROOM",
         {
-          roomId: this.$route.query.roomId,
+          roomId,
         },
         ({ chatItems, topics, activeUserCount }: any) => {
           topics.forEach(({ id, state }: any) => {
@@ -143,11 +152,11 @@ export default Vue.extend({
         )
         TopicStateItemStore.set(t)
         // クリックしたTopicのStateを変える
-        TopicStateItemStore.change({key: res.topicId, state: "active"})
+        TopicStateItemStore.change({ key: res.topicId, state: "active" })
       } else if (res.type === "PAUSE") {
-        TopicStateItemStore.change({key: res.topicId, state: "paused"})
+        TopicStateItemStore.change({ key: res.topicId, state: "paused" })
       } else if (res.type === "CLOSE") {
-        TopicStateItemStore.change({key: res.topicId, state: "finished"})
+        TopicStateItemStore.change({ key: res.topicId, state: "finished" })
       }
     })
     DeviceStore.determineOs()
@@ -166,7 +175,7 @@ export default Vue.extend({
       if (state === "not-started") {
         return
       }
-      TopicStateItemStore.change({key: topicId, state})
+      TopicStateItemStore.change({ key: topicId, state })
       const socket = (this as any).socket
       socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
         roomId: this.room.id,
@@ -215,9 +224,10 @@ export default Vue.extend({
         (room: AdminBuildRoomResponse) => {
           this.room = room
           console.log(`ルームID: ${room.id}`)
+          // ルームにリダイレクト
           this.$router.push({
-            path: this.$router.currentRoute.path,
-            query: { ...this.$router.currentRoute.query, roomId: room.id },
+            path: "/room/" + room.id + "/",
+            query: { ...this.$router.currentRoute.query },
           })
           socket.emit(
             "ADMIN_ENTER_ROOM",
@@ -226,7 +236,7 @@ export default Vue.extend({
             },
             ({ chatItems, topics, activeUserCount }: any) => {
               topics.forEach(({ id, state }: any) => {
-                TopicStateItemStore.change({key: id, state})
+                TopicStateItemStore.change({ key: id, state })
               })
               ChatItemStore.addList(chatItems)
               TopicStore.set(topics)
@@ -238,6 +248,7 @@ export default Vue.extend({
 
       // ルーム開始
       this.$modal.hide("sushi-modal")
+      console.log(this.room)
     },
 
     startRoom() {
@@ -265,8 +276,10 @@ export default Vue.extend({
     // ルーム入室
     enterRoom(iconId: number) {
       const socket = (this as any).socket
-
-      const roomId = this.$route.query.roomId as string
+      const roomId = this.$router.currentRoute.path
+        .split("/")
+        .slice(2)
+        .join("/")[0]
       socket.emit(
         "ENTER_ROOM",
         {
@@ -278,7 +291,7 @@ export default Vue.extend({
           TopicStore.set(res.topics)
           ChatItemStore.addList(res.chatItems)
           res.topics.forEach((topic: any) => {
-            TopicStateItemStore.change({key: topic.id, state: topic.state})
+            TopicStateItemStore.change({ key: topic.id, state: topic.state })
           })
         },
       )
