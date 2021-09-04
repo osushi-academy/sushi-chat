@@ -52,11 +52,13 @@ describe("機能テスト", () => {
   })
 
   // テストの終了処理
-  afterAll(() => {
+  afterAll(async () => {
+    // DBの処理が終了するのを待つ
+    await delay(1000)
     io.close()
     adminSocket.close()
     clientSockets.forEach((socket) => socket.close())
-    pgPool.end()
+    await pgPool.end()
   })
 
   let roomId: string

@@ -118,46 +118,53 @@ class RoomRepository implements IRoomRepository {
   public async update(room: RoomClass) {
     const pgClient = await this.pgPoo.client()
 
-    try {
-      const roomQuery = "UPDATE rooms SET status = $1 WHERE id = $2"
+    const roomQuery = "UPDATE rooms SET status = $1 WHERE id = $2"
+    const updateRoom = async () => {
       await pgClient.query(roomQuery, [room.isOpened ? 1 : 0, room.id])
+    }
 
-      // NOTE: 毎回全てのトピックのstateとtimeDataを更新しており、かつ複数クエリを発行しているので、パフォーマンスの問題が出てきたらここを疑う
-      for (const t of room.topics) {
-        const topicQuery =
-          "UPDATE topics SET state = $1, offset_mil_sec = $2 WHERE roomid = $3 AND id = $4"
-        await pgClient
-          .query(topicQuery, [
+    const topicQuery =
+      "UPDATE topics SET state = $1, offset_mil_sec = $2 WHERE roomid = $3 AND id = $4"
+    const updateTopic = async () => {
+      await Promise.all(
+        room.topics.map((t) =>
+          pgClient.query(topicQuery, [
             RoomRepository.topicStateMap[t.state],
             room.topicTimeData[t.id].offsetTime,
             room.id,
             t.id,
-          ])
-          .catch((e) => console.error(e))
-      }
+          ]),
+        ),
+      )
+    }
 
-      for (const [topicId, timeData] of Object.entries(room.topicTimeData)) {
-        if (timeData.openedDate !== null) {
-          const openedAtQuery =
-            "INSERT INTO topic_opened_at (topic_id, room_id, opened_at_mil_sec) VALUES($1, $2, $3) " +
-            "ON CONFLICT (topic_id, room_id) DO UPDATE SET opened_at_mil_sec = $3"
-          await pgClient.query(openedAtQuery, [
-            topicId,
-            room.id,
-            timeData.openedDate,
-          ])
-        }
-        if (timeData.pausedDate !== null) {
-          const pausedAtQuery =
-            "INSERT INTO topic_paused_at (topic_id, room_id, paused_at_mil_sec) VALUES($1, $2, $3) " +
-            "ON CONFLICT (topic_id, room_id) DO UPDATE SET paused_at_mil_sec = $3"
-          await pgClient.query(pausedAtQuery, [
-            topicId,
-            room.id,
-            timeData.pausedDate,
-          ])
-        }
-      }
+    const openedAtQuery =
+      "INSERT INTO topic_opened_at (topic_id, room_id, opened_at_mil_sec) VALUES($1, $2, $3) " +
+      "ON CONFLICT (topic_id, room_id) DO UPDATE SET opened_at_mil_sec = $3"
+    const pausedAtQuery =
+      "INSERT INTO topic_paused_at (topic_id, room_id, paused_at_mil_sec) VALUES($1, $2, $3) " +
+      "ON CONFLICT (topic_id, room_id) DO UPDATE SET paused_at_mil_sec = $3"
+    const updateTopicTimeData = async () => {
+      await Promise.all(
+        Object.entries(room.topicTimeData).map(([topicId, timeData]) => {
+          if (timeData.openedDate !== null) {
+            pgClient
+              .query(openedAtQuery, [topicId, room.id, timeData.openedDate])
+              .catch(console.error)
+          }
+          if (timeData.pausedDate !== null) {
+            pgClient
+              .query(pausedAtQuery, [topicId, room.id, timeData.pausedDate])
+              .catch(console.error)
+          }
+        }),
+      )
+    }
+
+    try {
+      // NOTE: 毎回全てのトピックのstateとtimeDataを更新しており、かつ複数クエリを発行しているので、
+      //       パフォーマンスの問題が出てきたらここを疑う
+      await Promise.all([updateRoom(), updateTopic(), updateTopicTimeData()])
     } finally {
       pgClient.release()
     }
