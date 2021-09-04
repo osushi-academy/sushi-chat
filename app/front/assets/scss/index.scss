@@ -8,7 +8,7 @@
   width: 100vw;
 }
 
-@media screen and (min-width: 551px) {
+@media screen and (min-width: 440px) {
   .topic-block {
     margin: 0 2em;
     width: 440px;
@@ -26,35 +26,34 @@
 
 .topic-header {
   flex-shrink: 0;
-  padding: 0.75em 0;
   position: relative;
-
-  & > .top-line {
-    & > .prefix {
-      background: white;
-      color: $black;
-      font-size: 120%;
-      padding: 0.25em 0.5em;
-    }
-  }
 
   & > .main-line {
     display: flex;
     align-items: center;
-    padding: 0 1em;
+    padding: 0.2em 0.3em 0;
+    background-color: $primary;
+    color: white;
+    min-height: 3em;
 
-    & > h1.title {
+    & > .index{
+      font-weight: bold;
+      margin-left: 0.5em;
+    }
+
+    & > .title {
       display: inline-block;
       padding: 0 0.5em;
       flex: 1;
+      font-weight: bold;
     }
 
-    & > .download-button {
-      width: 3em;
-      height: 3em;
+    & > .link-button, .more-button {
+      width: 2em;
+      height: 2em;
       border-radius: 100%;
       border: none;
-      color: $black;
+      color: white;
       background: transparent;
       display: flex;
       align-items: center;
@@ -74,14 +73,21 @@
         background: transparent;
         cursor: default;
       }
+
+      & > .material-icons {
+        font-size: 1.5em;
+      }
     }
   }
 }
 
+.zap {
+  position: fixed;
+  margin-top: -75px;
+}
 .chat-area {
   flex: 1 1 0;
   display: flex;
-  border-top: 2px solid $gray;
   position: relative;
   overflow-y: hidden;
 

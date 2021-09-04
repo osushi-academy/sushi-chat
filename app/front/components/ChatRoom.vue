@@ -1,7 +1,8 @@
 <template>
   <article class="topic-block">
     <TopicHeader
-      :title="topicIndex + '. ' + chatData.topic.title"
+      :topic-index="topicIndex"
+      :title="chatData.topic.title"
       :topic-state="topicState"
       @topic-activate="clickTopicActivate"
       @download="clickDownload"

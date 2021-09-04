@@ -1,0 +1,292 @@
+.home{
+  background-color: $bg;
+  min-height: 100vh;
+  &__header{
+    position: sticky;
+    top: 0;
+    background-color: $admin-primary;
+    color: white;
+    @include text-size("xl");
+    @include home-padding-layout(0.5);
+    @include invalidated-a-style;
+  }
+  &__main{
+    @include home-padding-layout(1);
+  }
+}
+
+.home-top{
+  &__header{
+    margin: 0 0 1.5rem 0;
+    @include text-size("lg");
+  }
+  &__new-event{
+    margin: 0 0 2rem 0;
+    &--input{
+      width: 100%;
+      margin: 0 0 1rem 0;
+      @include white-text-box($expand:"true");
+    }
+    &--button{
+      margin:  0 auto;
+      @include home-button-text;
+    }
+  }
+  &__event{
+    margin: 0 0 1.5rem 0;
+    &--title{
+      margin: 0 0 0.7rem 0;
+      @include text-size("mdi");
+    }
+    &__list{
+      @include home-event-list-element;
+    }
+  }
+  &__inquiry{
+    margin: 3rem 0;
+    &--title{
+      margin: 0 0 0.5rem 0;
+      @include text-size("mdi");
+    }
+    &--content{
+      a{
+        text-decoration: underline !important;
+      }
+      @include invalidated-a-style;
+    }
+  }
+  &__account{
+    margin: 0 0 2rem 0;
+    &--title{
+      margin: 0 0 0.5rem 0;
+      @include text-size("mdi");
+    }
+    &--content{
+      @media screen and (min-width: $small+px) {
+        display: flex;
+        align-items: center;
+      }
+    }
+    &--name{
+      margin: 0 1rem 1rem 0;
+      @media screen and (min-width: $small+px) {
+        display: flex;
+        align-items: center;
+        margin: 0 1rem 0 0;
+      }
+    }
+    &--logout-button{
+      display: inline !important;
+      @include home-button-text;
+    }
+  }
+  &__other{
+    margin: 0 0 1.5rem 0;
+    &--title{
+      margin: 0 0 1rem 0;
+      @include text-size("mdi");
+    }
+    &--delete-button{
+      display: inline !important;
+      @include home-button-text($danger);
+    }
+  }
+}
+
+.home-create{
+  &__header{
+    margin: 0 0 1.5rem 0;
+    @include text-size("xl")
+  }
+  &__event-name{
+    margin: 0 0 1.5rem 0;
+    &--title{
+      margin: 0 0 0.5rem 0;
+      @include text-size("lg")
+    }
+    &--input{
+      width: 100%;
+      @include white-text-box($expand:"true");
+    }
+  }
+  &__room{
+    margin: 0 0 2rem 0;
+    &--title{
+      @include text-size("lg")
+    }
+    &__sessions{
+      display: grid;
+      margin: 1rem 0;
+      grid-template-columns: auto 1fr;
+      &__index{
+        grid-column: 1;
+        margin: 0 0.5rem 0 0;
+        &--element{
+          margin: 0 0 0.5rem 0;
+          padding: 0.5rem 0;
+        }
+      }
+      &__list{
+        grid-column: 2;
+        &--element{
+          display: flex;
+          align-items: center;
+          width: 85%;
+          margin: 0 0 0.5rem 0;
+          &--input{
+            display: flex;
+            flex: 1;
+            margin: 0 0.5rem 0 0;
+            padding: 0 !important;
+            @include white-text-box($expand:"true");
+            input{
+              border: none;
+              flex: 1;
+              padding: 0;
+              @include white-text-box($expand:"true");
+              &:focus{
+                outline: none;
+              }
+            }
+          }
+          &--remove{
+            @include material-icon-button($size:"sm",$color:#F07B7B,$border:"solid");
+          }
+          &--sort{
+            cursor: grab !important;
+            @include material-icon-button;
+            &--dragging{
+              cursor: grabbing !important;
+            }
+          }
+        }
+    }
+    
+    }
+    &__add{
+      display: flex;
+      &--button, &--collective-button{
+        display: flex;
+        align-items: center;
+        color: $admin-primary;
+        cursor: pointer;
+        margin: 0 1rem 0 0;
+        .material-icons{
+          font-size: 0.9rem;
+        }
+        @include text-size("normal")
+      }
+    }
+  }
+  &__create-new-event-button{
+    @include home-button-text;
+  }
+}
+
+.home-modal{
+  display: flex;
+  flex-direction: column;
+  background-color: $bg !important;
+  padding: 1.5rem;
+  &__header{
+    @include text-size("mdi")
+  }
+  &__content{
+    flex: 1;
+    margin: 1rem 0;
+  }
+  &__footer{
+    align-self: flex-end;
+  }
+  &__hide-button{
+    @include home-button-text;
+  }
+}
+.vm--overlay{
+  background-color: rgba(10,10,10,0.5) !important;
+}
+
+.home-add-sessions-modal{
+  &__separators{
+    color: $text-gray;
+    margin: 0 0 1rem 0;
+    @include text-size;
+    @media screen and (min-width: $small+px) {
+      display: flex;
+    }
+    input{
+      position: relative;
+      top: 2px;
+      margin: 0;
+    }
+    label{
+      margin: 0 1rem 0 0;
+    }
+  }
+  &__textarea{
+    resize: vertical;
+    width: 100%;
+    @include white-text-box;
+    @media screen and (min-width: $small+px) {
+      padding: 1.5rem !important;
+      min-height: 150px;
+    }
+  }
+}
+
+.home-creation-completed-modal{
+  &__event-name{
+    margin: 0 0 1rem 0;
+    b{
+      margin-left: 0.5rem;
+      @include text-size("mdi")
+    }
+  }
+  &__event-detail{
+    margin: 0 0 1rem 0;
+    &--description{
+      a{
+        text-decoration: underline !important;
+      }
+      @include invalidated-a-style;
+    }
+  }
+  &__invitation{
+    &--title{
+      margin: 0 0 0.5rem 0;
+    }
+    &__content{
+      @media screen and (min-width: $small+px) {
+        display: flex;
+      }
+      &--title{
+        margin: 0 0 5px 0;
+        @include text-size("normal");
+        @media screen and (min-width: $small+px) {
+          margin: 10px 5px 0 0;
+        }
+      }
+      &__detail{
+        @include text-size("normal");
+        @include white-text-box;
+        @media screen and (min-width: $small+px) {
+          display: flex;
+          flex: 1;
+          align-items: flex-start;
+        }
+        &--url{
+          @media screen and (min-width: $small+px) {
+            flex: 1;
+	          overflow-x: scroll;
+          }
+        }
+        &--button{
+          border: none;
+          background:rgba(255, 255, 255, 0);
+          color: $admin-primary;
+          padding: 0;
+        }
+      }
+    }
+  }
+}
