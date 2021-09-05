@@ -12,6 +12,7 @@ import IUserDelivery from "../../domain/user/IUserDelivery"
 import ChatItemResponseBuilder from "../chatItem/ChatItemResponseBuilder"
 import { ChatItem } from "../../chatItem"
 import Topic from "../../domain/room/Topic"
+import IconId, { NewIconId } from "../../domain/user/IconId"
 
 class UserService {
   constructor(
@@ -56,9 +57,10 @@ class UserService {
     topics: Topic[]
     activeUserCount: number
   }> {
-    // TODO: roomIdの存在チェック挟んだ方が良さそう
+    const iconId: IconId = NewIconId(command.iconId)
+
     const user = this.userRepository.find(command.userId)
-    user.enterRoom(command.roomId, command.iconId)
+    user.enterRoom(command.roomId, iconId)
 
     const room = await this.findRoomOrThrow(command.roomId)
     const chatItemResponses = ChatItemResponseBuilder.buildChatItems(

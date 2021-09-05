@@ -1,8 +1,10 @@
+import IconId, { NewIconId } from "./IconId"
+
 class User {
-  public static readonly ADMIN_ICON_ID = "0"
+  public static readonly ADMIN_ICON_ID = NewIconId("0")
 
   private _roomId: string | null = null
-  private _iconId: string | null = null
+  private _iconId: IconId | null = null
 
   constructor(public readonly id: string) {}
 
@@ -15,21 +17,16 @@ class User {
     return this._roomId
   }
 
-  public get iconId(): string | null {
+  public get iconId(): IconId | null {
     return this._iconId
   }
 
-  public getIconIdOrThrow(): string {
+  public getIconIdOrThrow(): IconId {
     this.assertHasIconId(this._iconId)
     return this._iconId
   }
 
-  public enterRoom(roomId: string, iconId: string): void {
-    const iconIdInt = parseInt(iconId)
-    if (iconIdInt < 0 || iconIdInt > 10) {
-      throw new Error(`iconId(${iconId}) is invalid: out of 1 to 10`)
-    }
-
+  public enterRoom(roomId: string, iconId: IconId): void {
     this._roomId = roomId
     this._iconId = iconId
   }
@@ -48,7 +45,7 @@ class User {
     }
   }
 
-  private assertHasIconId(iconId: string | null): asserts iconId is string {
+  private assertHasIconId(iconId: IconId | null): asserts iconId is IconId {
     if (iconId === null) {
       throw new Error(`User(id:${this.id}) doesn't have iconId.`)
     }
