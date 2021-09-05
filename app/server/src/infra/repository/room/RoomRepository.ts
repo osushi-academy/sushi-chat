@@ -19,31 +19,35 @@ class RoomRepository implements IRoomRepository {
   public async build(room: RoomClass): Promise<void> {
     const pgClient = await this.pgPoo.client()
 
-    try {
-      const insertRoomQuery =
-        "INSERT INTO Rooms (id, roomKey, title, status) VALUES ($1, '', $2, 0)"
-      await pgClient.query(insertRoomQuery, [room.id, room.title])
+    const insertRoomQuery =
+      "INSERT INTO Rooms (id, roomKey, title, status) VALUES ($1, '', $2, 0)"
 
-      const values = room.topics.map((t) => [
-        t.id,
-        room.id,
-        t.title,
-        t.description ?? "",
-        0,
-        t.urls.github,
-        t.urls.slide,
-        t.urls.product,
-      ])
-      const valuesStr = ArrayRange(values.length)
-        .map(
-          (i) =>
-            `(${ArrayRange(8)
-              .map((j) => `$${i * 8 + j + 1}`)
-              .join(", ")})`,
-        )
-        .join(", ")
-      const insertTopicsQuery = `INSERT INTO Topics (id, roomId, title, description, state, githuburl, slideurl,producturl) VALUES ${valuesStr}`
-      await pgClient.query(insertTopicsQuery, values.flat())
+    // 挿入されるトピックの配列。クエリ発行の際に引数として渡すので変数に格納しておく
+    const insertedTopics = room.topics.map((t) => [
+      t.id,
+      room.id,
+      t.title,
+      t.description ?? "",
+      0,
+      t.urls.github,
+      t.urls.slide,
+      t.urls.product,
+    ])
+    // 挿入されるトピックを埋め込む部分の文字列を作成
+    // 例：($1, $2, $3, $4, $5, $6, $7, $8), ($9, $10, ...), ($17, ...), ...
+    const insertedTopicsStr = ArrayRange(insertedTopics.length)
+      .map(
+        (i) =>
+          `(${ArrayRange(8)
+            .map((j) => `$${i * 8 + j + 1}`)
+            .join(", ")})`,
+      )
+      .join(", ")
+    const insertTopicsQuery = `INSERT INTO Topics (id, roomId, title, description, state, githuburl, slideurl,producturl) VALUES ${insertedTopicsStr}`
+
+    try {
+      await pgClient.query(insertRoomQuery, [room.id, room.title])
+      await pgClient.query(insertTopicsQuery, insertedTopics.flat())
     } catch (e) {
       console.error(
         `${
