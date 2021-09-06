@@ -453,8 +453,6 @@ paths:
       responses:
         '200':
           $ref: '#/responses/Success'
-        '400':
-          $ref: '#/responses/Failure'
       operationId: get-SPEAKER_PIN_MESSAGE
       description: '**スピーカー** メッセージをピン留めする。既にピン留めメッセージがある場合は上書きする'
       parameters:
@@ -463,8 +461,6 @@ paths:
           schema:
             type: object
             properties:
-              topicId:
-                type: number
               chatItemId:
                 type: string
           description: ''
@@ -476,19 +472,17 @@ paths:
         - SocketIO
       responses:
         '200':
-          $ref: '#/responses/Success'
+          description: OK
+          schema:
+            type: object
+            properties:
+              chatItemId:
+                type: string
         '400':
           $ref: '#/responses/Failure'
       operationId: get-PUB_PIN_MESSAGE
       description: '**スピーカー** メッセージのピン留めを解除する。新しくピン留めする場合は`/POST_PIN_MESSAGE`を使い、単に解除したい場合のみこちらを利用する'
-      parameters:
-        - in: body
-          name: body
-          schema:
-            type: object
-            properties:
-              topicId:
-                type: number
+      parameters: []
     parameters: []
   /ADMIN_FINISH_ROOM:
     put:
