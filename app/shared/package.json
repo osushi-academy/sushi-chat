@@ -24,5 +24,8 @@
   },
   "devDependencies": {
     "tsc-watch": "^4.2.9"
+  },
+  "dependencies": {
+    "socket.io": "^4.2.0"
   }
 }
