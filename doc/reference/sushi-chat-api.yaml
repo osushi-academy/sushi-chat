@@ -45,7 +45,7 @@ paths:
                 type: string
                 enum:
                   - success
-              rooms:
+              data:
                 type: array
                 items:
                   $ref: '#/definitions/Room'
@@ -122,11 +122,11 @@ paths:
                 type: string
                 enum:
                   - success
-              room:
+              data:
                 $ref: '#/definitions/Room'
             required:
               - result
-              - room
+              - data
         '400':
           $ref: '#/responses/Failure'
       operationId: get-room-id
@@ -173,19 +173,22 @@ paths:
                 type: string
                 enum:
                   - success
-              chatItems:
-                type: array
-                items:
-                  $ref: '#/definitions/ChatItem'
-              stamps:
-                type: array
-                items:
-                  $ref: '#/definitions/Stamp'
-              pinnedChatItemIds:
-                type: array
-                description: ピン留めされているChatItemのID
-                items:
-                  type: string
+              data:
+                type: object
+                properties:
+                  chatItems:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ChatItem'
+                  stamps:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Stamp'
+                  pinnedChatItemIds:
+                    type: array
+                    description: ピン留めされているChatItemのID
+                    items:
+                      type: string
             required:
               - result
               - chatItems
