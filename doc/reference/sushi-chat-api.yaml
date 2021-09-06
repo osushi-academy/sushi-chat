@@ -402,9 +402,7 @@ paths:
         '200':
           description: OK
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/ChatItem'
+            $ref: '#/definitions/ChatItem'
       operationId: get-PUB_CHAT_ITEM
       description: '**管理者・一般ユーザ** チャットアイテムが配信される'
   /POST_STAMP:
