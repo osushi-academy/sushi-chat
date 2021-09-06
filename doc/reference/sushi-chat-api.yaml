@@ -92,11 +92,11 @@ paths:
                 type: string
                 enum:
                   - success
-              room:
+              data:
                 $ref: '#/definitions/Room'
             required:
               - result
-              - room
+              - data
         '400':
           $ref: '#/responses/Failure'
         '401':
