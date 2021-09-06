@@ -250,22 +250,29 @@ paths:
           schema:
             type: object
             properties:
-              chatItems:
-                type: array
-                items:
-                  $ref: '#/definitions/ChatItem'
-              stamps:
-                type: array
-                items:
-                  $ref: '#/definitions/Stamp'
-              activeUserCount:
-                type: integer
-                description: アクティブユーザ数
-              pinnedChatItemIds:
-                type: array
-                description: ピン留めされているChatItemのID
-                items:
-                  type: string
+              result:
+                type: string
+                enum:
+                  - success
+              date:
+                type: object
+                properties:
+                  chatItems:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ChatItem'
+                  stamps:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Stamp'
+                  activeUserCount:
+                    type: integer
+                    description: アクティブユーザ数
+                  pinnedChatItemIds:
+                    type: array
+                    description: ピン留めされているChatItemのID
+                    items:
+                      type: string
         '400':
           $ref: '#/responses/Failure'
       description: |-
