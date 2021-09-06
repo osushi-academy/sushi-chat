@@ -548,15 +548,11 @@ definitions:
       adminInviteKey:
         type: string
         description: 管理者招待キー（管理者がAPIを叩いた場合のみ含まれる）
-      isArchived:
-        type: string
-        description: ルームがアーカイブされているか（管理者がAPIを叩いた場合のみ含まれる）
     required:
       - id
       - name
       - topics
       - state
-    x-examples: {}
   ChatItem:
     title: ChatItem
     type: object
