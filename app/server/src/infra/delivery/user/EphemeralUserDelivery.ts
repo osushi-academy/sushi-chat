@@ -12,7 +12,7 @@ class EphemeralUserDelivery implements IUserDelivery {
   ) {}
 
   public get subscribers() {
-    return [...this._subscribers.map((s) => [...s])]
+    return this._subscribers.map((s) => [...s])
   }
 
   public enterRoom(user: User, activeUserCount: number): void {

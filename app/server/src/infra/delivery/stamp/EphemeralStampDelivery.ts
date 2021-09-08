@@ -8,7 +8,7 @@ class EphemeralStampDelivery implements IStampDelivery {
   constructor(private readonly _subscribers: Stamp[][]) {}
 
   public get subscribers() {
-    return [...this._subscribers.map((s) => [...s])]
+    return this._subscribers.map((s) => [...s])
   }
 
   public finishIntervalDelivery(): void {
