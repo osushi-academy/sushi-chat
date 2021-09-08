@@ -1,8 +1,8 @@
-output "rds_endpoint" {
-  value = aws_db_instance.main.endpoint
+output "instance_public_dns" {
+  value = aws_instance.main.public_dns
 }
 
-output "elasticache_nodes" {
-  value = aws_elasticache_cluster.main.cache_nodes
+output "rds_endpoint" {
+  value = aws_db_instance.main.endpoint
 }
 
