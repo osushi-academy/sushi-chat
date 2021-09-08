@@ -20,4 +20,11 @@ function initialiseStores(store: Store<any>): void {
   TopicStateItemStore = getModule(TopicStateItems, store)
 }
 
-export { initialiseStores, ChatItemStore, DeviceStore, UserItemStore, TopicStore, TopicStateItemStore }
+export {
+  initialiseStores,
+  ChatItemStore,
+  DeviceStore,
+  UserItemStore,
+  TopicStore,
+  TopicStateItemStore,
+}

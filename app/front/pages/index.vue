@@ -46,7 +46,13 @@ import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
 import socket from "~/utils/socketIO"
-import { ChatItemStore, DeviceStore, UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
+import {
+  ChatItemStore,
+  DeviceStore,
+  UserItemStore,
+  TopicStore,
+  TopicStateItemStore,
+} from "~/store"
 
 // 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
 type ChatData = {
@@ -143,11 +149,11 @@ export default Vue.extend({
         )
         TopicStateItemStore.set(t)
         // クリックしたTopicのStateを変える
-        TopicStateItemStore.change({key: res.topicId, state: "active"})
+        TopicStateItemStore.change({ key: res.topicId, state: "active" })
       } else if (res.type === "PAUSE") {
-        TopicStateItemStore.change({key: res.topicId, state: "paused"})
+        TopicStateItemStore.change({ key: res.topicId, state: "paused" })
       } else if (res.type === "CLOSE") {
-        TopicStateItemStore.change({key: res.topicId, state: "finished"})
+        TopicStateItemStore.change({ key: res.topicId, state: "finished" })
       }
     })
     DeviceStore.determineOs()
@@ -166,7 +172,7 @@ export default Vue.extend({
       if (state === "not-started") {
         return
       }
-      TopicStateItemStore.change({key: topicId, state})
+      TopicStateItemStore.change({ key: topicId, state })
       const socket = (this as any).socket
       socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
         roomId: this.room.id,
@@ -226,7 +232,7 @@ export default Vue.extend({
             },
             ({ chatItems, topics, activeUserCount }: any) => {
               topics.forEach(({ id, state }: any) => {
-                TopicStateItemStore.change({key: id, state})
+                TopicStateItemStore.change({ key: id, state })
               })
               ChatItemStore.addList(chatItems)
               TopicStore.set(topics)
@@ -278,7 +284,7 @@ export default Vue.extend({
           TopicStore.set(res.topics)
           ChatItemStore.addList(res.chatItems)
           res.topics.forEach((topic: any) => {
-            TopicStateItemStore.change({key: topic.id, state: topic.state})
+            TopicStateItemStore.change({ key: topic.id, state: topic.state })
           })
         },
       )

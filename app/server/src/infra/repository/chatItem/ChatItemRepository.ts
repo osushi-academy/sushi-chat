@@ -1,23 +1,25 @@
 import IChatItemRepository from "../../../domain/chatItem/IChatItemRepository"
-import PGClientFactory from "../../factory/PGClientFactory"
 import Message from "../../../domain/chatItem/Message"
 import Reaction from "../../../domain/chatItem/Reaction"
 import Question from "../../../domain/chatItem/Question"
 import Answer from "../../../domain/chatItem/Answer"
 import ChatItem from "../../../domain/chatItem/ChatItem"
 import { ChatItemType } from "../../../chatItem"
+import PGPool from "../PGPool"
 
 class ChatItemRepository implements IChatItemRepository {
-  private readonly pgClient = PGClientFactory.create()
+  constructor(private readonly pgPool: PGPool) {}
 
   public async saveMessage(message: Message): Promise<void> {
+    const pgClient = await this.pgPool.client()
+
     const query =
       "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
       "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
-
     const type: ChatItemType = "message"
+
     try {
-      await this.pgClient.query(query, [
+      await pgClient.query(query, [
         message.id,
         type,
         message.roomId,
@@ -34,17 +36,21 @@ class ChatItemRepository implements IChatItemRepository {
         new Date().toISOString(),
       )
       throw e
+    } finally {
+      pgClient.release()
     }
   }
 
   public async saveReaction(reaction: Reaction): Promise<void> {
+    const pgClient = await this.pgPool.client()
+
     const query =
       "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
       "VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, $8)"
-
     const type: ChatItemType = "reaction"
+
     try {
-      await this.pgClient.query(query, [
+      await pgClient.query(query, [
         reaction.id,
         type,
         reaction.roomId,
@@ -61,17 +67,21 @@ class ChatItemRepository implements IChatItemRepository {
       )
 
       throw e
+    } finally {
+      pgClient.release()
     }
   }
 
   public async saveQuestion(question: Question): Promise<void> {
+    const pgClient = await this.pgPool.client()
+
     const query =
       "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
       "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NULL)"
-
     const type: ChatItemType = "question"
+
     try {
-      await this.pgClient.query(query, [
+      await pgClient.query(query, [
         question.id,
         type,
         question.roomId,
@@ -86,19 +96,22 @@ class ChatItemRepository implements IChatItemRepository {
         `${e.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
         new Date().toISOString(),
       )
-
       throw e
+    } finally {
+      pgClient.release()
     }
   }
 
   public async saveAnswer(answer: Answer): Promise<void> {
+    const pgClient = await this.pgPool.client()
+
     const query =
       "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
       "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
-
     const type: ChatItemType = "answer"
+
     try {
-      await this.pgClient.query(query, [
+      await pgClient.query(query, [
         answer.id,
         type,
         answer.roomId,
@@ -114,22 +127,31 @@ class ChatItemRepository implements IChatItemRepository {
         `${e.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
         new Date().toISOString(),
       )
-
       throw e
+    } finally {
+      pgClient.release()
     }
   }
 
   // NOTE: arrow functionにしないとthisの挙動のせいでバグる
   public find = async (chatItemId: string): Promise<ChatItem> => {
+    const pgClient = await this.pgPool.client()
+
     const query = "SELECT * FROM chatitems WHERE id = $1"
-    const row = (await this.pgClient.query(query, [chatItemId])).rows[0]
+    const res = await pgClient
+      .query(query, [chatItemId])
+      .finally(pgClient.release)
+    const row = res.rows[0]
 
     return await this.buildChatItem(row)
   }
 
   public async selectByRoomId(roomId: string): Promise<ChatItem[]> {
+    const pgClient = await this.pgPool.client()
+
     const query = "SELECT * FROM chatitems WHERE roomid = $1"
-    const rows = (await this.pgClient.query(query, [roomId])).rows
+    const res = await pgClient.query(query, [roomId]).finally(pgClient.release)
+    const rows = res.rows
 
     return Promise.all(rows.map(this.buildChatItem))
   }
