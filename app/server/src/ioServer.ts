@@ -17,6 +17,12 @@ import IStampRepository from "./domain/stamp/IStampRepository"
 import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
 import RoomDelivery from "./infra/delivery/room/RoomDelivery"
 import UserDelivery from "./infra/delivery/user/UserDelivery"
+import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ServerListenEventsMap,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ServerPubEventsMap,
+} from "sushi-chat-shared"
 
 const createSocketIOServer = async (
   httpServer: HttpServer,
@@ -62,6 +68,8 @@ const createSocketIOServer = async (
         },
         Record<string, never>
       >,
+      // NOTE: 新しいAPI型
+      // socket: Socket<ServerListenEventsMap, ServerPubEventsMap>,
     ) => {
       new UserService(
         userRepository,
