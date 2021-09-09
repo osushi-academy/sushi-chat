@@ -5,9 +5,12 @@ import LocalMemoryUserRepository from "./infra/repository/User/LocalMemoryUserRe
 import ChatItemRepository from "./infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "./infra/repository/stamp/StampRepository"
 import RoomRepository from "./infra/repository/room/RoomRepository"
+import { Routes } from "./expressRoute"
 
 const app = express()
 const httpServer = createServer(app)
+
+const apiRoutes: Routes = app
 
 const userRepository = LocalMemoryUserRepository.getInstance()
 const chatItemRepository = new ChatItemRepository()
@@ -26,4 +29,17 @@ httpServer.listen(PORT, function () {
   console.log("server listening. Port:" + PORT)
 })
 
-app.get("/", (req, res) => res.send("ok"))
+app.use(express.json())
+
+// apiRoutes.get("/room/:id/history", (req, res) => {
+//   const roomId = req.params.id
+//   console.log(roomId)
+//   res.send({
+//     result: "success",
+//     data: {
+//       chatItems: [],
+//       stamps: [],
+//       pinnedChatItemIds: [],
+//     },
+//   })
+// })
