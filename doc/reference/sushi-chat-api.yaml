@@ -455,7 +455,7 @@ paths:
               $ref: '#/definitions/Stamp'
   /POST_PINNED_MESSAGE:
     put:
-      summary: Your GET endpoint
+      summary: ピン留めを編集
       tags:
         - SocketIO
       responses:
@@ -477,7 +477,7 @@ paths:
     parameters: []
   /PUB_PINNED_MESSAGE:
     get:
-      summary: Your GET endpoint
+      summary: ピン留めを配信
       tags:
         - SocketIO
       responses:
