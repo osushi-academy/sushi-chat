@@ -10,7 +10,7 @@ entity users {
     ~icon_id: int
     #created_at: timestamp
 }
-note bottom: ルームに参加する匿名ユーザー
+note right: ルームに参加する匿名ユーザー
 
 entity topics_speakers{
     ~user_id: uuid
@@ -85,12 +85,16 @@ entity topics {
     #updated_at: timestamp
 }
 
-entity topics_pinned_chat_items {
+entity topics_pinned_chat_item {
     ~room_id: uuid
     ~topic_id: int
     ~chat_item_id: uuid
     --
 }
+note bottom of topics_pinned_chat_item
+  1トピックに付き1つのチャットアイテムをピン留めでき、\
+
+end note
 
 entity topic_states {
     +id: int
@@ -127,7 +131,7 @@ entity chat_items {
     #timestamp: int
     #created_at: timestamp
 }
-note left of chat_items
+note right of chat_items
  あるchat_itemがその他のchat_itemに
  対する返信/回答/リアクションの場合、
  返信先のchat_itemのidがquote_idに入る。
@@ -170,11 +174,11 @@ admins ||--o{ rooms_admins
 rooms ||--|{ rooms_admins
 rooms }o--|| room_states
 topics }|--|| rooms
-topics ||--o{ topics_pinned_chat_items
+topics ||--o{ topics_pinned_chat_item
 topics }o--|| topic_states
 topics ||--o| topic_opened_at
 topics ||--o| topic_paused_at
-chat_items||--o{ topics_pinned_chat_items
+chat_items||--o{ topics_pinned_chat_item
 chat_items }o--|| topics
 chat_items }o--|| users
 chat_items }o--|| chat_item_types
