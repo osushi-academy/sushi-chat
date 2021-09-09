@@ -77,20 +77,6 @@ export default Vue.extend({
     SelectIconModal,
     CreateRoomModal,
   },
-  // async asyncData({ app }) {
-  //   const sampleResponse = await app.$apiClient.get(
-  //     { pathname: "/room/:id/history", params: { id: "roomId" } },
-  //     {},
-  //   )
-  //   if (sampleResponse.result === "success") {
-  //     const rooms = sampleResponse.data
-  //     console.log(rooms)
-  //     return { rooms }
-  //   } else {
-  //     // NOTE: エラーハンドリングどうやるのがベストかわかってない....
-  //     throw new Error("データの取得に失敗しました")
-  //   }
-  // },
   data(): DataType {
     return {
       // 管理画面

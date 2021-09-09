@@ -26,6 +26,26 @@ const pathBuilder = (path: {
   return p
 }
 
+/**
+ * @sample
+ * ```ts
+ *  NOTE: サンプル実装のためコメントアウト
+ *  async asyncData({ app }) {
+ *    const sampleResponse = await app.$apiClient.get(
+ *      { pathname: "/room/:id/history", params: { id: "roomId" } },
+ *      {},
+ *    )
+ *    if (sampleResponse.result === "success") {
+ *      const rooms = sampleResponse.data
+ *      console.log(rooms)
+ *      return { rooms }
+ *    } else {
+ *      // NOTE: エラーハンドリングどうやるのがベストかわかってない....
+ *      throw new Error("データの取得に失敗しました")
+ *    }
+ *  },
+ * ```
+ */
 export default class Repository {
   constructor(public nuxtAxios: NuxtAxiosInstance) {
     this.nuxtAxios.setHeader("Content-Type", "application/json")
@@ -41,7 +61,7 @@ export default class Repository {
 
   /**
    * getリクエストを行う
-   * @param path エンドポイントを表すPathObjectまたはパス文字列
+   * @param path エンドポイントを表すPathObjectまたはパス文字列（パスパラメータ（`:xyz`）を含まない場合は直接文字列を指定可能）
    * @param data 送信するデータ
    * @returns レスポンス
    */
