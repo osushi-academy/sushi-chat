@@ -35,12 +35,14 @@ const createSocketIOServer = async (
     },
   })
 
-  const pubClient = createClient({
-    host: process.env.REDIS_HOST ?? "localhost",
-    port: parseInt(process.env.REDIS_PORT ?? "6379"),
-  })
-  const subClient = pubClient.duplicate()
-  io.adapter(createAdapter(pubClient, subClient))
+  if (process.env.SOCKET_IO_ADAPTER?.toLowerCase() === "redis") {
+    const pubClient = createClient({
+      host: process.env.REDIS_HOST ?? "localhost",
+      port: parseInt(process.env.REDIS_PORT ?? "6379"),
+    })
+    const subClient = pubClient.duplicate()
+    io.adapter(createAdapter(pubClient, subClient))
+  }
 
   if (
     process.env.NODE_ENV == "production" &&
