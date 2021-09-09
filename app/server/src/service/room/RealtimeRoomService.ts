@@ -8,7 +8,7 @@ import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import IRoomDelivery from "../../domain/room/IRoomDelivery"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
 
-class RoomService {
+class RealtimeRoomService {
   constructor(
     private readonly roomRepository: IRoomRepository,
     private readonly userRepository: IUserRepository,
@@ -105,4 +105,4 @@ class RoomService {
   }
 }
 
-export default RoomService
+export default RealtimeRoomService

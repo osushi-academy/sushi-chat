@@ -5,6 +5,7 @@ import LocalMemoryUserRepository from "./infra/repository/User/LocalMemoryUserRe
 import ChatItemRepository from "./infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "./infra/repository/stamp/StampRepository"
 import RoomRepository from "./infra/repository/room/RoomRepository"
+import { buildRoom } from "./rest"
 
 const app = express()
 const httpServer = createServer(app)
@@ -26,4 +27,11 @@ httpServer.listen(PORT, function () {
   console.log("server listening. Port:" + PORT)
 })
 
+app.use(express.json())
+
 app.get("/", (req, res) => res.send("ok"))
+
+// 新しくルームを作成する
+app.post("/room", (req, res) => {
+  buildRoom(req, res)
+})

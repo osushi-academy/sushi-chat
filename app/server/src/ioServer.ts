@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid"
 import { ReceiveEventParams, ReceiveEventResponses } from "./events"
 import { instrument } from "@socket.io/admin-ui"
 import { generateHash } from "./utils/crypt"
-import RoomService from "./service/room/RoomService"
+import RealtimeRoomService from "./service/room/RealtimeRoomService"
 import StampService from "./service/stamp/StampService"
 import UserService from "./service/user/UserService"
 import ChatItemService from "./service/chatItem/ChatItemService"
@@ -78,7 +78,7 @@ const createSocketIOServer = async (
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
         try {
           const roomId = uuid()
-          const roomService = new RoomService(
+          const RealtimeRoomService = new RealtimeRoomService(
             roomRepository,
             userRepository,
             chatItemRepository,
@@ -86,7 +86,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          const newRoom = roomService.build({
+          const newRoom = RealtimeRoomService.build({
             id: roomId,
             title: received.title,
             topics: received.topics,
@@ -153,7 +153,7 @@ const createSocketIOServer = async (
       // ルームを開始する
       socket.on("ADMIN_START_ROOM", () => {
         try {
-          const roomService = new RoomService(
+          const RealtimeRoomService = new RealtimeRoomService(
             roomRepository,
             userRepository,
             chatItemRepository,
@@ -161,7 +161,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          roomService.start(socket.id)
+          RealtimeRoomService.start(socket.id)
         } catch (e) {
           console.log(
             `${e.message ?? "Unknown error."} (ADMIN_START_ROOM)`,
@@ -173,7 +173,7 @@ const createSocketIOServer = async (
       // トピック状態の変更
       socket.on("ADMIN_CHANGE_TOPIC_STATE", (received) => {
         try {
-          const roomService = new RoomService(
+          const RealtimeRoomService = new RealtimeRoomService(
             roomRepository,
             userRepository,
             chatItemRepository,
@@ -181,7 +181,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          roomService.changeTopicState({
+          RealtimeRoomService.changeTopicState({
             userId: socket.id,
             topicId: received.topicId,
             type: received.type,
@@ -271,7 +271,7 @@ const createSocketIOServer = async (
       // ルームを終了する
       socket.on("ADMIN_FINISH_ROOM", () => {
         try {
-          const roomService = new RoomService(
+          const RealtimeRoomService = new RealtimeRoomService(
             roomRepository,
             userRepository,
             chatItemRepository,
@@ -279,7 +279,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          roomService.finish(socket.id)
+          RealtimeRoomService.finish(socket.id)
         } catch (e) {
           console.error(
             `${e.message ?? "Unknown error."} (ADMIN_FINISH_ROOM)`,
@@ -291,7 +291,7 @@ const createSocketIOServer = async (
       // ルームを閉じる
       socket.on("ADMIN_CLOSE_ROOM", () => {
         try {
-          const roomService = new RoomService(
+          const RealtimeRoomService = new RealtimeRoomService(
             roomRepository,
             userRepository,
             chatItemRepository,
@@ -299,7 +299,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          roomService.close(socket.id)
+          RealtimeRoomService.close(socket.id)
         } catch (e) {
           console.error(
             `${e.message ?? "Unknown error."} (ADMIN_CLOSE_ROOM)`,
