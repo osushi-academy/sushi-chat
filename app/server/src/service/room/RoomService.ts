@@ -18,9 +18,9 @@ class RoomService {
     private readonly stampDelivery: IStampDelivery,
   ) {}
 
-  public build(command: BuildRoomCommand): RoomClass {
+  public async build(command: BuildRoomCommand): Promise<RoomClass> {
     const room = new RoomClass(command.id, command.title, command.topics)
-    this.roomRepository.build(room)
+    await this.roomRepository.build(room)
 
     console.log(`new room build: ${command.id}`)
 

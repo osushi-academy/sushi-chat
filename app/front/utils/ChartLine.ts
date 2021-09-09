@@ -1,4 +1,5 @@
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
+import type { PropOptions } from "vue"
 import { ChartData, ChartOptions } from "chart.js"
 import { Line, mixins } from "vue-chartjs"
 

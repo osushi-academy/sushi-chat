@@ -83,7 +83,7 @@ const createSocketIOServer = async (
       console.log("user joined, now", activeUserCount)
 
       // ルームをたてる
-      socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
+      socket.on("ADMIN_BUILD_ROOM", async (received, callback) => {
         try {
           const roomId = uuid()
           const roomService = new RoomService(
@@ -94,7 +94,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          const newRoom = roomService.build({
+          const newRoom = await roomService.build({
             id: roomId,
             title: received.title,
             topics: received.topics,
