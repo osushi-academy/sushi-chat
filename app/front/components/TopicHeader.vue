@@ -23,7 +23,8 @@
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
+import type { PropOptions } from "vue"
 import { DownloadIcon, ZapIcon } from "vue-feather-icons"
 import { TopicState } from "@/models/contents"
 import { UserItemStore } from "~/store"
