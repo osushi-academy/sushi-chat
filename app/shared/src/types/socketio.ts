@@ -1,5 +1,4 @@
 import { ChatItemModel, ChatItemType, RoomState, StampModel } from "./models"
-import { Socket } from "socket.io"
 import { ErrorResponse, SuccessResponse } from "./responseBuilder"
 import { EmptyRecord } from "./utils"
 
@@ -150,5 +149,3 @@ export type ServerPubEventsMap = {
     params: ServerPubEventParam<EventName>,
   ) => void
 }
-
-export type SocketIOApiType = Socket<ServerListenEventsMap, ServerPubEventsMap>
