@@ -41,7 +41,7 @@ class UserService {
 
     this.userDelivery.enterRoom(admin, activeUserCount)
     this.userRepository.update(admin)
-    this.roomRepository.update(room)
+    await this.roomRepository.update(room)
 
     return {
       chatItems: chatItemResponses,
@@ -66,7 +66,7 @@ class UserService {
 
     this.userDelivery.enterRoom(user, activeUserCount)
     this.userRepository.update(user)
-    this.roomRepository.update(room)
+    await this.roomRepository.update(room)
 
     return {
       chatItems: chatItemResponses,
