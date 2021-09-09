@@ -31,22 +31,18 @@ class UserService {
     topics: Topic[]
     activeUserCount: number
   }> {
-    // TODO: roomIdの存在チェック挟んだ方が良さそう
+    const room = await this.findRoomOrThrow(command.roomId)
+    const activeUserCount = room.joinUser(command.adminId)
+
     const admin = this.userRepository.find(command.adminId)
     admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
-
-    const room = await this.findRoomOrThrow(command.roomId)
-    const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
-      room.chatItems,
-    )
-    const activeUserCount = room.joinUser(command.adminId)
 
     this.userDelivery.enterRoom(admin, activeUserCount)
     this.userRepository.update(admin)
     this.roomRepository.update(room)
 
     return {
-      chatItems: chatItemResponses,
+      chatItems: ChatItemResponseBuilder.buildChatItems(room.chatItems),
       topics: room.topics,
       activeUserCount,
     }
@@ -57,23 +53,19 @@ class UserService {
     topics: Topic[]
     activeUserCount: number
   }> {
+    const room = await this.findRoomOrThrow(command.roomId)
+    const activeUserCount = room.joinUser(command.userId)
     const iconId: IconId = NewIconId(command.iconId)
 
     const user = this.userRepository.find(command.userId)
     user.enterRoom(command.roomId, iconId)
-
-    const room = await this.findRoomOrThrow(command.roomId)
-    const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
-      room.chatItems,
-    )
-    const activeUserCount = room.joinUser(command.userId)
 
     this.userDelivery.enterRoom(user, activeUserCount)
     this.userRepository.update(user)
     this.roomRepository.update(room)
 
     return {
-      chatItems: chatItemResponses,
+      chatItems: ChatItemResponseBuilder.buildChatItems(room.chatItems),
       topics: room.topics,
       activeUserCount,
     }
