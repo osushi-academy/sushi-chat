@@ -55,7 +55,7 @@ const createSocketIOServer = async (
   let activeUserCount = 0
 
   const chatItemDelivery = new ChatItemDelivery(io)
-  const stampDelivery = StampDelivery.getInstance(io)
+  const stampDelivery = new StampDelivery(io)
   const roomService = new RoomService(
     roomRepository,
     userRepository,
