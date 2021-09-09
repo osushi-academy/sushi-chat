@@ -105,9 +105,9 @@ const createSocketIOServer = async (
       console.log("user joined, now", activeUserCount)
 
       // ルームをたてる
-      socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
+      socket.on("ADMIN_BUILD_ROOM", async (received, callback) => {
         try {
-          const newRoom = roomService.build({
+          const newRoom = await roomService.build({
             title: received.title,
             topics: received.topics,
           })

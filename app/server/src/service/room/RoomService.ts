@@ -20,7 +20,7 @@ class RoomService {
     private readonly roomFactory: IRoomFactory,
   ) {}
 
-  public build(command: BuildRoomCommand): RoomClass {
+  public async build(command: BuildRoomCommand): Promise<RoomClass> {
     const room = this.roomFactory.create(command.title, command.topics)
     this.roomRepository.build(room)
 
