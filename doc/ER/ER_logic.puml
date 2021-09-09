@@ -56,7 +56,7 @@ entity rooms {
     +id: uuid
     --
     ~room_state_id: int
-    #name: string
+    #title: string
     #invite_key: string
     #description: string
     #created_at: timestamp
@@ -79,7 +79,7 @@ entity topics {
     +id: int<<AUTO INCREMENT>>
     --
     ~topic_state_id: int
-    #name: string
+    #title: string
     #offset_mil_sec: int
     #created_at: timestamp
     #updated_at: timestamp
