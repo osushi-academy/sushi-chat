@@ -78,7 +78,7 @@ const createSocketIOServer = async (
       socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
         try {
           const roomId = uuid()
-          const RealtimeRoomService = new RealtimeRoomService(
+          const realtimeRoomService = new RealtimeRoomService(
             roomRepository,
             userRepository,
             chatItemRepository,
@@ -86,7 +86,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          const newRoom = RealtimeRoomService.build({
+          const newRoom = realtimeRoomService.build({
             id: roomId,
             title: received.title,
             topics: received.topics,
@@ -153,7 +153,7 @@ const createSocketIOServer = async (
       // ルームを開始する
       socket.on("ADMIN_START_ROOM", () => {
         try {
-          const RealtimeRoomService = new RealtimeRoomService(
+          const realtimeRoomService = new RealtimeRoomService(
             roomRepository,
             userRepository,
             chatItemRepository,
@@ -161,7 +161,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          RealtimeRoomService.start(socket.id)
+          realtimeRoomService.start(socket.id)
         } catch (e) {
           console.log(
             `${e.message ?? "Unknown error."} (ADMIN_START_ROOM)`,
@@ -173,7 +173,7 @@ const createSocketIOServer = async (
       // トピック状態の変更
       socket.on("ADMIN_CHANGE_TOPIC_STATE", (received) => {
         try {
-          const RealtimeRoomService = new RealtimeRoomService(
+          const realtimeRoomService = new RealtimeRoomService(
             roomRepository,
             userRepository,
             chatItemRepository,
@@ -181,7 +181,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          RealtimeRoomService.changeTopicState({
+          realtimeRoomService.changeTopicState({
             userId: socket.id,
             topicId: received.topicId,
             type: received.type,
@@ -271,7 +271,7 @@ const createSocketIOServer = async (
       // ルームを終了する
       socket.on("ADMIN_FINISH_ROOM", () => {
         try {
-          const RealtimeRoomService = new RealtimeRoomService(
+          const realtimeRoomService = new RealtimeRoomService(
             roomRepository,
             userRepository,
             chatItemRepository,
@@ -279,7 +279,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          RealtimeRoomService.finish(socket.id)
+          realtimeRoomService.finish(socket.id)
         } catch (e) {
           console.error(
             `${e.message ?? "Unknown error."} (ADMIN_FINISH_ROOM)`,
@@ -291,7 +291,7 @@ const createSocketIOServer = async (
       // ルームを閉じる
       socket.on("ADMIN_CLOSE_ROOM", () => {
         try {
-          const RealtimeRoomService = new RealtimeRoomService(
+          const realtimeRoomService = new RealtimeRoomService(
             roomRepository,
             userRepository,
             chatItemRepository,
@@ -299,7 +299,7 @@ const createSocketIOServer = async (
             new ChatItemDelivery(io),
             StampDelivery.getInstance(io),
           )
-          RealtimeRoomService.close(socket.id)
+          realtimeRoomService.close(socket.id)
         } catch (e) {
           console.error(
             `${e.message ?? "Unknown error."} (ADMIN_CLOSE_ROOM)`,
