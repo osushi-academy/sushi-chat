@@ -20,3 +20,19 @@ export type StampModel = {
   timestamp: number
   createdAt: string
 }
+
+export type Topic = {
+  id: number
+  order: number
+  name: string
+}
+
+export type RoomModel = {
+  id: string
+  name: string
+  topics: Topic[]
+  state: RoomState
+  description?: string
+  startDate: string
+  adminInviteKey?: string
+}
