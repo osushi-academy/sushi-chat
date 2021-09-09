@@ -65,7 +65,7 @@ paths:
           schema:
             type: object
             properties:
-              title:
+              name:
                 type: string
                 description: ルーム名
               topics:
@@ -73,14 +73,14 @@ paths:
                 items:
                   type: object
                   properties:
-                    title:
+                    name:
                       type: string
                   required:
-                    - title
+                    - name
               description:
                 type: string
             required:
-              - title
+              - name
               - topics
       responses:
         '200':
@@ -268,14 +268,14 @@ paths:
                     type: array
                     items:
                       $ref: '#/definitions/Stamp'
+                  activeUserCount:
+                    type: integer
+                    description: アクティブユーザ数
                   pinnedChatItemIds:
                     type: array
                     description: ピン留めされているChatItemのID
                     items:
                       type: string
-                  activeUserCount:
-                    type: integer
-                    description: アクティブユーザ数
         '400':
           $ref: '#/responses/Failure'
       description: |-
@@ -471,6 +471,8 @@ paths:
             properties:
               chatItemId:
                 type: string
+                description: ピン留めを外す場合はnullを指定する
+                x-nullable: true
           description: ''
     parameters: []
   /PUB_PINNED_MESSAGE:
@@ -484,12 +486,16 @@ paths:
           schema:
             type: object
             properties:
+              topicId:
+                type: number
               chatItemId:
                 type: string
+                description: nullの場合はピン留め解除
+                x-nullable: true
         '400':
           $ref: '#/responses/Failure'
       operationId: get-PUB_PIN_MESSAGE
-      description: '**スピーカー** メッセージのピン留めを解除する。新しくピン留めする場合は`/POST_PIN_MESSAGE`を使い、単に解除したい場合のみこちらを利用する'
+      description: ピン留めを配信する。chatItemIdがnullの場合は、ピン留め解除の配信になる。
       parameters: []
     parameters: []
   /ADMIN_FINISH_ROOM:
@@ -518,21 +524,20 @@ definitions:
         type: integer
         minimum: 1
         description: トピックの順序を表すindex（1始まり）
-      title:
+      name:
         type: string
     required:
       - id
       - order
-      - title
+      - name
   Room:
     title: Room
     type: object
-    x-examples: {}
     properties:
       id:
         type: string
         format: uuid
-      title:
+      name:
         type: string
       topics:
         type: array
@@ -551,7 +556,7 @@ definitions:
         description: 管理者招待キー（管理者がAPIを叩いた場合のみ含まれる）
     required:
       - id
-      - title
+      - name
       - topics
       - state
   ChatItem:
