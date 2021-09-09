@@ -122,7 +122,7 @@ class RoomClass {
   public changeTopicState = (
     topicId: string,
     type: ChangeTopicStateType,
-  ): { messages: Message[]; activeTopic: Topic | null } => {
+  ): Message[] => {
     this.assertRoomIsOpen()
 
     const targetTopic = this.findTopicOrThrow(topicId)
@@ -141,20 +141,17 @@ class RoomClass {
         const message = this.startTopic(targetTopic)
         messages.push(message)
 
-        return {
-          messages,
-          activeTopic: this.activeTopic,
-        }
+        return messages
       }
 
       case "PAUSE": {
-        const messages = [this.pauseTopic(targetTopic)]
-        return { messages, activeTopic: this.activeTopic }
+        const botMessage = this.pauseTopic(targetTopic)
+        return [botMessage]
       }
 
       case "CLOSE": {
         const botMessage = this.finishTopic(targetTopic)
-        return { messages: [botMessage], activeTopic: this.activeTopic }
+        return [botMessage]
       }
 
       default: {

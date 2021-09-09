@@ -49,7 +49,6 @@ class RoomService {
     room.finishRoom()
 
     this.roomDelivery.finish(room.id)
-    this.stampDelivery.finishIntervalDelivery()
     this.roomRepository.update(room)
   }
 
@@ -70,10 +69,7 @@ class RoomService {
     const roomId = user.getRoomIdOrThrow()
 
     const room = await this.findRoomOrThrow(roomId)
-    const { messages, activeTopic } = room.changeTopicState(
-      command.topicId,
-      command.type,
-    )
+    const messages = room.changeTopicState(command.topicId, command.type)
 
     this.roomDelivery.changeTopicState(command.type, roomId, command.topicId)
     this.roomRepository.update(room)
@@ -81,12 +77,6 @@ class RoomService {
     for (const m of messages) {
       this.chatItemDelivery.postMessage(m)
       this.chatItemRepository.saveMessage(m)
-    }
-
-    if (activeTopic !== null) {
-      this.stampDelivery.startIntervalDelivery()
-    } else {
-      this.stampDelivery.finishIntervalDelivery()
     }
   }
 
