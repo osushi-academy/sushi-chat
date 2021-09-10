@@ -92,11 +92,11 @@ paths:
                 type: string
                 enum:
                   - success
-              room:
+              data:
                 $ref: '#/definitions/Room'
             required:
               - result
-              - room
+              - data
         '400':
           $ref: '#/responses/Failure'
         '401':
@@ -455,7 +455,7 @@ paths:
               $ref: '#/definitions/Stamp'
   /POST_PINNED_MESSAGE:
     put:
-      summary: Your GET endpoint
+      summary: ピン留めを編集
       tags:
         - SocketIO
       responses:
@@ -471,11 +471,13 @@ paths:
             properties:
               chatItemId:
                 type: string
+                description: ピン留めを外す場合はnullを指定する
+                x-nullable: true
           description: ''
     parameters: []
   /PUB_PINNED_MESSAGE:
     get:
-      summary: Your GET endpoint
+      summary: ピン留めを配信
       tags:
         - SocketIO
       responses:
@@ -484,12 +486,16 @@ paths:
           schema:
             type: object
             properties:
+              topicId:
+                type: number
               chatItemId:
                 type: string
+                description: nullの場合はピン留め解除
+                x-nullable: true
         '400':
           $ref: '#/responses/Failure'
       operationId: get-PUB_PIN_MESSAGE
-      description: '**スピーカー** メッセージのピン留めを解除する。新しくピン留めする場合は`/POST_PIN_MESSAGE`を使い、単に解除したい場合のみこちらを利用する'
+      description: ピン留めを配信する。chatItemIdがnullの場合は、ピン留め解除の配信になる。
       parameters: []
     parameters: []
   /ADMIN_FINISH_ROOM:
@@ -548,15 +554,11 @@ definitions:
       adminInviteKey:
         type: string
         description: 管理者招待キー（管理者がAPIを叩いた場合のみ含まれる）
-      isArchived:
-        type: string
-        description: ルームがアーカイブされているか（管理者がAPIを叩いた場合のみ含まれる）
     required:
       - id
       - name
       - topics
       - state
-    x-examples: {}
   ChatItem:
     title: ChatItem
     type: object
