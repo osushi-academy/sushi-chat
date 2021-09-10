@@ -461,6 +461,8 @@ paths:
       responses:
         '200':
           $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
       operationId: get-SPEAKER_PIN_MESSAGE
       description: '**スピーカー** メッセージをピン留めする。既にピン留めメッセージがある場合は上書きする'
       parameters:
@@ -469,13 +471,17 @@ paths:
           schema:
             type: object
             properties:
+              topicId:
+                type: number
               chatItemId:
                 type: string
+                description: nullの場合はピン留め解除
+                x-nullable: true
           description: ''
     parameters: []
   /PUB_PINNED_MESSAGE:
     get:
-      summary: Your GET endpoint
+      summary: ピン留めを配信
       tags:
         - SocketIO
       responses:
@@ -484,12 +490,16 @@ paths:
           schema:
             type: object
             properties:
+              topicId:
+                type: number
               chatItemId:
                 type: string
+                description: nullの場合はピン留め解除
+                x-nullable: true
         '400':
           $ref: '#/responses/Failure'
       operationId: get-PUB_PIN_MESSAGE
-      description: '**スピーカー** メッセージのピン留めを解除する。新しくピン留めする場合は`/POST_PIN_MESSAGE`を使い、単に解除したい場合のみこちらを利用する'
+      description: ピン留めを配信する。chatItemIdがnullの場合は、ピン留め解除の配信になる。
       parameters: []
     parameters: []
   /ADMIN_FINISH_ROOM:
