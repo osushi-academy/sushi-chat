@@ -45,7 +45,7 @@ paths:
                 type: string
                 enum:
                   - success
-              rooms:
+              data:
                 type: array
                 items:
                   $ref: '#/definitions/Room'
@@ -92,11 +92,11 @@ paths:
                 type: string
                 enum:
                   - success
-              room:
+              data:
                 $ref: '#/definitions/Room'
             required:
               - result
-              - room
+              - data
         '400':
           $ref: '#/responses/Failure'
         '401':
@@ -122,11 +122,11 @@ paths:
                 type: string
                 enum:
                   - success
-              room:
+              data:
                 $ref: '#/definitions/Room'
             required:
               - result
-              - room
+              - data
         '400':
           $ref: '#/responses/Failure'
       operationId: get-room-id
@@ -173,19 +173,22 @@ paths:
                 type: string
                 enum:
                   - success
-              chatItems:
-                type: array
-                items:
-                  $ref: '#/definitions/ChatItem'
-              stamps:
-                type: array
-                items:
-                  $ref: '#/definitions/Stamp'
-              pinnedChatItemIds:
-                type: array
-                description: ピン留めされているChatItemのID
-                items:
-                  type: string
+              data:
+                type: object
+                properties:
+                  chatItems:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ChatItem'
+                  stamps:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Stamp'
+                  pinnedChatItemIds:
+                    type: array
+                    description: ピン留めされているChatItemのID
+                    items:
+                      type: string
             required:
               - result
               - chatItems
@@ -250,22 +253,29 @@ paths:
           schema:
             type: object
             properties:
-              chatItems:
-                type: array
-                items:
-                  $ref: '#/definitions/ChatItem'
-              stamps:
-                type: array
-                items:
-                  $ref: '#/definitions/Stamp'
-              activeUserCount:
-                type: integer
-                description: アクティブユーザ数
-              pinnedChatItemIds:
-                type: array
-                description: ピン留めされているChatItemのID
-                items:
-                  type: string
+              result:
+                type: string
+                enum:
+                  - success
+              date:
+                type: object
+                properties:
+                  chatItems:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ChatItem'
+                  stamps:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Stamp'
+                  activeUserCount:
+                    type: integer
+                    description: アクティブユーザ数
+                  pinnedChatItemIds:
+                    type: array
+                    description: ピン留めされているChatItemのID
+                    items:
+                      type: string
         '400':
           $ref: '#/responses/Failure'
       description: |-
@@ -402,9 +412,7 @@ paths:
         '200':
           description: OK
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/ChatItem'
+            $ref: '#/definitions/ChatItem'
       operationId: get-PUB_CHAT_ITEM
       description: '**管理者・一般ユーザ** チャットアイテムが配信される'
   /POST_STAMP:
@@ -447,14 +455,12 @@ paths:
               $ref: '#/definitions/Stamp'
   /POST_PINNED_MESSAGE:
     put:
-      summary: Your GET endpoint
+      summary: ピン留めを編集
       tags:
         - SocketIO
       responses:
         '200':
           $ref: '#/responses/Success'
-        '400':
-          $ref: '#/responses/Failure'
       operationId: get-SPEAKER_PIN_MESSAGE
       description: '**スピーカー** メッセージをピン留めする。既にピン留めメッセージがある場合は上書きする'
       parameters:
@@ -463,32 +469,34 @@ paths:
           schema:
             type: object
             properties:
-              topicId:
-                type: number
               chatItemId:
                 type: string
+                description: ピン留めを外す場合はnullを指定する
+                x-nullable: true
           description: ''
     parameters: []
   /PUB_PINNED_MESSAGE:
     get:
-      summary: Your GET endpoint
+      summary: ピン留めを配信
       tags:
         - SocketIO
       responses:
         '200':
-          $ref: '#/responses/Success'
-        '400':
-          $ref: '#/responses/Failure'
-      operationId: get-PUB_PIN_MESSAGE
-      description: '**スピーカー** メッセージのピン留めを解除する。新しくピン留めする場合は`/POST_PIN_MESSAGE`を使い、単に解除したい場合のみこちらを利用する'
-      parameters:
-        - in: body
-          name: body
+          description: OK
           schema:
             type: object
             properties:
               topicId:
                 type: number
+              chatItemId:
+                type: string
+                description: nullの場合はピン留め解除
+                x-nullable: true
+        '400':
+          $ref: '#/responses/Failure'
+      operationId: get-PUB_PIN_MESSAGE
+      description: ピン留めを配信する。chatItemIdがnullの場合は、ピン留め解除の配信になる。
+      parameters: []
     parameters: []
   /ADMIN_FINISH_ROOM:
     put:
@@ -546,15 +554,11 @@ definitions:
       adminInviteKey:
         type: string
         description: 管理者招待キー（管理者がAPIを叩いた場合のみ含まれる）
-      isArchived:
-        type: string
-        description: ルームがアーカイブされているか（管理者がAPIを叩いた場合のみ含まれる）
     required:
       - id
       - name
       - topics
       - state
-    x-examples: {}
   ChatItem:
     title: ChatItem
     type: object
