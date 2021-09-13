@@ -26,12 +26,12 @@ class RestRoomService {
   }
 
   // Roomをアーカイブし、閲覧できなくする。
-  public async close(userId: string) {
+  public async archive(userId: string) {
     const user = this.findUser(userId)
     const roomId = user.getRoomIdOrThrow()
 
     const room = await this.find(roomId)
-    room.closeRoom()
+    room.archiveRoom()
 
     this.roomRepository.update(room)
   }

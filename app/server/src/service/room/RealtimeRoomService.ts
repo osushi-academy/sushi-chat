@@ -48,7 +48,7 @@ class RealtimeRoomService {
     const roomId = user.getRoomIdOrThrow()
 
     const room = await this.find(roomId)
-    room.closeRoom()
+    room.archiveRoom()
 
     this.roomDelivery.close(room.id)
     this.roomRepository.update(room)

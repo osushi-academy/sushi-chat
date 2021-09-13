@@ -7,6 +7,7 @@ import IChatItemRepository from "../../../domain/chatItem/IChatItemRepository"
 import IStampRepository from "../../../domain/stamp/IStampRepository"
 import Topic, { TopicTimeData } from "../../../domain/room/Topic"
 import { TopicState } from "sushi-chat-front/models/contents"
+import RoomState from "../../../domain/room/RoomState"
 
 class RoomRepository implements IRoomRepository {
   private readonly pgClient = PGClientFactory.create()
@@ -88,7 +89,8 @@ class RoomRepository implements IRoomRepository {
       ])
 
     const roomTitle: string = roomRes.rows[0].title
-    const roomIsOpen = roomRes.rows[0].status === 1
+    const roomState: RoomState =
+      roomRes.rows[0].status === 1 ? "ongoing" : "not-started"
     const topics: Topic[] = []
     const topicTimeData: Record<string, TopicTimeData> = {}
     for (const r of topicsRes.rows) {
@@ -117,7 +119,7 @@ class RoomRepository implements IRoomRepository {
       userIds,
       chatItems,
       stampsCount,
-      roomIsOpen,
+      roomState,
     )
   }
 
