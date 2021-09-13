@@ -42,9 +42,9 @@ class RoomRepository implements IRoomRepository {
         t.title,
         t.description ?? "",
         0,
-        t.urls.github,
-        t.urls.slide,
-        t.urls.product,
+        "",
+        "",
+        "",
       ])
       const insertTopicsQuery = `INSERT INTO Topics (id, roomId, title, description, state, githuburl, slideurl, producturl) VALUES ${ArrayRange(
         values.length,
@@ -71,7 +71,7 @@ class RoomRepository implements IRoomRepository {
   public async find(roomId: string): Promise<RoomClass> {
     const roomQuery = "SELECT title, status FROM rooms WHERE id = $1"
     const topicsQuery =
-      "SELECT t.id, t.title, t.description, t.githuburl, t.slideurl, t.producturl, t.state, t.offset_mil_sec, toa.opened_at_mil_sec, tpa.paused_at_mil_sec " +
+      "SELECT t.id, t.title, t.description, t.state, t.offset_mil_sec, toa.opened_at_mil_sec, tpa.paused_at_mil_sec " +
       "FROM topics t " +
       "LEFT OUTER JOIN topic_opened_at toa on t.id = toa.topic_id AND t.roomid = toa.room_id " +
       "LEFT OUTER JOIN topic_paused_at tpa on t.id = tpa.topic_id AND t.roomid = tpa.room_id " +
@@ -97,11 +97,6 @@ class RoomRepository implements IRoomRepository {
         id,
         title: r.title,
         description: r.description,
-        urls: {
-          github: r.githuburl,
-          slide: r.slideurl,
-          product: r.producturl,
-        },
         state: RoomRepository.intToTopicState(r.state),
       })
       topicTimeData[id] = {
@@ -116,6 +111,7 @@ class RoomRepository implements IRoomRepository {
     return new RoomClass(
       roomId,
       roomTitle,
+      "" /* これはdescriptionです。 */,
       topics,
       topicTimeData,
       userIds,

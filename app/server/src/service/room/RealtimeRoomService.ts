@@ -18,15 +18,6 @@ class RealtimeRoomService {
     private readonly stampDelivery: IStampDelivery,
   ) {}
 
-  public build(command: BuildRoomCommand): RoomClass {
-    const room = new RoomClass(command.id, command.title, command.topics)
-    this.roomRepository.build(room)
-
-    console.log(`new room build: ${command.id}`)
-
-    return room
-  }
-
   public async start(userId: string) {
     const user = this.findUser(userId)
     const roomId = user.getRoomIdOrThrow()

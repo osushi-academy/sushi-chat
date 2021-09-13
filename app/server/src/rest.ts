@@ -1,22 +1,21 @@
+import express from "express"
 import { v4 as uuid } from "uuid"
 import RestRoomService from "./service/room/RestRoomService"
 import LocalMemoryUserRepository from "./infra/repository/User/LocalMemoryUserRepository"
 import ChatItemRepository from "./infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "./infra/repository/stamp/StampRepository"
 import RoomRepository from "./infra/repository/room/RoomRepository"
-import Topic from "./domain/room/Topic"
 
-// TODO:古い型に合わせる用。本来は不要。
-type NewTopic = {
-  title: string
+export const restSetup = (app: ReturnType<typeof express>) => {
+  app.get("/", (req, res) => res.send("ok"))
+
+  // 新しくルームを作成する
+  app.post("/room", (req, res) => {
+    buildRoom(req, res)
+  })
 }
 
-// TODO:古い型に合わせる用。本来は不要。
-const topicToOld = (t: NewTopic) => {
-  return { ...t, urls: {} }
-}
-
-export const buildRoom = (req, res) => {
+export const buildRoom = (req: express.Request, res: express.Response) => {
   const userRepository = LocalMemoryUserRepository.getInstance()
   const chatItemRepository = new ChatItemRepository()
   const stampRepository = new StampRepository()
@@ -25,11 +24,6 @@ export const buildRoom = (req, res) => {
     const roomService = new RestRoomService(
       new RoomRepository(userRepository, chatItemRepository, stampRepository),
       userRepository,
-    )
-
-    // TODO:古い型に合わせる用。本来は不要。
-    const newTopics = req.body.topics.map((topic: NewTopic) =>
-      topicToOld(topic),
     )
 
     const newRoom = roomService.build({
