@@ -20,9 +20,10 @@
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
-import SidebarContent from "@/components/Sidebar/SidebarContent.vue"
+import Vue from "vue"
+import type { PropOptions } from "vue"
 import { MenuIcon } from "vue-feather-icons"
+import SidebarContent from "@/components/Sidebar/SidebarContent.vue"
 
 type DataType = {
   showSidebar: boolean

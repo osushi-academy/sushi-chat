@@ -73,7 +73,8 @@
   </article>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
+import type { PropOptions } from "vue"
 import throttle from "lodash.throttle"
 import { XIcon, ChevronUpIcon } from "vue-feather-icons"
 import AnalysisGraph from "./AnalysisGraph.vue"

@@ -10,9 +10,10 @@
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
-import { Topic } from "@/models/contents"
+import Vue from "vue"
+import type { PropOptions } from "vue"
 import { ChartData, ChartOptions } from "chart.js"
+import { Topic } from "@/models/contents"
 import ChartLine from "~/utils/ChartLine"
 import { ChatItemStore } from "~/store"
 

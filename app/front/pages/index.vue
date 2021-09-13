@@ -49,7 +49,6 @@ import { AdminBuildRoomResponse } from "@/models/event"
 import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
-import SidebarDrawer from "~/components/Sidebar/SidebarDrawer.vue"
 import socket from "~/utils/socketIO"
 import { ChatItemStore, DeviceStore, UserItemStore } from "~/store"
 
@@ -77,7 +76,6 @@ export default Vue.extend({
     ChatRoom,
     SelectIconModal,
     CreateRoomModal,
-    SidebarDrawer,
   },
   data(): DataType {
     return {

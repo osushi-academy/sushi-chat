@@ -79,7 +79,8 @@
 </template>
 
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
+import type { PropOptions } from "vue"
 import ICONS from "@/utils/icons"
 import { TopicStatesPropType, Topic } from "@/models/contents"
 import { UserItemStore } from "~/store"
