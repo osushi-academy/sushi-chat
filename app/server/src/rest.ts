@@ -40,19 +40,26 @@ export const buildRoom = (req, res) => {
 
     res.send({
       result: "success",
-      data: [
+      room: [
         {
           id: newRoom.id,
           title: newRoom.title,
           topics: newRoom.topics,
+          /* state: newRoom.state,
+          description: newRoom.description,
+          startDate: newRoom.startDate,
+          adminInviteKey: newRoom.adminInviteKey,
+          isArchived: newRoom.isArchived, */
         },
       ],
     })
   } catch (e) {
-    console.error(
-      `${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
-      new Date().toISOString(),
-    )
-    res.send(`${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`)
+    res.send({
+      result: "error",
+      error: {
+        code: 400,
+        message: `${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
+      },
+    })
   }
 }
