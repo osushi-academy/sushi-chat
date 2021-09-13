@@ -74,37 +74,6 @@ const createSocketIOServer = async (
       activeUserCount++
       console.log("user joined, now", activeUserCount)
 
-      // ルームをたてる
-      socket.on("ADMIN_BUILD_ROOM", (received, callback) => {
-        try {
-          const roomId = uuid()
-          const realtimeRoomService = new RealtimeRoomService(
-            roomRepository,
-            userRepository,
-            chatItemRepository,
-            new RoomDelivery(io),
-            new ChatItemDelivery(io),
-            StampDelivery.getInstance(io),
-          )
-          const newRoom = realtimeRoomService.build({
-            id: roomId,
-            title: received.title,
-            topics: received.topics,
-          })
-
-          callback({
-            id: newRoom.id,
-            title: newRoom.title,
-            topics: newRoom.topics,
-          })
-        } catch (e) {
-          console.error(
-            `${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
       // 管理者がルームに参加する
       socket.on("ADMIN_ENTER_ROOM", async (received, callback) => {
         try {
