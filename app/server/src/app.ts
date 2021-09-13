@@ -6,6 +6,7 @@ import ChatItemRepository from "./infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "./infra/repository/stamp/StampRepository"
 import RoomRepository from "./infra/repository/room/RoomRepository"
 import { restSetup } from "./rest"
+import RestRoomService from "./service/room/RestRoomService"
 
 const app = express()
 const httpServer = createServer(app)
@@ -13,10 +14,17 @@ const httpServer = createServer(app)
 const userRepository = LocalMemoryUserRepository.getInstance()
 const chatItemRepository = new ChatItemRepository()
 const stampRepository = new StampRepository()
+const roomRepository = new RoomRepository(
+  userRepository,
+  chatItemRepository,
+  stampRepository,
+)
+const roomService = new RestRoomService(roomRepository, userRepository)
+
 createSocketIOServer(
   httpServer,
   userRepository,
-  new RoomRepository(userRepository, chatItemRepository, stampRepository),
+  roomRepository,
   chatItemRepository,
   stampRepository,
 )
@@ -29,4 +37,4 @@ httpServer.listen(PORT, function () {
 
 app.use(express.json())
 
-restSetup(app)
+restSetup(app, roomService)
