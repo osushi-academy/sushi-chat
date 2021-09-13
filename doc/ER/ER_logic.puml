@@ -1,4 +1,4 @@
-@startuml
+@startuml er
 
 hide circle
 skinparam inetype ortho
