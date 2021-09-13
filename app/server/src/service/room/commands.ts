@@ -5,6 +5,7 @@ export type BuildRoomCommand = {
   id: string
   title: string
   topics: Omit<Topic, "id" | "state">[]
+  description?: string
 }
 
 export type ChangeTopicStateCommand = {

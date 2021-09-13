@@ -35,7 +35,8 @@ export const buildRoom = (req, res) => {
     const newRoom = roomService.build({
       id: roomId,
       title: req.body.title,
-      topics: newTopics /* TODO:古い型に合わせる用。本来は req.body.topics */,
+      topics: req.body.topics,
+      description: req.body.description,
     })
 
     res.send({
@@ -44,9 +45,9 @@ export const buildRoom = (req, res) => {
         {
           id: newRoom.id,
           title: newRoom.title,
+          description: newRoom.description,
           topics: newRoom.topics,
           /* state: newRoom.state,
-          description: newRoom.description,
           startDate: newRoom.startDate,
           adminInviteKey: newRoom.adminInviteKey,
           isArchived: newRoom.isArchived, */

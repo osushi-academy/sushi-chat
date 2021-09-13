@@ -12,7 +12,12 @@ class RestRoomService {
 
   // Roomを作成する。
   public build(command: BuildRoomCommand): RoomClass {
-    const room = new RoomClass(command.id, command.title, command.topics)
+    const room = new RoomClass(
+      command.id,
+      command.title,
+      command.description ?? "",
+      command.topics,
+    )
     this.roomRepository.build(room)
 
     console.log(`new room build: ${command.id}`)

@@ -47,6 +47,7 @@ class RoomClass {
   constructor(
     public readonly id: string,
     public readonly title: string,
+    public readonly description: string,
     topics: (Omit<Topic, "id" | "state"> &
       Partial<Pick<Topic, "id" | "state">>)[],
     topicTimeData: Record<string, TopicTimeData> = {},
