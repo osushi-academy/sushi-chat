@@ -1,0 +1,198 @@
+@startuml er
+
+hide circle
+skinparam inetype ortho
+
+entity users {
+    +id: uuid
+    --
+    ~room_id: uuid
+    ~icon_id: int
+    #created_at: timestamp
+}
+note right: ルームに参加する匿名ユーザー
+
+entity topics_speakers{
+    ~user_id: uuid
+    ~topic_id: int
+    --
+}
+note bottom: 匿名ユーザーは自分のトピックを登録できる
+
+entity admins {
+    +id: string
+    --
+    #name: string
+    #created_at: timestamp
+    #updated_at: timestamp
+}
+note bottom: ルームの管理を行うユーザー
+
+entity rooms_admins {
+    ~admin_id: string
+    ~room_id: uuid
+    --
+    #created_at: timestamp
+}
+
+entity service_admins {
+    +id: uuid
+    --
+    #name: string
+    #created_at: timestamp
+    #updated_at: timestamp
+}
+note bottom: サービス自体のの管理者
+
+entity icons {
+    +id: int
+    --
+    #name: string (サーモンとかマグロとか)
+    #created_at: timestamp
+    #updated_at: timestamp
+}
+
+entity rooms {
+    +id: uuid
+    --
+    ~room_state_id: int
+    #title: string
+    #invite_key: string
+    #description: string
+    #created_at: timestamp
+    #start_at: timestamp
+    #finish_at: timestamp
+    #archived_at: timestamp
+    #updated_at: timestamp
+}
+
+entity room_states {
+    +id: int
+    --
+    #name: string
+    #created_at: timestamp
+    #updated_at: timestamp
+}
+
+entity topics {
+    ~room_id: uuid
+    +id: int<<AUTO INCREMENT>>
+    --
+    ~topic_state_id: int
+    #title: string
+    #offset_mil_sec: int
+    #created_at: timestamp
+    #updated_at: timestamp
+}
+
+entity topics_pinned_chat_item {
+    ~room_id: uuid
+    ~topic_id: int
+    ~chat_item_id: uuid
+    --
+}
+note bottom of topics_pinned_chat_item
+  1トピックに付き1つのチャットアイテムをピン留めでき、\
+
+end note
+
+entity topic_states {
+    +id: int
+    --
+    #name: string
+    #created_at: timestamp
+    #updated_at: timestamp
+}
+
+entity topic_opened_at {
+    ~room_id: uuid
+    ~topic_id: int
+    --
+    #opened_at_mil_sec: int
+}
+
+entity topic_paused_at{
+    ~room_id: uuid
+    ~topic_id: int
+    --
+    #paused_at_mil_sec: int
+}
+
+entity chat_items {
+    +id: uuid
+    --
+    ~room_id: uuid
+    ~topic_id: int
+    ~user_id: uuid
+    ~chat_item_type_id: int
+    ~sender_type_id:
+    ~quote_id uuid
+    content: string
+    #timestamp: int
+    #created_at: timestamp
+}
+note right of chat_items
+ あるchat_itemがその他のchat_itemに
+ 対する返信/回答/リアクションの場合、
+ 返信先のchat_itemのidがquote_idに入る。
+ 返信でないchat_itemのquote_idにはNULLが入る。
+ また、複数のchat_itemが同じchat_itemに
+ 返信することもできる。
+end note
+
+entity chat_item_types {
+    +id: int
+    --
+    #name: string
+    #created_at: timestamp
+    #updated_at: timestamp
+}
+
+entity sender_types {
+    +id: int
+    --
+    #name: string
+    #created_at: timestamp
+    #updated_at: timestamp
+}
+
+entity stamps {
+    +id: uuid
+    --
+    ~room_id: uuid
+    ~topic_id: int
+    ~user_id: uuid
+    #timestamp: int
+    #created_at: timestamp
+}
+
+users }o--|| icons
+users }o--|| rooms
+users ||--o{ topics_speakers
+topics ||--o{ topics_speakers
+admins ||--o{ rooms_admins
+rooms ||--|{ rooms_admins
+rooms }o--|| room_states
+topics }|--|| rooms
+topics ||--o{ topics_pinned_chat_item
+topics }o--|| topic_states
+topics ||--o| topic_opened_at
+topics ||--o| topic_paused_at
+chat_items||--o{ topics_pinned_chat_item
+chat_items }o--|| topics
+chat_items }o--|| users
+chat_items }o--|| chat_item_types
+chat_items |o--o{ chat_items
+chat_items }o--|| sender_types
+stamps }o--|| topics
+stamps }o--|| users
+
+entity example {
+    +primary_key: type
+    --
+    ~foreign_key: type
+    #not_null: type
+}
+note bottom: 上段にあるのが主キー\n(◯はインデント揃えるための飾り)で、\n△が外部キー、◇がNOT NULL
+
+@enduml

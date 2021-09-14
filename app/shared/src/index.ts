@@ -1,5 +1,5 @@
-export * from "./types/event"
-export * from "./types/model"
-export * from "./types/userInputActions"
-
-export const name = "sushi-chat"
+export * from "./types/models"
+export * from "./types/responseBuilder"
+export * from "./types/rest"
+export * from "./types/socketio"
+export * from "./types/utils"
