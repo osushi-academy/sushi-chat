@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./dist/app.js",
     "build": "tsc -p .",
-    "dev": "ts-node-dev --transpile-only --rs ./src/app.ts",
+    "dev": "ts-node-dev --require dotenv/config --transpile-only --rs ./src/app.ts",
     "test": "jest",
     "lint": "eslint ./src",
     "fix": "prettier --write \"**/*.{js,ts}\" --ignore-path .gitignore .",
@@ -19,6 +19,7 @@
     "@socket.io/redis-adapter": "^7.0.0",
     "@types/express": "^4.17.11",
     "bcrypt": "^5.0.1",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "firebase-admin": "^9.11.1",
     "node-uuid": "^1.4.8",
