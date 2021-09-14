@@ -3,6 +3,16 @@ import { ErrorResponse, SuccessResponse } from "./responseBuilder"
 import { EmptyRecord as Empty } from "./utils"
 
 export type RestApiDefinition = {
+  "/": {
+    params: Empty
+    methods: {
+      get: {
+        query: Empty
+        request: Empty
+        response: "ok"
+      }
+    }
+  }
   "/room": {
     params: Empty
     methods: {

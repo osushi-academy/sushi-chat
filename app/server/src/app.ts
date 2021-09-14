@@ -11,9 +11,7 @@ import PGPool from "./infra/repository/PGPool"
 const app = express()
 const httpServer = createServer(app)
 
-
 const apiRoutes: Routes = app
-
 
 const pgPool = new PGPool(
   process.env.DATABASE_URL as string,
@@ -43,6 +41,8 @@ httpServer.listen(PORT, () => {
 })
 
 app.use(express.json())
+
+app.get("/", (req, res) => res.send("ok"))
 
 // apiRoutes.get("/room/:id/history", (req, res) => {
 //   const roomId = req.params.id
