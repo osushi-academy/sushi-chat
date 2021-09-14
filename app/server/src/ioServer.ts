@@ -2,6 +2,7 @@ import { Server, Socket } from "socket.io"
 import { Server as HttpServer } from "http"
 import { ReceiveEventParams, ReceiveEventResponses } from "./events"
 import { instrument } from "@socket.io/admin-ui"
+import { createAdapter } from "@socket.io/redis-adapter"
 import { generateHash } from "./utils/crypt"
 import RoomService from "./service/room/RoomService"
 import StampService from "./service/stamp/StampService"
@@ -17,6 +18,7 @@ import UserDelivery from "./infra/delivery/user/UserDelivery"
 import RoomDelivery from "./infra/delivery/room/RoomDelivery"
 import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
 import StampDelivery from "./infra/delivery/stamp/StampDelivery"
+import { createClient } from "redis"
 
 const createSocketIOServer = async (
   httpServer: HttpServer,
@@ -28,10 +30,21 @@ const createSocketIOServer = async (
 ) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: "*",
+      origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
       methods: ["GET", "POST"],
+      credentials: true,
     },
   })
+
+  // redis adapterの設定
+  if (process.env.SOCKET_IO_ADAPTER?.toLowerCase() === "redis") {
+    const pubClient = createClient({
+      host: process.env.REDIS_HOST ?? "localhost",
+      port: parseInt(process.env.REDIS_PORT ?? "6379"),
+    })
+    const subClient = pubClient.duplicate()
+    io.adapter(createAdapter(pubClient, subClient))
+  }
 
   // SocketIO Adminの設定
   if (

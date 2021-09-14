@@ -7,7 +7,7 @@ class EphemeralStampDelivery implements IStampDelivery {
 
   constructor(
     private readonly subscribers: Stamp[][],
-    private readonly interval = 2000,
+    private readonly interval = 100,
   ) {}
 
   private static finishIntervalDelivery(): void {
