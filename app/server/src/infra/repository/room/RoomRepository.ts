@@ -1,6 +1,5 @@
 import IRoomRepository from "../../../domain/room/IRoomRepository"
 import RoomClass from "../../../domain/room/Room"
-import PGClientFactory from "../../factory/PGClientFactory"
 import { ArrayRange } from "../../../utils/range"
 import IUserRepository from "../../../domain/user/IUserRepository"
 import IChatItemRepository from "../../../domain/chatItem/IChatItemRepository"
@@ -8,68 +7,63 @@ import IStampRepository from "../../../domain/stamp/IStampRepository"
 import Topic, { TopicTimeData } from "../../../domain/room/Topic"
 import { TopicState } from "sushi-chat-front/models/contents"
 import RoomState from "../../../domain/room/RoomState"
+import PGPool from "../PGPool"
 
 class RoomRepository implements IRoomRepository {
-  private readonly pgClient = PGClientFactory.create()
-  private readonly rooms: Record<string, RoomClass> = {}
-
   constructor(
+    private readonly pgPoo: PGPool,
     private readonly userRepository: IUserRepository,
     private readonly chatItemRepository: IChatItemRepository,
     private readonly stampRepository: IStampRepository,
   ) {}
 
   public async build(room: RoomClass): Promise<void> {
-    this.rooms[room.id] = room
+    const pgClient = await this.pgPoo.client()
+
+    const insertRoomQuery =
+      "INSERT INTO Rooms (id, roomKey, title, status) VALUES ($1, '', $2, 0)"
+
+    // 挿入されるトピックの配列。クエリ発行の際に引数として渡すので変数に格納しておく
+    const insertedTopics = room.topics.map((t) => [
+      t.id,
+      room.id,
+      t.title,
+      t.description ?? "",
+      0,
+      "",
+      "",
+      "",
+    ])
+    // 挿入されるトピックを埋め込む部分の文字列を作成
+    // 例：($1, $2, $3, $4, $5, $6, $7, $8), ($9, $10, ...), ($17, ...), ...
+    const insertedTopicsStr = ArrayRange(insertedTopics.length)
+      .map(
+        (i) =>
+          `(${ArrayRange(8)
+            .map((j) => `$${i * 8 + j + 1}`)
+            .join(", ")})`,
+      )
+      .join(", ")
+    const insertTopicsQuery = `INSERT INTO Topics (id, roomId, title, description, state, githuburl, slideurl,producturl) VALUES ${insertedTopicsStr}`
 
     try {
-      const insertRoomQuery =
-        "INSERT INTO Rooms (id, roomKey, title, status) VALUES ($1, '', $2, 0)"
-      await this.pgClient.query(insertRoomQuery, [room.id, room.title])
+      await pgClient.query(insertRoomQuery, [room.id, room.title])
+      await pgClient.query(insertTopicsQuery, insertedTopics.flat())
     } catch (e) {
       console.error(
         `${
           e.message ?? "Unknown error."
         } (SAVE ROOM/TOPIC IN DB) ${new Date().toISOString()}`,
       )
-
       throw e
-    }
-
-    try {
-      const values = room.topics.map((t) => [
-        t.id,
-        room.id,
-        t.title,
-        t.description ?? "",
-        0,
-        "",
-        "",
-        "",
-      ])
-      const insertTopicsQuery = `INSERT INTO Topics (id, roomId, title, description, state, githuburl, slideurl, producturl) VALUES ${ArrayRange(
-        values.length,
-      )
-        .map(
-          (i) =>
-            `(${ArrayRange(8)
-              .map((j) => `$${i * 8 + j + 1}`)
-              .join(", ")})`,
-        )
-        .join(", ")}`
-      await this.pgClient.query(insertTopicsQuery, values.flat())
-    } catch (e) {
-      console.error(
-        `${
-          e.message ?? "Unknown error."
-        } (SAVE ROOM/TOPIC IN DB) ${new Date().toISOString()}`,
-      )
-
-      throw e
+    } finally {
+      pgClient.release()
     }
   }
 
   public async find(roomId: string): Promise<RoomClass> {
+    const pgClient = await this.pgPoo.client()
+
     const roomQuery = "SELECT title, status FROM rooms WHERE id = $1"
     const topicsQuery =
       "SELECT t.id, t.title, t.description, t.state, t.offset_mil_sec, toa.opened_at_mil_sec, tpa.paused_at_mil_sec " +
@@ -81,12 +75,12 @@ class RoomRepository implements IRoomRepository {
 
     const [roomRes, topicsRes, users, stampsCount, chatItems] =
       await Promise.all([
-        this.pgClient.query(roomQuery, [roomId]),
-        this.pgClient.query(topicsQuery, [roomId]),
+        pgClient.query(roomQuery, [roomId]),
+        pgClient.query(topicsQuery, [roomId]),
         this.userRepository.selectByRoomId(roomId),
         this.stampRepository.count(roomId),
         this.chatItemRepository.selectByRoomId(roomId),
-      ])
+      ]).finally(pgClient.release)
 
     const roomTitle: string = roomRes.rows[0].title
     const roomState: RoomState =
@@ -123,43 +117,58 @@ class RoomRepository implements IRoomRepository {
     )
   }
 
-  public update(room: RoomClass) {
-    const roomQuery = "UPDATE rooms SET status = $1 WHERE id = $2"
-    this.pgClient.query(roomQuery, [room.isOpened ? 1 : 0, room.id])
+  public async update(room: RoomClass) {
+    const pgClient = await this.pgPoo.client()
 
-    // NOTE: できたら1クエリで処理したい
-    for (const t of room.topics) {
-      const topicQuery =
-        "UPDATE topics SET state = $1, offset_mil_sec = $2 WHERE roomid = $3 AND id = $4"
-      this.pgClient.query(topicQuery, [
-        RoomRepository.topicStateMap[t.state],
-        room.topicTimeData[t.id].offsetTime,
-        room.id,
-        t.id,
-      ])
+    const roomQuery = "UPDATE rooms SET status = $1 WHERE id = $2"
+    const updateRoom = async () => {
+      await pgClient.query(roomQuery, [room.isOpened ? 1 : 0, room.id])
     }
 
-    for (const [topicId, timeData] of Object.entries(room.topicTimeData)) {
-      if (timeData.openedDate !== null) {
-        const openedAtQuery =
-          "INSERT INTO topic_opened_at (topic_id, room_id, opened_at_mil_sec) VALUES($1, $2, $3) " +
-          "ON CONFLICT (topic_id, room_id) DO UPDATE SET opened_at_mil_sec = $3"
-        this.pgClient.query(openedAtQuery, [
-          topicId,
-          room.id,
-          timeData.openedDate,
-        ])
-      }
-      if (timeData.pausedDate !== null) {
-        const pausedAtQuery =
-          "INSERT INTO topic_paused_at (topic_id, room_id, paused_at_mil_sec) VALUES($1, $2, $3) " +
-          "ON CONFLICT (topic_id, room_id) DO UPDATE SET paused_at_mil_sec = $3"
-        this.pgClient.query(pausedAtQuery, [
-          topicId,
-          room.id,
-          timeData.pausedDate,
-        ])
-      }
+    const topicQuery =
+      "UPDATE topics SET state = $1, offset_mil_sec = $2 WHERE roomid = $3 AND id = $4"
+    const updateTopic = async () => {
+      await Promise.all(
+        room.topics.map((t) =>
+          pgClient.query(topicQuery, [
+            RoomRepository.topicStateMap[t.state],
+            room.topicTimeData[t.id].offsetTime,
+            room.id,
+            t.id,
+          ]),
+        ),
+      )
+    }
+
+    const openedAtQuery =
+      "INSERT INTO topic_opened_at (topic_id, room_id, opened_at_mil_sec) VALUES($1, $2, $3) " +
+      "ON CONFLICT (topic_id, room_id) DO UPDATE SET opened_at_mil_sec = $3"
+    const pausedAtQuery =
+      "INSERT INTO topic_paused_at (topic_id, room_id, paused_at_mil_sec) VALUES($1, $2, $3) " +
+      "ON CONFLICT (topic_id, room_id) DO UPDATE SET paused_at_mil_sec = $3"
+    const updateTopicTimeData = async () => {
+      await Promise.all(
+        Object.entries(room.topicTimeData).map(([topicId, timeData]) => {
+          if (timeData.openedDate !== null) {
+            pgClient
+              .query(openedAtQuery, [topicId, room.id, timeData.openedDate])
+              .catch(console.error)
+          }
+          if (timeData.pausedDate !== null) {
+            pgClient
+              .query(pausedAtQuery, [topicId, room.id, timeData.pausedDate])
+              .catch(console.error)
+          }
+        }),
+      )
+    }
+
+    try {
+      // NOTE: 毎回全てのトピックのstateとtimeDataを更新しており、かつ複数クエリを発行しているので、
+      //       パフォーマンスの問題が出てきたらここを疑う
+      await Promise.all([updateRoom(), updateTopic(), updateTopicTimeData()])
+    } finally {
+      pgClient.release()
     }
   }
 

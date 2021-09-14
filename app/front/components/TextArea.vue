@@ -33,7 +33,8 @@
   </section>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
+import type { PropOptions } from "vue"
 import { TopicPropType } from "@/models/contents"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 
