@@ -11,6 +11,9 @@
       <li>uid: {{ authUser.uid }}</li>
       <li>emailVerified: {{ authUser.emailVerified }}</li>
     </ul>
+    <button @click="callSampleApi">
+      サーバサイドの認証必須API呼び出しテスト
+    </button>
     <button @click="logout">ログアウト</button>
   </div>
 </template>
@@ -25,6 +28,18 @@ export default Vue.extend({
     },
   },
   methods: {
+    async callSampleApi() {
+      try {
+        const res = await this.$axios.$get("http://localhost:7000/auth-test", {
+          headers: {
+            Authorization: AuthStore.idToken,
+          },
+        })
+        console.log(res)
+      } catch (e) {
+        console.log(e)
+      }
+    },
     async logout() {
       try {
         await this.$fire.auth.signOut()
