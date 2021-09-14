@@ -3,6 +3,7 @@ import { Server as HttpServer } from "http"
 import { v4 as uuid } from "uuid"
 import { ReceiveEventParams, ReceiveEventResponses } from "./events"
 import { instrument } from "@socket.io/admin-ui"
+import { createAdapter } from "@socket.io/redis-adapter"
 import { generateHash } from "./utils/crypt"
 import RoomService from "./service/room/RoomService"
 import StampService from "./service/stamp/StampService"
@@ -23,6 +24,7 @@ import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ServerPubEventsMap,
 } from "sushi-chat-shared"
+import { createClient } from "redis"
 
 const createSocketIOServer = async (
   httpServer: HttpServer,
@@ -33,10 +35,21 @@ const createSocketIOServer = async (
 ) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: "*",
+      origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
       methods: ["GET", "POST"],
+      credentials: true,
     },
   })
+
+  if (process.env.SOCKET_IO_ADAPTER?.toLowerCase() === "redis") {
+    const pubClient = createClient({
+      host: process.env.REDIS_HOST ?? "localhost",
+      port: parseInt(process.env.REDIS_PORT ?? "6379"),
+    })
+    const subClient = pubClient.duplicate()
+    io.adapter(createAdapter(pubClient, subClient))
+  }
+
   if (
     process.env.NODE_ENV == "production" &&
     process.env.SOCKET_IO_ADMIN_UI_PASSWORD === undefined
