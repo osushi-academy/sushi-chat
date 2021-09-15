@@ -64,6 +64,10 @@ resource "aws_lb_target_group" "main" {
     path = "/"
   }
 
+  stickiness {
+    type = "lb_cookie"
+  }
+
   tags = {
     Name    = "${var.project}-target-group"
     project = var.project
