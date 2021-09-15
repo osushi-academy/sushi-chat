@@ -1,4 +1,6 @@
 #!/bin/bash
 
-cd /app/app/server || exit 1
-yarn build
+cd /app || exit 1
+
+yarn build:shared
+yarn build:server
