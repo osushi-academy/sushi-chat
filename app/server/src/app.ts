@@ -5,6 +5,8 @@ import LocalMemoryUserRepository from "./infra/repository/User/LocalMemoryUserRe
 import ChatItemRepository from "./infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "./infra/repository/stamp/StampRepository"
 import RoomRepository from "./infra/repository/room/RoomRepository"
+import { restSetup } from "./rest"
+import RestRoomService from "./service/room/RestRoomService"
 import PGPool from "./infra/repository/PGPool"
 
 const app = express()
@@ -17,15 +19,18 @@ const pgPool = new PGPool(
 const userRepository = LocalMemoryUserRepository.getInstance()
 const chatItemRepository = new ChatItemRepository(pgPool)
 const stampRepository = new StampRepository(pgPool)
+const roomRepository = new RoomRepository(
+  pgPool,
+  userRepository,
+  chatItemRepository,
+  stampRepository,
+)
+const roomService = new RestRoomService(roomRepository, userRepository)
+
 createSocketIOServer(
   httpServer,
   userRepository,
-  new RoomRepository(
-    pgPool,
-    userRepository,
-    chatItemRepository,
-    stampRepository,
-  ),
+  roomRepository,
   chatItemRepository,
   stampRepository,
 )
@@ -36,4 +41,6 @@ httpServer.listen(PORT, () => {
   console.log("server listening. Port:" + PORT)
 })
 
-app.get("/", (req, res) => res.send("ok"))
+app.use(express.json())
+
+restSetup(app, roomService)

@@ -7,6 +7,7 @@ import UserClass from "../user/User"
 import Topic, { TopicTimeData } from "./Topic"
 import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
+import RoomState from "./RoomState"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -33,7 +34,11 @@ class RoomClass {
   }
 
   public get isOpened(): boolean {
-    return this._isOpened
+    return this._state == "ongoing"
+  }
+
+  public get state(): RoomState {
+    return this._state
   }
 
   public calcTimestamp = (topicId: string): number => {
@@ -47,13 +52,14 @@ class RoomClass {
   constructor(
     public readonly id: string,
     public readonly title: string,
+    public readonly description: string,
     topics: (Omit<Topic, "id" | "state"> &
       Partial<Pick<Topic, "id" | "state">>)[],
     topicTimeData: Record<string, TopicTimeData> = {},
     private userIds = new Set<string>([]),
     private _chatItems: ChatItem[] = [],
     private stampsCount = 0,
-    private _isOpened = false,
+    private _state: RoomState = "not-started",
   ) {
     this._topics = topics.map((topic, i) => ({
       ...topic,
@@ -73,24 +79,24 @@ class RoomClass {
    * ルームを開始する
    */
   public startRoom = () => {
-    this.assertRoomIsNotOpen()
-    this._isOpened = true
+    this.assertRoomIsNotStarted()
+    this._state = "ongoing"
   }
 
   /**
    * ルームを終了する
    */
   public finishRoom = () => {
-    this.assertRoomIsOpen()
-    this._isOpened = false
+    this.assertRoomIsOngoing()
+    this._state = "finished"
   }
 
   /**
    * ルームを閉じる
    */
-  public closeRoom = () => {
-    // TODO: 「ルームを閉じる」=「過去の履歴の閲覧もできなくなる」らしいので、isOpenedとは別のフラグを持つべき。
-    this._isOpened = false
+  public archiveRoom = () => {
+    this.assertRoomIsFinished()
+    this._state = "archived"
   }
 
   /**
@@ -123,7 +129,7 @@ class RoomClass {
     topicId: string,
     type: ChangeTopicStateType,
   ): { messages: Message[]; activeTopic: Topic | null } => {
-    this.assertRoomIsOpen()
+    this.assertRoomIsOngoing()
 
     const targetTopic = this.findTopicOrThrow(topicId)
 
@@ -248,7 +254,7 @@ class RoomClass {
    * @param stamp 投稿されたstamp
    */
   public postStamp = (stamp: Stamp) => {
-    this.assertRoomIsOpen()
+    this.assertRoomIsOngoing()
     this.assertUserExists(stamp.userId)
 
     this.stampsCount++
@@ -260,7 +266,7 @@ class RoomClass {
    * @param chatItem
    */
   public postChatItem = (userId: string, chatItem: ChatItem) => {
-    this.assertRoomIsOpen()
+    this.assertRoomIsOngoing()
     this.assertUserExists(userId)
 
     this._chatItems.push(chatItem)
@@ -308,17 +314,23 @@ class RoomClass {
     return openedDate
   }
 
-  private assertRoomIsOpen() {
-    if (!this._isOpened) {
-      throw new Error(`Room(id: ${this.id}) is not opened.`)
+  private assertRoomIsOngoing() {
+    if (this._state != "ongoing") {
+      throw new Error(`Room(id: ${this.id}) is not ongoing.`)
     }
   }
 
-  private assertRoomIsNotOpen() {
-    if (this._isOpened) {
+  private assertRoomIsNotStarted() {
+    if (this._state != "not-started") {
       throw new Error(
-        `[sushi-chat-server] Room(id: ${this.id}) has already opened.`,
+        `[sushi-chat-server] Room(id: ${this.id}) has already started.`,
       )
+    }
+  }
+
+  private assertRoomIsFinished() {
+    if (this._state != "finished") {
+      throw new Error(`Room(id: ${this.id}) is not finished.`)
     }
   }
 
