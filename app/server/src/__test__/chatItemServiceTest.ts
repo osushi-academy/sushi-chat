@@ -15,6 +15,7 @@ import Message from "../domain/chatItem/Message"
 import Reaction from "../domain/chatItem/Reaction"
 import Question from "../domain/chatItem/Question"
 import Answer from "../domain/chatItem/Answer"
+import RoomFactory from "../infra/factory/RoomFactory"
 
 describe("ChatItemServiceのテスト", () => {
   let adminId: string
@@ -44,7 +45,6 @@ describe("ChatItemServiceのテスト", () => {
     targetChatItemUserId = getUUID()
     targetChatItemUserIconId = "2"
 
-    roomId = getUUID()
     topicIdToBePosted = "1"
 
     targetId = getUUID()
@@ -63,6 +63,7 @@ describe("ChatItemServiceのテスト", () => {
     const roomDelivery = new EphemeralRoomDelivery([])
     const userDelivery = new EphemeralUserDelivery([])
     const stampDelivery = new EphemeralStampDelivery([])
+    const roomFactory = new RoomFactory()
 
     chatItemService = new ChatItemService(
       chatItemRepository,
@@ -78,11 +79,11 @@ describe("ChatItemServiceのテスト", () => {
       roomDelivery,
       chatItemDelivery,
       stampDelivery,
+      roomFactory,
     )
 
     userService.createUser({ userId: adminId })
-    roomService.build({
-      id: roomId,
+    const newRoom = await roomService.build({
       title: "テストルーム",
       topics: [1, 2].map((i) => ({
         title: `テストトピック${i}`,
@@ -90,6 +91,7 @@ describe("ChatItemServiceのテスト", () => {
         urls: {},
       })),
     })
+    roomId = newRoom.id
     await userService.adminEnterRoom({ adminId, roomId })
     await roomService.start(adminId)
     await roomService.changeTopicState({

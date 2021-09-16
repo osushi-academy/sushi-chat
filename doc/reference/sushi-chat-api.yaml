@@ -1,4 +1,4 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
   title: sushi-chat-api
   version: 1.0.1
@@ -8,7 +8,7 @@ info:
     Socket.IOのイベントは以下のルールで書いています
     POST/PUT：クライアント→サーバのイベント。送信内容をリクエストに、レスポンスをレスポンスに記載。
     GET：サーバ→クライアントのイベント。リクエストは空で、送信内容をレスポンスに記載。
-host: "localhost:8000"
+host: 'localhost:8000'
 schemes:
   - http
 produces:
@@ -25,10 +25,10 @@ paths:
       description: 登録、ログインを行うためのエンドポイント
       parameters: []
       responses:
-        "200":
-          $ref: "#/responses/Success"
-        "400":
-          $ref: "#/responses/Failure"
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
     parameters: []
   /room:
     get:
@@ -36,7 +36,7 @@ paths:
       tags:
         - room
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             type: object
@@ -48,11 +48,11 @@ paths:
               data:
                 type: array
                 items:
-                  $ref: "#/definitions/Room"
-        "400":
-          $ref: "#/responses/Failure"
-        "401":
-          $ref: "#/responses/Unuthenticated"
+                  $ref: '#/definitions/Room'
+        '400':
+          $ref: '#/responses/Failure'
+        '401':
+          $ref: '#/responses/Unuthenticated'
       operationId: get-room
       description: 自分が管理しているルームの一覧を取得する
     post:
@@ -65,7 +65,7 @@ paths:
           schema:
             type: object
             properties:
-              name:
+              title:
                 type: string
                 description: ルーム名
               topics:
@@ -73,17 +73,17 @@ paths:
                 items:
                   type: object
                   properties:
-                    name:
+                    title:
                       type: string
                   required:
-                    - name
+                    - title
               description:
                 type: string
             required:
-              - name
+              - title
               - topics
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             type: object
@@ -93,17 +93,17 @@ paths:
                 enum:
                   - success
               data:
-                $ref: "#/definitions/Room"
+                $ref: '#/definitions/Room'
             required:
               - result
               - data
-        "400":
-          $ref: "#/responses/Failure"
-        "401":
-          $ref: "#/responses/Unuthenticated"
+        '400':
+          $ref: '#/responses/Failure'
+        '401':
+          $ref: '#/responses/Unuthenticated'
       tags:
         - room
-  "/room/{id}":
+  '/room/{id}':
     parameters:
       - type: string
         name: id
@@ -113,7 +113,7 @@ paths:
     get:
       summary: ルーム詳細情報の取得
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             type: object
@@ -123,38 +123,38 @@ paths:
                 enum:
                   - success
               data:
-                $ref: "#/definitions/Room"
+                $ref: '#/definitions/Room'
             required:
               - result
               - data
-        "400":
-          $ref: "#/responses/Failure"
+        '400':
+          $ref: '#/responses/Failure'
       operationId: get-room-id
-      description: "**一般ユーザ**：ルーム情報を取得する（チャットページ）"
+      description: '**一般ユーザ**：ルーム情報を取得する（チャットページ）'
       parameters: []
       security: []
       tags:
         - room
-  "/rooms/{id}/start":
+  '/rooms/{id}/start':
     parameters:
       - type: string
         name: id
         in: path
         required: true
     put:
-      summary: ""
+      summary: ''
       operationId: put-rooms-id-start
       responses:
-        "200":
-          $ref: "#/responses/Success"
-        "400":
-          $ref: "#/responses/Failure"
-        "401":
-          $ref: "#/responses/Unuthenticated"
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+        '401':
+          $ref: '#/responses/Unuthenticated'
       description: ルームを開始する（これ以降トピックの開始などが可能になる。またアクセスしてきたユーザにはWebSocketが繋がれる）
       tags:
         - room
-  "/room/{id}/history":
+  '/room/{id}/history':
     parameters:
       - type: string
         name: id
@@ -164,7 +164,7 @@ paths:
     get:
       summary: ルームのチャット、スタンプ履歴を取得する
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             type: object
@@ -179,11 +179,11 @@ paths:
                   chatItems:
                     type: array
                     items:
-                      $ref: "#/definitions/ChatItem"
+                      $ref: '#/definitions/ChatItem'
                   stamps:
                     type: array
                     items:
-                      $ref: "#/definitions/Stamp"
+                      $ref: '#/definitions/Stamp'
                   pinnedChatItemIds:
                     type: array
                     description: ピン留めされているChatItemのID
@@ -193,15 +193,15 @@ paths:
               - result
               - chatItems
               - stamps
-        "400":
-          $ref: "#/responses/Failure"
-        "401":
-          $ref: "#/responses/Unuthenticated"
+        '400':
+          $ref: '#/responses/Failure'
+        '401':
+          $ref: '#/responses/Unuthenticated'
       operationId: get-room-id-history
       description: チャット履歴・スタンプ履歴を取得する
       tags:
         - room
-  "/room/{id}/archive":
+  '/room/{id}/archive':
     parameters:
       - type: string
         name: id
@@ -211,13 +211,13 @@ paths:
     put:
       summary: ルームを公開停止する
       operationId: post-room-id-archive
-      description: "**管理者**：ルームを公開停止にする"
+      description: '**管理者**：ルームを公開停止にする'
       tags:
         - room
       responses:
-        "200":
-          $ref: "#/responses/Success"
-  "/room/{id}/invited":
+        '200':
+          $ref: '#/responses/Success'
+  '/room/{id}/invited':
     parameters:
       - type: string
         name: id
@@ -228,19 +228,19 @@ paths:
       summary: ルームと新しい管理者を紐付ける
       operationId: post-room-id-invited
       responses:
-        "200":
-          $ref: "#/responses/Success"
-        "400":
-          $ref: "#/responses/Failure"
-        "401":
-          $ref: "#/responses/Unuthenticated"
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+        '401':
+          $ref: '#/responses/Unuthenticated'
       parameters:
         - type: string
           in: query
           name: admin_invite_key
           description: 管理者招待キー
           required: true
-      description: ""
+      description: ''
       tags:
         - room
   /ENTER_ROOM:
@@ -248,7 +248,7 @@ paths:
       summary: ルームに入室する
       operationId: put-ENTER_ROOM
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             type: object
@@ -263,11 +263,11 @@ paths:
                   chatItems:
                     type: array
                     items:
-                      $ref: "#/definitions/ChatItem"
+                      $ref: '#/definitions/ChatItem'
                   stamps:
                     type: array
                     items:
-                      $ref: "#/definitions/Stamp"
+                      $ref: '#/definitions/Stamp'
                   activeUserCount:
                     type: integer
                     description: アクティブユーザ数
@@ -320,7 +320,7 @@ paths:
       tags:
         - SocketIO
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             type: object
@@ -330,17 +330,17 @@ paths:
             required:
               - activeUserCount
       operationId: get-PUB_USER_COUNT
-      description: "**管理者・一般ユーザ** アクティブユーザ数が変化した場合に、それが通知される"
+      description: '**管理者・一般ユーザ** アクティブユーザ数が変化した場合に、それが通知される'
   /ADMIN_CHANGE_TOPIC_STATE:
     put:
       summary: 管理者がトピックを変更する
       operationId: put-ADMIN_CHANGE_TOPIC_STATE
       responses:
-        "200":
-          $ref: "#/responses/Success"
-        "400":
-          $ref: "#/responses/Failure"
-      description: "**管理者**：トピックの状態を変更する"
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      description: '**管理者**：トピックの状態を変更する'
       parameters:
         - in: body
           name: body
@@ -350,11 +350,11 @@ paths:
               topicId:
                 type: number
               state:
-                $ref: "#/definitions/TopicState"
+                $ref: '#/definitions/TopicState'
             required:
               - topicId
               - state
-          description: ""
+          description: ''
       tags:
         - SocketIO
   /PUB_CHANGE_TOPIC_STATE:
@@ -363,7 +363,7 @@ paths:
       tags:
         - SocketIO
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             type: object
@@ -371,22 +371,22 @@ paths:
               topicId:
                 type: number
               state:
-                $ref: "#/definitions/TopicState"
+                $ref: '#/definitions/TopicState'
             required:
               - topicId
               - state
       operationId: get-PUB_CHANGE_TOPIC_STATE
-      description: "**管理者・一般ユーザ** トピックの状態の更新が通知される"
+      description: '**管理者・一般ユーザ** トピックの状態の更新が通知される'
   /POST_CHAT_ITEM:
     post:
       summary: チャットを投稿
       operationId: post-POST_CHAT_ITEM
       responses:
-        "200":
-          $ref: "#/responses/Success"
-        "400":
-          $ref: "#/responses/Failure"
-      description: "**管理者・一般ユーザ** チャットアイテムを投稿する"
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      description: '**管理者・一般ユーザ** チャットアイテムを投稿する'
       parameters:
         - in: body
           name: body
@@ -399,7 +399,7 @@ paths:
               topicId:
                 type: number
               type:
-                $ref: "#/definitions/ChatItemType"
+                $ref: '#/definitions/ChatItemType'
               content:
                 type: string
                 description: reactionの場合のみnull
@@ -418,21 +418,21 @@ paths:
       tags:
         - SocketIO
       responses:
-        "200":
+        '200':
           description: OK
           schema:
-            $ref: "#/definitions/ChatItem"
+            $ref: '#/definitions/ChatItem'
       operationId: get-PUB_CHAT_ITEM
-      description: "**管理者・一般ユーザ** チャットアイテムが配信される"
+      description: '**管理者・一般ユーザ** チャットアイテムが配信される'
   /POST_STAMP:
     post:
       summary: スタンプを投稿
       operationId: post-POST_STAMP
       responses:
-        "200":
-          $ref: "#/responses/Success"
-        "400":
-          $ref: "#/responses/Failure"
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
       description: |-
         **管理者・一般ユーザ** スタンプを投稿する
 
@@ -445,7 +445,7 @@ paths:
             properties:
               topicId:
                 type: number
-          description: ""
+          description: ''
       tags:
         - SocketIO
   /PUB_STAMP:
@@ -454,26 +454,26 @@ paths:
       tags:
         - SocketIO
       operationId: get-PUB_STAMP
-      description: "**管理者・一般ユーザ**：スタンプが配信される（バッチ処理）"
+      description: '**管理者・一般ユーザ**：スタンプが配信される（バッチ処理）'
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             type: array
             items:
-              $ref: "#/definitions/Stamp"
+              $ref: '#/definitions/Stamp'
   /POST_PINNED_MESSAGE:
     put:
       summary: ピン留めを編集
       tags:
         - SocketIO
       responses:
-        "200":
-          $ref: "#/responses/Success"
-        "400":
-          $ref: "#/responses/Failure"
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
       operationId: get-SPEAKER_PIN_MESSAGE
-      description: "**スピーカー** メッセージをピン留めする。既にピン留めメッセージがある場合は上書きする"
+      description: '**スピーカー** メッセージをピン留めする。既にピン留めメッセージがある場合は上書きする'
       parameters:
         - in: body
           name: body
@@ -486,7 +486,7 @@ paths:
                 type: string
                 description: ピン留めを外す場合はnullを指定する
                 x-nullable: true
-          description: ""
+          description: ''
     parameters: []
   /PUB_PINNED_MESSAGE:
     get:
@@ -494,7 +494,7 @@ paths:
       tags:
         - SocketIO
       responses:
-        "200":
+        '200':
           description: OK
           schema:
             type: object
@@ -505,8 +505,8 @@ paths:
                 type: string
                 description: nullの場合はピン留め解除
                 x-nullable: true
-        "400":
-          $ref: "#/responses/Failure"
+        '400':
+          $ref: '#/responses/Failure'
       operationId: get-PUB_PIN_MESSAGE
       description: ピン留めを配信する。chatItemIdがnullの場合は、ピン留め解除の配信になる。
       parameters: []
@@ -516,11 +516,11 @@ paths:
       summary: ルームを終了
       operationId: put-ADMIN_FINISH_ROOM
       responses:
-        "200":
-          $ref: "#/responses/Success"
-        "400":
-          $ref: "#/responses/Failure"
-      description: "**管理者** ルームを終了する。これ以降はコメントやスタンプが投稿できなくなる。"
+        '200':
+          $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
+      description: '**管理者** ルームを終了する。これ以降はコメントやスタンプが投稿できなくなる。'
       parameters: []
       tags:
         - SocketIO
@@ -537,12 +537,12 @@ definitions:
         type: integer
         minimum: 1
         description: トピックの順序を表すindex（1始まり）
-      name:
+      title:
         type: string
     required:
       - id
       - order
-      - name
+      - title
   Room:
     title: Room
     type: object
@@ -550,14 +550,14 @@ definitions:
       id:
         type: string
         format: uuid
-      name:
+      title:
         type: string
       topics:
         type: array
         items:
-          $ref: "#/definitions/Topic"
+          $ref: '#/definitions/Topic'
       state:
-        $ref: "#/definitions/RoomState"
+        $ref: '#/definitions/RoomState'
       description:
         type: string
       startDate:
@@ -569,13 +569,13 @@ definitions:
         description: 管理者招待キー（管理者がAPIを叩いた場合のみ含まれる）
     required:
       - id
-      - name
+      - title
       - topics
       - state
   ChatItem:
     title: ChatItem
     type: object
-    description: ""
+    description: ''
     properties:
       id:
         type: string
@@ -586,17 +586,17 @@ definitions:
         type: string
         format: date
       type:
-        $ref: "#/definitions/ChatItemType"
+        $ref: '#/definitions/ChatItemType'
       senderType:
-        $ref: "#/definitions/SenderType"
+        $ref: '#/definitions/SenderType'
       content:
         type: string
         description: ユーザーが投稿した内容。reactionの場合のみnullが入る
       quote:
-        $ref: "#/definitions/ChatItem"
+        $ref: '#/definitions/ChatItem'
       timestamp:
         type: integer
-        description: "タイムスタンプ [ms]（active時以外に投稿されたものはnullになる）"
+        description: 'タイムスタンプ [ms]（active時以外に投稿されたものはnullになる）'
         x-nullable: true
       iconId:
         type: integer
@@ -698,7 +698,7 @@ responses:
           enum:
             - error
         error:
-          $ref: "#/definitions/Error"
+          $ref: '#/definitions/Error'
       required:
         - result
         - error
@@ -712,7 +712,7 @@ responses:
           enum:
             - error
         error:
-          $ref: "#/definitions/Error"
+          $ref: '#/definitions/Error'
       required:
         - result
         - error

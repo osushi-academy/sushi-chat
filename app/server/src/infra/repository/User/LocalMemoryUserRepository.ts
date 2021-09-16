@@ -2,6 +2,7 @@ import IUserRepository from "../../../domain/user/IUserRepository"
 import User from "../../../domain/user/User"
 
 class LocalMemoryUserRepository implements IUserRepository {
+  // FIXME: シングルトンじゃなくて良いかも?
   private static instance: LocalMemoryUserRepository
   public static getInstance(): LocalMemoryUserRepository {
     if (!this.instance) {
@@ -28,7 +29,7 @@ class LocalMemoryUserRepository implements IUserRepository {
   }
 
   public selectByRoomId(roomId: string): User[] {
-    return [...Object.values(this.users).filter((u) => u.roomId === roomId)]
+    return Object.values(this.users).filter((u) => u.roomId === roomId)
   }
 }
 
