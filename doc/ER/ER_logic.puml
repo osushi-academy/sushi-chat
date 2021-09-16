@@ -58,7 +58,7 @@ entity rooms {
     --
     ~room_state_id: int
     #title: string
-    #invite_key: string
+    #invite_key: uuid
     #description: string
     start_at: timestamp
     finish_at: timestamp
