@@ -276,6 +276,15 @@ paths:
                     description: ピン留めされているChatItemのID
                     items:
                       type: string
+                  topicStates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        topicId:
+                          type: integer
+                        state:
+                          $ref: "#/definitions/TopicState"
         "400":
           $ref: "#/responses/Failure"
       description: |-
