@@ -154,7 +154,7 @@ CREATE TABLE IF NOT EXISTS stamps
   room_id    UUID      NOT NULL,
   topic_id   INT       NOT NULL,
   user_id    UUID      NOT NULL REFERENCES users (id),
-  timestamp  INT       NOT NULL,
+  timestamp  INT,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (room_id, topic_id) REFERENCES topics (room_id, id)
 );

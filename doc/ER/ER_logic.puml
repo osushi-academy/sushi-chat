@@ -130,7 +130,7 @@ entity chat_items {
     ~sender_type_id:
     ~quote_id uuid
     content: string
-    #timestamp: int
+    timestamp: int
     #created_at: timestamp
 }
 note right of chat_items
@@ -164,7 +164,7 @@ entity stamps {
     ~room_id: uuid
     ~topic_id: int
     ~user_id: uuid
-    #timestamp: int
+    timestamp: int
     #created_at: timestamp
 }
 
