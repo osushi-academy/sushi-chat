@@ -14,6 +14,7 @@ note right: ルームに参加する匿名ユーザー
 
 entity topics_speakers{
     ~user_id: uuid
+    ~room_id: uuid
     ~topic_id: int
     --
 }

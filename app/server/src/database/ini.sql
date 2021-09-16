@@ -75,8 +75,10 @@ CREATE TABLE topics
 CREATE TABLE topics_speakers
 (
   user_id  UUID REFERENCES users (id),
-  topic_id INT REFERENCES topics (id),
-  PRIMARY KEY (user_id, topic_id)
+  room_id  UUID,
+  topic_id INT,
+  PRIMARY KEY (user_id, room_id, topic_id),
+  FOREIGN KEY (room_id, topic_id) REFERENCES topics (room_id, id)
 );
 
 CREATE TABLE topic_states
@@ -89,18 +91,20 @@ CREATE TABLE topic_states
 
 CREATE TABLE topic_opened_at
 (
-  room_id           UUID REFERENCES topics (room_id),
-  topic_id          INT REFERENCES topics (id),
+  room_id           UUID,
+  topic_id          INT,
   opened_at_mil_sec BIGINT NOT NULL,
-  PRIMARY KEY (room_id, topic_id)
+  PRIMARY KEY (room_id, topic_id),
+  FOREIGN KEY (room_id, topic_id) REFERENCES topics (room_id, id)
 );
 
 CREATE TABLE topic_paused_at
 (
-  room_id           UUID REFERENCES topics (room_id),
-  topic_id          INT REFERENCES topics (id),
+  room_id           UUID,
+  topic_id          INT,
   paused_at_mil_sec BIGINT NOT NULL,
-  PRIMARY KEY (room_id, topic_id)
+  PRIMARY KEY (room_id, topic_id),
+  FOREIGN KEY (room_id, topic_id) REFERENCES topics (room_id, id)
 );
 
 CREATE TABLE chat_items
