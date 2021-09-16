@@ -8,7 +8,7 @@ import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import IRoomDelivery from "../../domain/room/IRoomDelivery"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
 
-class RoomService {
+class RealtimeRoomService {
   constructor(
     private readonly roomRepository: IRoomRepository,
     private readonly userRepository: IUserRepository,
@@ -17,15 +17,6 @@ class RoomService {
     private readonly chatItemDelivery: IChatItemDelivery,
     private readonly stampDelivery: IStampDelivery,
   ) {}
-
-  public async build(command: BuildRoomCommand): Promise<RoomClass> {
-    const room = new RoomClass(command.id, command.title, command.topics)
-    await this.roomRepository.build(room)
-
-    console.log(`new room build: ${command.id}`)
-
-    return room
-  }
 
   public async start(userId: string) {
     const user = this.findUser(userId)
@@ -57,7 +48,7 @@ class RoomService {
     const roomId = user.getRoomIdOrThrow()
 
     const room = await this.find(roomId)
-    room.closeRoom()
+    room.archiveRoom()
 
     this.roomDelivery.close(room.id)
     this.roomRepository.update(room)
@@ -105,4 +96,4 @@ class RoomService {
   }
 }
 
-export default RoomService
+export default RealtimeRoomService

@@ -6,6 +6,7 @@ import IChatItemRepository from "../../../domain/chatItem/IChatItemRepository"
 import IStampRepository from "../../../domain/stamp/IStampRepository"
 import Topic, { TopicTimeData } from "../../../domain/room/Topic"
 import { TopicState } from "sushi-chat-front/models/contents"
+import RoomState from "../../../domain/room/RoomState"
 import PGPool from "../PGPool"
 
 class RoomRepository implements IRoomRepository {
@@ -29,9 +30,9 @@ class RoomRepository implements IRoomRepository {
       t.title,
       t.description ?? "",
       0,
-      t.urls.github,
-      t.urls.slide,
-      t.urls.product,
+      "",
+      "",
+      "",
     ])
     // 挿入されるトピックを埋め込む部分の文字列を作成
     // 例：($1, $2, $3, $4, $5, $6, $7, $8), ($9, $10, ...), ($17, ...), ...
@@ -65,7 +66,7 @@ class RoomRepository implements IRoomRepository {
 
     const roomQuery = "SELECT title, status FROM rooms WHERE id = $1"
     const topicsQuery =
-      "SELECT t.id, t.title, t.description, t.githuburl, t.slideurl, t.producturl, t.state, t.offset_mil_sec, toa.opened_at_mil_sec, tpa.paused_at_mil_sec " +
+      "SELECT t.id, t.title, t.description, t.state, t.offset_mil_sec, toa.opened_at_mil_sec, tpa.paused_at_mil_sec " +
       "FROM topics t " +
       "LEFT OUTER JOIN topic_opened_at toa on t.id = toa.topic_id AND t.roomid = toa.room_id " +
       "LEFT OUTER JOIN topic_paused_at tpa on t.id = tpa.topic_id AND t.roomid = tpa.room_id " +
@@ -82,7 +83,8 @@ class RoomRepository implements IRoomRepository {
       ]).finally(pgClient.release)
 
     const roomTitle: string = roomRes.rows[0].title
-    const roomIsOpen = roomRes.rows[0].status === 1
+    const roomState: RoomState =
+      roomRes.rows[0].status === 1 ? "ongoing" : "not-started"
     const topics: Topic[] = []
     const topicTimeData: Record<string, TopicTimeData> = {}
     for (const r of topicsRes.rows) {
@@ -91,11 +93,6 @@ class RoomRepository implements IRoomRepository {
         id,
         title: r.title,
         description: r.description,
-        urls: {
-          github: r.githuburl,
-          slide: r.slideurl,
-          product: r.producturl,
-        },
         state: RoomRepository.intToTopicState(r.state),
       })
       topicTimeData[id] = {
@@ -110,12 +107,13 @@ class RoomRepository implements IRoomRepository {
     return new RoomClass(
       roomId,
       roomTitle,
+      "" /* これはdescriptionです。 */,
       topics,
       topicTimeData,
       userIds,
       chatItems,
       stampsCount,
-      roomIsOpen,
+      roomState,
     )
   }
 
