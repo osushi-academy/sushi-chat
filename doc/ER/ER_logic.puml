@@ -127,7 +127,7 @@ entity chat_items {
     ~topic_id: int
     ~user_id: uuid
     ~chat_item_type_id: int
-    ~sender_type_id:
+    ~sender_type_id: int
     ~quote_id uuid
     content: string
     timestamp: int
