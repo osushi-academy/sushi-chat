@@ -1,4 +1,4 @@
-CREATE TABLE service_admins
+CREATE TABLE IF NOT EXISTS service_admins
 (
   id         INT PRIMARY KEY,
   name       TEXT      NOT NULL,
@@ -6,7 +6,7 @@ CREATE TABLE service_admins
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE admins
+CREATE TABLE IF NOT EXISTS admins
 (
   id         UUID PRIMARY KEY,
   name       TEXT      NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE admins
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
   id         UUID PRIMARY KEY,
   room_id    UUID      NOT NULL REFERENCES rooms (id),
@@ -22,7 +22,7 @@ CREATE TABLE users
   created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
 );
 
-CREATE TABLE icons
+CREATE TABLE IF NOT EXISTS icons
 (
   id         INT PRIMARY KEY,
   name       TEXT      NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE icons
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE rooms
+CREATE TABLE IF NOT EXISTS rooms
 (
   id            UUID PRIMARY KEY,
   room_state_id INT       NOT NULL REFERENCES room_states (id),
@@ -44,7 +44,7 @@ CREATE TABLE rooms
   updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE room_states
+CREATE TABLE IF NOT EXISTS room_states
 (
   id         INT PRIMARY KEY,
   name       TEXT      NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE room_states
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE rooms_admins
+CREATE TABLE IF NOT EXISTS rooms_admins
 (
   admin_id   UUID REFERENCES admins (id),
   room_id    UUID REFERENCES rooms (id),
@@ -60,7 +60,7 @@ CREATE TABLE rooms_admins
   PRIMARY KEY (admin_id, room_id)
 );
 
-CREATE TABLE topics
+CREATE TABLE IF NOT EXISTS topics
 (
   room_id        UUID REFERENCES rooms (id),
   id             INT,
@@ -72,7 +72,7 @@ CREATE TABLE topics
   PRIMARY KEY (room_id, id)
 );
 
-CREATE TABLE topics_speakers
+CREATE TABLE IF NOT EXISTS topics_speakers
 (
   user_id  UUID REFERENCES users (id),
   room_id  UUID,
@@ -81,7 +81,7 @@ CREATE TABLE topics_speakers
   FOREIGN KEY (room_id, topic_id) REFERENCES topics (room_id, id)
 );
 
-CREATE TABLE topic_states
+CREATE TABLE IF NOT EXISTS topic_states
 (
   id         INT PRIMARY KEY,
   name       TEXT      NOT NULL,
@@ -89,7 +89,7 @@ CREATE TABLE topic_states
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE topic_opened_at
+CREATE TABLE IF NOT EXISTS topic_opened_at
 (
   room_id           UUID,
   topic_id          INT,
@@ -98,7 +98,7 @@ CREATE TABLE topic_opened_at
   FOREIGN KEY (room_id, topic_id) REFERENCES topics (room_id, id)
 );
 
-CREATE TABLE topic_paused_at
+CREATE TABLE IF NOT EXISTS topic_paused_at
 (
   room_id           UUID,
   topic_id          INT,
@@ -107,7 +107,7 @@ CREATE TABLE topic_paused_at
   FOREIGN KEY (room_id, topic_id) REFERENCES topics (room_id, id)
 );
 
-CREATE TABLE chat_items
+CREATE TABLE IF NOT EXISTS chat_items
 (
   id                UUID PRIMARY KEY,
   room_id           UUID      NOT NULL,
@@ -122,7 +122,7 @@ CREATE TABLE chat_items
   FOREIGN KEY (room_id, topic_id) REFERENCES topics (room_id, id)
 );
 
-CREATE TABLE chat_item_types
+CREATE TABLE IF NOT EXISTS chat_item_types
 (
   id         INT PRIMARY KEY,
   name       TEXT      NOT NULL,
@@ -130,17 +130,17 @@ CREATE TABLE chat_item_types
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE topics_pinned_chat_items
+CREATE TABLE IF NOT EXISTS topics_pinned_chat_items
 (
   room_id      UUID,
   topic_id     INT,
   chat_item_id UUID REFERENCES chat_items (id),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (room_id, topic_id, chat_item_id, created_at),
   FOREIGN KEY (room_id, topic_id) REFERENCES topics (room_id, id)
 );
 
-CREATE TABLE sender_types
+CREATE TABLE IF NOT EXISTS sender_types
 (
   id         INT PRIMARY KEY,
   name       TEXT      NOT NULL,
@@ -148,7 +148,7 @@ CREATE TABLE sender_types
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-create table stamps
+CREATE TABLE IF NOT EXISTS stamps
 (
   id         UUID PRIMARY KEY,
   room_id    UUID      NOT NULL,
