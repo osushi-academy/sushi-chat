@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS rooms
   room_state_id INT       NOT NULL REFERENCES room_states (id),
   title         TEXT      NOT NULL,
   invite_key    UUID      NOT NULL,
-  description   TEXT      NOT NULL,
+  description   TEXT,
   start_at      TIMESTAMP,
   finish_at     TIMESTAMP,
   archived_at   TIMESTAMP,
