@@ -5,6 +5,7 @@ import LocalMemoryUserRepository from "./infra/repository/User/LocalMemoryUserRe
 import ChatItemRepository from "./infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "./infra/repository/stamp/StampRepository"
 import RoomRepository from "./infra/repository/room/RoomRepository"
+import RoomFactory from "./infra/factory/RoomFactory"
 import PGPool from "./infra/repository/PGPool"
 
 const app = express()
@@ -28,6 +29,7 @@ createSocketIOServer(
   ),
   chatItemRepository,
   stampRepository,
+  new RoomFactory(),
 )
 
 const PORT = process.env.PORT || 7000
