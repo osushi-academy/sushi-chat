@@ -59,10 +59,10 @@ entity rooms {
     #title: string
     #invite_key: string
     #description: string
+    start_at: timestamp
+    finish_at: timestamp
+    archived_at: timestamp
     #created_at: timestamp
-    #start_at: timestamp
-    #finish_at: timestamp
-    #archived_at: timestamp
     #updated_at: timestamp
 }
 
@@ -90,6 +90,7 @@ entity topics_pinned_chat_item {
     ~topic_id: int
     ~chat_item_id: uuid
     --
+    #created_at: timestamp
 }
 note bottom of topics_pinned_chat_item
   1トピックに付き1つのチャットアイテムをピン留めでき、\
