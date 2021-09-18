@@ -1,4 +1,10 @@
-import { ChatItemModel, ChatItemType, RoomState, StampModel } from "./models"
+import {
+  ChatItemModel,
+  ChatItemType,
+  RoomState,
+  StampModel,
+  TopicState,
+} from "./models"
 import { ErrorResponse, SuccessResponse } from "./responseBuilder"
 import { EmptyRecord } from "./utils"
 
@@ -29,7 +35,8 @@ export type EnterRoomResponse =
       chatItems: ChatItemModel[]
       stamps: StampModel[]
       activeUserCount: number
-      pinnedChatItemIds: string[]
+      pinnedChatItemIds: (string | null)[]
+      topicStates: { topicId: number; state: TopicState }[]
     }>
   | ErrorResponse
 
@@ -41,7 +48,7 @@ export type PubUserCountParam = {
 // ADMIN_CHANGE_TOPIC_STATE
 export type AdminChangeTopicStateRequest = {
   topicId: number
-  state: RoomState
+  state: TopicState
 }
 export type AdminChangeTopicStateResponse = SuccessResponse | ErrorResponse
 
