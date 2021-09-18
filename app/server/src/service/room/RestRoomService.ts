@@ -26,10 +26,10 @@ class RestRoomService {
   }
 
   // Roomに管理者を紐付ける
-  public async invite(command: InviteRoomCommand): Promise<RoomClass> {
+  public async inviteAdmin(command: InviteRoomCommand): Promise<RoomClass> {
     const room = await this.find(command.id)
     // きっとこんな感じになると思っている
-    // room.Invite(command.userId, command.adminInviteKey)
+    room.inviteAdmin(command.userId, command.adminInviteKey)
 
     this.roomRepository.update(room)
     console.log(`new admin invited to room: ${command.id}`)

@@ -50,7 +50,7 @@ export const restSetup = (
   // ルームと新しい管理者を紐付ける
   app.post("/user/:id/invite", (req, res) => {
     try {
-      roomService.invite({
+      roomService.inviteAdmin({
         id: req.params.id,
         adminInviteKey: req.body.adminInviteKey,
       })
