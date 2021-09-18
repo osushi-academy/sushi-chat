@@ -29,6 +29,7 @@ export const restSetup = (
             description: newRoom.description,
             topics: newRoom.topics,
             state: newRoom.state,
+            adminInviteKey: newRoom.adminInviteKey,
             /*
               startDate: newRoom.startDate,
               adminInviteKey: newRoom.adminInviteKey

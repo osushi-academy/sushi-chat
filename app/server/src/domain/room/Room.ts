@@ -53,6 +53,7 @@ class RoomClass {
     public readonly id: string,
     public readonly title: string,
     public readonly description: string,
+    public readonly adminInviteKey: string,
     topics: (Omit<Topic, "id" | "state"> &
       Partial<Pick<Topic, "id" | "state">>)[],
     topicTimeData: Record<string, TopicTimeData> = {},
@@ -61,7 +62,6 @@ class RoomClass {
     private _chatItems: ChatItem[] = [],
     private stampsCount = 0,
     private _state: RoomState = "not-started",
-    private adminInviteKey = "",
   ) {
     this._topics = topics.map((topic, i) => ({
       ...topic,

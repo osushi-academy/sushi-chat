@@ -108,6 +108,7 @@ class RoomRepository implements IRoomRepository {
       roomId,
       roomTitle,
       "" /* これはdescriptionです。 */,
+      "" /* これはadminInviteKeyです。 */,
       topics,
       topicTimeData,
       userIds,

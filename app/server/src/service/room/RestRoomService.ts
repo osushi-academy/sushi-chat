@@ -3,7 +3,7 @@ import RoomClass from "../../domain/room/Room"
 import { BuildRoomCommand, InviteRoomCommand } from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
-
+import { v4 as uuid } from "uuid"
 class RestRoomService {
   constructor(
     private readonly roomRepository: IRoomRepository,
@@ -12,10 +12,14 @@ class RestRoomService {
 
   // Roomを作成する。
   public build(command: BuildRoomCommand): RoomClass {
+    // TODO: いつか適切な場所に移動する
+    const adminInviteKey = uuid()
+
     const room = new RoomClass(
       command.id,
       command.title,
       command.description ?? "",
+      adminInviteKey,
       command.topics,
     )
     this.roomRepository.build(room)
