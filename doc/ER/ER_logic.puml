@@ -164,7 +164,7 @@ entity stamps {
     ~room_id: uuid
     ~topic_id: int
     ~user_id: uuid
-    timestamp: int
+    #timestamp: int
     #created_at: timestamp
 }
 
