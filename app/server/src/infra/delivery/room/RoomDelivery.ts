@@ -1,30 +1,14 @@
 import IRoomDelivery from "../../../domain/room/IRoomDelivery"
-import { ChangeTopicStateType } from "../../../events"
-import { Server } from "socket.io"
+import { GlobalSocket } from "../../../ioServer"
+import Topic from "../../../domain/room/Topic"
 
 class RoomDelivery implements IRoomDelivery {
-  constructor(private readonly globalSocket: Server) {}
+  constructor(private readonly globalSocket: GlobalSocket) {}
 
-  public start(roomId: string) {
-    this.globalSocket.to(roomId).emit("PUB_START_ROOM", {})
-  }
-
-  public finish(roomId: string) {
-    this.globalSocket.to(roomId).emit("PUB_FINISH_ROOM", {})
-  }
-
-  public close(roomId: string) {
-    this.globalSocket.to(roomId).emit("PUB_CLOSE_ROOM", {})
-  }
-
-  public changeTopicState(
-    type: ChangeTopicStateType,
-    roomId: string,
-    topicId: string,
-  ): void {
+  public changeTopicState(roomId: string, topic: Topic): void {
     this.globalSocket
       .to(roomId)
-      .emit("PUB_CHANGE_TOPIC_STATE", { type, topicId })
+      .emit("PUB_CHANGE_TOPIC_STATE", { state: topic.state, topicId: topic.id })
   }
 }
 

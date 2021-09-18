@@ -1,53 +1,69 @@
 import IStampDelivery from "../../../domain/stamp/IStampDelivery"
 import Stamp from "../../../domain/stamp/Stamp"
-import { Server } from "socket.io"
-
-type DeliveredStamp = {
-  userId: string
-  topicId: string
-  timestamp: number
-}
+import { StampModel } from "sushi-chat-shared"
+import { GlobalSocket } from "../../../ioServer"
 
 class StampDelivery implements IStampDelivery {
-  private static instance: StampDelivery
-  public static getInstance(globalSocket: Server): StampDelivery {
-    if (!this.instance) {
-      this.instance = new StampDelivery(globalSocket)
-    }
-    return this.instance
+  private static stamps: Stamp[] = []
+  private static intervalDeliveryTimer: NodeJS.Timeout | null = null
+
+  /**
+   * @param globalSocket stampの配信に使うSocket.IOのServer
+   * @param interval stampを送信するインターバル[millisecond]
+   */
+  constructor(
+    private readonly globalSocket: GlobalSocket,
+    private readonly interval = 2000,
+  ) {}
+
+  private static finishIntervalDelivery() {
+    if (StampDelivery.intervalDeliveryTimer === null) return
+
+    clearInterval(StampDelivery.intervalDeliveryTimer)
+    StampDelivery.intervalDeliveryTimer = null
   }
 
-  private stamps: Stamp[] = []
-  private intervalDeliveryTimer: NodeJS.Timeout | null = null
+  private startIntervalDelivery() {
+    if (StampDelivery.intervalDeliveryTimer !== null) return
 
-  private constructor(private readonly globalSocket: Server) {}
+    StampDelivery.intervalDeliveryTimer = setInterval(() => {
+      // 配信するstampが無かったら配信タイマーを停止する
+      if (StampDelivery.stamps.length < 1) {
+        StampDelivery.finishIntervalDelivery()
+        return
+      }
 
-  finishIntervalDelivery(): void {
-    if (this.intervalDeliveryTimer === null) return
-
-    clearInterval(this.intervalDeliveryTimer)
-    this.intervalDeliveryTimer = null
-  }
-
-  startIntervalDelivery(): void {
-    if (this.intervalDeliveryTimer !== null) return
-
-    this.intervalDeliveryTimer = setInterval(() => {
-      if (this.stamps.length > 0) {
-        const roomId = this.stamps[0].roomId
-        const deliveredStamps: DeliveredStamp[] = this.stamps.map((s) => ({
-          userId: s.userId,
+      const stampsPerRoom: Record<string, StampModel[]> = {}
+      for (const s of StampDelivery.stamps) {
+        const stamp: StampModel = {
+          id: s.id,
           topicId: s.topicId,
           timestamp: s.timestamp,
-        }))
-        this.globalSocket.to(roomId).emit("PUB_STAMP", deliveredStamps)
-        this.stamps.length = 0
+          createdAt: s.createdAt.toISOString(),
+        }
+        if (s.roomId in stampsPerRoom) {
+          stampsPerRoom[s.roomId].push(stamp)
+        } else {
+          stampsPerRoom[s.roomId] = [stamp]
+        }
       }
-    }, 2000)
+
+      for (const [roomId, stamps] of Object.entries(stampsPerRoom)) {
+        this.globalSocket.to(roomId).emit("PUB_STAMP", stamps)
+      }
+
+      // 送信したstampは削除
+      StampDelivery.stamps.length = 0
+    }, this.interval)
   }
 
-  pushStamp(stamp: Stamp): void {
-    this.stamps.push(stamp)
+  public pushStamp(stamp: Stamp): void {
+    StampDelivery.stamps.push(stamp)
+
+    // 配信タイマーが起動していなかったら起動する
+    if (StampDelivery.intervalDeliveryTimer === null) {
+      this.startIntervalDelivery()
+    }
   }
 }
 

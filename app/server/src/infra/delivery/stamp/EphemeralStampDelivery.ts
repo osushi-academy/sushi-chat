@@ -2,36 +2,41 @@ import IStampDelivery from "../../../domain/stamp/IStampDelivery"
 import Stamp from "../../../domain/stamp/Stamp"
 
 class EphemeralStampDelivery implements IStampDelivery {
-  private stamps: Stamp[] = []
-  private intervalDeliveryTimer: NodeJS.Timeout | null = null
+  private static stamps: Stamp[] = []
+  private static intervalDeliveryTimer: NodeJS.Timeout | null = null
 
-  constructor(private readonly _subscribers: Stamp[][]) {}
+  constructor(
+    private readonly subscribers: Stamp[][],
+    private readonly interval = 100,
+  ) {}
 
-  public get subscribers() {
-    return this._subscribers.map((s) => [...s])
+  private static finishIntervalDelivery() {
+    if (EphemeralStampDelivery.intervalDeliveryTimer === null) return
+
+    clearInterval(EphemeralStampDelivery.intervalDeliveryTimer)
+    EphemeralStampDelivery.intervalDeliveryTimer = null
   }
 
-  public finishIntervalDelivery(): void {
-    if (this.intervalDeliveryTimer === null) return
+  private startIntervalDelivery() {
+    if (EphemeralStampDelivery.intervalDeliveryTimer !== null) return
 
-    clearInterval(this.intervalDeliveryTimer)
-    this.intervalDeliveryTimer = null
-  }
-
-  public pushStamp(stamp: Stamp): void {
-    this.stamps.push(stamp)
-  }
-
-  // テストようなのでintervalは短めにしている
-  public startIntervalDelivery(): void {
-    if (this.intervalDeliveryTimer !== null) return
-
-    this.intervalDeliveryTimer = setInterval(() => {
-      if (this.stamps.length > 0) {
-        this._subscribers.forEach((s) => s.push(...this.stamps))
-        this.stamps.length = 0
+    EphemeralStampDelivery.intervalDeliveryTimer = setInterval(() => {
+      if (EphemeralStampDelivery.stamps.length < 1) {
+        EphemeralStampDelivery.finishIntervalDelivery()
+        return
       }
-    }, 100)
+
+      this.subscribers.forEach((s) => s.push(...EphemeralStampDelivery.stamps))
+      EphemeralStampDelivery.stamps.length = 0
+    }, this.interval)
+  }
+
+  public pushStamp(stamp: Stamp) {
+    EphemeralStampDelivery.stamps.push(stamp)
+
+    if (EphemeralStampDelivery.intervalDeliveryTimer === null) {
+      this.startIntervalDelivery()
+    }
   }
 }
 
