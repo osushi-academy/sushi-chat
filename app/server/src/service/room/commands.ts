@@ -11,6 +11,7 @@ export type BuildRoomCommand = {
 export type InviteRoomCommand = {
   id: string
   adminInviteKey: string
+  adminId: string
 }
 
 export type ChangeTopicStateCommand = {
