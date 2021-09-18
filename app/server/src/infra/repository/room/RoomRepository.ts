@@ -111,6 +111,7 @@ class RoomRepository implements IRoomRepository {
       topics,
       topicTimeData,
       userIds,
+      new Set<string>([]) /* これはadminIdsです。 */,
       chatItems,
       stampsCount,
       roomState,
