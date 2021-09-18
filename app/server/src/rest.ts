@@ -46,4 +46,19 @@ export const restSetup = (
       })
     }
   })
+
+  // ルームと新しい管理者を紐付ける
+  app.post("/user/:id/invite", (req, res) => {
+    try {
+      res.send({ result: "success" })
+    } catch (e) {
+      res.send({
+        result: "error",
+        error: {
+          code: 400,
+          message: `${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
+        },
+      })
+    }
+  })
 }
