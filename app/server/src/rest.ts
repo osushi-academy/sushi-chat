@@ -50,10 +50,31 @@ export const restSetup = (
 
   // ルームと新しい管理者を紐付ける
   app.post("/room/:id/invite", (req, res) => {
+    const adminInviteKey = req.query["admin_invite_key"]
+    if (!adminInviteKey) {
+      res.send({
+        result: "error",
+        error: {
+          code: 400,
+          message: `invite admin needs admin_invite_key. (ADMIN_INVITE_ROOM)`,
+        },
+      })
+      return
+    }
+    if (typeof adminInviteKey !== "string") {
+      res.send({
+        result: "error",
+        error: {
+          code: 400,
+          message: `admin_invite_key has invailed syntax. (ADMIN_INVITE_ROOM)`,
+        },
+      })
+      return
+    }
     roomService
       .inviteAdmin({
         id: req.params.id,
-        adminInviteKey: req.body.adminInviteKey,
+        adminInviteKey: adminInviteKey,
         adminId: "should get from header",
       })
       .then(() => res.send({ result: "success" }))
