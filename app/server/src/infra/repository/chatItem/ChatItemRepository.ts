@@ -118,13 +118,15 @@ class ChatItemRepository implements IChatItemRepository {
   }
 
   // NOTE: arrow functionにしないとthisの挙動のせいでバグる
-  public find = async (chatItemId: string): Promise<ChatItem> => {
+  public find = async (chatItemId: string): Promise<ChatItem | null> => {
     const pgClient = await this.pgPool.client()
 
     const query =
       "SELECT id, room_id, topic_id, user_id, chat_item_type_id, sender_type_id, quote_id, content, timestamp, created_at FROM chat_items WHERE id = $1"
     try {
       const res = await pgClient.query(query, [chatItemId])
+      if (res.rowCount < 1) return null
+
       return await this.buildChatItem(res.rows[0])
     } catch (e) {
       ChatItemRepository.logError(e, "find()")

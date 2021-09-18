@@ -4,15 +4,19 @@ import RoomClass from "../../../domain/room/Room"
 class EphemeralRoomRepository implements IRoomRepository {
   private readonly rooms: Record<string, RoomClass> = {}
 
-  public build(room: RoomClass): void {
+  public build(room: RoomClass) {
     this.rooms[room.id] = room
   }
 
-  public async find(roomId: string): Promise<RoomClass> {
-    return Promise.resolve(this.rooms[roomId])
+  public async find(roomId: string) {
+    if (roomId in this.rooms) {
+      return this.rooms[roomId]
+    } else {
+      return null
+    }
   }
 
-  public update(room: RoomClass): void {
+  public update(room: RoomClass) {
     this.rooms[room.id] = room
   }
 }

@@ -61,7 +61,7 @@ class RoomRepository implements IRoomRepository {
     }
   }
 
-  public async find(roomId: string): Promise<RoomClass> {
+  public async find(roomId: string): Promise<RoomClass | null> {
     const pgClient = await this.pgPool.client()
 
     const roomQuery =
@@ -88,6 +88,11 @@ class RoomRepository implements IRoomRepository {
         this.chatItemRepository.selectByRoomId(roomId),
       ])
 
+      if (roomRes.rowCount < 1) return null
+
+      const room = roomRes.rows[0]
+      const roomState = RoomRepository.intToRoomState(room.room_state_id)
+
       const topics: Topic[] = []
       const topicTimeData: Record<string, TopicTimeData> = {}
       for (const r of topicsRes.rows) {
@@ -104,9 +109,8 @@ class RoomRepository implements IRoomRepository {
         }
       }
 
-      const room = roomRes.rows[0]
       const userIds = new Set<string>(users.map((u) => u.id))
-      const roomState = RoomRepository.intToRoomState(room.room_state_id)
+
       return new RoomClass(
         roomId,
         room.title,
