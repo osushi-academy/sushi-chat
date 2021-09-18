@@ -149,6 +149,25 @@ class ChatItemRepository implements IChatItemRepository {
     }
   }
 
+  public async pinChatItem(chatItem: ChatItem) {
+    const pgClient = await this.pgPool.client()
+
+    const query =
+      "INSERT INTO topics_pinned_chat_items (room_id, topic_id, chat_item_id) VALUES ($1,$2, $3)"
+    try {
+      await pgClient.query(query, [
+        chatItem.roomId,
+        chatItem.topicId,
+        chatItem.id,
+      ])
+    } catch (e) {
+      ChatItemRepository.logError(e, "pinChatItem()")
+      throw e
+    } finally {
+      pgClient.release()
+    }
+  }
+
   // NOTE: arrow functionにしないとthisの挙動のせいでバグる
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private buildChatItem = async (row: any) => {

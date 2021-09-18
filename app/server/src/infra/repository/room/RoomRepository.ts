@@ -77,7 +77,7 @@ class RoomRepository implements IRoomRepository {
       "SELECT topic.id, topic.topic_state_id, topic.title, topic.offset_mil_sec, topic.opened_at_mil_sec, topic.paused_at_mil_sec, (" +
       "SELECT chat_item_id FROM topics_pinned_chat_items WHERE room_id = $1 AND topic_id = topic.id ORDER BY created_at DESC LIMIT 1" +
       ") as pinned_chat_item_id " +
-      "FROM topic ORDER BY topic.id;"
+      "FROM topic ORDER BY topic.id"
 
     try {
       const [roomRes, topicsRes, users, stamps, chatItems] = await Promise.all([
@@ -95,7 +95,7 @@ class RoomRepository implements IRoomRepository {
           id: r.id,
           title: r.title,
           state: RoomRepository.intToTopicState(r.topic_state_id),
-          pinnedChatItemId: r.pinned_chat_item_id,
+          pinnedChatItemId: r.pinned_chat_item_id ?? undefined,
         })
         topicTimeData[r.id] = {
           openedDate: r.opened_at_mil_sec ?? null,
