@@ -122,7 +122,7 @@ class RoomClass {
   public changeTopicState = (
     topicId: string,
     type: ChangeTopicStateType,
-  ): { messages: Message[]; activeTopic: Topic | null } => {
+  ): Message[] => {
     this.assertRoomIsOpen()
 
     const targetTopic = this.findTopicOrThrow(topicId)
@@ -141,20 +141,17 @@ class RoomClass {
         const message = this.startTopic(targetTopic)
         messages.push(message)
 
-        return {
-          messages,
-          activeTopic: this.activeTopic,
-        }
+        return messages
       }
 
       case "PAUSE": {
-        const messages = [this.pauseTopic(targetTopic)]
-        return { messages, activeTopic: this.activeTopic }
+        const botMessage = this.pauseTopic(targetTopic)
+        return [botMessage]
       }
 
       case "CLOSE": {
         const botMessage = this.finishTopic(targetTopic)
-        return { messages: [botMessage], activeTopic: this.activeTopic }
+        return [botMessage]
       }
 
       default: {
@@ -316,6 +313,9 @@ class RoomClass {
 
   private assertRoomIsNotOpen() {
     if (this._isOpened) {
+      // TODO: エラーの種別を捕捉できる仕組みが必要。カスタムのエラーを定義する。
+      //  → 例：複数管理者がほぼ同時にルーム開始/終了をリクエストした場合、2番手のエラーはserviceかcontrollerでエラーの
+      //         種別を捕捉できた方が良さそう
       throw new Error(
         `[sushi-chat-server] Room(id: ${this.id}) has already opened.`,
       )
