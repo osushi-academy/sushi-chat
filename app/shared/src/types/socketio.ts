@@ -1,10 +1,4 @@
-import {
-  ChatItemModel,
-  ChatItemType,
-  RoomState,
-  StampModel,
-  TopicState,
-} from "./models"
+import { ChatItemModel, ChatItemType, StampModel, TopicState } from "./models"
 import { ErrorResponse, SuccessResponse } from "./responseBuilder"
 import { EmptyRecord } from "./utils"
 
@@ -55,7 +49,7 @@ export type AdminChangeTopicStateResponse = SuccessResponse | ErrorResponse
 // PUB_CHANGE_TOPIC_STATE
 export type PubChangeTopicStateParam = {
   topicId: number
-  state: RoomState
+  state: TopicState
 }
 
 // POST_CHAT_ITEM
@@ -89,6 +83,7 @@ export type PostPinnedMessageResponse = SuccessResponse | ErrorResponse
 
 // PUB_PINNED_MESSAGE
 export type PubPinnedMessageParam = {
+  topicId: number
   chatItemId: string
 }
 
