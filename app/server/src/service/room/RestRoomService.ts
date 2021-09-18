@@ -1,6 +1,6 @@
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
-import { BuildRoomCommand } from "./commands"
+import { BuildRoomCommand, InviteRoomCommand } from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
 
@@ -21,6 +21,18 @@ class RestRoomService {
     this.roomRepository.build(room)
 
     console.log(`new room build: ${command.id}`)
+
+    return room
+  }
+
+  // Roomに管理者を紐付ける
+  public async invite(command: InviteRoomCommand): Promise<RoomClass> {
+    const room = await this.find(command.id)
+    // きっとこんな感じになると思っている
+    // room.Invite(command.userId, command.adminInviteKey)
+
+    this.roomRepository.update(room)
+    console.log(`new admin invited to room: ${command.id}`)
 
     return room
   }
