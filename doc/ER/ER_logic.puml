@@ -90,12 +90,12 @@ entity topics_pinned_chat_item {
     ~room_id: uuid
     ~topic_id: int
     ~chat_item_id: uuid
+    +created_at: timestamp
     --
-    #created_at: timestamp
 }
 note bottom of topics_pinned_chat_item
-  1トピックに付き1つのチャットアイテムをピン留めでき、\
-
+  1トピックに付き1つのチャットアイテムをピン留めでき、
+  各トピックの最新のピン留めのみが適用される
 end note
 
 entity topic_states {
