@@ -23,12 +23,14 @@ class LocalMemoryUserRepository implements IUserRepository {
     this.users[user.id] = user
   }
 
-  public find(userId: string): User {
-    return this.users[userId]
+  public async find(userId: string): Promise<User> {
+    return Promise.resolve(this.users[userId])
   }
 
-  public selectByRoomId(roomId: string): User[] {
-    return [...Object.values(this.users).filter((u) => u.roomId === roomId)]
+  public async selectByRoomId(roomId: string): Promise<User[]> {
+    return Promise.resolve(
+      Object.values(this.users).filter((u) => u.roomId === roomId),
+    )
   }
 }
 

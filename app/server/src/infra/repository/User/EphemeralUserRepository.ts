@@ -12,12 +12,18 @@ class EphemeralUserRepository implements IUserRepository {
     this.users[user.id] = user
   }
 
-  public find(userId: string): User {
-    return this.users[userId]
+  public async find(userId: string) {
+    if (userId in Object.keys(this.users)) {
+      return Promise.resolve(this.users[userId])
+    } else {
+      return Promise.resolve(null)
+    }
   }
 
-  public selectByRoomId(roomId: string): User[] {
-    return [...Object.values(this.users).filter((u) => u.roomId === roomId)]
+  public async selectByRoomId(roomId: string): Promise<User[]> {
+    return Promise.resolve(
+      Object.values(this.users).filter((u) => u.roomId === roomId),
+    )
   }
 }
 
