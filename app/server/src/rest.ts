@@ -48,7 +48,7 @@ export const restSetup = (
   })
 
   // ルームと新しい管理者を紐付ける
-  app.post("/user/:id/invite", (req, res) => {
+  app.post("/room/:id/invite", (req, res) => {
     try {
       roomService.inviteAdmin({
         id: req.params.id,
