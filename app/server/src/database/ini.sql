@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS admins
 CREATE TABLE IF NOT EXISTS users
 (
   id         UUID PRIMARY KEY,
-  room_id    UUID      NOT NULL REFERENCES rooms (id),
-  icon_id    INT       NOT NULL REFERENCES icons (id),
+  room_id    UUID REFERENCES rooms (id),
+  icon_id    INT REFERENCES icons (id),
   created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
 );
 
