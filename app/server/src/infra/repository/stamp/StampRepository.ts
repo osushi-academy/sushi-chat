@@ -5,26 +5,22 @@ import PGPool from "../PGPool"
 class StampRepository implements IStampRepository {
   constructor(private readonly pgPool: PGPool) {}
 
-  public async store(stamp: Stamp): Promise<void> {
+  public async store(stamp: Stamp) {
     const pgClient = await this.pgPool.client()
 
-    const query = `INSERT INTO Stamps (roomId, topicId, userId, timestamp) VALUES ($1, $2, $3, $4)`
+    const query =
+      "INSERT INTO Stamps (id, room_id, topic_id, user_id, timestamp) VALUES ($1, $2, $3, $4, $5)"
 
     try {
       await pgClient.query(query, [
+        stamp.id,
         stamp.roomId,
         stamp.topicId,
         stamp.userId,
         stamp.timestamp,
       ])
     } catch (e) {
-      console.error(
-        `${e.message ?? "Unknown error."} (SAVE STAMP(userId: ${
-          stamp.userId
-        }, roomId: ${stamp.roomId}, topicId: ${stamp.topicId}))`,
-        new Date().toISOString(),
-      )
-
+      StampRepository.logError(e, "store()")
       throw e
     } finally {
       pgClient.release()
@@ -38,14 +34,14 @@ class StampRepository implements IStampRepository {
   ): Promise<number> {
     const pgClient = await this.pgPool.client()
 
-    let query = "SELECT COUNT(*) FROM stamps WHERE roomid = $1"
+    let query = "SELECT COUNT(*) FROM stamps WHERE room_id = $1"
     const values = [roomId]
     if (topicId) {
-      query += " AND topicid = $2"
+      query += " AND topic_id = $2"
       values.push(topicId)
     }
     if (userId) {
-      query += " AND userid = $3"
+      query += " AND user_id = $3"
       values.push(userId)
     }
 
@@ -53,16 +49,44 @@ class StampRepository implements IStampRepository {
       const res = await pgClient.query(query, values)
       return res.rows[0].count as number
     } catch (e) {
-      console.error(
-        `${e.message ?? "Unknown error."} (COUNT STAMP(${
-          userId && "userId: " + userId + ", "
-        }roomId: ${roomId}, topicId: ${topicId}) IN DB)`,
-        new Date().toISOString(),
-      )
+      StampRepository.logError(e, "count()")
       throw e
     } finally {
       pgClient.release()
     }
+  }
+
+  public async selectByRoomId(roomId: string): Promise<Stamp[]> {
+    const pgClient = await this.pgPool.client()
+
+    const query =
+      "SELECT id, topic_id, user_id, created_at, timestamp FROM stamps WHERE room_id = $1"
+    try {
+      const res = await pgClient.query(query, [roomId])
+      return res.rows.map((r) => {
+        return new Stamp(
+          r.id,
+          r.user_id,
+          roomId,
+          r.topic_id,
+          r.created_at,
+          r.timestamp,
+        )
+      })
+    } catch (e) {
+      StampRepository.logError(e, "selectByRoomId()")
+      throw e
+    } finally {
+      pgClient.release()
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static logError(error: any, context: string) {
+    const datetime = new Date().toISOString()
+    console.error(
+      `[${datetime}] StampRepository.${context}: ${error ?? "Unknown error."}`,
+    )
   }
 }
 
