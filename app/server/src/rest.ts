@@ -49,21 +49,21 @@ export const restSetup = (
 
   // ルームと新しい管理者を紐付ける
   app.post("/room/:id/invite", (req, res) => {
-    try {
-      roomService.inviteAdmin({
+    roomService
+      .inviteAdmin({
         id: req.params.id,
         adminInviteKey: req.body.adminInviteKey,
+        adminId: "should get from header",
       })
-
-      res.send({ result: "success" })
-    } catch (e) {
-      res.send({
-        result: "error",
-        error: {
-          code: 400,
-          message: `${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
-        },
+      .then(() => res.send({ result: "success" }))
+      .catch((e) => {
+        res.send({
+          result: "error",
+          error: {
+            code: 400,
+            message: `${e.message ?? "Unknown error."} (ADMIN_INVITE_ROOM)`,
+          },
+        })
       })
-    }
   })
 }
