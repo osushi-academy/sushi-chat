@@ -7,6 +7,7 @@ import UserItems from "~/store/userItems"
 import Stamps from "~/store/stamps"
 import Topics from "~/store/topics"
 import TopicStateItems from "~/store/topicStateItems"
+import Auth from "~/store/auth"
 
 let ChatItemStore: ChatItems
 let DeviceStore: Device
@@ -14,6 +15,7 @@ let UserItemStore: UserItems
 let StampStore: Stamps
 let TopicStore: Topics
 let TopicStateItemStore: TopicStateItems
+let AuthStore: Auth
 function initialiseStores(store: Store<any>): void {
   ChatItemStore = getModule(ChatItems, store)
   DeviceStore = getModule(Device, store)
@@ -21,6 +23,16 @@ function initialiseStores(store: Store<any>): void {
   StampStore = getModule(Stamps, store)
   TopicStore = getModule(Topics, store)
   TopicStateItemStore = getModule(TopicStateItems, store)
+  AuthStore = getModule(Auth, store)
 }
 
-export { initialiseStores, ChatItemStore, DeviceStore, UserItemStore, StampStore, TopicStore, TopicStateItemStore }
+export {
+  initialiseStores,
+  ChatItemStore,
+  DeviceStore,
+  UserItemStore,
+  StampStore, 
+  TopicStore,
+  TopicStateItemStore,
+  AuthStore,
+}

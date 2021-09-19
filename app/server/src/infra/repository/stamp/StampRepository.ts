@@ -1,14 +1,17 @@
 import IStampRepository from "../../../domain/stamp/IStampRepository"
-import PGClientFactory from "../../factory/PGClientFactory"
 import Stamp from "../../../domain/stamp/Stamp"
+import PGPool from "../PGPool"
 
 class StampRepository implements IStampRepository {
-  private readonly pgClient = PGClientFactory.create()
+  constructor(private readonly pgPool: PGPool) {}
 
   public async store(stamp: Stamp): Promise<void> {
+    const pgClient = await this.pgPool.client()
+
+    const query = `INSERT INTO Stamps (roomId, topicId, userId, timestamp) VALUES ($1, $2, $3, $4)`
+
     try {
-      const query = `INSERT INTO Stamps (roomId, topicId, userId, timestamp) VALUES ($1, $2, $3, $4)`
-      await this.pgClient.query(query, [
+      await pgClient.query(query, [
         stamp.roomId,
         stamp.topicId,
         stamp.userId,
@@ -23,6 +26,8 @@ class StampRepository implements IStampRepository {
       )
 
       throw e
+    } finally {
+      pgClient.release()
     }
   }
 
@@ -31,20 +36,22 @@ class StampRepository implements IStampRepository {
     topicId?: string,
     userId?: string,
   ): Promise<number> {
-    try {
-      let query = "SELECT COUNT(*) FROM stamps WHERE roomid = $1"
-      const values = [roomId]
-      let cnt = 2
-      if (topicId) {
-        query += ` AND topicid = $${cnt++}`
-        values.push(topicId)
-      }
-      if (userId) {
-        query += ` AND userid = $${cnt++}`
-        values.push(userId)
-      }
+    const pgClient = await this.pgPool.client()
 
-      return (await this.pgClient.query(query, values)).rows[0].count as number
+    let query = "SELECT COUNT(*) FROM stamps WHERE roomid = $1"
+    const values = [roomId]
+    if (topicId) {
+      query += " AND topicid = $2"
+      values.push(topicId)
+    }
+    if (userId) {
+      query += " AND userid = $3"
+      values.push(userId)
+    }
+
+    try {
+      const res = await pgClient.query(query, values)
+      return res.rows[0].count as number
     } catch (e) {
       console.error(
         `${e.message ?? "Unknown error."} (COUNT STAMP(${
@@ -52,8 +59,9 @@ class StampRepository implements IStampRepository {
         }roomId: ${roomId}, topicId: ${topicId}) IN DB)`,
         new Date().toISOString(),
       )
-
       throw e
+    } finally {
+      pgClient.release()
     }
   }
 }
