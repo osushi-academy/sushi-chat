@@ -1,14 +1,7 @@
-import { ChangeTopicStateType } from "../../events"
+import Topic from "./Topic"
 
 interface IRoomDelivery {
-  start(roomId: string): void
-  finish(roomId: string): void
-  close(roomId: string): void
-  changeTopicState(
-    type: ChangeTopicStateType,
-    roomId: string,
-    topicId: string,
-  ): void
+  changeTopicState(roomId: string, topic: Topic): void
 }
 
 export default IRoomDelivery

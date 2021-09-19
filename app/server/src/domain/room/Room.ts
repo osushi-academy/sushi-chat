@@ -1,17 +1,47 @@
-import { ChangeTopicStateType } from "../../events"
 import { v4 as uuid } from "uuid"
 import ChatItem from "../chatItem/ChatItem"
 import Stamp from "../stamp/Stamp"
 import Message from "../chatItem/Message"
-import UserClass from "../user/User"
 import Topic, { TopicTimeData } from "./Topic"
 import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
-import RoomState from "./RoomState"
+import Admin from "../admin/admin"
+import { RoomState, TopicState } from "sushi-chat-shared"
 
 class RoomClass {
   private readonly _topics: Topic[]
-  private _topicTimeData: Record<string, TopicTimeData> = {}
+  private _topicTimeData: Record<number, TopicTimeData> = {}
+
+  constructor(
+    public readonly id: string,
+    public readonly title: string,
+    public readonly inviteKey: string,
+    topics: (Omit<Topic, "id" | "state" | "pinnedChatItemId"> &
+      Partial<Pick<Topic, "id" | "state" | "pinnedChatItemId">>)[],
+    public readonly description = "",
+    topicTimeData: Record<number, TopicTimeData> = {},
+    public _startAt: Date | null = null,
+    public _finishAt: Date | null = null,
+    public _archivedAt: Date | null = null,
+    private userIds = new Set<string>([]),
+    private _chatItems: ChatItem[] = [],
+    private _stamps: Stamp[] = [],
+    private _state: RoomState = "not-started",
+  ) {
+    this._topics = topics.map((topic, i) => ({
+      ...topic,
+      id: topic.id ?? i + 1,
+      state: topic.state ?? "not-started",
+      pinnedChatItemId: topic.pinnedChatItemId,
+    }))
+    this._topics.forEach(({ id }) => {
+      this._topicTimeData[id] = topicTimeData[id] ?? {
+        openedDate: null,
+        pausedDate: null,
+        offsetTime: 0,
+      }
+    })
+  }
 
   public get topics(): Topic[] {
     return [...this._topics]
@@ -29,50 +59,36 @@ class RoomClass {
     return this.userIds.size
   }
 
-  public get chatItems(): ChatItem[] {
+  public get chatItems() {
     return [...this._chatItems]
   }
 
-  public get isOpened(): boolean {
-    return this._state == "ongoing"
+  public get stamps() {
+    return [...this._stamps]
   }
 
   public get state(): RoomState {
     return this._state
   }
 
-  public calcTimestamp = (topicId: string): number => {
+  public get startAt(): Date | null {
+    return this._startAt
+  }
+
+  public get finishAt(): Date | null {
+    return this._finishAt
+  }
+
+  public get archivedAt(): Date | null {
+    return this._archivedAt
+  }
+
+  public calcTimestamp = (topicId: number): number => {
     const openedDate = this.findOpenedDateOrThrow(topicId)
     const offsetTime = this._topicTimeData[topicId].offsetTime
     const timestamp = new Date().getTime() - openedDate - offsetTime
 
     return Math.max(timestamp, 0)
-  }
-
-  constructor(
-    public readonly id: string,
-    public readonly title: string,
-    public readonly description: string,
-    topics: (Omit<Topic, "id" | "state"> &
-      Partial<Pick<Topic, "id" | "state">>)[],
-    topicTimeData: Record<string, TopicTimeData> = {},
-    private userIds = new Set<string>([]),
-    private _chatItems: ChatItem[] = [],
-    private stampsCount = 0,
-    private _state: RoomState = "not-started",
-  ) {
-    this._topics = topics.map((topic, i) => ({
-      ...topic,
-      id: topic.id ?? `${i + 1}`,
-      state: topic.state ?? "not-started",
-    }))
-    this._topics.forEach(({ id }) => {
-      this._topicTimeData[id] = topicTimeData[id] ?? {
-        openedDate: null,
-        pausedDate: null,
-        offsetTime: 0,
-      }
-    })
   }
 
   /**
@@ -123,18 +139,15 @@ class RoomClass {
   /**
    * トピックの状態を変更する
    * @param topicId 状態が更新されるトピックのID
-   * @param type 状態更新の種類
+   * @param state 変更後のトピックの状態
    */
-  public changeTopicState = (
-    topicId: string,
-    type: ChangeTopicStateType,
-  ): { messages: Message[]; activeTopic: Topic | null } => {
+  public changeTopicState = (topicId: number, state: TopicState): Message[] => {
     this.assertRoomIsOngoing()
 
     const targetTopic = this.findTopicOrThrow(topicId)
 
-    switch (type) {
-      case "OPEN": {
+    switch (state) {
+      case "ongoing": {
         const messages: Message[] = []
 
         // 現在のactiveトピックをfinishedにする
@@ -147,24 +160,21 @@ class RoomClass {
         const message = this.startTopic(targetTopic)
         messages.push(message)
 
-        return {
-          messages,
-          activeTopic: this.activeTopic,
-        }
+        return messages
       }
 
-      case "PAUSE": {
-        const messages = [this.pauseTopic(targetTopic)]
-        return { messages, activeTopic: this.activeTopic }
+      case "paused": {
+        const botMessage = this.pauseTopic(targetTopic)
+        return [botMessage]
       }
 
-      case "CLOSE": {
+      case "finished": {
         const botMessage = this.finishTopic(targetTopic)
-        return { messages: [botMessage], activeTopic: this.activeTopic }
+        return [botMessage]
       }
 
       default: {
-        throw new Error(`[sushi-chat-server] params.type(${type}) is invalid.`)
+        throw new Error(`Topic state(${state}) is invalid.`)
       }
     }
   }
@@ -175,7 +185,7 @@ class RoomClass {
    * @returns MessageClass 運営botメッセージ
    */
   private startTopic(topic: Topic): Message {
-    topic.state = "active"
+    topic.state = "ongoing"
 
     const timeData = this._topicTimeData[topic.id]
     const isFirstOpen = timeData.openedDate === null
@@ -257,7 +267,7 @@ class RoomClass {
     this.assertRoomIsOngoing()
     this.assertUserExists(stamp.userId)
 
-    this.stampsCount++
+    this._stamps.push(stamp)
   }
 
   /**
@@ -272,15 +282,16 @@ class RoomClass {
     this._chatItems.push(chatItem)
   }
 
-  private postBotMessage = (topicId: string, content: string): Message => {
+  private postBotMessage = (topicId: number, content: string): Message => {
     const botMessage = new Message(
       uuid(),
-      topicId,
       this.id,
-      UserClass.ADMIN_ICON_ID,
-      new Date(),
+      topicId,
+      Admin.ICON_ID,
+      "admin",
       content,
       null,
+      new Date(),
       this.calcTimestamp(topicId),
     )
     this._chatItems.push(botMessage)
@@ -289,24 +300,18 @@ class RoomClass {
   }
 
   private get activeTopic(): Topic | null {
-    return this._topics.find(({ state }) => state === "active") ?? null
+    return this._topics.find(({ state }) => state === "ongoing") ?? null
   }
 
-  private getTopicById = (topicId: string) => {
-    return this._topics.find((topic) => topic.id === topicId)
-  }
-
-  private findTopicOrThrow(topicId: string) {
-    const topic = this.getTopicById(topicId)
-    if (topic === undefined) {
-      throw new Error(
-        `[sushi-chat-server] Topic(id: ${topicId}) does not exists.`,
-      )
+  private findTopicOrThrow(topicId: number) {
+    const topic = this._topics.find((topic) => topic.id === topicId)
+    if (!topic) {
+      throw new Error(`Topic(id:${topicId}) was not found.`)
     }
     return topic
   }
 
-  private findOpenedDateOrThrow(topicId: string): number {
+  private findOpenedDateOrThrow(topicId: number): number {
     const openedDate = this._topicTimeData[topicId].openedDate
     if (openedDate === null) {
       throw new Error(`openedDate of topicId(id: ${topicId}) is null.`)
@@ -314,6 +319,13 @@ class RoomClass {
     return openedDate
   }
 
+  private findChatItemOrThrow(chatItemId: string) {
+    const chatItem = this._chatItems.find((c) => c.id === chatItemId)
+    if (!chatItem) {
+      throw new Error(`ChatItem(id:${chatItemId}) was not found.`)
+    }
+    return chatItem
+  }
   private assertRoomIsOngoing() {
     if (this._state != "ongoing") {
       throw new Error(`Room(id: ${this.id}) is not ongoing.`)

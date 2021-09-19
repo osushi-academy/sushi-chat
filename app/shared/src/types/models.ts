@@ -1,7 +1,7 @@
 export type ChatItemType = "message" | "reaction" | "question" | "answer"
 export type ChatItemSenderType = "general" | "admin" | "speaker" | "system"
 export type RoomState = "not-started" | "ongoing" | "finished" | "archived"
-export type TopicState = "OPEN" | "PAUSE" | "CLOSE"
+export type TopicState = "not-started" | "ongoing" | "paused" | "finished"
 
 export type ChatItemModel = {
   id: string

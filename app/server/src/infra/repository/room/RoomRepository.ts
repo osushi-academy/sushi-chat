@@ -27,8 +27,7 @@ class RoomRepository implements IRoomRepository {
     const insertedTopics = room.topics.map((t) => [
       t.id,
       room.id,
-      // TODO: おそらくCLOSEではなく別の初期状態が追加されるのでそちらに変更する
-      RoomRepository.topicStateMap["CLOSE"],
+      RoomRepository.topicStateMap["not-started"],
       t.title,
     ])
     const insertedColCnt = insertedTopics[0].length
@@ -215,9 +214,10 @@ class RoomRepository implements IRoomRepository {
   }
 
   private static readonly topicStateMap: Record<TopicState, number> = {
-    OPEN: 1,
-    PAUSE: 2,
-    CLOSE: 3,
+    "not-started": 1,
+    ongoing: 2,
+    finished: 3,
+    paused: 4,
   }
 
   private static intToTopicState = (n: number): TopicState => {
