@@ -7,6 +7,7 @@ import IStampDelivery from "../../domain/stamp/IStampDelivery"
 import IUserRepository from "../../domain/user/IUserRepository"
 import IAdminRepository from "../../domain/admin/IAdminRepository"
 import RealtimeRoomService from "../room/RealtimeRoomService"
+import UserService from "../user/UserService"
 
 class StampService {
   constructor(
@@ -17,8 +18,14 @@ class StampService {
     private readonly stampDelivery: IStampDelivery,
   ) {}
 
-  // TODO: userの存在チェックを行う
   public async post({ roomId, userId, topicId }: PostStampCommand) {
+    // userの存在チェック
+    await UserService.findUserOrThrow(
+      userId,
+      this.adminRepository,
+      this.userRepository,
+    )
+
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,
       this.roomRepository,

@@ -8,6 +8,7 @@ import RoomRepository from "./infra/repository/room/RoomRepository"
 import { restSetup } from "./rest"
 import RestRoomService from "./service/room/RestRoomService"
 import PGPool from "./infra/repository/PGPool"
+import AdminRepository from "./infra/repository/admin/AdminRepository"
 
 const app = express()
 const httpServer = createServer(app)
@@ -16,6 +17,7 @@ const pgPool = new PGPool(
   process.env.DATABASE_URL as string,
   process.env.DB_SSL !== "OFF",
 )
+const adminRepository = new AdminRepository(pgPool)
 const userRepository = LocalMemoryUserRepository.getInstance()
 const chatItemRepository = new ChatItemRepository(pgPool)
 const stampRepository = new StampRepository(pgPool)
@@ -29,6 +31,7 @@ const roomService = new RestRoomService(roomRepository, userRepository)
 
 createSocketIOServer(
   httpServer,
+  adminRepository,
   userRepository,
   roomRepository,
   chatItemRepository,

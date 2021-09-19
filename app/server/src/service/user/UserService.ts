@@ -67,10 +67,7 @@ class UserService {
     const activeUserCount = room.joinUser(userId)
     this.userDelivery.enterRoom(user, activeUserCount)
 
-    if (user instanceof Admin) {
-      const admin = user
-      this.adminRepository.update(admin)
-    } else {
+    if (user instanceof User) {
       user.enterRoom(roomId, NewIconId(iconId), speakerTopicId)
       this.userRepository.update(user)
     }
@@ -92,7 +89,6 @@ class UserService {
       this.adminRepository,
       this.userRepository,
     )
-    const isAdmin = user instanceof Admin
 
     // まだRoomに参加していないユーザーなら何もしない
     if (!roomId) return
@@ -105,10 +101,7 @@ class UserService {
     const activeUserCount = room.leaveUser(user.id)
     this.userDelivery.leaveRoom(user, activeUserCount)
 
-    if (isAdmin) {
-      const admin = user
-      this.adminRepository.update(admin)
-    } else {
+    if (user instanceof User) {
       user.leaveRoom()
     }
 
