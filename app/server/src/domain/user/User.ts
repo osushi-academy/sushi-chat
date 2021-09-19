@@ -1,50 +1,60 @@
+import IconId from "./IconId"
+
 class User {
-  public static readonly ADMIN_ICON_ID = "0"
+  constructor(
+    public readonly id: string,
+    private _roomId?: string,
+    private _iconId?: IconId,
+    private _speakAt?: number,
+  ) {}
 
-  private _roomId: string | null = null
-  private _iconId: string | null = null
-
-  constructor(public readonly id: string) {}
-
-  public get roomId(): string | null {
+  public get roomId(): string | undefined {
     return this._roomId
   }
 
   public getRoomIdOrThrow(): string {
-    this.assertIsInRoom()
+    this.assertIsInRoom(this._roomId)
     return this._roomId as string
   }
 
-  public get iconId(): string | null {
+  public get iconId(): IconId | undefined {
     return this._iconId
   }
 
-  public getIconIdOrThrow(): string {
-    this.assertHasIconId()
-    return this._iconId as string
+  public getIconIdOrThrow(): IconId {
+    this.assertHasIconId(this._iconId)
+    return this._iconId
   }
 
-  public enterRoom(roomId: string, iconId: string): void {
+  public get speakAt(): number | undefined {
+    return this._speakAt
+  }
+
+  public enterRoom(roomId: string, iconId: IconId, speakAt?: number): void {
     this._roomId = roomId
     this._iconId = iconId
+    this._speakAt = speakAt
   }
 
   public leaveRoom(): void {
     this.assertIsInRoom()
     this.assertHasIconId()
 
-    this._roomId = null
-    this._iconId = null
+    // TODO: これらの値をundefinedにして保存してしまうと、userがroomにいた履歴が消えてしまう。
+    //        hasLeftみたいなフラグをつけるようにすれば良いかも
+    // this._roomId = undefined
+    // this._iconId = undefined
+    // this._speakAt = undefined
   }
 
-  private assertIsInRoom(): void {
-    if (this._roomId === null) {
+  private assertIsInRoom(roomId?: string): asserts roomId is string {
+    if (roomId === null) {
       throw new Error(`User(id:${this.id}) is not in any room.`)
     }
   }
 
-  private assertHasIconId(): void {
-    if (this._iconId === null) {
+  private assertHasIconId(iconId?: IconId): asserts iconId is IconId {
+    if (iconId === null) {
       throw new Error(`User(id:${this.id}) doesn't have iconId.`)
     }
   }
