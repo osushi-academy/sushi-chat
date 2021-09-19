@@ -29,13 +29,13 @@ class StampRepository implements IStampRepository {
 
   public async count(
     roomId: string,
-    topicId?: string,
+    topicId?: number,
     userId?: string,
   ): Promise<number> {
     const pgClient = await this.pgPool.client()
 
     let query = "SELECT COUNT(*) FROM stamps WHERE room_id = $1"
-    const values = [roomId]
+    const values: unknown[] = [roomId]
     if (topicId) {
       query += " AND topic_id = $2"
       values.push(topicId)
