@@ -30,7 +30,7 @@ class ChatItemService {
 
     const room = await this.findRoom(roomId)
     const target =
-      command.targetId !== undefined && command.targetId !== null
+      command.targetId != null
         ? ((await this.chatItemRepository.find(command.targetId)) as
             | Message
             | Answer)

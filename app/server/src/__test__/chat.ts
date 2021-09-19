@@ -10,6 +10,7 @@ import { v4 as uuid } from "uuid"
 import RoomRepository from "../infra/repository/room/RoomRepository"
 import ChatItemRepository from "../infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "../infra/repository/stamp/StampRepository"
+import RoomFactory from "../infra/factory/RoomFactory"
 import PGPool from "../infra/repository/PGPool"
 import delay from "../utils/delay"
 
@@ -41,6 +42,7 @@ describe("機能テスト", () => {
       ),
       chatItemRepository,
       stampRepository,
+      new RoomFactory(),
     )
     httpServer.listen(async () => {
       const port = (httpServer as any).address().port

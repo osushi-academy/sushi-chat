@@ -13,6 +13,7 @@ import EphemeralChatItemDelivery from "../infra/delivery/chatItem/EphemeralChatI
 import UserService from "../service/user/UserService"
 import EphemeralUserDelivery from "../infra/delivery/user/EphemeralUserDelivery"
 import EphemeralChatItemRepository from "../infra/repository/chatItem/EphemeralChatItemRepository"
+import RoomFactory from "../infra/factory/RoomFactory"
 
 describe("StampServiceのテスト", () => {
   let adminId: string
@@ -28,7 +29,6 @@ describe("StampServiceのテスト", () => {
   beforeEach(async () => {
     adminId = getUUID()
     userId = getUUID()
-    roomId = getUUID()
     topicIdToBePosted = "1"
 
     stampRepository = new EphemeralStampRepository()
@@ -39,6 +39,7 @@ describe("StampServiceのテスト", () => {
     const roomDelivery = new EphemeralRoomDelivery([])
     const chatItemDelivery = new EphemeralChatItemDelivery([])
     const userDelivery = new EphemeralUserDelivery([])
+    const roomFactory = new RoomFactory()
 
     stampService = new StampService(
       stampRepository,
@@ -54,11 +55,11 @@ describe("StampServiceのテスト", () => {
       roomDelivery,
       chatItemDelivery,
       stampDelivery,
+      roomFactory,
     )
 
     userService.createUser({ userId: adminId })
-    roomService.build({
-      id: roomId,
+    const newRoom = await roomService.build({
       title: "テストルーム",
       topics: [1, 2].map((i) => ({
         title: `テストトピック${i}`,
@@ -66,6 +67,7 @@ describe("StampServiceのテスト", () => {
         urls: {},
       })),
     })
+    roomId = newRoom.id
     await userService.adminEnterRoom({ adminId, roomId })
     await roomService.start(adminId)
     await roomService.changeTopicState({
