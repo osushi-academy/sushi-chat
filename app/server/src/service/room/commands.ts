@@ -8,6 +8,12 @@ export type BuildRoomCommand = {
   description?: string
 }
 
+export type InviteRoomCommand = {
+  id: string
+  adminInviteKey: string
+  adminId: string
+}
+
 export type ChangeTopicStateCommand = {
   userId: string
   topicId: string

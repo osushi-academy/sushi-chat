@@ -53,10 +53,12 @@ class RoomClass {
     public readonly id: string,
     public readonly title: string,
     public readonly description: string,
+    public readonly adminInviteKey: string,
     topics: (Omit<Topic, "id" | "state"> &
       Partial<Pick<Topic, "id" | "state">>)[],
     topicTimeData: Record<string, TopicTimeData> = {},
     private userIds = new Set<string>([]),
+    private adminIds = new Set<string>([]),
     private _chatItems: ChatItem[] = [],
     private stampsCount = 0,
     private _state: RoomState = "not-started",
@@ -118,6 +120,16 @@ class RoomClass {
     this.assertUserExists(userId)
     this.userIds.delete(userId)
     return this.activeUserCount
+  }
+
+  /**
+   * 管理者をルームに招待する
+   * @param adminId 管理者にするadminのID
+   * @param adminInviteKey 送られてきた招待キー
+   */
+  public inviteAdmin = (adminId: string, adminInviteKey: string): void => {
+    this.assertSameAdminInviteKey(adminInviteKey)
+    this.adminIds.add(adminId)
   }
 
   /**
@@ -339,6 +351,15 @@ class RoomClass {
     if (!exists) {
       throw new Error(
         `[sushi-chat-server] User(id: ${userId}) does not exists.`,
+      )
+    }
+  }
+
+  private assertSameAdminInviteKey(adminInviteKey: string) {
+    const same = this.adminInviteKey === adminInviteKey
+    if (!same) {
+      throw new Error(
+        `[sushi-chat-server] adminInviteKey(${adminInviteKey}) does not matches.`,
       )
     }
   }
