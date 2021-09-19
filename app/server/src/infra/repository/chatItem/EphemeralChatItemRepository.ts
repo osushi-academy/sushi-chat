@@ -8,30 +8,34 @@ import Reaction from "../../../domain/chatItem/Reaction"
 class EphemeralChatItemRepository implements IChatItemRepository {
   private readonly chatItems: Record<string, ChatItem> = {}
 
-  public find(chatItemId: string): Promise<ChatItem> {
+  public find(chatItemId: string) {
     return Promise.resolve(this.chatItems[chatItemId])
   }
 
-  public saveAnswer(answer: Answer): void {
+  public saveAnswer(answer: Answer) {
     this.chatItems[answer.id] = answer
   }
 
-  public saveMessage(message: Message): void {
+  public saveMessage(message: Message) {
     this.chatItems[message.id] = message
   }
 
-  public saveQuestion(question: Question): void {
+  public saveQuestion(question: Question) {
     this.chatItems[question.id] = question
   }
 
-  public saveReaction(reaction: Reaction): void {
+  public saveReaction(reaction: Reaction) {
     this.chatItems[reaction.id] = reaction
   }
 
-  public selectByRoomId(roomId: string): Promise<ChatItem[]> {
-    return Promise.resolve([
-      ...Object.values(this.chatItems).filter((c) => c.roomId === roomId),
-    ])
+  public async selectByRoomId(roomId: string) {
+    return Promise.resolve(
+      Object.values(this.chatItems).filter((c) => c.roomId === roomId),
+    )
+  }
+
+  public pinChatItem(chatItem: ChatItem) {
+    throw new Error("Not implemented")
   }
 }
 
