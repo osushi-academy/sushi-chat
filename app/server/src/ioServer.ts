@@ -1,6 +1,5 @@
 import { Server, Socket } from "socket.io"
 import { Server as HttpServer } from "http"
-import { v4 as uuid } from "uuid"
 import { ReceiveEventParams, ReceiveEventResponses } from "./events"
 import { instrument } from "@socket.io/admin-ui"
 import { createAdapter } from "@socket.io/redis-adapter"
@@ -265,26 +264,6 @@ const createSocketIOServer = async (
         } catch (e) {
           console.error(
             `${e.message ?? "Unknown error."} (ADMIN_FINISH_ROOM)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
-      // ルームを閉じる
-      socket.on("ADMIN_CLOSE_ROOM", () => {
-        try {
-          const realtimeRoomService = new RealtimeRoomService(
-            roomRepository,
-            userRepository,
-            chatItemRepository,
-            new RoomDelivery(io),
-            new ChatItemDelivery(io),
-            StampDelivery.getInstance(io),
-          )
-          realtimeRoomService.close(socket.id)
-        } catch (e) {
-          console.error(
-            `${e.message ?? "Unknown error."} (ADMIN_CLOSE_ROOM)`,
             new Date().toISOString(),
           )
         }
