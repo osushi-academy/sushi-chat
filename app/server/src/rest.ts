@@ -48,6 +48,27 @@ export const restSetup = (
     }
   })
 
+  // ルームを公開停止にする
+  app.put("/room/:id/archive", (req, res) => {
+    // TODO:adminIdをheaderから取得
+    const adminId = ""
+    roomService
+      .archive({
+        id: req.params.id,
+        adminId: adminId,
+      })
+      .then(() => res.send({ result: "success" }))
+      .catch((e) => {
+        res.status(400).send({
+          result: "error",
+          error: {
+            code: 400,
+            message: `${e.message ?? "Unknown error."} (ADMIN_ARCHIVE_ROOM)`,
+          },
+        })
+      })
+  })
+
   // チャット履歴・スタンプ履歴を取得する
   app.get("/room/:id/history", async (req, res) => {
     try {

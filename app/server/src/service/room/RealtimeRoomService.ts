@@ -42,18 +42,6 @@ class RealtimeRoomService {
     this.roomRepository.update(room)
   }
 
-  // Roomをアーカイブし、閲覧できなくする。RESTのエンドポイントに移行予定
-  public async close(userId: string) {
-    const user = this.findUser(userId)
-    const roomId = user.getRoomIdOrThrow()
-
-    const room = await this.find(roomId)
-    room.archiveRoom()
-
-    this.roomDelivery.close(room.id)
-    this.roomRepository.update(room)
-  }
-
   public async changeTopicState(command: ChangeTopicStateCommand) {
     const user = this.findUser(command.userId)
     const roomId = user.getRoomIdOrThrow()
