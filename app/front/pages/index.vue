@@ -28,7 +28,6 @@
         <ChatRoom
           :topic-index="index"
           :topic-id="topic.id"
-          :favorite-callback-register="favoriteCallbackRegister"
           @topic-activate="changeActiveTopic"
         />
       </div>
@@ -147,6 +146,12 @@ export default Vue.extend({
       } else if (res.type === "CLOSE") {
         TopicStateItemStore.change({ key: res.topicId, state: "finished" })
       }
+    })
+    // スタンプ通知時の、SocketIOのコールバックの登録
+    socket.on("PUB_STAMP", (stamps: Stamp[]) => {
+      stamps.forEach((stamp) => {
+        StampStore.add(stamp)
+      })
     })
     DeviceStore.determineOs()
   },
@@ -284,24 +289,6 @@ export default Vue.extend({
     // アイコン選択
     clickIcon(index: number) {
       UserItemStore.changeMyIcon(index)
-    },
-    // スタンプが通知された時に実行されるコールバックの登録
-    favoriteCallbackRegister(
-      topicId: string,
-      callback: (count: number) => void,
-    ) {
-      socket.on("PUB_STAMP", (stamps: Stamp[]) => {
-        const stampsAboutTopicId = stamps.filter(
-          // 自分が押したものも通知されるため省く処理
-          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id,
-        )
-        if (stampsAboutTopicId.length > 0) {
-          stampsAboutTopicId.forEach((stamp) => {
-            StampStore.add(stamp)
-          })
-          callback(stampsAboutTopicId.length)
-        }
-      })
     },
   },
 })

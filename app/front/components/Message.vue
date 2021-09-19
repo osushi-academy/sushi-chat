@@ -171,9 +171,9 @@ export default Vue.extend({
       const min: number = Math.floor(sec / 60)
       sec %= 60
       if (sec < 10) {
-        return String(min) + ":0" + String(sec)
+        return `${min}` + ":0" + `${sec}`
       } else {
-        return String(min) + ":" + String(sec)
+        return `${min}` + ":" + `${sec}`
       }
     },
   },

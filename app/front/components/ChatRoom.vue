@@ -46,9 +46,6 @@
       </div>
       <div class="stamp-zone">
         <FavoriteButton
-          :favorite-callback-register="
-            (callback) => favoriteCallbackRegister(topicId, callback)
-          "
           :disabled="topicState !== 'active'"
           :topic-id="topicId"
         />
@@ -74,7 +71,7 @@
   </article>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
 import throttle from "lodash.throttle"
 import { XIcon, ChevronUpIcon } from "vue-feather-icons"
 import AnalysisGraph from "./AnalysisGraph.vue"
@@ -85,11 +82,6 @@ import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
 import { ChatItemStore, TopicStore, TopicStateItemStore } from "~/store"
-
-type FavoriteCallbackRegisterPropType = (
-  topicId: string,
-  callback: (count: number) => void,
-) => void
 
 // Data型
 type DataType = {
@@ -118,10 +110,6 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
-    favoriteCallbackRegister: {
-      type: Function,
-      required: true,
-    } as PropOptions<FavoriteCallbackRegisterPropType>,
   },
   data(): DataType {
     return {
@@ -241,6 +229,7 @@ export default Vue.extend({
           (message) =>
             "🍣: " + (message as Message).content.replaceAll("\n", "\n") + "\n",
         )
+      // this.topicがnullになることは基本的にない
       if (this.topic) {
         exportText(`${this.topicIndex}_${this.topic.title}_comments`, [
           this.topic.title + "\n",

@@ -39,14 +39,13 @@
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
+import { Stamp } from "@/models/contents"
 import { randomWaitedLoop } from "@/utils/waitedLoop"
 import { HSLColor, getRandomColor } from "@/utils/color"
+import socket from "~/utils/socketIO"
 import { StampStore } from "~/store"
-
-type FavoriteCallbackRegisterPropType = {
-  favoriteCallbackRegister: (callback: (count: number) => void) => void
-}
+import Stamps from "~/store/stamps"
 
 export type DataType = {
   count: {
@@ -64,10 +63,6 @@ export type DataType = {
 export default Vue.extend({
   name: "FavoriteButton",
   props: {
-    favoriteCallbackRegister: {
-      type: Function,
-      required: true,
-    } as PropOptions<FavoriteCallbackRegisterPropType>,
     disabled: {
       type: Boolean,
       required: true,
@@ -85,12 +80,24 @@ export default Vue.extend({
       stampAnimationFinished: {},
     }
   },
-  mounted() {
-    this.$props.favoriteCallbackRegister((count: number) => {
-      randomWaitedLoop(2000 / count, 500, count, () => {
-        this.emitHeart()
-      })
-    })
+  computed: {
+    stamps(): Stamp[] {
+      return StampStore.stamps.filter(
+        // 自分が押したものも通知されるため省く処理
+        (stamp: any) =>
+          stamp.topicId === this.topicId && stamp.userId !== socket.id,
+      )
+    },
+  },
+  watch: {
+    stamps(newValue, oldValue) {
+      newValue = newValue.slice(oldValue.length)
+      if (newValue.length) {
+        randomWaitedLoop(2000 / newValue.length, 500, newValue.length, () => {
+          this.emitHeart()
+        })
+      }
+    },
   },
   methods: {
     clickFavorite() {
@@ -115,7 +122,7 @@ export default Vue.extend({
 
       if (key) {
         this.$set(this.stampAnimationFinished, key, false)
-        const index = this.count.findIndex(({ id }) => String(id) === key)
+        const index = this.count.findIndex(({ id }) => `${id}` === key)
         this.count.splice(index, 1, {
           id: this.count[index].id,
           color: getRandomColor(),
