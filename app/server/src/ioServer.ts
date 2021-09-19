@@ -131,26 +131,6 @@ const createSocketIOServer = async (
         }
       })
 
-      // ルームを開始する
-      socket.on("ADMIN_START_ROOM", () => {
-        try {
-          const realtimeRoomService = new RealtimeRoomService(
-            roomRepository,
-            userRepository,
-            chatItemRepository,
-            new RoomDelivery(io),
-            new ChatItemDelivery(io),
-            StampDelivery.getInstance(io),
-          )
-          realtimeRoomService.start(socket.id)
-        } catch (e) {
-          console.log(
-            `${e.message ?? "Unknown error."} (ADMIN_START_ROOM)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
       // トピック状態の変更
       socket.on("ADMIN_CHANGE_TOPIC_STATE", (received) => {
         try {
