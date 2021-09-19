@@ -126,12 +126,11 @@ class RoomClass {
    * 管理者をルームに招待する
    * @param adminId 管理者にするadminのID
    * @param adminInviteKey 送られてきた招待キー
-   * @returns number アクティブなユーザー数
    */
-  public inviteAdmin = (adminId: string, adminInviteKey: string): boolean => {
+  public inviteAdmin = (adminId: string, adminInviteKey: string): void => {
     this.assertSameAdminInviteKey(adminInviteKey)
     this.adminIds.add(adminId)
-    return true
+    return
   }
 
   /**
