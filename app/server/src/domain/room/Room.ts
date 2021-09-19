@@ -130,7 +130,6 @@ class RoomClass {
   public inviteAdmin = (adminId: string, adminInviteKey: string): void => {
     this.assertSameAdminInviteKey(adminInviteKey)
     this.adminIds.add(adminId)
-    return
   }
 
   /**
