@@ -66,7 +66,7 @@ export const restSetup = (
         result: "error",
         error: {
           code: 400,
-          message: `${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
+          message: `${e.message ?? "Unknown error."} (USER_ROOM_HISTORY)`,
         },
       })
     }
