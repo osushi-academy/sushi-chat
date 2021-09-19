@@ -280,6 +280,7 @@ class RoomClass {
     this.assertUserExists(stamp.userId)
 
     this.stampsCount++
+    this._stamps.push(stamp)
   }
 
   /**
