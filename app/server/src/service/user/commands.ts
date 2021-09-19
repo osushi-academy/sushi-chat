@@ -1,5 +1,3 @@
-import { Socket } from "socket.io"
-
 export type CreateUserCommand = {
   userId: string
 }
@@ -10,9 +8,10 @@ export type AdminEnterCommand = {
 }
 
 export type UserEnterCommand = {
-  userId: string
   roomId: string
-  iconId: string
+  userId: string
+  iconId: number
+  speakerTopicId?: number
 }
 
 export type UserLeaveCommand = {

@@ -1,4 +1,4 @@
 export type PostStampCommand = {
-  topicId: string
+  topicId: number
   userId: string
 }

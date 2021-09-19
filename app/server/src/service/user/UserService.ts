@@ -1,5 +1,4 @@
 import {
-  AdminEnterCommand,
   CreateUserCommand,
   UserEnterCommand,
   UserLeaveCommand,
@@ -7,95 +6,116 @@ import {
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
 import IRoomRepository from "../../domain/room/IRoomRepository"
-import RoomClass from "../../domain/room/Room"
 import IUserDelivery from "../../domain/user/IUserDelivery"
-import ChatItemResponseBuilder from "../chatItem/ChatItemResponseBuilder"
-import { ChatItem } from "../../chatItem"
-import Topic from "../../domain/room/Topic"
+import ChatItemModelBuilder from "../chatItem/ChatItemModelBuilder"
+import Admin from "../../domain/admin/admin"
+import IAdminRepository from "../../domain/admin/IAdminRepository"
+import RealtimeRoomService from "../room/RealtimeRoomService"
+import { NewIconId } from "../../domain/user/IconId"
+import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
+import StampModelBuilder from "../stamp/StampModelBuilder"
 
 class UserService {
   constructor(
+    private readonly adminRepository: IAdminRepository,
     private readonly userRepository: IUserRepository,
     private readonly roomRepository: IRoomRepository,
     private readonly userDelivery: IUserDelivery,
   ) {}
+
+  public static async findUserOrThrow(
+    id: string,
+    adminRepository: IAdminRepository,
+    userRepository: IUserRepository,
+  ): Promise<User | Admin> {
+    const admin = await adminRepository.find(id)
+    if (admin) return admin
+
+    const user = await userRepository.find(id)
+    if (user) return user
+
+    throw new Error(`User|Admin(id:${id}) was not found.`)
+  }
 
   public createUser(command: CreateUserCommand): void {
     const newUser = new User(command.userId)
     this.userRepository.create(newUser)
   }
 
-  public async adminEnterRoom(command: AdminEnterCommand): Promise<{
-    chatItems: ChatItem[]
-    topics: Topic[]
+  public async enterRoom({
+    roomId,
+    speakerTopicId,
+    userId,
+    iconId,
+  }: UserEnterCommand): Promise<{
+    chatItems: ChatItemModel[]
+    stamps: StampModel[]
     activeUserCount: number
+    pinnedChatItemIds: (string | null)[]
+    topicStates: { topicId: number; state: TopicState }[]
   }> {
-    const admin = this.userRepository.find(command.adminId)
-    admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
-
-    const room = await this.findRoom(command.roomId)
-    const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
-      room.chatItems,
+    const room = await RealtimeRoomService.findRoomOrThrow(
+      roomId,
+      this.roomRepository,
     )
-    const activeUserCount = room.joinUser(command.adminId)
-
-    this.userDelivery.enterRoom(admin, activeUserCount)
-    this.userRepository.update(admin)
-    await this.roomRepository.update(room)
-
-    return {
-      chatItems: chatItemResponses,
-      topics: room.topics,
-      activeUserCount,
-    }
-  }
-
-  public async enterRoom(command: UserEnterCommand): Promise<{
-    chatItems: ChatItem[]
-    topics: Topic[]
-    activeUserCount: number
-  }> {
-    const user = this.userRepository.find(command.userId)
-    user.enterRoom(command.roomId, command.iconId)
-
-    const room = await this.findRoom(command.roomId)
-    const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
-      room.chatItems,
+    const user = await UserService.findUserOrThrow(
+      userId,
+      this.adminRepository,
+      this.userRepository,
     )
-    const activeUserCount = room.joinUser(command.userId)
 
+    const activeUserCount = room.joinUser(userId)
     this.userDelivery.enterRoom(user, activeUserCount)
-    this.userRepository.update(user)
+
+    if (user instanceof Admin) {
+      const admin = user
+      admin.enterRoom(roomId)
+      this.adminRepository.update(admin)
+    } else {
+      user.enterRoom(roomId, NewIconId(iconId), speakerTopicId)
+      this.userRepository.update(user)
+    }
+
     await this.roomRepository.update(room)
 
     return {
-      chatItems: chatItemResponses,
-      topics: room.topics,
+      chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
+      stamps: StampModelBuilder.buildStamps(room.stamps),
       activeUserCount,
+      pinnedChatItemIds: room.topics.map((t) => t.pinnedChatItemId ?? null),
+      topicStates: room.topics.map((t) => ({ topicId: t.id, state: t.state })),
     }
   }
 
-  public async leaveRoom(command: UserLeaveCommand) {
-    const user = this.userRepository.find(command.userId)
+  public async leaveRoom({ userId }: UserLeaveCommand) {
+    const user = await UserService.findUserOrThrow(
+      userId,
+      this.adminRepository,
+      this.userRepository,
+    )
+    const isAdmin = user instanceof Admin
+    const roomId = isAdmin ? user.currentRoomId : user.roomId
+
     // まだRoomに参加していないユーザーなら何もしない
-    if (user.roomId === null) return
+    if (!roomId) return
 
-    const room = await this.findRoom(user.roomId)
+    const room = await RealtimeRoomService.findRoomOrThrow(
+      roomId,
+      this.roomRepository,
+    )
+
     const activeUserCount = room.leaveUser(user.id)
-
     this.userDelivery.leaveRoom(user, activeUserCount)
-    user.leaveRoom()
 
-    this.userRepository.update(user)
-    this.roomRepository.update(room)
-  }
-
-  private async findRoom(roomId: string): Promise<RoomClass> {
-    const room = await this.roomRepository.find(roomId)
-    if (!room) {
-      throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
+    if (isAdmin) {
+      const admin = user
+      admin.leaveRoom()
+      this.adminRepository.update(admin)
+    } else {
+      user.leaveRoom()
     }
-    return room
+
+    this.roomRepository.update(room)
   }
 }
 

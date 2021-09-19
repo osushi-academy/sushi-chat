@@ -1,3 +1,4 @@
+import { v4 as uuid } from "uuid"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
 import { BuildRoomCommand } from "./commands"
@@ -12,11 +13,13 @@ class RestRoomService {
 
   // Roomを作成する。
   public build(command: BuildRoomCommand): RoomClass {
+    const inviteKey = uuid()
     const room = new RoomClass(
       command.id,
       command.title,
-      command.description ?? "",
+      inviteKey,
       command.topics,
+      command.description,
     )
     this.roomRepository.build(room)
 
@@ -27,7 +30,7 @@ class RestRoomService {
 
   // Roomをアーカイブし、閲覧できなくする。
   public async archive(userId: string) {
-    const user = this.findUser(userId)
+    const user = await this.findUser(userId)
     const roomId = user.getRoomIdOrThrow()
 
     const room = await this.find(roomId)
@@ -44,8 +47,8 @@ class RestRoomService {
     return room
   }
 
-  private findUser(userId: string): User {
-    const user = this.userRepository.find(userId)
+  private async findUser(userId: string): Promise<User> {
+    const user = await this.userRepository.find(userId)
     if (!user) {
       throw new Error(`User(id :${userId}) was not found.`)
     }

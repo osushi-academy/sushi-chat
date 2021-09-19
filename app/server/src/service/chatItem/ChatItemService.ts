@@ -1,4 +1,3 @@
-import RoomClass from "../../domain/room/Room"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
 import Message from "../../domain/chatItem/Message"
@@ -6,148 +5,222 @@ import Answer from "../../domain/chatItem/Answer"
 import Reaction from "../../domain/chatItem/Reaction"
 import Question from "../../domain/chatItem/Question"
 import {
+  PinChatItemCommand,
   PostAnswerCommand,
   PostMessageCommand,
   PostQuestionCommand,
   PostReactionCommand,
 } from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
-import User from "../../domain/user/User"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
+import Admin from "../../domain/admin/admin"
+import IAdminRepository from "../../domain/admin/IAdminRepository"
+import { ChatItemSenderType } from "sushi-chat-shared"
+import UserService from "../user/UserService"
+import IconId from "../../domain/user/IconId"
+import RealtimeRoomService from "../room/RealtimeRoomService"
 
 class ChatItemService {
   constructor(
     private readonly chatItemRepository: IChatItemRepository,
     private readonly roomRepository: IRoomRepository,
+    private readonly adminRepository: IAdminRepository,
     private readonly userRepository: IUserRepository,
     private readonly chatItemDelivery: IChatItemDelivery,
   ) {}
 
-  public async postMessage(command: PostMessageCommand) {
-    const user = this.findUser(command.userId)
-    const roomId = user.getRoomIdOrThrow()
-    const iconId = user.getIconIdOrThrow()
+  public static async findChatItemOrThrow(
+    chatItemId: string,
+    chatItemRepository: IChatItemRepository,
+  ) {
+    const chatItem = await chatItemRepository.find(chatItemId)
+    if (!chatItem) {
+      throw new Error(`ChatItem(id:${chatItemId}) was not found.`)
+    }
+    return chatItem
+  }
 
-    const room = await this.findRoom(roomId)
-    const target =
-      command.targetId !== undefined && command.targetId !== null
-        ? ((await this.chatItemRepository.find(command.targetId)) as
-            | Message
-            | Answer)
-        : null
+  public async postMessage({
+    topicId,
+    chatItemId,
+    quoteId,
+    content,
+    userId,
+  }: PostMessageCommand) {
+    const { roomId, iconId, senderType } = await this.fetchUserData(
+      userId,
+      topicId,
+    )
+    const room = await RealtimeRoomService.findRoomOrThrow(
+      roomId,
+      this.roomRepository,
+    )
+    const quote = quoteId
+      ? ((await this.chatItemRepository.find(quoteId)) as Message | Answer)
+      : null
 
     const message = new Message(
-      command.chatItemId,
-      command.topicId,
+      chatItemId,
       roomId,
+      topicId,
       iconId,
+      senderType,
+      content,
+      quote,
       new Date(),
-      command.content,
-      target,
-      room.calcTimestamp(command.topicId),
+      room.calcTimestamp(topicId),
     )
 
-    room.postChatItem(command.userId, message)
-    console.log(`message: ${command.content}(id: ${command.chatItemId})`)
+    room.postChatItem(userId, message)
+    console.log(`message: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postMessage(message)
     this.chatItemRepository.saveMessage(message)
   }
 
-  public async postReaction(command: PostReactionCommand) {
-    const user = this.findUser(command.userId)
-    const roomId = user.getRoomIdOrThrow()
-    const iconId = user.getIconIdOrThrow()
-
-    const room = await this.findRoom(roomId)
-    const target = (await this.chatItemRepository.find(command.targetId)) as
+  public async postReaction({
+    chatItemId,
+    topicId,
+    userId,
+    quoteId,
+  }: PostReactionCommand) {
+    const { roomId, iconId, senderType } = await this.fetchUserData(
+      userId,
+      topicId,
+    )
+    const room = await RealtimeRoomService.findRoomOrThrow(
+      roomId,
+      this.roomRepository,
+    )
+    const quote = (await this.chatItemRepository.find(quoteId)) as
       | Message
       | Question
       | Answer
 
     const reaction = new Reaction(
-      command.chatItemId,
-      command.topicId,
+      chatItemId,
       roomId,
+      topicId,
       iconId,
+      senderType,
+      quote,
       new Date(),
-      target,
-      room.calcTimestamp(command.topicId),
+      room.calcTimestamp(topicId),
     )
 
-    room.postChatItem(command.userId, reaction)
-    console.log(`reaction: to ${command.targetId}`)
+    room.postChatItem(userId, reaction)
+    console.log(`reaction to ${quoteId}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postReaction(reaction)
     this.chatItemRepository.saveReaction(reaction)
   }
 
-  public async postQuestion(command: PostQuestionCommand) {
-    const user = this.findUser(command.userId)
-    const roomId = user.getRoomIdOrThrow()
-    const iconId = user.getIconIdOrThrow()
-
-    const room = await this.findRoom(roomId)
-
-    const question = new Question(
-      command.chatItemId,
-      command.topicId,
+  public async postQuestion({
+    topicId,
+    chatItemId,
+    userId,
+    content,
+  }: PostQuestionCommand) {
+    const { roomId, iconId, senderType } = await this.fetchUserData(
+      userId,
+      topicId,
+    )
+    const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,
-      iconId,
-      new Date(),
-      command.content,
-      room.calcTimestamp(command.topicId),
+      this.roomRepository,
     )
 
-    room.postChatItem(command.userId, question)
-    console.log(`question: ${command.content}(id: ${command.chatItemId})`)
+    const question = new Question(
+      chatItemId,
+      roomId,
+      topicId,
+      iconId,
+      senderType,
+      content,
+      new Date(),
+      room.calcTimestamp(topicId),
+    )
+
+    room.postChatItem(userId, question)
+    console.log(`question: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postQuestion(question)
     this.chatItemRepository.saveQuestion(question)
   }
 
-  public async postAnswer(command: PostAnswerCommand): Promise<void> {
-    const user = this.findUser(command.userId)
-    const roomId = user.getRoomIdOrThrow()
-    const iconId = user.getIconIdOrThrow()
-
-    const [room, target] = await Promise.all([
-      await this.findRoom(roomId),
-      (await this.chatItemRepository.find(command.targetId)) as Question,
-    ])
-
-    const answer = new Answer(
-      command.chatItemId,
-      command.topicId,
+  public async postAnswer({
+    chatItemId,
+    userId,
+    quoteId,
+    topicId,
+    content,
+  }: PostAnswerCommand) {
+    const { roomId, iconId, senderType } = await this.fetchUserData(
+      userId,
+      topicId,
+    )
+    const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,
-      iconId,
-      new Date(),
-      command.content,
-      target,
-      room.calcTimestamp(command.topicId),
+      this.roomRepository,
     )
 
-    room.postChatItem(command.userId, answer)
-    console.log(`answer: ${command.content}(id: ${command.chatItemId})`)
+    const quote = (await this.chatItemRepository.find(quoteId)) as Question
+
+    const answer = new Answer(
+      chatItemId,
+      roomId,
+      topicId,
+      iconId,
+      senderType,
+      content,
+      quote,
+      new Date(),
+      room.calcTimestamp(topicId),
+    )
+
+    room.postChatItem(userId, answer)
+    console.log(`answer: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postAnswer(answer)
     this.chatItemRepository.saveAnswer(answer)
   }
 
-  private async findRoom(roomId: string): Promise<RoomClass> {
-    const room = await this.roomRepository.find(roomId)
-    if (!room) {
-      throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
-    }
-    return room
+  public async pinChatItem({ chatItemId }: PinChatItemCommand) {
+    const pinnedChatItem = await ChatItemService.findChatItemOrThrow(
+      chatItemId,
+      this.chatItemRepository,
+    )
+
+    this.chatItemDelivery.pinChatItem(pinnedChatItem)
+    this.chatItemRepository.pinChatItem(pinnedChatItem)
   }
 
-  private findUser(userId: string): User {
-    const user = this.userRepository.find(userId)
-    if (!user) {
-      throw new Error(`User(id :${userId}) was not found.`)
-    }
-    return user
+  private fetchUserData = async (
+    userId: string,
+    topicId: number,
+  ): Promise<{
+    roomId: string
+    senderType: ChatItemSenderType
+    iconId: IconId
+  }> => {
+    const user = await UserService.findUserOrThrow(
+      userId,
+      this.adminRepository,
+      this.userRepository,
+    )
+    const isAdmin = user instanceof Admin
+
+    const roomId = isAdmin
+      ? user.getCurrentRoomIdOrThrow()
+      : user.getRoomIdOrThrow()
+    const senderType = isAdmin
+      ? "admin"
+      : user.speakAt === topicId
+      ? "speaker"
+      : "general"
+    const iconId = isAdmin ? Admin.ICON_ID : user.getIconIdOrThrow()
+
+    return { roomId, senderType, iconId }
   }
 }
 
