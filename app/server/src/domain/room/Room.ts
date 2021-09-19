@@ -111,6 +111,7 @@ class RoomClass {
    * @returns number アクティブなユーザー数
    */
   public joinUser = (userId: string): number => {
+    this.assertRoomIsOngoing()
     this.userIds.add(userId)
     return this.activeUserCount
   }

@@ -30,14 +30,17 @@ class UserService {
     topics: Topic[]
     activeUserCount: number
   }> {
+    const room = await this.findRoom(command.roomId)
+    // roomが始まっていないとここでエラー
+    const activeUserCount = room.joinUser(command.adminId)
+
     const admin = this.userRepository.find(command.adminId)
+    // roomにjoinできたらuserにもroomIdとiconIdを覚えさせる
     admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
 
-    const room = await this.findRoom(command.roomId)
     const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
       room.chatItems,
     )
-    const activeUserCount = room.joinUser(command.adminId)
 
     this.userDelivery.enterRoom(admin, activeUserCount)
     this.userRepository.update(admin)
@@ -55,14 +58,17 @@ class UserService {
     topics: Topic[]
     activeUserCount: number
   }> {
+    const room = await this.findRoom(command.roomId)
+    // roomが始まっていないとここでエラー
+    const activeUserCount = room.joinUser(command.userId)
+
     const user = this.userRepository.find(command.userId)
+    // roomにjoinできたらuserにもroomIdとiconIdを覚えさせる
     user.enterRoom(command.roomId, command.iconId)
 
-    const room = await this.findRoom(command.roomId)
     const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
       room.chatItems,
     )
-    const activeUserCount = room.joinUser(command.userId)
 
     this.userDelivery.enterRoom(user, activeUserCount)
     this.userRepository.update(user)
