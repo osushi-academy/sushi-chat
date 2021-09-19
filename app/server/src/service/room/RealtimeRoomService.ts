@@ -1,6 +1,6 @@
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
-import { BuildRoomCommand, ChangeTopicStateCommand } from "./commands"
+import { ChangeTopicStateCommand } from "./commands"
 import IStampDelivery from "../../domain/stamp/IStampDelivery"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
@@ -17,17 +17,6 @@ class RealtimeRoomService {
     private readonly chatItemDelivery: IChatItemDelivery,
     private readonly stampDelivery: IStampDelivery,
   ) {}
-
-  public async start(userId: string) {
-    const user = this.findUser(userId)
-    const roomId = user.getRoomIdOrThrow()
-
-    const room = await this.find(roomId)
-    room.startRoom()
-
-    this.roomDelivery.start(room.id)
-    this.roomRepository.update(room)
-  }
 
   // Roomを終了し、投稿をできなくする。閲覧は可能
   public async finish(userId: string) {
