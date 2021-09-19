@@ -1,12 +1,13 @@
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
-import { BuildRoomCommand, ChangeTopicStateCommand } from "./commands"
+import { ChangeTopicStateCommand } from "./commands"
 import IStampDelivery from "../../domain/stamp/IStampDelivery"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import IRoomDelivery from "../../domain/room/IRoomDelivery"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
+import IRoomFactory from "../../domain/room/IRoomFactory"
 
 class RealtimeRoomService {
   constructor(
@@ -16,13 +17,14 @@ class RealtimeRoomService {
     private readonly roomDelivery: IRoomDelivery,
     private readonly chatItemDelivery: IChatItemDelivery,
     private readonly stampDelivery: IStampDelivery,
+    private readonly roomFactory: IRoomFactory,
   ) {}
 
   public async start(userId: string) {
-    const user = this.findUser(userId)
+    const user = this.findUserOrThrow(userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = await this.find(roomId)
+    const room = await this.findRoomOrThrow(roomId)
     room.startRoom()
 
     this.roomDelivery.start(room.id)
@@ -31,26 +33,22 @@ class RealtimeRoomService {
 
   // Roomを終了し、投稿をできなくする。閲覧は可能
   public async finish(userId: string) {
-    const user = this.findUser(userId)
+    const user = this.findUserOrThrow(userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = await this.find(roomId)
+    const room = await this.findRoomOrThrow(roomId)
     room.finishRoom()
 
     this.roomDelivery.finish(room.id)
-    this.stampDelivery.finishIntervalDelivery()
     this.roomRepository.update(room)
   }
 
   public async changeTopicState(command: ChangeTopicStateCommand) {
-    const user = this.findUser(command.userId)
+    const user = this.findUserOrThrow(command.userId)
     const roomId = user.getRoomIdOrThrow()
 
-    const room = await this.find(roomId)
-    const { messages, activeTopic } = room.changeTopicState(
-      command.topicId,
-      command.type,
-    )
+    const room = await this.findRoomOrThrow(roomId)
+    const messages = room.changeTopicState(command.topicId, command.type)
 
     this.roomDelivery.changeTopicState(command.type, roomId, command.topicId)
     this.roomRepository.update(room)
@@ -59,15 +57,9 @@ class RealtimeRoomService {
       this.chatItemDelivery.postMessage(m)
       this.chatItemRepository.saveMessage(m)
     }
-
-    if (activeTopic !== null) {
-      this.stampDelivery.startIntervalDelivery()
-    } else {
-      this.stampDelivery.finishIntervalDelivery()
-    }
   }
 
-  private async find(roomId: string): Promise<RoomClass> {
+  private async findRoomOrThrow(roomId: string): Promise<RoomClass> {
     const room = await this.roomRepository.find(roomId)
     if (!room) {
       throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
@@ -75,7 +67,7 @@ class RealtimeRoomService {
     return room
   }
 
-  private findUser(userId: string): User {
+  private findUserOrThrow(userId: string): User {
     const user = this.userRepository.find(userId)
     if (!user) {
       throw new Error(`User(id :${userId}) was not found.`)
