@@ -1,7 +1,5 @@
 import { Server, Socket } from "socket.io"
 import { Server as HttpServer } from "http"
-import { v4 as uuid } from "uuid"
-import { ReceiveEventParams, ReceiveEventResponses } from "./events"
 import { instrument } from "@socket.io/admin-ui"
 import { createAdapter } from "@socket.io/redis-adapter"
 import { generateHash } from "./utils/crypt"
@@ -19,15 +17,45 @@ import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
 import RoomDelivery from "./infra/delivery/room/RoomDelivery"
 import UserDelivery from "./infra/delivery/user/UserDelivery"
 import { createClient } from "redis"
+import {
+  ErrorResponse,
+  ServerListenEventName,
+  ServerListenEventRequest,
+  ServerListenEventResponse,
+  ServerPubEventName,
+  ServerPubEventParam,
+} from "sushi-chat-shared"
+import IAdminRepository from "./domain/admin/IAdminRepository"
+import { DefaultEventsMap } from "socket.io/dist/typed-events"
+
+export class GlobalSocket extends Server<
+  DefaultEventsMap,
+  {
+    [Event in ServerPubEventName]: (param: ServerPubEventParam<Event>) => void
+  }
+> {}
+
+export class UserSocket extends Socket<
+  {
+    [K in ServerListenEventName]: (
+      params: ServerListenEventRequest<K>,
+      callback: (response: ServerListenEventResponse<K>) => void,
+    ) => void
+  },
+  {
+    [Event in ServerPubEventName]: (param: ServerPubEventParam<Event>) => void
+  }
+> {}
 
 const createSocketIOServer = async (
   httpServer: HttpServer,
+  adminRepository: IAdminRepository,
   userRepository: IUserRepository,
   roomRepository: IRoomRepository,
   chatItemRepository: IChatItemRepository,
   stampRepository: IStampRepository,
 ) => {
-  const io = new Server(httpServer, {
+  const io = new GlobalSocket(httpServer, {
     cors: {
       origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
       methods: ["GET", "POST"],
@@ -60,258 +88,184 @@ const createSocketIOServer = async (
       password: hashed,
     },
   })
-  let activeUserCount = 0
 
-  //本体
-  io.on(
-    "connection",
-    (
-      socket: Socket<
-        {
-          [K in keyof ReceiveEventParams]: (
-            params: ReceiveEventParams[K],
-            callback: (response: ReceiveEventResponses[K]) => void,
-          ) => void
-        },
-        Record<string, never>
-      >,
-    ) => {
-      new UserService(
-        userRepository,
-        roomRepository,
-        new UserDelivery(socket, io),
-      ).createUser({
-        userId: socket.id,
-      })
-
-      activeUserCount++
-      console.log("user joined, now", activeUserCount)
-
-      // 管理者がルームに参加する
-      socket.on("ADMIN_ENTER_ROOM", async (received, callback) => {
-        try {
-          const userService = new UserService(
-            userRepository,
-            roomRepository,
-            new UserDelivery(socket, io),
-          )
-          const response = await userService.adminEnterRoom({
-            adminId: socket.id,
-            roomId: received.roomId,
-          })
-
-          callback(response)
-        } catch (e) {
-          console.error(
-            `${e.message ?? "Unknown error."} (ADMIN_ENTER_ROOM)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
-      // ルームに参加する
-      socket.on("ENTER_ROOM", async (received, callback) => {
-        try {
-          const userService = new UserService(
-            userRepository,
-            roomRepository,
-            new UserDelivery(socket, io),
-          )
-          const response = await userService.enterRoom({
-            userId: socket.id,
-            roomId: received.roomId,
-            iconId: received.iconId,
-          })
-
-          callback(response)
-        } catch (e) {
-          console.log(
-            `${e.message ?? "Unknown error."} (ENTER_ROOM)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
-      // ルームを開始する
-      socket.on("ADMIN_START_ROOM", () => {
-        try {
-          const realtimeRoomService = new RealtimeRoomService(
-            roomRepository,
-            userRepository,
-            chatItemRepository,
-            new RoomDelivery(io),
-            new ChatItemDelivery(io),
-            StampDelivery.getInstance(io),
-          )
-          realtimeRoomService.start(socket.id)
-        } catch (e) {
-          console.log(
-            `${e.message ?? "Unknown error."} (ADMIN_START_ROOM)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
-      // トピック状態の変更
-      socket.on("ADMIN_CHANGE_TOPIC_STATE", (received) => {
-        try {
-          const realtimeRoomService = new RealtimeRoomService(
-            roomRepository,
-            userRepository,
-            chatItemRepository,
-            new RoomDelivery(io),
-            new ChatItemDelivery(io),
-            StampDelivery.getInstance(io),
-          )
-          realtimeRoomService.changeTopicState({
-            userId: socket.id,
-            topicId: received.topicId,
-            type: received.type,
-          })
-        } catch (e) {
-          console.error(
-            `${e.message ?? "Unknown error."} (ADMIN_CHANGE_TOPIC_STATE)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
-      //messageで送られてきたときの処理
-      socket.on("POST_CHAT_ITEM", (received) => {
-        try {
-          const chatItemService = new ChatItemService(
-            chatItemRepository,
-            roomRepository,
-            userRepository,
-            new ChatItemDelivery(io),
-          )
-          const commandBase: PostChatItemCommand = {
-            userId: socket.id,
-            chatItemId: received.id,
-            topicId: received.topicId,
-          }
-          const chatItemType = received.type
-          switch (received.type) {
-            case "message":
-              chatItemService.postMessage({
-                ...commandBase,
-                content: received.content,
-                targetId: received.target,
-              })
-              break
-            case "reaction":
-              chatItemService.postReaction({
-                ...commandBase,
-                targetId: received.reactionToId,
-              })
-              break
-            case "question":
-              chatItemService.postQuestion({
-                ...commandBase,
-                content: received.content,
-              })
-              break
-            case "answer":
-              chatItemService.postAnswer({
-                ...commandBase,
-                content: received.content,
-                targetId: received.target,
-              })
-              break
-            default:
-              throw new Error(`Invalid received.type(${chatItemType})`)
-          }
-        } catch (e) {
-          console.error(
-            `${e.message ?? "Unknown error."} (POST_CHAT_ITEM)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
-      // スタンプを投稿する
-      socket.on("POST_STAMP", (received) => {
-        try {
-          const stampService = new StampService(
-            stampRepository,
-            roomRepository,
-            userRepository,
-            StampDelivery.getInstance(io),
-          )
-          stampService.post({
-            userId: socket.id,
-            topicId: received.topicId,
-          })
-        } catch (e) {
-          console.error(
-            `${e.message ?? "Unknown error."} (POST_STAMP)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
-      // ルームを終了する
-      socket.on("ADMIN_FINISH_ROOM", () => {
-        try {
-          const realtimeRoomService = new RealtimeRoomService(
-            roomRepository,
-            userRepository,
-            chatItemRepository,
-            new RoomDelivery(io),
-            new ChatItemDelivery(io),
-            StampDelivery.getInstance(io),
-          )
-          realtimeRoomService.finish(socket.id)
-        } catch (e) {
-          console.error(
-            `${e.message ?? "Unknown error."} (ADMIN_FINISH_ROOM)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
-      // ルームを閉じる
-      socket.on("ADMIN_CLOSE_ROOM", () => {
-        try {
-          const realtimeRoomService = new RealtimeRoomService(
-            roomRepository,
-            userRepository,
-            chatItemRepository,
-            new RoomDelivery(io),
-            new ChatItemDelivery(io),
-            StampDelivery.getInstance(io),
-          )
-          realtimeRoomService.close(socket.id)
-        } catch (e) {
-          console.error(
-            `${e.message ?? "Unknown error."} (ADMIN_CLOSE_ROOM)`,
-            new Date().toISOString(),
-          )
-        }
-      })
-
-      //接続解除時に行う処理
-      socket.on("disconnect", () => {
-        try {
-          const userService = new UserService(
-            userRepository,
-            roomRepository,
-            new UserDelivery(socket, io),
-          )
-          userService.leaveRoom({ userId: socket.id })
-        } catch (e) {
-          console.log(
-            `${e.message ?? "Unknown error."} (LEAVE_ROOM)`,
-            new Date().toISOString(),
-          )
-        }
-
-        activeUserCount--
-      })
-    },
+  const chatItemDelivery = new ChatItemDelivery(io)
+  const stampDelivery = new StampDelivery(io)
+  const roomDelivery = new RoomDelivery(io)
+  const roomService = new RealtimeRoomService(
+    roomRepository,
+    adminRepository,
+    chatItemRepository,
+    roomDelivery,
+    chatItemDelivery,
+  )
+  const chatItemService = new ChatItemService(
+    chatItemRepository,
+    roomRepository,
+    adminRepository,
+    userRepository,
+    chatItemDelivery,
+  )
+  const stampService = new StampService(
+    stampRepository,
+    roomRepository,
+    adminRepository,
+    userRepository,
+    stampDelivery,
   )
 
+  //本体
+  io.on("connection", (socket: UserSocket) => {
+    const userService = new UserService(
+      adminRepository,
+      userRepository,
+      roomRepository,
+      new UserDelivery(socket, io),
+    )
+    // socketのidは一意なので、それを匿名ユーザーのidとして用いる
+    const userId = socket.id
+    userService.createUser({ userId })
+
+    // ルームに参加する
+    socket.on("ENTER_ROOM", async (received, callback) => {
+      try {
+        const response = await userService.enterRoom({
+          userId,
+          roomId: received.roomId,
+          iconId: received.iconId,
+          speakerTopicId: received.speakerTopicId,
+        })
+
+        callback({ result: "success", data: response })
+      } catch (e) {
+        handleError(callback, "ENTER_ROOM", e)
+      }
+    })
+
+    // トピック状態の変更
+    socket.on("ADMIN_CHANGE_TOPIC_STATE", (received, callback) => {
+      try {
+        roomService.changeTopicState({
+          adminId: userId,
+          topicId: received.topicId,
+          state: received.state,
+        })
+        callback({ result: "success", data: undefined })
+      } catch (e) {
+        handleError(callback, "ADMIN_CHANGE_TOPIC_STATE", e)
+      }
+    })
+
+    //messageで送られてきたときの処理
+    socket.on("POST_CHAT_ITEM", (received, callback) => {
+      try {
+        const commandBase: PostChatItemCommand = {
+          userId,
+          chatItemId: received.id,
+          topicId: received.topicId,
+        }
+        const chatItemType = received.type
+        switch (received.type) {
+          case "message":
+            chatItemService.postMessage({
+              ...commandBase,
+              content: received.content as string,
+              quoteId: received.quoteId as string,
+            })
+            break
+
+          case "reaction":
+            chatItemService.postReaction({
+              ...commandBase,
+              quoteId: received.quoteId as string,
+            })
+            break
+
+          case "question":
+            chatItemService.postQuestion({
+              ...commandBase,
+              content: received.content as string,
+            })
+            break
+
+          case "answer":
+            chatItemService.postAnswer({
+              ...commandBase,
+              content: received.content as string,
+              quoteId: received.quoteId as string,
+            })
+            break
+
+          default:
+            throw new Error(`Invalid received.type: ${chatItemType}`)
+        }
+
+        callback({ result: "success", data: undefined })
+      } catch (e) {
+        handleError(callback, "POST_CHAT_ITEM", e)
+      }
+    })
+
+    // スタンプを投稿する
+    socket.on("POST_STAMP", (received, callback) => {
+      try {
+        stampService.post({
+          userId,
+          topicId: received.topicId,
+        })
+        callback({ result: "success", data: undefined })
+      } catch (e) {
+        handleError(callback, "POST_STAMP", e)
+      }
+    })
+
+    socket.on("POST_PINNED_MESSAGE", (received, callback) => {
+      try {
+        chatItemService.pinChatItem({ chatItemId: received.chatItemId })
+        callback({ result: "success", data: undefined })
+      } catch (e) {
+        handleError(callback, "POST_PINNED_MESSAGE", e)
+      }
+    })
+
+    // ルームを終了する
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    socket.on("ADMIN_FINISH_ROOM", (_, callback) => {
+      try {
+        roomService.finish({ adminId: userId })
+        callback({ result: "success", data: undefined })
+      } catch (e) {
+        handleError(callback, "ADMIN_FINISH_ROOM", e)
+      }
+    })
+
+    //接続解除時に行う処理
+    socket.on("disconnect", () => {
+      try {
+        userService.leaveRoom({ userId })
+      } catch (e) {
+        logError("disconnect", e)
+      }
+    })
+  })
+
   return io
+}
+
+const handleError = (
+  callback: (response: ErrorResponse) => void,
+  event: ServerListenEventName,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  error: any,
+) => {
+  logError(event, error)
+  callback({ result: "error", error: { code: "500", message: `${error}` } })
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const logError = (context: string, error: any) => {
+  const date = new Date().toISOString()
+  console.error(`${error ?? "Unknown error."} ${context} ${date}`)
 }
 
 export default createSocketIOServer
