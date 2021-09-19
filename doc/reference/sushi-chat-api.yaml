@@ -65,7 +65,7 @@ paths:
           schema:
             type: object
             properties:
-              name:
+              title:
                 type: string
                 description: ルーム名
               topics:
@@ -73,14 +73,14 @@ paths:
                 items:
                   type: object
                   properties:
-                    name:
+                    title:
                       type: string
                   required:
-                    - name
+                    - title
               description:
                 type: string
             required:
-              - name
+              - title
               - topics
       responses:
         '200':
@@ -276,8 +276,17 @@ paths:
                     description: ピン留めされているChatItemのID
                     items:
                       type: string
-        '400':
-          $ref: '#/responses/Failure'
+                  topicStates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        topicId:
+                          type: integer
+                        state:
+                          $ref: "#/definitions/TopicState"
+        "400":
+          $ref: "#/responses/Failure"
       description: |-
         **管理者・一般ユーザ** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
 
@@ -461,6 +470,8 @@ paths:
       responses:
         '200':
           $ref: '#/responses/Success'
+        '400':
+          $ref: '#/responses/Failure'
       operationId: get-SPEAKER_PIN_MESSAGE
       description: '**スピーカー** メッセージをピン留めする。既にピン留めメッセージがある場合は上書きする'
       parameters:
@@ -469,6 +480,8 @@ paths:
           schema:
             type: object
             properties:
+              topicId:
+                type: number
               chatItemId:
                 type: string
                 description: ピン留めを外す場合はnullを指定する
@@ -524,12 +537,12 @@ definitions:
         type: integer
         minimum: 1
         description: トピックの順序を表すindex（1始まり）
-      name:
+      title:
         type: string
     required:
       - id
       - order
-      - name
+      - title
   Room:
     title: Room
     type: object
@@ -537,7 +550,7 @@ definitions:
       id:
         type: string
         format: uuid
-      name:
+      title:
         type: string
       topics:
         type: array
@@ -556,7 +569,7 @@ definitions:
         description: 管理者招待キー（管理者がAPIを叩いた場合のみ含まれる）
     required:
       - id
-      - name
+      - title
       - topics
       - state
   ChatItem:

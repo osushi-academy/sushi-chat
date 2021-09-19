@@ -2,34 +2,41 @@ import IStampDelivery from "../../../domain/stamp/IStampDelivery"
 import Stamp from "../../../domain/stamp/Stamp"
 
 class EphemeralStampDelivery implements IStampDelivery {
-  private stamps: Stamp[] = []
-  private intervalDeliveryTimer: NodeJS.Timeout | null = null
+  private static stamps: Stamp[] = []
+  private static intervalDeliveryTimer: NodeJS.Timeout | null = null
 
-  constructor(private readonly subscribers: Stamp[][]) {}
+  constructor(
+    private readonly subscribers: Stamp[][],
+    private readonly interval = 100,
+  ) {}
 
-  finishIntervalDelivery(): void {
-    if (this.intervalDeliveryTimer === null) {
-      throw new Error(
-        "Can't finish StampDelivery whose intervalDeliveryTimer is empty.",
-      )
-    }
-    clearInterval(this.intervalDeliveryTimer)
-    this.intervalDeliveryTimer = null
+  private static finishIntervalDelivery(): void {
+    if (EphemeralStampDelivery.intervalDeliveryTimer === null) return
+
+    clearInterval(EphemeralStampDelivery.intervalDeliveryTimer)
+    EphemeralStampDelivery.intervalDeliveryTimer = null
+  }
+
+  private startIntervalDelivery(): void {
+    if (EphemeralStampDelivery.intervalDeliveryTimer !== null) return
+
+    EphemeralStampDelivery.intervalDeliveryTimer = setInterval(() => {
+      if (EphemeralStampDelivery.stamps.length < 1) {
+        EphemeralStampDelivery.finishIntervalDelivery()
+        return
+      }
+
+      this.subscribers.forEach((s) => s.push(...EphemeralStampDelivery.stamps))
+      EphemeralStampDelivery.stamps.length = 0
+    }, this.interval)
   }
 
   pushStamp(stamp: Stamp): void {
-    this.stamps.push(stamp)
-  }
+    EphemeralStampDelivery.stamps.push(stamp)
 
-  startIntervalDelivery(): void {
-    if (this.intervalDeliveryTimer !== null) return
-
-    this.intervalDeliveryTimer = setInterval(() => {
-      if (this.stamps.length > 0) {
-        this.subscribers.forEach((s) => s.push(...this.stamps))
-        this.stamps.length = 0
-      }
-    }, 2000)
+    if (EphemeralStampDelivery.intervalDeliveryTimer === null) {
+      this.startIntervalDelivery()
+    }
   }
 }
 
