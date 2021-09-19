@@ -8,7 +8,7 @@
         >
         <span v-else class="reply">リプライ中</span>
       </span>
-      <div class="reply-content">
+      <div v-if="selectedChatItem.type !== 'reaction'" class="reply-content">
         {{ selectedChatItem.content }}
       </div>
       <div class="material-icons" @click="deselectChatItem">close</div>
@@ -68,7 +68,8 @@
   </section>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
+import type { PropOptions } from "vue"
 import { TopicPropType, ChatItemPropType } from "@/models/contents"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 import { UserItemStore } from "~/store"

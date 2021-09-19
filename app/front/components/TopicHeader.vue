@@ -35,15 +35,15 @@
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
-import { DownloadIcon, ZapIcon } from "vue-feather-icons"
+import Vue from "vue"
+import type { PropOptions } from "vue"
+import { ZapIcon } from "vue-feather-icons"
 import { TopicState } from "@/models/contents"
 import { UserItemStore } from "~/store"
 
 export default Vue.extend({
   name: "TopicHeader",
   components: {
-    DownloadIcon,
     ZapIcon,
   },
   props: {
@@ -56,7 +56,7 @@ export default Vue.extend({
       required: true,
     } as PropOptions<TopicState>,
     topicIndex: {
-      type: String,
+      type: Number,
       required: true,
     },
   },

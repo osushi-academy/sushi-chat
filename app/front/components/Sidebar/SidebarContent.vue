@@ -1,5 +1,5 @@
 <template>
-  <nav :class="['sidebar', this.class]">
+  <nav :class="['sidebar', navClass]">
     <div class="top-section">
       <button class="menu-button" @click="clickHumberger">
         <menu-icon size="1x"></menu-icon>
@@ -136,7 +136,8 @@
   </nav>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from "vue"
+import Vue from "vue"
+import type { PropOptions } from "vue"
 import { MenuIcon } from "vue-feather-icons"
 
 type DataType = {
@@ -175,7 +176,7 @@ export default Vue.extend({
       type: String,
       default: undefined,
     },
-    class: {
+    navClass: {
       type: String,
       default: "",
     },
