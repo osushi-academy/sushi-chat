@@ -38,7 +38,7 @@ export const restSetup = (
         ],
       })
     } catch (e) {
-      res.send({
+      res.status(400).send({
         result: "error",
         error: {
           code: 400,
@@ -52,7 +52,7 @@ export const restSetup = (
   app.post("/room/:id/invite", (req, res) => {
     const adminInviteKey = req.query["admin_invite_key"]
     if (!adminInviteKey) {
-      res.send({
+      res.status(400).send({
         result: "error",
         error: {
           code: 400,
@@ -62,7 +62,7 @@ export const restSetup = (
       return
     }
     if (typeof adminInviteKey !== "string") {
-      res.send({
+      res.status(400).send({
         result: "error",
         error: {
           code: 400,
@@ -79,7 +79,7 @@ export const restSetup = (
       })
       .then(() => res.send({ result: "success" }))
       .catch((e) => {
-        res.send({
+        res.status(400).send({
           result: "error",
           error: {
             code: 400,
