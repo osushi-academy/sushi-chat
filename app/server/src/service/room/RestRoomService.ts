@@ -1,6 +1,10 @@
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
-import { BuildRoomCommand, InviteRoomCommand } from "./commands"
+import {
+  BuildRoomCommand,
+  CheckIsAdminCommand,
+  InviteRoomCommand,
+} from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
 import { v4 as uuid } from "uuid"
@@ -52,7 +56,15 @@ class RestRoomService {
     this.roomRepository.update(room)
   }
 
-  private async find(roomId: string): Promise<RoomClass> {
+  // 管理者であるかどうかを確認する
+  public async isAdmin(command: CheckIsAdminCommand): Promise<boolean> {
+    const room = await this.find(command.id)
+    const isAdmin = room.isAdmin(command.adminId)
+    return isAdmin
+  }
+
+  // Roomを探す
+  public async find(roomId: string): Promise<RoomClass> {
     const room = await this.roomRepository.find(roomId)
     if (!room) {
       throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)

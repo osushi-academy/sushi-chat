@@ -14,6 +14,11 @@ export type InviteRoomCommand = {
   adminId: string
 }
 
+export type CheckIsAdminCommand = {
+  id: string
+  adminId: string
+}
+
 export type ChangeTopicStateCommand = {
   userId: string
   topicId: string

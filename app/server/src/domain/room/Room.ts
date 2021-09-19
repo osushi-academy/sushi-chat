@@ -134,6 +134,15 @@ class RoomClass {
   }
 
   /**
+   * ルームの管理者かどうかを確認する
+   * @param adminId 確認したいadminのID
+   */
+  public isAdmin = (adminId: string): boolean => {
+    const isAdmin = this.adminIds.has(adminId)
+    return isAdmin
+  }
+
+  /**
    * トピックの状態を変更する
    * @param topicId 状態が更新されるトピックのID
    * @param type 状態更新の種類
