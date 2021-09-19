@@ -79,8 +79,10 @@ class RoomClass {
 
   /**
    * ルームを開始する
+   * @param adminId adminのID
    */
-  public startRoom = () => {
+  public startRoom = (adminId: string) => {
+    this.assertIsAdmin(adminId)
     this.assertRoomIsNotStarted()
     this._state = "ongoing"
   }

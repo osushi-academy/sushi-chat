@@ -8,6 +8,11 @@ export type BuildRoomCommand = {
   description?: string
 }
 
+export type StartRoomCommand = {
+  id: string
+  adminId: string
+}
+
 export type InviteRoomCommand = {
   id: string
   adminInviteKey: string

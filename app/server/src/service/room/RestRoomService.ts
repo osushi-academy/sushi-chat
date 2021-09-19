@@ -33,6 +33,14 @@ class RestRoomService {
     return room
   }
 
+  // Roomを開始する。
+  public async start(command: StartRoomCommand) {
+    const room = await this.find(command.id)
+    room.startRoom(command.adminId)
+
+    this.roomRepository.update(room)
+  }
+
   // Roomに管理者を紐付ける
   public async inviteAdmin(command: InviteRoomCommand): Promise<RoomClass> {
     const room = await this.find(command.id)
