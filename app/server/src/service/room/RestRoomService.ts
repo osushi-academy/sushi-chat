@@ -1,6 +1,10 @@
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
-import { BuildRoomCommand, InviteRoomCommand } from "./commands"
+import {
+  ArchiveRoomCommand,
+  BuildRoomCommand,
+  InviteRoomCommand,
+} from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
 import { v4 as uuid } from "uuid"
@@ -42,12 +46,9 @@ class RestRoomService {
   }
 
   // Roomをアーカイブし、閲覧できなくする。
-  public async archive(userId: string) {
-    const user = this.findUser(userId)
-    const roomId = user.getRoomIdOrThrow()
-
-    const room = await this.find(roomId)
-    room.archiveRoom()
+  public async archive(command: ArchiveRoomCommand) {
+    const room = await this.find(command.id)
+    room.archiveRoom(command.adminId)
 
     this.roomRepository.update(room)
   }

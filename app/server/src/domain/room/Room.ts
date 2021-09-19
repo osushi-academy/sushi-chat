@@ -95,8 +95,10 @@ class RoomClass {
 
   /**
    * ルームを閉じる
+   * @param adminId adminのID
    */
-  public archiveRoom = () => {
+  public archiveRoom = (adminId: string) => {
+    this.assertIsAdmin(adminId)
     this.assertRoomIsFinished()
     this._state = "archived"
   }
@@ -360,6 +362,15 @@ class RoomClass {
     if (!same) {
       throw new Error(
         `[sushi-chat-server] adminInviteKey(${adminInviteKey}) does not matches.`,
+      )
+    }
+  }
+
+  private assertIsAdmin(adminId: string) {
+    const exists = this.adminIds.has(adminId)
+    if (!exists) {
+      throw new Error(
+        `[sushi-chat-server] Admin(id: ${adminId}) does not management this room(id:${this.id}).`,
       )
     }
   }
