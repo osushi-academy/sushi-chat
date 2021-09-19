@@ -48,6 +48,30 @@ export const restSetup = (
     }
   })
 
+  // チャット履歴・スタンプ履歴を取得する
+  app.get("/room/:id/history", async (req, res) => {
+    try {
+      const room = await roomService.find(req.params.id)
+
+      res.send({
+        result: "success",
+        data: {
+          chatItems: room.chatItems,
+          stamps: room.stamps,
+          pinnedChatItemIds: room.pinnedChatItemIds,
+        },
+      })
+    } catch (e) {
+      res.status(400).send({
+        result: "error",
+        error: {
+          code: 400,
+          message: `${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
+        },
+      })
+    }
+  })
+
   // ルームと新しい管理者を紐付ける
   app.post("/room/:id/invite", (req, res) => {
     const adminInviteKey = req.query["admin_invite_key"]
