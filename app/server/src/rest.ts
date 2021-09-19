@@ -66,7 +66,7 @@ export const restSetup = (
         result: "error",
         error: {
           code: 400,
-          message: `admin_invite_key has invailed syntax. (ADMIN_INVITE_ROOM)`,
+          message: `invaild parameter. (ADMIN_INVITE_ROOM)`,
         },
       })
       return
