@@ -15,6 +15,12 @@ import IChatItemRepository from "./domain/chatItem/IChatItemRepository"
 import IStampRepository from "./domain/stamp/IStampRepository"
 import IRoomFactory from "./domain/room/IRoomFactory"
 import UserDelivery from "./infra/delivery/user/UserDelivery"
+import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ServerListenEventsMap,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ServerPubEventsMap,
+} from "sushi-chat-shared"
 import RoomDelivery from "./infra/delivery/room/RoomDelivery"
 import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
 import StampDelivery from "./infra/delivery/stamp/StampDelivery"
@@ -104,6 +110,8 @@ const createSocketIOServer = async (
         },
         Record<string, never>
       >,
+      // NOTE: 新しいAPI型
+      // socket: Socket<ServerListenEventsMap, ServerPubEventsMap>,
     ) => {
       const userService = new UserService(
         userRepository,
