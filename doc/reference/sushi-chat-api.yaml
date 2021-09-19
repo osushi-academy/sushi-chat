@@ -321,11 +321,9 @@ paths:
         '400':
           $ref: '#/responses/Failure'
       description: |-
-        **管理者・一般ユーザ** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
+        **一般ユーザ** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
 
         リクエストもレスポンスもあるので注意。
-
-        *※ 管理者の場合は`iconId=0`*
       parameters:
         - in: body
           name: body
@@ -345,6 +343,100 @@ paths:
               - roomId
               - iconId
               - speakerTopicId
+      tags:
+        - SocketIO
+  /ADMIN_ENTER_ROOM:
+    put:
+      summary: ルームに入室する
+      operationId: put-ADMIN_ENTER_ROOM
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              result:
+                type: string
+                enum:
+                  - success
+              date:
+                type: object
+                properties:
+                  chatItems:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ChatItem'
+                  stamps:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Stamp'
+                  activeUserCount:
+                    type: integer
+                    description: アクティブユーザ数
+                  pinnedChatItemIds:
+                    type: array
+                    description: ピン留めされているChatItemのID
+                    items:
+                      type: string
+                  topicStates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        topicId:
+                          type: integer
+                        state:
+                          $ref: '#/definitions/TopicState'
+          examples:
+            example:
+              result: success
+              date:
+                chatItems:
+                  - id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                    topicId: 0
+                    createdAt: '2019-08-24'
+                    type: message
+                    senderType: general
+                    content: string
+                    quote:
+                      id: 550e8400-e29b-41d4-a716-446655440000
+                      topicId: 0
+                      createdAt: '2019-08-24'
+                      type: message
+                      senderType: general
+                      content: string
+                      timestamp: 0
+                      iconId: 0
+                    timestamp: 0
+                    iconId: 0
+                stamps:
+                  - id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                    topicId: 0
+                    timestamp: 0
+                    createdAt: '2019-08-24T14:15:22Z'
+                activeUserCount: 0
+                pinnedChatItemIds:
+                  - string
+                topicStates:
+                  - topicId: 0
+                    state: not-started
+        '400':
+          $ref: '#/responses/Failure'
+      description: |-
+        **管理者** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
+
+        リクエストもレスポンスもあるので注意。
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              roomId:
+                type: string
+                format: uuid
+            required:
+              - roomId
       tags:
         - SocketIO
   /PUB_USER_COUNT:
