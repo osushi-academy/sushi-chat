@@ -15,5 +15,6 @@ export type UserEnterCommand = {
 }
 
 export type UserLeaveCommand = {
+  roomId: string
   userId: string
 }

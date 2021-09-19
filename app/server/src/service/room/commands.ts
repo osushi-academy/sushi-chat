@@ -8,10 +8,12 @@ export type BuildRoomCommand = {
   description?: string
 }
 export type FinishRoomCommand = {
+  roomId: string
   adminId: string
 }
 
 export type ChangeTopicStateCommand = {
+  roomId: string
   adminId: string
   topicId: number
   state: TopicState

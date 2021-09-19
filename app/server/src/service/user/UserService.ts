@@ -69,7 +69,6 @@ class UserService {
 
     if (user instanceof Admin) {
       const admin = user
-      admin.enterRoom(roomId)
       this.adminRepository.update(admin)
     } else {
       user.enterRoom(roomId, NewIconId(iconId), speakerTopicId)
@@ -87,14 +86,13 @@ class UserService {
     }
   }
 
-  public async leaveRoom({ userId }: UserLeaveCommand) {
+  public async leaveRoom({ roomId, userId }: UserLeaveCommand) {
     const user = await UserService.findUserOrThrow(
       userId,
       this.adminRepository,
       this.userRepository,
     )
     const isAdmin = user instanceof Admin
-    const roomId = isAdmin ? user.currentRoomId : user.roomId
 
     // まだRoomに参加していないユーザーなら何もしない
     if (!roomId) return
@@ -109,7 +107,6 @@ class UserService {
 
     if (isAdmin) {
       const admin = user
-      admin.leaveRoom()
       this.adminRepository.update(admin)
     } else {
       user.leaveRoom()

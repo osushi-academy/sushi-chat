@@ -41,16 +41,14 @@ class ChatItemService {
   }
 
   public async postMessage({
+    roomId,
     topicId,
     chatItemId,
     quoteId,
     content,
     userId,
   }: PostMessageCommand) {
-    const { roomId, iconId, senderType } = await this.fetchUserData(
-      userId,
-      topicId,
-    )
+    const { iconId, senderType } = await this.fetchUserData(userId, topicId)
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,
       this.roomRepository,
@@ -79,15 +77,13 @@ class ChatItemService {
   }
 
   public async postReaction({
+    roomId,
     chatItemId,
     topicId,
     userId,
     quoteId,
   }: PostReactionCommand) {
-    const { roomId, iconId, senderType } = await this.fetchUserData(
-      userId,
-      topicId,
-    )
+    const { iconId, senderType } = await this.fetchUserData(userId, topicId)
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,
       this.roomRepository,
@@ -116,15 +112,13 @@ class ChatItemService {
   }
 
   public async postQuestion({
+    roomId,
     topicId,
     chatItemId,
     userId,
     content,
   }: PostQuestionCommand) {
-    const { roomId, iconId, senderType } = await this.fetchUserData(
-      userId,
-      topicId,
-    )
+    const { iconId, senderType } = await this.fetchUserData(userId, topicId)
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,
       this.roomRepository,
@@ -149,16 +143,14 @@ class ChatItemService {
   }
 
   public async postAnswer({
+    roomId,
     chatItemId,
     userId,
     quoteId,
     topicId,
     content,
   }: PostAnswerCommand) {
-    const { roomId, iconId, senderType } = await this.fetchUserData(
-      userId,
-      topicId,
-    )
+    const { iconId, senderType } = await this.fetchUserData(userId, topicId)
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,
       this.roomRepository,
@@ -199,7 +191,6 @@ class ChatItemService {
     userId: string,
     topicId: number,
   ): Promise<{
-    roomId: string
     senderType: ChatItemSenderType
     iconId: IconId
   }> => {
@@ -210,9 +201,6 @@ class ChatItemService {
     )
     const isAdmin = user instanceof Admin
 
-    const roomId = isAdmin
-      ? user.getCurrentRoomIdOrThrow()
-      : user.getRoomIdOrThrow()
     const senderType = isAdmin
       ? "admin"
       : user.speakAt === topicId
@@ -220,7 +208,7 @@ class ChatItemService {
       : "general"
     const iconId = isAdmin ? Admin.ICON_ID : user.getIconIdOrThrow()
 
-    return { roomId, senderType, iconId }
+    return { senderType, iconId }
   }
 }
 
