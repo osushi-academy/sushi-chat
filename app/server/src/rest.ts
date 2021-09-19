@@ -53,12 +53,12 @@ export const restSetup = (
       const roomId = req.params.id
       const room = await roomService.find(roomId)
 
-      // TODO:isAdminによってadminInviteKeyを返すかどうかかわるように
-      // const adminId = "hoge"
-      // const isAdmin = await roomService.isAdmin({
-      //   id: roomId,
-      //   adminId: adminId,
-      // })
+      const adminId = "hoge" /* 本当はヘッダーから。 */
+      const isAdmin = await roomService.isAdmin({
+        id: roomId,
+        adminId: adminId,
+      })
+
       res.send({
         result: "success",
         room: [
@@ -68,7 +68,8 @@ export const restSetup = (
             description: room.description,
             topics: room.topics,
             state: room.state,
-            /* adminInviteKey: newRoom.adminInviteKey,
+            adminInviteKey: isAdmin ? room.adminInviteKey : null,
+            /*
              * startDate: newRoom.startDate,
              */
           },
