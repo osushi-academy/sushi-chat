@@ -1,18 +1,21 @@
 import Answer from "./Answer"
 import ChatItem from "./ChatItem"
+import { ChatItemSenderType } from "sushi-chat-shared"
+import IconId from "../user/IconId"
 
 class Message extends ChatItem {
   constructor(
     id: string,
-    topicId: string,
     roomId: string,
-    userIconId: string,
-    createdAt: Date,
+    topicId: number,
+    iconId: IconId,
+    senderType: ChatItemSenderType,
     public readonly content: string,
-    public readonly target: Message | Answer | null,
+    public readonly quote: Message | Answer | null,
+    createdAt: Date,
     timestamp?: number,
   ) {
-    super(id, topicId, roomId, userIconId, createdAt, timestamp)
+    super(id, roomId, topicId, iconId, senderType, createdAt, timestamp)
   }
 }
 
