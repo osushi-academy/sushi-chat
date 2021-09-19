@@ -33,6 +33,14 @@ class RoomClass {
     return [...this._chatItems]
   }
 
+  public get stamps(): Stamp[] {
+    return [...this._stamps]
+  }
+
+  public get pinnedChatItemIds(): string[] {
+    return [...this._pinnedChatItemIds]
+  }
+
   public get isOpened(): boolean {
     return this._state == "ongoing"
   }
@@ -60,6 +68,8 @@ class RoomClass {
     private userIds = new Set<string>([]),
     private adminIds = new Set<string>([]),
     private _chatItems: ChatItem[] = [],
+    private _stamps: Stamp[] = [],
+    private _pinnedChatItemIds: string[] = [],
     private stampsCount = 0,
     private _state: RoomState = "not-started",
   ) {
@@ -270,6 +280,7 @@ class RoomClass {
     this.assertUserExists(stamp.userId)
 
     this.stampsCount++
+    this._stamps.push(stamp)
   }
 
   /**
