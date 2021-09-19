@@ -4,6 +4,7 @@ import {
   ArchiveRoomCommand,
   BuildRoomCommand,
   InviteRoomCommand,
+  StartRoomCommand,
 } from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
