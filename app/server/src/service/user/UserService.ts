@@ -31,19 +31,20 @@ class UserService {
     activeUserCount: number
   }> {
     const room = await this.findRoom(command.roomId)
-    // roomが始まっていないとここでエラー
-    const activeUserCount = room.joinUser(command.adminId)
+    const user = this.userRepository.find(command.userId)
 
-    const admin = this.userRepository.find(command.adminId)
+    // roomが始まっていない/adminでないとここでエラー
+    const activeUserCount = room.joinAdminUser(command.userId, command.adminId)
+
     // roomにjoinできたらuserにもroomIdとiconIdを覚えさせる
-    admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
+    user.enterRoomAsAdmin(command.roomId, User.ADMIN_ICON_ID)
 
     const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
       room.chatItems,
     )
 
-    this.userDelivery.enterRoom(admin, activeUserCount)
-    this.userRepository.update(admin)
+    this.userDelivery.enterRoom(user, activeUserCount)
+    this.userRepository.update(user)
     await this.roomRepository.update(room)
 
     return {

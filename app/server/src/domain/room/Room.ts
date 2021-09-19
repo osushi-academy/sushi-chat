@@ -117,6 +117,19 @@ class RoomClass {
   }
 
   /**
+   * 管理者であることを確認してルームに参加させる
+   * @param userId 参加させるユーザーのID
+   * @param adminId 参加させるユーザーの管理者ID
+   * @returns number アクティブなユーザー数
+   */
+  public joinAdminUser = (userId: string, adminId: string): number => {
+    this.assertRoomIsOngoing()
+    this.assertIsAdmin(adminId)
+    this.userIds.add(userId)
+    return this.activeUserCount
+  }
+
+  /**
    * ユーザーをルームから退室させる
    * @param userId 退室させるユーザーのID
    * @returns number アクティブなユーザー数

@@ -3,6 +3,7 @@ class User {
 
   private _roomId: string | null = null
   private _iconId: string | null = null
+  private _isAdmin = false
 
   constructor(public readonly id: string) {}
 
@@ -27,6 +28,12 @@ class User {
   public enterRoom(roomId: string, iconId: string): void {
     this._roomId = roomId
     this._iconId = iconId
+  }
+
+  public enterRoomAsAdmin(roomId: string, iconId: string): void {
+    this._roomId = roomId
+    this._iconId = iconId
+    this._isAdmin = true
   }
 
   public leaveRoom(): void {
