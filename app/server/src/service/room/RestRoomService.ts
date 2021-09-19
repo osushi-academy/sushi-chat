@@ -53,7 +53,7 @@ class RestRoomService {
     this.roomRepository.update(room)
   }
 
-  private async find(roomId: string): Promise<RoomClass> {
+  public async find(roomId: string): Promise<RoomClass> {
     const room = await this.roomRepository.find(roomId)
     if (!room) {
       throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)

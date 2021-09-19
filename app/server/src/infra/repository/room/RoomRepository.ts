@@ -114,6 +114,8 @@ class RoomRepository implements IRoomRepository {
       userIds,
       new Set<string>([]) /* これはadminIdsです。 */,
       chatItems,
+      [] /* これはstampsです。 */,
+      [] /* これはpinnedChatItemIdsです。 */,
       stampsCount,
       roomState,
     )
