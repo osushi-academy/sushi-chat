@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   title: sushi-chat-api
-  version: 1.0.1
+  version: 1.0.2
   description: |-
     sushi-chatのAPI定義です。
 
