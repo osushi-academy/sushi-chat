@@ -57,7 +57,7 @@ class RoomClass {
     return timeData
   }
 
-  public get activeUserCount(): number {
+  private get activeUserCount(): number {
     return this.userIds.size
   }
 
