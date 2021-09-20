@@ -119,17 +119,17 @@ class RoomRepository implements IRoomRepository {
         roomId,
         room.title,
         room.invite_key,
-        topics,
         room.description,
-        topicTimeData,
+        topics,
+        adminIds,
+        roomState,
         room.start_at,
+        topicTimeData,
         room.finish_at,
         room.archived_at,
-        adminIds,
         userIds,
         chatItems,
         stamps,
-        roomState,
       )
     } catch (e) {
       RoomRepository.logError(e, "find()")
