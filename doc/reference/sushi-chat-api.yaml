@@ -276,8 +276,17 @@ paths:
                     description: ピン留めされているChatItemのID
                     items:
                       type: string
-        '400':
-          $ref: '#/responses/Failure'
+                  topicStates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        topicId:
+                          type: integer
+                        state:
+                          $ref: "#/definitions/TopicState"
+        "400":
+          $ref: "#/responses/Failure"
       description: |-
         **管理者・一般ユーザ** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
 

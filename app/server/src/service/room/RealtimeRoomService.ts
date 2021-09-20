@@ -27,7 +27,6 @@ class RealtimeRoomService {
     if (!room) {
       throw new Error(`Room(id:${roomId}) was not found.`)
     }
-
     return room
   }
 
@@ -84,7 +83,7 @@ class RealtimeRoomService {
     if (!admin) {
       throw new Error(`Admin(id:${adminId}) was not found.`)
     }
-    if (!(roomId in admin.managedRoomsIds)) {
+    if (!admin.managedRoomsIds || !(roomId in admin.managedRoomsIds)) {
       throw new Error(
         `Room(id${roomId}) is not managed by Admin(id:${adminId}).`,
       )

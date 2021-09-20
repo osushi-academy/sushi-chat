@@ -16,14 +16,14 @@ class StampDelivery implements IStampDelivery {
     private readonly interval = 2000,
   ) {}
 
-  private static finishIntervalDelivery() {
+  private static finishIntervalDelivery(): void {
     if (StampDelivery.intervalDeliveryTimer === null) return
 
     clearInterval(StampDelivery.intervalDeliveryTimer)
     StampDelivery.intervalDeliveryTimer = null
   }
 
-  private startIntervalDelivery() {
+  private startIntervalDelivery(): void {
     if (StampDelivery.intervalDeliveryTimer !== null) return
 
     StampDelivery.intervalDeliveryTimer = setInterval(() => {

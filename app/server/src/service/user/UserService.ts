@@ -11,9 +11,9 @@ import ChatItemModelBuilder from "../chatItem/ChatItemModelBuilder"
 import Admin from "../../domain/admin/admin"
 import IAdminRepository from "../../domain/admin/IAdminRepository"
 import RealtimeRoomService from "../room/RealtimeRoomService"
-import { NewIconId } from "../../domain/user/IconId"
 import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
 import StampModelBuilder from "../stamp/StampModelBuilder"
+import { NewIconId } from "../../domain/user/IconId"
 
 class UserService {
   constructor(

@@ -2,9 +2,9 @@ name: ci
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   ci:
@@ -12,7 +12,6 @@ jobs:
 
     services:
       postgres:
-
         image: postgres
         env:
           POSTGRES_PASSWORD: pass
@@ -35,16 +34,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
-          cache: 'yarn'
+          node-version: "14.x"
+          cache: "yarn"
       - name: Install packages
         run: yarn
       - name: Run lint
         run: yarn lint
-#     prettierの実行結果が開発環境によって異なる問題が解消されたらコメントインする(#360)
-#      - name: Run format dry-run
-#        run: yarn fix:dry-run
+      #     prettierの実行結果が開発環境によって異なる問題が解消されたらコメントインする(#360)
+      #      - name: Run format dry-run
+      #        run: yarn fix:dry-run
       - name: Initialize DB
         run: psql -f ./app/server/src/database/ini.sql ${{ env.DATABASE_URL }}
+      - name: build shared package
+        run: yarn build:shared
       - name: Run test
-        run: yarn --cwd ./app/server test
+        run: yarn workspace sushi-chat-server test

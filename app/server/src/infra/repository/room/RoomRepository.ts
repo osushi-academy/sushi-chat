@@ -8,10 +8,12 @@ import Topic, { TopicTimeData } from "../../../domain/room/Topic"
 import PGPool from "../PGPool"
 import { RoomState, TopicState } from "sushi-chat-shared"
 import { formatDate } from "../../../utils/date"
+import IAdminRepository from "../../../domain/admin/IAdminRepository"
 
 class RoomRepository implements IRoomRepository {
   constructor(
     private readonly pgPool: PGPool,
+    private readonly adminRepository: IAdminRepository,
     private readonly userRepository: IUserRepository,
     private readonly chatItemRepository: IChatItemRepository,
     private readonly stampRepository: IStampRepository,
@@ -48,7 +50,7 @@ class RoomRepository implements IRoomRepository {
         room.id,
         RoomRepository.roomStateMap[room.state],
         room.title,
-        room.inviteKey,
+        room.adminInviteKey,
         room.description,
       ])
       await pgClient.query(insertTopicsQuery, insertedTopics.flat())
@@ -79,13 +81,15 @@ class RoomRepository implements IRoomRepository {
       "FROM topic ORDER BY topic.id"
 
     try {
-      const [roomRes, topicsRes, users, stamps, chatItems] = await Promise.all([
-        pgClient.query(roomQuery, [roomId]),
-        pgClient.query(topicsQuery, [roomId]),
-        this.userRepository.selectByRoomId(roomId),
-        this.stampRepository.selectByRoomId(roomId),
-        this.chatItemRepository.selectByRoomId(roomId),
-      ])
+      const [roomRes, topicsRes, admins, users, stamps, chatItems] =
+        await Promise.all([
+          pgClient.query(roomQuery, [roomId]),
+          pgClient.query(topicsQuery, [roomId]),
+          this.adminRepository.selectByRoomId(roomId),
+          this.userRepository.selectByRoomId(roomId),
+          this.stampRepository.selectByRoomId(roomId),
+          this.chatItemRepository.selectByRoomId(roomId),
+        ])
 
       if (roomRes.rowCount < 1) return null
 
@@ -108,6 +112,7 @@ class RoomRepository implements IRoomRepository {
         }
       }
 
+      const adminIds = new Set<string>(admins.map((a) => a.id))
       const userIds = new Set<string>(users.map((u) => u.id))
 
       return new RoomClass(
@@ -120,6 +125,7 @@ class RoomRepository implements IRoomRepository {
         room.start_at,
         room.finish_at,
         room.archived_at,
+        adminIds,
         userIds,
         chatItems,
         stamps,

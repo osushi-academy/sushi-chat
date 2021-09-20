@@ -8,44 +8,33 @@ import StampService from "./service/stamp/StampService"
 import UserService from "./service/user/UserService"
 import ChatItemService from "./service/chatItem/ChatItemService"
 import { PostChatItemCommand } from "./service/chatItem/commands"
-import StampDelivery from "./infra/delivery/stamp/StampDelivery"
 import IUserRepository from "./domain/user/IUserRepository"
 import IRoomRepository from "./domain/room/IRoomRepository"
 import IChatItemRepository from "./domain/chatItem/IChatItemRepository"
 import IStampRepository from "./domain/stamp/IStampRepository"
-import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
-import RoomDelivery from "./infra/delivery/room/RoomDelivery"
 import UserDelivery from "./infra/delivery/user/UserDelivery"
-import { createClient } from "redis"
 import {
   ErrorResponse,
   ServerListenEventName,
-  ServerListenEventRequest,
-  ServerListenEventResponse,
-  ServerPubEventName,
-  ServerPubEventParam,
+  ServerListenEventsMap,
+  ServerPubEventsMap,
 } from "sushi-chat-shared"
+import RoomDelivery from "./infra/delivery/room/RoomDelivery"
+import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
+import StampDelivery from "./infra/delivery/stamp/StampDelivery"
+import { createClient } from "redis"
 import IAdminRepository from "./domain/admin/IAdminRepository"
 import { DefaultEventsMap } from "socket.io/dist/typed-events"
 import { retrieveRoomId } from "./utils/socket"
 
 export class GlobalSocket extends Server<
   DefaultEventsMap,
-  {
-    [Event in ServerPubEventName]: (param: ServerPubEventParam<Event>) => void
-  }
+  ServerPubEventsMap
 > {}
 
 export class UserSocket extends Socket<
-  {
-    [K in ServerListenEventName]: (
-      params: ServerListenEventRequest<K>,
-      callback: (response: ServerListenEventResponse<K>) => void,
-    ) => void
-  },
-  {
-    [Event in ServerPubEventName]: (param: ServerPubEventParam<Event>) => void
-  }
+  ServerListenEventsMap,
+  ServerPubEventsMap
 > {}
 
 const createSocketIOServer = async (
@@ -64,6 +53,7 @@ const createSocketIOServer = async (
     },
   })
 
+  // redis adapterの設定
   if (process.env.SOCKET_IO_ADAPTER?.toLowerCase() === "redis") {
     const pubClient = createClient({
       host: process.env.REDIS_HOST ?? "localhost",
@@ -73,6 +63,7 @@ const createSocketIOServer = async (
     io.adapter(createAdapter(pubClient, subClient))
   }
 
+  // SocketIO Adminの設定
   if (
     process.env.NODE_ENV == "production" &&
     process.env.SOCKET_IO_ADMIN_UI_PASSWORD === undefined
@@ -93,6 +84,7 @@ const createSocketIOServer = async (
   const chatItemDelivery = new ChatItemDelivery(io)
   const stampDelivery = new StampDelivery(io)
   const roomDelivery = new RoomDelivery(io)
+
   const roomService = new RealtimeRoomService(
     roomRepository,
     adminRepository,
@@ -202,7 +194,6 @@ const createSocketIOServer = async (
           default:
             throw new Error(`Invalid received.type: ${chatItemType}`)
         }
-
         callback({ result: "success", data: undefined })
       } catch (e) {
         handleError(callback, "POST_CHAT_ITEM", e)

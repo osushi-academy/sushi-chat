@@ -1,6 +1,8 @@
-import IconId from "./IconId"
+import IconId, { NewIconId } from "./IconId"
 
 class User {
+  public static readonly ADMIN_ICON_ID = NewIconId(0)
+
   constructor(
     public readonly id: string,
     private _roomId?: string,
@@ -14,7 +16,7 @@ class User {
 
   public getRoomIdOrThrow(): string {
     this.assertIsInRoom(this._roomId)
-    return this._roomId as string
+    return this._roomId
   }
 
   public get iconId(): IconId | undefined {
@@ -37,8 +39,8 @@ class User {
   }
 
   public leaveRoom(): void {
-    this.assertIsInRoom()
-    this.assertHasIconId()
+    this.assertIsInRoom(this._roomId)
+    this.assertHasIconId(this._iconId)
 
     // TODO: これらの値をundefinedにして保存してしまうと、userがroomにいた履歴が消えてしまう。
     //        hasLeftみたいなフラグをつけるようにすれば良いかも

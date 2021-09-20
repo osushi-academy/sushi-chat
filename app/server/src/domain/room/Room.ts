@@ -15,7 +15,7 @@ class RoomClass {
   constructor(
     public readonly id: string,
     public readonly title: string,
-    public readonly inviteKey: string,
+    public readonly adminInviteKey: string,
     topics: (Omit<Topic, "id" | "state" | "pinnedChatItemId"> &
       Partial<Pick<Topic, "id" | "state" | "pinnedChatItemId">>)[],
     public readonly description = "",
@@ -23,6 +23,7 @@ class RoomClass {
     public _startAt: Date | null = null,
     public _finishAt: Date | null = null,
     public _archivedAt: Date | null = null,
+    private adminIds = new Set<string>([]),
     private userIds = new Set<string>([]),
     private _chatItems: ChatItem[] = [],
     private _stamps: Stamp[] = [],
@@ -63,8 +64,16 @@ class RoomClass {
     return [...this._chatItems]
   }
 
-  public get stamps() {
+  public get stamps(): Stamp[] {
     return [...this._stamps]
+  }
+
+  public get pinnedChatItemIds(): string[] {
+    throw new Error("Not implemented.")
+  }
+
+  public get isOpened(): boolean {
+    return this._state == "ongoing"
   }
 
   public get state(): RoomState {
@@ -109,8 +118,10 @@ class RoomClass {
 
   /**
    * ルームを閉じる
+   * @param adminId adminのID
    */
-  public archiveRoom = () => {
+  public archiveRoom = (adminId: string) => {
+    this.assertIsAdmin(adminId)
     this.assertRoomIsFinished()
     this._state = "archived"
   }
@@ -134,6 +145,16 @@ class RoomClass {
     this.assertUserExists(userId)
     this.userIds.delete(userId)
     return this.activeUserCount
+  }
+
+  /**
+   * 管理者をルームに招待する
+   * @param adminId 管理者にするadminのID
+   * @param adminInviteKey 送られてきた招待キー
+   */
+  public inviteAdmin = (adminId: string, adminInviteKey: string): void => {
+    this.assertSameAdminInviteKey(adminInviteKey)
+    this.adminIds.add(adminId)
   }
 
   /**
@@ -334,6 +355,9 @@ class RoomClass {
 
   private assertRoomIsNotStarted() {
     if (this._state != "not-started") {
+      // TODO: エラーの種別を捕捉できる仕組みが必要。カスタムのエラーを定義する。
+      //  → 例：複数管理者がほぼ同時にルーム開始/終了をリクエストした場合、2番手のエラーはserviceかcontrollerでエラーの
+      //         種別を捕捉できた方が良さそう
       throw new Error(
         `[sushi-chat-server] Room(id: ${this.id}) has already started.`,
       )
@@ -351,6 +375,24 @@ class RoomClass {
     if (!exists) {
       throw new Error(
         `[sushi-chat-server] User(id: ${userId}) does not exists.`,
+      )
+    }
+  }
+
+  private assertSameAdminInviteKey(adminInviteKey: string) {
+    const same = this.adminInviteKey === adminInviteKey
+    if (!same) {
+      throw new Error(
+        `[sushi-chat-server] adminInviteKey(${adminInviteKey}) does not matches.`,
+      )
+    }
+  }
+
+  private assertIsAdmin(adminId: string) {
+    const exists = this.adminIds.has(adminId)
+    if (!exists) {
+      throw new Error(
+        `[sushi-chat-server] Admin(id: ${adminId}) does not management this room(id:${this.id}).`,
       )
     }
   }

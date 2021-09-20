@@ -30,6 +30,23 @@ class AdminRepository implements IAdminRepository {
     }
   }
 
+  public async selectByRoomId(roomId: string): Promise<Admin[]> {
+    const pgClient = await this.pgPool.client()
+
+    const query =
+      "SELECT id, name FROM admins a JOIN rooms_admins ra on a.id = ra.admin_id  WHERE ra.room_id = $1"
+
+    try {
+      const res = await pgClient.query(query, [roomId])
+      return res.rows.map((r) => new Admin(r.id, r.name))
+    } catch (e) {
+      AdminRepository.logError(e, "find()")
+      throw e
+    } finally {
+      pgClient.release()
+    }
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static logError(error: any, context: string) {
     const datetime = new Date().toISOString()
