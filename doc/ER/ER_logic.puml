@@ -4,7 +4,7 @@ hide circle
 skinparam inetype ortho
 
 entity users {
-    +id: uuid
+    +id: string
     --
     ~room_id: uuid
     ~icon_id: int
@@ -14,7 +14,7 @@ entity users {
 note right: ルームに参加する匿名ユーザー
 
 entity topics_speakers{
-    ~user_id: uuid
+    ~user_id: string
     ~room_id: uuid
     ~topic_id: int
     --
@@ -126,7 +126,7 @@ entity chat_items {
     --
     ~room_id: uuid
     ~topic_id: int
-    ~user_id: uuid
+    ~user_id: string
     ~chat_item_type_id: int
     ~sender_type_id: int
     ~quote_id uuid
@@ -164,7 +164,7 @@ entity stamps {
     --
     ~room_id: uuid
     ~topic_id: int
-    ~user_id: uuid
+    ~user_id: string
     #timestamp: int
     #created_at: timestamp
 }
