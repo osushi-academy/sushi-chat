@@ -1,6 +1,6 @@
 <template>
   <section class="input-area" role="form">
-    <div class="textarea-header">#{{ topic.id }} {{ topic.title }}</div>
+    <div class="textarea-header">#{{ topicId }} {{ topicTitle }}</div>
     <div v-if="selectedChatItem" class="reply-bar">
       <span class="reply-type">
         <span v-if="selectedChatItem.type == 'question'" class="answer"
@@ -53,29 +53,26 @@
       <button
         type="submit"
         class="submit-button"
-        :disabled="disabled"
+        :disabled="
+          disabled || maxMessageLength < text.length || text.length == 0
+        "
+        :class="{
+          admin: isAdmin,
+        }"
         @click="sendMessage"
       >
         <span class="material-icons"> send </span>
         <div v-show="isQuestion" class="question-badge">Q</div>
       </button>
     </div>
-    <div class="instruction">
-      <KeyInstruction />
-      <span
-        class="text-counter"
-        :class="{ over: maxMessageLength < text.length }"
-        >文字数をオーバーしています。 {{ maxMessageLength - text.length }}</span
-      >
-    </div>
-    <label class="question-checkbox">
-      <input v-model="isQuestion" type="checkbox" />質問として投稿する
-    </label>
   </section>
 </template>
 <script lang="ts">
 import Vue from "vue"
+import type { PropOptions } from "vue"
+import { TopicPropType, ChatItemPropType } from "@/models/contents"
 import KeyInstruction from "@/components/KeyInstruction.vue"
+import { UserItemStore } from "~/store"
 
 // Data型
 type DataType = {
@@ -89,6 +86,10 @@ export default Vue.extend({
     KeyInstruction,
   },
   props: {
+    topicTitle: {
+      type: String,
+      required: true,
+    },
     topicId: {
       type: String,
       required: true,
@@ -97,6 +98,10 @@ export default Vue.extend({
       type: Boolean,
       required: true,
     },
+    selectedChatItem: {
+      type: Object,
+      default: null,
+    } as PropOptions<ChatItemPropType>,
   },
   data(): DataType {
     return {
@@ -110,6 +115,9 @@ export default Vue.extend({
       return this.$props.disabled
         ? "※ まだコメントはオープンしていません"
         : "ここにコメントを入力して盛り上げよう 🎉🎉"
+    },
+    isAdmin() {
+      return UserItemStore.userItems.isAdmin
     },
   },
   methods: {
@@ -143,6 +151,10 @@ export default Vue.extend({
     },
     enterSendMessage(e: any) {
       if (e.ctrlKey || e.metaKey) this.sendMessage()
+    },
+    // 選択したアイテム取り消し
+    deselectChatItem() {
+      this.$emit("deselectChatItem")
     },
   },
 })

@@ -59,14 +59,13 @@
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
-    <div v-if="selectedChatItem" class="reply-bar">
-      <div class="reply-content">{{ selectedChatItem.content }} に返信中</div>
-      <div class="material-icons" @click="deselectChatItem">close</div>
-    </div>
     <TextArea
+      :topic-title="topic.title"
       :topic-id="topicId"
       :disabled="topicState == 'not-started'"
+      :selected-chat-item="selectedChatItem"
       @submit="clickSubmit"
+      @deselectChatItem="deselectChatItem"
     />
   </article>
 </template>

@@ -15,15 +15,6 @@
   }
 }
 
-.active-topic {
-  background: rgb(240, 240, 172);
-}
-
-.finished-topic {
-  background: $gray;
-  color: rgb(158, 158, 158);
-}
-
 .topic-header {
   flex-shrink: 0;
   position: relative;
@@ -36,7 +27,7 @@
     color: white;
     min-height: 3em;
 
-    & > .index{
+    & > .index {
       font-weight: bold;
       margin-left: 0.5em;
     }
@@ -48,7 +39,8 @@
       font-weight: bold;
     }
 
-    & > .link-button, .more-button {
+    & > .link-button,
+    .more-button {
       width: 2em;
       height: 2em;
       border-radius: 100%;
