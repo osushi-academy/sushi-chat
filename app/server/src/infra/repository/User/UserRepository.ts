@@ -23,7 +23,7 @@ class UserRepository implements IUserRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT u.is_admin, u.room_id, u.icon_id, ts.topic_id FROM users u JOIN topics_speakers ts on u.id = ts.user_id WHERE id = $1"
+      "SELECT u.is_admin, u.room_id, u.icon_id, ts.topic_id FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE id = $1"
     try {
       const res = await pgClient.query(query, [userId])
       if (res.rowCount < 1) return null
