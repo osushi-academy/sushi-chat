@@ -86,6 +86,9 @@ const createSocketIOServer = async (
       activeUserCount++
       console.log("user joined, now", activeUserCount)
 
+      // TODO 正しい処理に直す
+      const adminId = "hoge"
+
       // 管理者がルームに参加する
       socket.on("ADMIN_ENTER_ROOM", async (received, callback) => {
         try {
@@ -95,7 +98,8 @@ const createSocketIOServer = async (
             new UserDelivery(socket, io),
           )
           const response = await userService.adminEnterRoom({
-            adminId: socket.id,
+            adminId: adminId,
+            userId: socket.id,
             roomId: received.roomId,
           })
 
