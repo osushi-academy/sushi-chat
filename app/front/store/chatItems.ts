@@ -91,12 +91,11 @@ export default class ChatItems extends VuexModule {
 
   @Action({ rawError: true })
   public postReaction({ message }: { message: Message | Question | Answer }) {
+    const selection = window.getSelection()
     // 選択中の文字が存在する場合リアクションしない
-    const sel = window.getSelection()
     if (
-      sel && sel.rangeCount > 0 &&
-      sel.getRangeAt(0).endOffset >
-      sel.getRangeAt(0).startOffset
+      selection != null &&
+      selection.getRangeAt(0).endOffset > selection.getRangeAt(0).startOffset
     )
       return
     const params: PostChatItemReactionParams = {

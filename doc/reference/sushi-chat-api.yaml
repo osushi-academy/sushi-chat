@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   title: sushi-chat-api
-  version: '1.0'
+  version: 1.0.2
   description: |-
     sushi-chatのAPI定義です。
 
@@ -45,7 +45,7 @@ paths:
                 type: string
                 enum:
                   - success
-              rooms:
+              data:
                 type: array
                 items:
                   $ref: '#/definitions/Room'
@@ -65,7 +65,7 @@ paths:
           schema:
             type: object
             properties:
-              name:
+              title:
                 type: string
                 description: ルーム名
               topics:
@@ -73,18 +73,14 @@ paths:
                 items:
                   type: object
                   properties:
-                    name:
-                      type: string
-                    description:
-                      type: string
-                    url:
+                    title:
                       type: string
                   required:
-                    - name
+                    - title
               description:
                 type: string
             required:
-              - name
+              - title
               - topics
       responses:
         '200':
@@ -96,11 +92,11 @@ paths:
                 type: string
                 enum:
                   - success
-              room:
+              data:
                 $ref: '#/definitions/Room'
             required:
               - result
-              - room
+              - data
         '400':
           $ref: '#/responses/Failure'
         '401':
@@ -126,11 +122,11 @@ paths:
                 type: string
                 enum:
                   - success
-              room:
+              data:
                 $ref: '#/definitions/Room'
             required:
               - result
-              - room
+              - data
         '400':
           $ref: '#/responses/Failure'
       operationId: get-room-id
@@ -177,14 +173,22 @@ paths:
                 type: string
                 enum:
                   - success
-              chatItems:
-                type: array
-                items:
-                  $ref: '#/definitions/ChatItem'
-              stamps:
-                type: array
-                items:
-                  $ref: '#/definitions/Stamp'
+              data:
+                type: object
+                properties:
+                  chatItems:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ChatItem'
+                  stamps:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Stamp'
+                  pinnedChatItemIds:
+                    type: array
+                    description: ピン留めされているChatItemのID
+                    items:
+                      type: string
             required:
               - result
               - chatItems
@@ -249,29 +253,77 @@ paths:
           schema:
             type: object
             properties:
-              chatItems:
-                type: array
-                items:
-                  $ref: '#/definitions/ChatItem'
-              stamps:
-                type: array
-                items:
-                  $ref: '#/definitions/Stamp'
-              topics:
-                type: array
-                items:
-                  $ref: '#/definitions/Topic'
-              activeUserCount:
-                type: integer
-                description: アクティブユーザ数
+              result:
+                type: string
+                enum:
+                  - success
+              date:
+                type: object
+                properties:
+                  chatItems:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ChatItem'
+                  stamps:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Stamp'
+                  activeUserCount:
+                    type: integer
+                    description: アクティブユーザ数
+                  pinnedChatItemIds:
+                    type: array
+                    description: ピン留めされているChatItemのID
+                    items:
+                      type: string
+                  topicStates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        topicId:
+                          type: integer
+                        state:
+                          $ref: '#/definitions/TopicState'
+          examples:
+            example:
+              result: success
+              date:
+                chatItems:
+                  - id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                    topicId: 0
+                    createdAt: '2019-08-24'
+                    type: message
+                    senderType: general
+                    content: string
+                    quote:
+                      id: 550e8400-e29b-41d4-a716-446655440000
+                      topicId: 0
+                      createdAt: '2019-08-24'
+                      type: message
+                      senderType: general
+                      content: string
+                      timestamp: 0
+                      iconId: 0
+                    timestamp: 0
+                    iconId: 0
+                stamps:
+                  - id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                    topicId: 0
+                    timestamp: 0
+                    createdAt: '2019-08-24T14:15:22Z'
+                activeUserCount: 0
+                pinnedChatItemIds:
+                  - string
+                topicStates:
+                  - topicId: 0
+                    state: not-started
         '400':
           $ref: '#/responses/Failure'
       description: |-
-        **管理者・一般ユーザ** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
+        **一般ユーザ** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
 
         リクエストもレスポンスもあるので注意。
-
-        *※ 管理者の場合は`iconId=0`*
       parameters:
         - in: body
           name: body
@@ -291,6 +343,100 @@ paths:
               - roomId
               - iconId
               - speakerTopicId
+      tags:
+        - SocketIO
+  /ADMIN_ENTER_ROOM:
+    put:
+      summary: ルームに入室する
+      operationId: put-ADMIN_ENTER_ROOM
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              result:
+                type: string
+                enum:
+                  - success
+              date:
+                type: object
+                properties:
+                  chatItems:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ChatItem'
+                  stamps:
+                    type: array
+                    items:
+                      $ref: '#/definitions/Stamp'
+                  activeUserCount:
+                    type: integer
+                    description: アクティブユーザ数
+                  pinnedChatItemIds:
+                    type: array
+                    description: ピン留めされているChatItemのID
+                    items:
+                      type: string
+                  topicStates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        topicId:
+                          type: integer
+                        state:
+                          $ref: '#/definitions/TopicState'
+          examples:
+            example:
+              result: success
+              date:
+                chatItems:
+                  - id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                    topicId: 0
+                    createdAt: '2019-08-24'
+                    type: message
+                    senderType: general
+                    content: string
+                    quote:
+                      id: 550e8400-e29b-41d4-a716-446655440000
+                      topicId: 0
+                      createdAt: '2019-08-24'
+                      type: message
+                      senderType: general
+                      content: string
+                      timestamp: 0
+                      iconId: 0
+                    timestamp: 0
+                    iconId: 0
+                stamps:
+                  - id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+                    topicId: 0
+                    timestamp: 0
+                    createdAt: '2019-08-24T14:15:22Z'
+                activeUserCount: 0
+                pinnedChatItemIds:
+                  - string
+                topicStates:
+                  - topicId: 0
+                    state: not-started
+        '400':
+          $ref: '#/responses/Failure'
+      description: |-
+        **管理者** ユーザー情報を送信し、現在のチャット履歴やスタンプ履歴などを取得する
+
+        リクエストもレスポンスもあるので注意。
+      parameters:
+        - in: body
+          name: body
+          schema:
+            type: object
+            properties:
+              roomId:
+                type: string
+                format: uuid
+            required:
+              - roomId
       tags:
         - SocketIO
   /PUB_USER_COUNT:
@@ -400,9 +546,7 @@ paths:
         '200':
           description: OK
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/ChatItem'
+            $ref: '#/definitions/ChatItem'
       operationId: get-PUB_CHAT_ITEM
       description: '**管理者・一般ユーザ** チャットアイテムが配信される'
   /POST_STAMP:
@@ -443,16 +587,18 @@ paths:
             type: array
             items:
               $ref: '#/definitions/Stamp'
-  /CHANGE_TOPIC_INFO:
-    post:
-      summary: ''
-      operationId: post-CHANGE_TOPIC_INFO
+  /POST_PINNED_MESSAGE:
+    put:
+      summary: ピン留めを編集
+      tags:
+        - SocketIO
       responses:
         '200':
-          description: OK
+          $ref: '#/responses/Success'
         '400':
           $ref: '#/responses/Failure'
-      description: トピック情報（descriptionとURL）を変更する
+      operationId: get-SPEAKER_PIN_MESSAGE
+      description: '**スピーカー** メッセージをピン留めする。既にピン留めメッセージがある場合は上書きする'
       parameters:
         - in: body
           name: body
@@ -461,23 +607,15 @@ paths:
             properties:
               topicId:
                 type: number
-                minimum: 0
-                exclusiveMinimum: true
-              description:
+              chatItemId:
                 type: string
-                description: 'description, urlのどちらか一方または両方を指定'
-              url:
-                type: string
-                format: uri
-                description: 'description, urlのどちらか一方または両方を指定'
-            required:
-              - topicId
+                description: ピン留めを外す場合はnullを指定する
+                x-nullable: true
           description: ''
-      tags:
-        - SocketIO
-  /PUB_TOPIC_INFO:
+    parameters: []
+  /PUB_PINNED_MESSAGE:
     get:
-      summary: Your GET endpoint
+      summary: ピン留めを配信
       tags:
         - SocketIO
       responses:
@@ -486,14 +624,18 @@ paths:
           schema:
             type: object
             properties:
-              result:
+              topicId:
+                type: number
+              chatItemId:
                 type: string
-                enum:
-                  - success
-              topic:
-                $ref: '#/definitions/Topic'
-      operationId: get-PUB_TOPIC_INFO
-      description: トピックの変更が通知される
+                description: nullの場合はピン留め解除
+                x-nullable: true
+        '400':
+          $ref: '#/responses/Failure'
+      operationId: get-PUB_PIN_MESSAGE
+      description: ピン留めを配信する。chatItemIdがnullの場合は、ピン留め解除の配信になる。
+      parameters: []
+    parameters: []
   /ADMIN_FINISH_ROOM:
     put:
       summary: ルームを終了
@@ -520,17 +662,12 @@ definitions:
         type: integer
         minimum: 1
         description: トピックの順序を表すindex（1始まり）
-      name:
+      title:
         type: string
-      description:
-        type: string
-      url:
-        type: string
-        format: uri
     required:
       - id
       - order
-      - name
+      - title
   Room:
     title: Room
     type: object
@@ -538,7 +675,7 @@ definitions:
       id:
         type: string
         format: uuid
-      name:
+      title:
         type: string
       topics:
         type: array
@@ -555,15 +692,11 @@ definitions:
       adminInviteKey:
         type: string
         description: 管理者招待キー（管理者がAPIを叩いた場合のみ含まれる）
-      isArchived:
-        type: string
-        description: ルームがアーカイブされているか（管理者がAPIを叩いた場合のみ含まれる）
     required:
       - id
-      - name
+      - title
       - topics
       - state
-    x-examples: {}
   ChatItem:
     title: ChatItem
     type: object
@@ -589,12 +722,35 @@ definitions:
       timestamp:
         type: integer
         description: 'タイムスタンプ [ms]（active時以外に投稿されたものはnullになる）'
+        x-nullable: true
+      iconId:
+        type: integer
     required:
       - id
       - topicId
       - createdAt
       - type
       - senderType
+    x-examples:
+      example:
+        id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+        topicId: 0
+        createdAt: '2019-08-24'
+        type: message
+        senderType: general
+        content: 内容
+        quote:
+          id: 497f6eca-6276-4993-bfeb-53cbbbba6f08
+          topicId: 0
+          createdAt: '2019-08-24'
+          type: message
+          senderType: general
+          content: string
+          quote: {}
+          timestamp: 0
+          iconId: 0
+        timestamp: 0
+        iconId: 0
   Stamp:
     title: Stamp
     type: object
@@ -618,9 +774,10 @@ definitions:
     type: string
     title: TopicState
     enum:
-      - OPEN
-      - PAUSE
-      - CLOSE
+      - not-started
+      - ongoing
+      - paused
+      - finished
   ChatItemType:
     type: string
     title: ChatItemType
@@ -656,6 +813,7 @@ definitions:
       - not-started
       - ongoing
       - finished
+      - archived
 basePath: /api
 securityDefinitions:
   Bearer:

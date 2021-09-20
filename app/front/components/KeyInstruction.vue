@@ -1,5 +1,6 @@
 <template>
   <div v-if="device != 'smartphone'" class="key-instruct">
+    <span class="key-span">ENTER</span>で改行、
     <span v-if="device === 'mac'" class="key-span">⌘</span>
     <span v-if="device === 'windows'" class="key-span">Ctrl</span>
     +<span class="key-span">ENTER</span>で送信

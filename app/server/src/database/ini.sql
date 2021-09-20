@@ -2,7 +2,7 @@ CREATE TABLE Rooms (
   id UUID NOT NULL PRIMARY KEY,
   roomKey VARCHAR(50) NOT NULL,
   title VARCHAR(20) NOT NULL,
-  status INT NOT NULL
+  status INT NOT NULL -- 0:not-open, 1:open
 );
 
 CREATE TABLE Topics (
@@ -10,11 +10,26 @@ CREATE TABLE Topics (
     roomId UUID NOT NULL REFERENCES Rooms(id),
     title VARCHAR(100) NOT NULL,
     description TEXT NOT NULL,
-    state INT NOT NULL,
+    state INT NOT NULL, -- 0:not-started, 1:active, 2:paused, 3:finished
     githubUrl TEXT,
     slideUrl TEXT,
     productUrl TEXT,
+    offset_mil_sec INT NOT NULL DEFAULT 0,
     PRIMARY KEY (id, roomId)
+);
+
+CREATE TABLE topic_opened_at (
+  topic_id INT NOT NULL,
+  room_id UUID NOT NULL REFERENCES rooms(id),
+  opened_at_mil_sec BIGINT NOT NULL,
+  PRIMARY KEY (topic_id, room_id)
+);
+
+CREATE TABLE topic_paused_at (
+  topic_id INT NOT NULL,
+  room_id UUID NOT NULL REFERENCES rooms(id),
+  paused_at_mil_sec BIGINT NOT NULL,
+  PRIMARY KEY (topic_id, room_id)
 );
 
 CREATE TABLE ChatItems (
@@ -23,7 +38,7 @@ CREATE TABLE ChatItems (
   roomId UUID NOT NULL REFERENCES Rooms(id),
   topicId INT NOT NULL,
   iconId VARCHAR(10) NOT NULL,
-  timestamp INT NOT NULL,
+  timestamp INT,
   createdAt TIMESTAMP NOT NULL,
   content TEXT,
   targetId UUID REFERENCES ChatItems(id)
@@ -37,7 +52,7 @@ CREATE TABLE Stamps (
     timestamp INT NOT NULL,
     createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (roomId, topicId) REFERENCES topics(roomId, id)
-)
+);
 
 -- ChatItemsに統合したから使っていないらしい↓
 
