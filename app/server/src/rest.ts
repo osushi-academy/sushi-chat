@@ -1,5 +1,4 @@
 import express from "express"
-import { v4 as uuid } from "uuid"
 import RestRoomService from "./service/room/RestRoomService"
 
 export const restSetup = (
@@ -11,10 +10,7 @@ export const restSetup = (
   // 新しくルームを作成する
   app.post("/room", (req, res) => {
     try {
-      const roomId = uuid()
-
       const newRoom = roomService.build({
-        id: roomId,
         title: req.body.title,
         topics: req.body.topics,
         description: req.body.description,
@@ -42,7 +38,7 @@ export const restSetup = (
         result: "error",
         error: {
           code: 400,
-          message: `${e.message ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
+          message: `${e ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
         },
       })
     }
@@ -84,10 +80,34 @@ export const restSetup = (
           result: "error",
           error: {
             code: 400,
-            message: `${e.message ?? "Unknown error."} (ADMIN_ARCHIVE_ROOM)`,
+            message: `${e ?? "Unknown error."} (ADMIN_ARCHIVE_ROOM)`,
           },
         })
       })
+  })
+
+  // チャット履歴・スタンプ履歴を取得する
+  app.get("/room/:id/history", async (req, res) => {
+    try {
+      const room = await roomService.find(req.params.id)
+
+      res.send({
+        result: "success",
+        data: {
+          chatItems: room.chatItems,
+          stamps: room.stamps,
+          pinnedChatItemIds: room.pinnedChatItemIds,
+        },
+      })
+    } catch (e) {
+      res.status(400).send({
+        result: "error",
+        error: {
+          code: 400,
+          message: `${e ?? "Unknown error."} (USER_ROOM_HISTORY)`,
+        },
+      })
+    }
   })
 
   // ルームと新しい管理者を紐付ける
@@ -125,7 +145,7 @@ export const restSetup = (
           result: "error",
           error: {
             code: 400,
-            message: `${e.message ?? "Unknown error."} (ADMIN_INVITE_ROOM)`,
+            message: `${e ?? "Unknown error."} (ADMIN_INVITE_ROOM)`,
           },
         })
       })

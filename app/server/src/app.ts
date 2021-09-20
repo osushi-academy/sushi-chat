@@ -7,15 +7,20 @@ import StampRepository from "./infra/repository/stamp/StampRepository"
 import RoomRepository from "./infra/repository/room/RoomRepository"
 import { restSetup } from "./rest"
 import RestRoomService from "./service/room/RestRoomService"
+import { Routes } from "./expressRoute"
+import RoomFactory from "./infra/factory/RoomFactory"
 import PGPool from "./infra/repository/PGPool"
 
 const app = express()
 const httpServer = createServer(app)
 
+const apiRoutes: Routes = app
+
 const pgPool = new PGPool(
   process.env.DATABASE_URL as string,
   process.env.DB_SSL !== "OFF",
 )
+
 const userRepository = LocalMemoryUserRepository.getInstance()
 const chatItemRepository = new ChatItemRepository(pgPool)
 const stampRepository = new StampRepository(pgPool)
@@ -33,6 +38,7 @@ createSocketIOServer(
   roomRepository,
   chatItemRepository,
   stampRepository,
+  new RoomFactory(),
 )
 
 const PORT = process.env.PORT || 7000
@@ -44,3 +50,18 @@ httpServer.listen(PORT, () => {
 app.use(express.json())
 
 restSetup(app, roomService)
+app.get("/", (req, res) => res.send("ok"))
+
+// NOTE: apiRoutesの使い方の例
+// apiRoutes.get("/room/:id/history", (req, res) => {
+//   const roomId = req.params.id
+//   console.log(roomId)
+//   res.send({
+//     result: "success",
+//     data: {
+//       chatItems: [],
+//       stamps: [],
+//       pinnedChatItemIds: [],
+//     },
+//   })
+// })

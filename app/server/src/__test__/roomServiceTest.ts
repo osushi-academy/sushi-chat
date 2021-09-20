@@ -14,6 +14,7 @@ import ChatItem from "../domain/chatItem/ChatItem"
 import UserService from "../service/user/UserService"
 import Topic, { TopicLinkType, TopicState } from "../domain/room/Topic"
 import EphemeralChatItemRepository from "../infra/repository/chatItem/EphemeralChatItemRepository"
+import RoomFactory from "../infra/factory/RoomFactory"
 
 describe("RoomServiceのテスト", () => {
   let adminId: string
@@ -34,7 +35,6 @@ describe("RoomServiceのテスト", () => {
 
   beforeEach(() => {
     adminId = uuid()
-    roomId = uuid()
     roomTitle = "テストルーム"
     topics = [1, 2].map((i) => ({
       title: `テストトピック${i}`,
@@ -59,6 +59,7 @@ describe("RoomServiceのテスト", () => {
       new EphemeralRoomDelivery(roomDeliverySubscribers),
       new EphemeralChatItemDelivery(chatItemDeliverySubscribers),
       new EphemeralStampDelivery([]),
+      new RoomFactory(),
     )
     userService = new UserService(
       userRepository,
@@ -71,7 +72,7 @@ describe("RoomServiceのテスト", () => {
 
   describe("buildのテスト", () => {
     test("正常系_buildによりRoomが作成される", async () => {
-      buildRoom()
+      await buildRoom()
 
       const result = roomRepository.find(roomId)
       expect(result).not.toBeNull()
@@ -93,7 +94,6 @@ describe("RoomServiceのテスト", () => {
       const emptyTopics: Omit<Topic, "id" | "state">[] = []
       expect(() =>
         roomService.build({
-          id: roomId,
           title: roomTitle,
           topics: emptyTopics,
         }),
@@ -136,7 +136,7 @@ describe("RoomServiceのテスト", () => {
     let deliveredChatItemContentsCount: number
 
     beforeEach(async () => {
-      buildRoom()
+      await buildRoom()
       await adminEnterAndStartRoom()
 
       await roomService.changeTopicState({
@@ -245,7 +245,7 @@ describe("RoomServiceのテスト", () => {
 
   describe("finishのテスト", () => {
     beforeEach(async () => {
-      buildRoom()
+      await buildRoom()
       await adminEnterAndStartRoom()
     })
 
@@ -280,7 +280,7 @@ describe("RoomServiceのテスト", () => {
 
   describe("closeのテスト", () => {
     beforeEach(async () => {
-      buildRoom()
+      await buildRoom()
       await adminEnterAndStartRoom()
     })
 
@@ -313,12 +313,13 @@ describe("RoomServiceのテスト", () => {
     })
   })
 
-  const buildRoom = () =>
-    roomService.build({
-      id: roomId,
+  const buildRoom = async () => {
+    const newRoom = await roomService.build({
       title: roomTitle,
       topics,
     })
+    roomId = newRoom.id
+  }
 
   const adminEnterAndStartRoom = async () => {
     await userService.adminEnterRoom({

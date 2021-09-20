@@ -9,14 +9,21 @@ import StampService from "./service/stamp/StampService"
 import UserService from "./service/user/UserService"
 import ChatItemService from "./service/chatItem/ChatItemService"
 import { PostChatItemCommand } from "./service/chatItem/commands"
-import StampDelivery from "./infra/delivery/stamp/StampDelivery"
 import IUserRepository from "./domain/user/IUserRepository"
 import IRoomRepository from "./domain/room/IRoomRepository"
 import IChatItemRepository from "./domain/chatItem/IChatItemRepository"
 import IStampRepository from "./domain/stamp/IStampRepository"
-import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
-import RoomDelivery from "./infra/delivery/room/RoomDelivery"
+import IRoomFactory from "./domain/room/IRoomFactory"
 import UserDelivery from "./infra/delivery/user/UserDelivery"
+import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ServerListenEventsMap,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ServerPubEventsMap,
+} from "sushi-chat-shared"
+import RoomDelivery from "./infra/delivery/room/RoomDelivery"
+import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
+import StampDelivery from "./infra/delivery/stamp/StampDelivery"
 import { createClient } from "redis"
 
 const createSocketIOServer = async (
@@ -25,6 +32,7 @@ const createSocketIOServer = async (
   roomRepository: IRoomRepository,
   chatItemRepository: IChatItemRepository,
   stampRepository: IStampRepository,
+  roomFactory: IRoomFactory,
 ) => {
   const io = new Server(httpServer, {
     cors: {
@@ -34,6 +42,7 @@ const createSocketIOServer = async (
     },
   })
 
+  // redis adapterの設定
   if (process.env.SOCKET_IO_ADAPTER?.toLowerCase() === "redis") {
     const pubClient = createClient({
       host: process.env.REDIS_HOST ?? "localhost",
@@ -43,6 +52,7 @@ const createSocketIOServer = async (
     io.adapter(createAdapter(pubClient, subClient))
   }
 
+  // SocketIO Adminの設定
   if (
     process.env.NODE_ENV == "production" &&
     process.env.SOCKET_IO_ADMIN_UI_PASSWORD === undefined
@@ -59,7 +69,33 @@ const createSocketIOServer = async (
       password: hashed,
     },
   })
+
+  // TODO: 削除して良い?
   let activeUserCount = 0
+
+  const chatItemDelivery = new ChatItemDelivery(io)
+  const stampDelivery = new StampDelivery(io)
+  const roomService = new RealtimeRoomService(
+    roomRepository,
+    userRepository,
+    chatItemRepository,
+    new RoomDelivery(io),
+    chatItemDelivery,
+    stampDelivery,
+    roomFactory,
+  )
+  const chatItemService = new ChatItemService(
+    chatItemRepository,
+    roomRepository,
+    userRepository,
+    chatItemDelivery,
+  )
+  const stampService = new StampService(
+    stampRepository,
+    roomRepository,
+    userRepository,
+    stampDelivery,
+  )
 
   //本体
   io.on(
@@ -74,14 +110,17 @@ const createSocketIOServer = async (
         },
         Record<string, never>
       >,
+      // NOTE: 新しいAPI型
+      // socket: Socket<ServerListenEventsMap, ServerPubEventsMap>,
     ) => {
-      new UserService(
+      const userService = new UserService(
         userRepository,
         roomRepository,
         new UserDelivery(socket, io),
-      ).createUser({
-        userId: socket.id,
-      })
+      )
+
+      const userId = socket.id
+      userService.createUser({ userId })
 
       activeUserCount++
       console.log("user joined, now", activeUserCount)
@@ -92,11 +131,6 @@ const createSocketIOServer = async (
       // 管理者がルームに参加する
       socket.on("ADMIN_ENTER_ROOM", async (received, callback) => {
         try {
-          const userService = new UserService(
-            userRepository,
-            roomRepository,
-            new UserDelivery(socket, io),
-          )
           const response = await userService.adminEnterRoom({
             adminId: adminId,
             userId: socket.id,
@@ -106,7 +140,7 @@ const createSocketIOServer = async (
           callback(response)
         } catch (e) {
           console.error(
-            `${e.message ?? "Unknown error."} (ADMIN_ENTER_ROOM)`,
+            `${e ?? "Unknown error."} (ADMIN_ENTER_ROOM)`,
             new Date().toISOString(),
           )
         }
@@ -115,11 +149,7 @@ const createSocketIOServer = async (
       // ルームに参加する
       socket.on("ENTER_ROOM", async (received, callback) => {
         try {
-          const userService = new UserService(
-            userRepository,
-            roomRepository,
-            new UserDelivery(socket, io),
-          )
+          // TODO: iconIdのバリデーション挟んだ方が良いかね？
           const response = await userService.enterRoom({
             userId: socket.id,
             roomId: received.roomId,
@@ -129,7 +159,7 @@ const createSocketIOServer = async (
           callback(response)
         } catch (e) {
           console.log(
-            `${e.message ?? "Unknown error."} (ENTER_ROOM)`,
+            `${e ?? "Unknown error."} (ENTER_ROOM)`,
             new Date().toISOString(),
           )
         }
@@ -138,36 +168,22 @@ const createSocketIOServer = async (
       // トピック状態の変更
       socket.on("ADMIN_CHANGE_TOPIC_STATE", (received) => {
         try {
-          const realtimeRoomService = new RealtimeRoomService(
-            roomRepository,
-            userRepository,
-            chatItemRepository,
-            new RoomDelivery(io),
-            new ChatItemDelivery(io),
-            StampDelivery.getInstance(io),
-          )
-          realtimeRoomService.changeTopicState({
+          roomService.changeTopicState({
             userId: socket.id,
             topicId: received.topicId,
             type: received.type,
           })
         } catch (e) {
           console.error(
-            `${e.message ?? "Unknown error."} (ADMIN_CHANGE_TOPIC_STATE)`,
+            `${e ?? "Unknown error."} (ADMIN_CHANGE_TOPIC_STATE)`,
             new Date().toISOString(),
           )
         }
       })
 
-      //messageで送られてきたときの処理
+      // messageで送られてきたときの処理
       socket.on("POST_CHAT_ITEM", (received) => {
         try {
-          const chatItemService = new ChatItemService(
-            chatItemRepository,
-            roomRepository,
-            userRepository,
-            new ChatItemDelivery(io),
-          )
           const commandBase: PostChatItemCommand = {
             userId: socket.id,
             chatItemId: received.id,
@@ -206,7 +222,7 @@ const createSocketIOServer = async (
           }
         } catch (e) {
           console.error(
-            `${e.message ?? "Unknown error."} (POST_CHAT_ITEM)`,
+            `${e ?? "Unknown error."} (POST_CHAT_ITEM)`,
             new Date().toISOString(),
           )
         }
@@ -215,19 +231,13 @@ const createSocketIOServer = async (
       // スタンプを投稿する
       socket.on("POST_STAMP", (received) => {
         try {
-          const stampService = new StampService(
-            stampRepository,
-            roomRepository,
-            userRepository,
-            StampDelivery.getInstance(io),
-          )
           stampService.post({
             userId: socket.id,
             topicId: received.topicId,
           })
         } catch (e) {
           console.error(
-            `${e.message ?? "Unknown error."} (POST_STAMP)`,
+            `${e ?? "Unknown error."} (POST_STAMP)`,
             new Date().toISOString(),
           )
         }
@@ -236,18 +246,10 @@ const createSocketIOServer = async (
       // ルームを終了する
       socket.on("ADMIN_FINISH_ROOM", () => {
         try {
-          const realtimeRoomService = new RealtimeRoomService(
-            roomRepository,
-            userRepository,
-            chatItemRepository,
-            new RoomDelivery(io),
-            new ChatItemDelivery(io),
-            StampDelivery.getInstance(io),
-          )
-          realtimeRoomService.finish(socket.id)
+          roomService.finish(socket.id)
         } catch (e) {
           console.error(
-            `${e.message ?? "Unknown error."} (ADMIN_FINISH_ROOM)`,
+            `${e ?? "Unknown error."} (ADMIN_FINISH_ROOM)`,
             new Date().toISOString(),
           )
         }
@@ -256,15 +258,10 @@ const createSocketIOServer = async (
       //接続解除時に行う処理
       socket.on("disconnect", () => {
         try {
-          const userService = new UserService(
-            userRepository,
-            roomRepository,
-            new UserDelivery(socket, io),
-          )
           userService.leaveRoom({ userId: socket.id })
         } catch (e) {
           console.log(
-            `${e.message ?? "Unknown error."} (LEAVE_ROOM)`,
+            `${e ?? "Unknown error."} (LEAVE_ROOM)`,
             new Date().toISOString(),
           )
         }

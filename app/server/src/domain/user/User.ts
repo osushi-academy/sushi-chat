@@ -1,8 +1,10 @@
+import IconId, { NewIconId } from "./IconId"
+
 class User {
-  public static readonly ADMIN_ICON_ID = "0"
+  public static readonly ADMIN_ICON_ID = NewIconId("0")
 
   private _roomId: string | null = null
-  private _iconId: string | null = null
+  private _iconId: IconId | null = null
   private _isAdmin = false
 
   constructor(public readonly id: string) {}
@@ -12,46 +14,46 @@ class User {
   }
 
   public getRoomIdOrThrow(): string {
-    this.assertIsInRoom()
-    return this._roomId as string
+    this.assertIsInRoom(this._roomId)
+    return this._roomId
   }
 
-  public get iconId(): string | null {
+  public get iconId(): IconId | null {
     return this._iconId
   }
 
-  public getIconIdOrThrow(): string {
-    this.assertHasIconId()
-    return this._iconId as string
+  public getIconIdOrThrow(): IconId {
+    this.assertHasIconId(this._iconId)
+    return this._iconId
   }
 
-  public enterRoom(roomId: string, iconId: string): void {
+  public enterRoom(roomId: string, iconId: IconId): void {
     this._roomId = roomId
     this._iconId = iconId
   }
 
-  public enterRoomAsAdmin(roomId: string, iconId: string): void {
+  public enterRoomAsAdmin(roomId: string, iconId: IconId): void {
     this._roomId = roomId
     this._iconId = iconId
     this._isAdmin = true
   }
 
   public leaveRoom(): void {
-    this.assertIsInRoom()
-    this.assertHasIconId()
+    this.assertIsInRoom(this._roomId)
+    this.assertHasIconId(this._iconId)
 
     this._roomId = null
     this._iconId = null
   }
 
-  private assertIsInRoom(): void {
-    if (this._roomId === null) {
+  private assertIsInRoom(roomId: string | null): asserts roomId is string {
+    if (roomId === null) {
       throw new Error(`User(id:${this.id}) is not in any room.`)
     }
   }
 
-  private assertHasIconId(): void {
-    if (this._iconId === null) {
+  private assertHasIconId(iconId: IconId | null): asserts iconId is IconId {
+    if (iconId === null) {
       throw new Error(`User(id:${this.id}) doesn't have iconId.`)
     }
   }

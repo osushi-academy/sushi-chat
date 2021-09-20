@@ -12,6 +12,7 @@ import IUserDelivery from "../../domain/user/IUserDelivery"
 import ChatItemResponseBuilder from "../chatItem/ChatItemResponseBuilder"
 import { ChatItem } from "../../chatItem"
 import Topic from "../../domain/room/Topic"
+import IconId, { NewIconId } from "../../domain/user/IconId"
 
 class UserService {
   constructor(
@@ -30,7 +31,7 @@ class UserService {
     topics: Topic[]
     activeUserCount: number
   }> {
-    const room = await this.findRoom(command.roomId)
+    const room = await this.findRoomOrThrow(command.roomId)
     const user = this.userRepository.find(command.userId)
 
     // roomが始まっていない/adminでないとここでエラー
@@ -39,16 +40,12 @@ class UserService {
     // roomにjoinできたらuserにもroomIdとiconIdを覚えさせる
     user.enterRoomAsAdmin(command.roomId, User.ADMIN_ICON_ID)
 
-    const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
-      room.chatItems,
-    )
-
     this.userDelivery.enterRoom(user, activeUserCount)
     this.userRepository.update(user)
     await this.roomRepository.update(room)
 
     return {
-      chatItems: chatItemResponses,
+      chatItems: ChatItemResponseBuilder.buildChatItems(room.chatItems),
       topics: room.topics,
       activeUserCount,
     }
@@ -59,24 +56,22 @@ class UserService {
     topics: Topic[]
     activeUserCount: number
   }> {
-    const room = await this.findRoom(command.roomId)
+    const room = await this.findRoomOrThrow(command.roomId)
+    const user = this.userRepository.find(command.userId)
+
     // roomが始まっていないとここでエラー
     const activeUserCount = room.joinUser(command.userId)
 
-    const user = this.userRepository.find(command.userId)
     // roomにjoinできたらuserにもroomIdとiconIdを覚えさせる
-    user.enterRoom(command.roomId, command.iconId)
-
-    const chatItemResponses = ChatItemResponseBuilder.buildChatItems(
-      room.chatItems,
-    )
+    const iconId: IconId = NewIconId(command.iconId)
+    user.enterRoom(command.roomId, iconId)
 
     this.userDelivery.enterRoom(user, activeUserCount)
     this.userRepository.update(user)
     await this.roomRepository.update(room)
 
     return {
-      chatItems: chatItemResponses,
+      chatItems: ChatItemResponseBuilder.buildChatItems(room.chatItems),
       topics: room.topics,
       activeUserCount,
     }
@@ -87,7 +82,7 @@ class UserService {
     // まだRoomに参加していないユーザーなら何もしない
     if (user.roomId === null) return
 
-    const room = await this.findRoom(user.roomId)
+    const room = await this.findRoomOrThrow(user.roomId)
     const activeUserCount = room.leaveUser(user.id)
 
     this.userDelivery.leaveRoom(user, activeUserCount)
@@ -97,7 +92,7 @@ class UserService {
     this.roomRepository.update(room)
   }
 
-  private async findRoom(roomId: string): Promise<RoomClass> {
+  private async findRoomOrThrow(roomId: string): Promise<RoomClass> {
     const room = await this.roomRepository.find(roomId)
     if (!room) {
       throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
