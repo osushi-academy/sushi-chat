@@ -60,7 +60,7 @@ class RestRoomService {
     if (isAdmin) {
       return {
         id: room.id,
-        name: "",
+        name: room.title,
         topics: /* room.topics */ [],
         state: /* room.state */ "OPEN",
         description: room.description,
@@ -70,7 +70,7 @@ class RestRoomService {
     } else {
       return {
         id: room.id,
-        name: "",
+        name: room.title,
         topics: /* room.topics */ [],
         state: /* room.state */ "OPEN",
         description: room.description,
