@@ -3,7 +3,6 @@ import IStampRepository from "../../domain/stamp/IStampRepository"
 import { PostStampCommand } from "./commands"
 import IStampDelivery from "../../domain/stamp/IStampDelivery"
 import IUserRepository from "../../domain/user/IUserRepository"
-import IAdminRepository from "../../domain/admin/IAdminRepository"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import UserService from "../user/UserService"
 import IStampFactory from "../../domain/stamp/IStampFactory"
@@ -12,7 +11,6 @@ class StampService {
   constructor(
     private readonly stampRepository: IStampRepository,
     private readonly roomRepository: IRoomRepository,
-    private readonly adminRepository: IAdminRepository,
     private readonly userRepository: IUserRepository,
     private readonly stampDelivery: IStampDelivery,
     private readonly stampFactory: IStampFactory,

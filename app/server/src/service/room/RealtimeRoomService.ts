@@ -5,7 +5,6 @@ import IRoomDelivery from "../../domain/room/IRoomDelivery"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
 import UserService from "../user/UserService"
 import IUserRepository from "../../domain/user/IUserRepository"
-import User from "../../domain/user/User"
 
 class RealtimeRoomService {
   constructor(

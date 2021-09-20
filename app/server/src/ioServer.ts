@@ -96,14 +96,12 @@ const createSocketIOServer = async (
   const chatItemService = new ChatItemService(
     chatItemRepository,
     roomRepository,
-    adminRepository,
     userRepository,
     chatItemDelivery,
   )
   const stampService = new StampService(
     stampRepository,
     roomRepository,
-    adminRepository,
     userRepository,
     stampDelivery,
     stampFactory,

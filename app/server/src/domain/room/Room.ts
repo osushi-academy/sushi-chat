@@ -5,7 +5,6 @@ import Message from "../chatItem/Message"
 import Topic, { TopicTimeData } from "./Topic"
 import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
-import Admin from "../admin/admin"
 import { RoomState, TopicState } from "sushi-chat-shared"
 import User from "../user/User"
 
@@ -133,6 +132,7 @@ class RoomClass {
    * @returns number アクティブなユーザー数
    */
   public joinUser = (userId: string): number => {
+    this.assertRoomIsOngoing()
     this.userIds.add(userId)
     return this.activeUserCount
   }

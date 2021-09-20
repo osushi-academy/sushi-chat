@@ -13,7 +13,6 @@ import {
 } from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
-import IAdminRepository from "../../domain/admin/IAdminRepository"
 import { ChatItemSenderType } from "sushi-chat-shared"
 import UserService from "../user/UserService"
 import IconId from "../../domain/user/IconId"
@@ -24,7 +23,6 @@ class ChatItemService {
   constructor(
     private readonly chatItemRepository: IChatItemRepository,
     private readonly roomRepository: IRoomRepository,
-    private readonly adminRepository: IAdminRepository,
     private readonly userRepository: IUserRepository,
     private readonly chatItemDelivery: IChatItemDelivery,
   ) {}
