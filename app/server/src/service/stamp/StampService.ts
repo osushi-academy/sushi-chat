@@ -1,13 +1,12 @@
-import { v4 as uuid } from "uuid"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import IStampRepository from "../../domain/stamp/IStampRepository"
-import Stamp from "../../domain/stamp/Stamp"
 import { PostStampCommand } from "./commands"
 import IStampDelivery from "../../domain/stamp/IStampDelivery"
 import IUserRepository from "../../domain/user/IUserRepository"
 import IAdminRepository from "../../domain/admin/IAdminRepository"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import UserService from "../user/UserService"
+import IStampFactory from "../../domain/stamp/IStampFactory"
 
 class StampService {
   constructor(
@@ -16,6 +15,7 @@ class StampService {
     private readonly adminRepository: IAdminRepository,
     private readonly userRepository: IUserRepository,
     private readonly stampDelivery: IStampDelivery,
+    private readonly stampFactory: IStampFactory,
   ) {}
 
   public async post({ userId, topicId }: PostStampCommand) {
@@ -28,14 +28,7 @@ class StampService {
     )
     const timestamp = room.calcTimestamp(topicId)
 
-    const stamp = new Stamp(
-      uuid(),
-      userId,
-      roomId,
-      topicId,
-      new Date(),
-      timestamp,
-    )
+    const stamp = this.stampFactory.create(userId, roomId, topicId, timestamp)
     room.postStamp(stamp)
 
     this.stampDelivery.pushStamp(stamp)

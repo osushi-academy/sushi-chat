@@ -25,6 +25,7 @@ import StampDelivery from "./infra/delivery/stamp/StampDelivery"
 import { createClient } from "redis"
 import IAdminRepository from "./domain/admin/IAdminRepository"
 import { DefaultEventsMap } from "socket.io/dist/typed-events"
+import IStampFactory from "./domain/stamp/IStampFactory"
 
 export class GlobalSocket extends Server<
   DefaultEventsMap,
@@ -43,6 +44,7 @@ const createSocketIOServer = async (
   roomRepository: IRoomRepository,
   chatItemRepository: IChatItemRepository,
   stampRepository: IStampRepository,
+  stampFactory: IStampFactory,
 ) => {
   const io = new GlobalSocket(httpServer, {
     cors: {
@@ -104,6 +106,7 @@ const createSocketIOServer = async (
     adminRepository,
     userRepository,
     stampDelivery,
+    stampFactory,
   )
 
   //本体

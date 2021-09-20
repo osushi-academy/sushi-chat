@@ -11,6 +11,7 @@ import RoomFactory from "./infra/factory/RoomFactory"
 import PGPool from "./infra/repository/PGPool"
 import AdminRepository from "./infra/repository/admin/AdminRepository"
 import UserRepository from "./infra/repository/User/UserRepository"
+import StampFactory from "./infra/factory/StampFactory"
 
 const app = express()
 const httpServer = createServer(app)
@@ -34,6 +35,7 @@ const roomRepository = new RoomRepository(
   stampRepository,
 )
 const roomFactory = new RoomFactory()
+const stampFactory = new StampFactory()
 
 const roomService = new RestRoomService(
   roomRepository,
@@ -48,6 +50,7 @@ createSocketIOServer(
   roomRepository,
   chatItemRepository,
   stampRepository,
+  stampFactory,
 )
 
 const PORT = process.env.PORT || 7000
