@@ -24,12 +24,10 @@
         :title="''"
         @change-topic-state="changeTopicState"
       />
-      <div v-for="(chatData, index) in chatDataList" :key="index">
+      <div v-for="(topic, index) in topics" :key="index">
         <ChatRoom
           :topic-index="index"
-          :chat-data="chatData"
-          :favorite-callback-register="favoriteCallbackRegister"
-          @send-stamp="sendFavorite"
+          :topic-id="topic.id"
           @topic-activate="changeActiveTopic"
         />
       </div>
@@ -40,7 +38,7 @@
 <script lang="ts">
 import Vue from "vue"
 import VModal from "vue-js-modal"
-import { Room, ChatItem, Topic, TopicState, Stamp } from "@/models/contents"
+import { Room, ChatItem, Stamp, Topic, TopicState } from "@/models/contents"
 import { AdminBuildRoomResponse } from "@/models/event"
 import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
@@ -50,14 +48,10 @@ import {
   ChatItemStore,
   DeviceStore,
   UserItemStore,
+  StampStore,
   TopicStore,
   TopicStateItemStore,
 } from "~/store"
-
-// 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
-type ChatData = {
-  topic: Topic
-}
 
 // Data型
 type DataType = {
@@ -89,18 +83,15 @@ export default Vue.extend({
     }
   },
   computed: {
-    chatDataList(): ChatData[] {
-      return this.topics.map((topic) => ({
-        topic,
-      }))
-    },
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
     },
     topics(): Topic[] {
+      // 各トピックの情報
       return TopicStore.topics
     },
     topicStateItems() {
+      // 各トピックの状態
       return TopicStateItemStore.topicStateItems
     },
   },
@@ -155,6 +146,12 @@ export default Vue.extend({
       } else if (res.type === "CLOSE") {
         TopicStateItemStore.change({ key: res.topicId, state: "finished" })
       }
+    })
+    // スタンプ通知時の、SocketIOのコールバックの登録
+    socket.on("PUB_STAMP", (stamps: Stamp[]) => {
+      stamps.forEach((stamp) => {
+        StampStore.add(stamp)
+      })
     })
     DeviceStore.determineOs()
   },
@@ -292,28 +289,6 @@ export default Vue.extend({
     // アイコン選択
     clickIcon(index: number) {
       UserItemStore.changeMyIcon(index)
-    },
-
-    sendFavorite(topicId: string) {
-      const socket = (this as any).socket
-      socket.emit("POST_STAMP", { topicId })
-    },
-    // スタンプが通知された時に実行されるコールバックの登録
-    // NOTE: スタンプ周りのUI表示が複雑なため、少しややこしい実装を採用しています。
-    favoriteCallbackRegister(
-      topicId: string,
-      callback: (count: number) => void,
-    ) {
-      const socket = (this as any).socket
-      socket.on("PUB_STAMP", (stamps: Stamp[]) => {
-        const stampsAboutTopicId = stamps.filter(
-          // スタンプは自分が押したものも通知されるため省く処理を入れています
-          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id,
-        )
-        if (stampsAboutTopicId.length > 0) {
-          callback(stampsAboutTopicId.length)
-        }
-      })
     },
   },
 })

@@ -40,16 +40,13 @@
 </template>
 <script lang="ts">
 import Vue from "vue"
-import type { PropOptions } from "vue"
-import { randomWaitedLoog } from "@/utils/waitedLoop"
+import { Stamp } from "@/models/contents"
+import { randomWaitedLoop } from "@/utils/waitedLoop"
 import { HSLColor, getRandomColor } from "@/utils/color"
-
-type FavoriteCallbackRegisterPropType = {
-  favoriteCallbackRegister: (callback: (count: number) => void) => void
-}
+import socket from "~/utils/socketIO"
+import { StampStore } from "~/store"
 
 export type DataType = {
-  show: boolean
   count: {
     id: number
     color: HSLColor
@@ -65,37 +62,52 @@ export type DataType = {
 export default Vue.extend({
   name: "FavoriteButton",
   props: {
-    favoriteCallbackRegister: {
-      type: Function,
-      required: true,
-    } as PropOptions<FavoriteCallbackRegisterPropType>,
     disabled: {
       type: Boolean,
+      required: true,
+    },
+    topicId: {
+      type: String,
       required: true,
     },
   },
   data(): DataType {
     return {
-      show: false,
       count: [],
       lastClicked: 0,
       colorSequence: 0,
       stampAnimationFinished: {},
     }
   },
-  mounted() {
-    this.$props.favoriteCallbackRegister((count: number) => {
-      randomWaitedLoog(2000 / count, 500, count, () => {
-        this.emitHeart()
-      })
-    })
+  computed: {
+    stamps(): Stamp[] {
+      return StampStore.stamps.filter(
+        // 自分が押したものも通知されるため省く処理
+        (stamp: any) =>
+          stamp.topicId === this.topicId && stamp.userId !== socket.id,
+      )
+    },
+  },
+  watch: {
+    stamps(newValue, oldValue) {
+      newValue = newValue.slice(oldValue.length)
+      if (newValue.length) {
+        randomWaitedLoop(2000 / newValue.length, 500, newValue.length, () => {
+          this.emitHeart()
+        })
+      }
+    },
   },
   methods: {
     clickFavorite() {
       if (this.disabled) return
+      // スタンプのアニメーション
       this.emitHeart()
-      this.$emit("favorite")
+      // Storeに追加し、サーバーに反映
+      StampStore.sendFavorite(this.topicId)
     },
+
+    // スタンプのアニメーション
     emitHeart() {
       const colorSequence =
         new Date().getTime() - this.lastClicked < 1000
@@ -109,7 +121,7 @@ export default Vue.extend({
 
       if (key) {
         this.$set(this.stampAnimationFinished, key, false)
-        const index = this.count.findIndex(({ id }) => id === key)
+        const index = this.count.findIndex(({ id }) => `${id}` === key)
         this.count.splice(index, 1, {
           id: this.count[index].id,
           color: getRandomColor(),

@@ -18,7 +18,7 @@ const waitedLoop = (
 
 export default waitedLoop
 
-export const randomWaitedLoog = (
+export const randomWaitedLoop = (
   milliseconds: number,
   maxDelay: number,
   maxCount: number,
