@@ -30,7 +30,12 @@ const roomRepository = new RoomRepository(
   chatItemRepository,
   stampRepository,
 )
-const roomService = new RestRoomService(roomRepository, userRepository)
+const roomFactory = new RoomFactory()
+const roomService = new RestRoomService(
+  roomRepository,
+  userRepository,
+  roomFactory,
+)
 
 createSocketIOServer(
   httpServer,
@@ -38,7 +43,7 @@ createSocketIOServer(
   roomRepository,
   chatItemRepository,
   stampRepository,
-  new RoomFactory(),
+  roomFactory,
 )
 
 const PORT = process.env.PORT || 7000
@@ -50,7 +55,6 @@ httpServer.listen(PORT, () => {
 app.use(express.json())
 
 restSetup(app, roomService)
-app.get("/", (req, res) => res.send("ok"))
 
 // NOTE: apiRoutesの使い方の例
 // apiRoutes.get("/room/:id/history", (req, res) => {
