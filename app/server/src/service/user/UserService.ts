@@ -1,4 +1,5 @@
 import {
+  AdminEnterCommand,
   CreateUserCommand,
   UserEnterCommand,
   UserLeaveCommand,
@@ -33,6 +34,12 @@ class UserService {
     return user
   }
 
+  public static validateAdmin(user: User): void {
+    if (!user.isAdmin) {
+      throw new Error(`User(id:${user.id}) is not admin.`)
+    }
+  }
+
   public async createUser({
     userId,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -41,6 +48,35 @@ class UserService {
     const isAdmin = idToken ? await this.verifyIdToken(idToken) : false
     const newUser = new User(userId, isAdmin)
     await this.userRepository.create(newUser)
+  }
+
+  public async adminEnterRoom({ roomId, userId }: AdminEnterCommand): Promise<{
+    chatItems: ChatItemModel[]
+    stamps: StampModel[]
+    activeUserCount: number
+    pinnedChatItemIds: (string | null)[]
+    topicStates: { topicId: number; state: TopicState }[]
+  }> {
+    const room = await RealtimeRoomService.findRoomOrThrow(
+      roomId,
+      this.roomRepository,
+    )
+    const user = await UserService.findUserOrThrow(userId, this.userRepository)
+    UserService.validateAdmin(user)
+
+    const activeUserCount = room.joinUser(userId)
+    user.enterRoom(roomId, User.ADMIN_ICON_ID)
+
+    this.userDelivery.enterRoom(user, activeUserCount)
+    this.userRepository.update(user)
+
+    return {
+      chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
+      stamps: StampModelBuilder.buildStamps(room.stamps),
+      activeUserCount,
+      pinnedChatItemIds: room.topics.map((t) => t.pinnedChatItemId ?? null),
+      topicStates: room.topics.map((t) => ({ topicId: t.id, state: t.state })),
+    }
   }
 
   public async enterRoom({

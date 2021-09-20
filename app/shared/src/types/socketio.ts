@@ -5,6 +5,7 @@ import { EmptyRecord } from "./utils"
 // Event Names
 export type ServerListenEventName =
   | "ENTER_ROOM"
+  | "ADMIN_ENTER_ROOM"
   | "ADMIN_CHANGE_TOPIC_STATE"
   | "POST_CHAT_ITEM"
   | "POST_STAMP"
@@ -25,6 +26,20 @@ export type EnterRoomRequest = {
   speakerTopicId: number
 }
 export type EnterRoomResponse =
+  | SuccessResponse<{
+      chatItems: ChatItemModel[]
+      stamps: StampModel[]
+      activeUserCount: number
+      pinnedChatItemIds: (string | null)[]
+      topicStates: { topicId: number; state: TopicState }[]
+    }>
+  | ErrorResponse
+
+export type AdminEnterRoomRequest = {
+  roomId: string
+}
+
+export type AdminEnterRoomResponse =
   | SuccessResponse<{
       chatItems: ChatItemModel[]
       stamps: StampModel[]
@@ -97,6 +112,8 @@ export type AdminFinishRoomResponse = SuccessResponse | ErrorResponse
 export type ServerListenEventRequest<EventName extends ServerListenEventName> =
   EventName extends "ENTER_ROOM"
     ? EnterRoomRequest
+    : EventName extends "ADMIN_ENTER_ROOM"
+    ? AdminEnterRoomRequest
     : EventName extends "ADMIN_CHANGE_TOPIC_STATE"
     ? AdminChangeTopicStateRequest
     : EventName extends "POST_CHAT_ITEM"
@@ -113,6 +130,8 @@ export type ServerListenEventRequest<EventName extends ServerListenEventName> =
 export type ServerListenEventResponse<EventName extends ServerListenEventName> =
   EventName extends "ENTER_ROOM"
     ? EnterRoomResponse
+    : EventName extends "ADMIN_ENTER_ROOM"
+    ? AdminEnterRoomResponse
     : EventName extends "ADMIN_CHANGE_TOPIC_STATE"
     ? AdminChangeTopicStateResponse
     : EventName extends "POST_CHAT_ITEM"

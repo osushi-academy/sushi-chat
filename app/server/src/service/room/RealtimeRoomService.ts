@@ -38,7 +38,7 @@ class RealtimeRoomService {
    */
   public async finish({ userId }: FinishRoomCommand) {
     const user = await UserService.findUserOrThrow(userId, this.userRepository)
-    this.validateAdmin(user)
+    UserService.validateAdmin(user)
 
     const roomId = user.getRoomIdOrThrow()
 
@@ -64,7 +64,7 @@ class RealtimeRoomService {
     state,
   }: ChangeTopicStateCommand) {
     const user = await UserService.findUserOrThrow(userId, this.userRepository)
-    this.validateAdmin(user)
+    UserService.validateAdmin(user)
 
     const roomId = user.getRoomIdOrThrow()
 
@@ -80,12 +80,6 @@ class RealtimeRoomService {
     for (const m of messages) {
       this.chatItemDelivery.postMessage(m)
       this.chatItemRepository.saveMessage(m)
-    }
-  }
-
-  private validateAdmin(user: User): void {
-    if (!user.isAdmin) {
-      throw new Error(`User(id:${user.id}) is not admin.`)
     }
   }
 }

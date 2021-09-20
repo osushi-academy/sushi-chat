@@ -136,6 +136,19 @@ const createSocketIOServer = async (
       }
     })
 
+    socket.on("ADMIN_ENTER_ROOM", async (received, callback) => {
+      try {
+        const res = await userService.adminEnterRoom({
+          roomId: received.roomId,
+          userId,
+        })
+
+        callback({ result: "success", data: res })
+      } catch (e) {
+        handleError(callback, "ADMIN_ENTER_ROOM", e)
+      }
+    })
+
     // トピック状態の変更
     socket.on("ADMIN_CHANGE_TOPIC_STATE", (received, callback) => {
       try {
