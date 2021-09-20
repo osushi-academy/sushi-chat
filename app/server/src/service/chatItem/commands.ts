@@ -1,5 +1,4 @@
 export type PostChatItemCommand = {
-  roomId: string
   userId: string
   chatItemId: string
   topicId: number

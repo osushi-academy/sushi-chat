@@ -18,9 +18,9 @@ class StampService {
     private readonly stampDelivery: IStampDelivery,
   ) {}
 
-  public async post({ roomId, userId, topicId }: PostStampCommand) {
-    // userの存在チェック
-    await UserService.findUserOrThrow(userId, this.userRepository)
+  public async post({ userId, topicId }: PostStampCommand) {
+    const user = await UserService.findUserOrThrow(userId, this.userRepository)
+    const roomId = user.getRoomIdOrThrow()
 
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,

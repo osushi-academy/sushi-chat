@@ -25,7 +25,6 @@ import StampDelivery from "./infra/delivery/stamp/StampDelivery"
 import { createClient } from "redis"
 import IAdminRepository from "./domain/admin/IAdminRepository"
 import { DefaultEventsMap } from "socket.io/dist/typed-events"
-import { retrieveRoomId } from "./utils/socket"
 
 export class GlobalSocket extends Server<
   DefaultEventsMap,
@@ -87,7 +86,7 @@ const createSocketIOServer = async (
 
   const roomService = new RealtimeRoomService(
     roomRepository,
-    adminRepository,
+    userRepository,
     chatItemRepository,
     roomDelivery,
     chatItemDelivery,
@@ -141,8 +140,7 @@ const createSocketIOServer = async (
     socket.on("ADMIN_CHANGE_TOPIC_STATE", (received, callback) => {
       try {
         roomService.changeTopicState({
-          roomId: retrieveRoomId(socket),
-          adminId: userId,
+          userId,
           topicId: received.topicId,
           state: received.state,
         })
@@ -156,7 +154,6 @@ const createSocketIOServer = async (
     socket.on("POST_CHAT_ITEM", (received, callback) => {
       try {
         const commandBase: PostChatItemCommand = {
-          roomId: retrieveRoomId(socket),
           userId,
           chatItemId: received.id,
           topicId: received.topicId,
@@ -206,7 +203,6 @@ const createSocketIOServer = async (
     socket.on("POST_STAMP", (received, callback) => {
       try {
         stampService.post({
-          roomId: retrieveRoomId(socket),
           userId,
           topicId: received.topicId,
         })
@@ -229,7 +225,7 @@ const createSocketIOServer = async (
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     socket.on("ADMIN_FINISH_ROOM", (_, callback) => {
       try {
-        roomService.finish({ roomId: retrieveRoomId(socket), adminId: userId })
+        roomService.finish({ userId: userId })
         callback({ result: "success", data: undefined })
       } catch (e) {
         handleError(callback, "ADMIN_FINISH_ROOM", e)
@@ -240,7 +236,6 @@ const createSocketIOServer = async (
     socket.on("disconnect", () => {
       try {
         userService.leaveRoom({
-          roomId: retrieveRoomId(socket),
           userId,
         })
       } catch (e) {

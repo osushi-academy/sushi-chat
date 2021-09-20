@@ -3,12 +3,14 @@ import { ChangeTopicStateCommand, FinishRoomCommand } from "./commands"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import IRoomDelivery from "../../domain/room/IRoomDelivery"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
-import IAdminRepository from "../../domain/admin/IAdminRepository"
+import UserService from "../user/UserService"
+import IUserRepository from "../../domain/user/IUserRepository"
+import User from "../../domain/user/User"
 
 class RealtimeRoomService {
   constructor(
     private readonly roomRepository: IRoomRepository,
-    private readonly adminRepository: IAdminRepository,
+    private readonly userRepository: IUserRepository,
     private readonly chatItemRepository: IChatItemRepository,
     private readonly roomDelivery: IRoomDelivery,
     private readonly chatItemDelivery: IChatItemDelivery,
@@ -33,10 +35,12 @@ class RealtimeRoomService {
   /** Roomを終了して投稿できなくする。閲覧は可能。
    *  Adminのみ実行可能
    *  @param roomId
-   *  @param adminId
    */
-  public async finish({ roomId, adminId }: FinishRoomCommand) {
-    await this.validateAdmin(adminId, roomId)
+  public async finish({ userId }: FinishRoomCommand) {
+    const user = await UserService.findUserOrThrow(userId, this.userRepository)
+    this.validateAdmin(user)
+
+    const roomId = user.getRoomIdOrThrow()
 
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,
@@ -50,18 +54,19 @@ class RealtimeRoomService {
 
   /** topicのstateを変更する
    *  Adminのみ実行可能
-   *  @param roomId
    *  @param topicId
-   *  @param adminId
+   *  @param userId
    *  @param state
    */
   public async changeTopicState({
-    roomId,
     topicId,
-    adminId,
+    userId,
     state,
   }: ChangeTopicStateCommand) {
-    await this.validateAdmin(adminId, roomId)
+    const user = await UserService.findUserOrThrow(userId, this.userRepository)
+    this.validateAdmin(user)
+
+    const roomId = user.getRoomIdOrThrow()
 
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,
@@ -78,15 +83,9 @@ class RealtimeRoomService {
     }
   }
 
-  private async validateAdmin(adminId: string, roomId: string): Promise<void> {
-    const admin = await this.adminRepository.find(adminId)
-    if (!admin) {
-      throw new Error(`Admin(id:${adminId}) was not found.`)
-    }
-    if (!admin.managedRoomsIds || !(roomId in admin.managedRoomsIds)) {
-      throw new Error(
-        `Room(id${roomId}) is not managed by Admin(id:${adminId}).`,
-      )
+  private validateAdmin(user: User): void {
+    if (!user.isAdmin) {
+      throw new Error(`User(id:${user.id}) is not admin.`)
     }
   }
 }

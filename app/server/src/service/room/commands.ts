@@ -7,8 +7,7 @@ export type BuildRoomCommand = {
   description?: string
 }
 export type FinishRoomCommand = {
-  roomId: string
-  adminId: string
+  userId: string
 }
 
 export type InviteRoomCommand = {
@@ -23,8 +22,7 @@ export type ArchiveRoomCommand = {
 }
 
 export type ChangeTopicStateCommand = {
-  roomId: string
-  adminId: string
+  userId: string
   topicId: number
   state: TopicState
 }

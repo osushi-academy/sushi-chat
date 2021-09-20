@@ -76,11 +76,9 @@ class UserService {
     }
   }
 
-  public async leaveRoom({ roomId, userId }: UserLeaveCommand) {
+  public async leaveRoom({ userId }: UserLeaveCommand) {
     const user = await UserService.findUserOrThrow(userId, this.userRepository)
-
-    // まだRoomに参加していないユーザーなら何もしない
-    if (!roomId) return
+    const roomId = user.getRoomIdOrThrow()
 
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,
