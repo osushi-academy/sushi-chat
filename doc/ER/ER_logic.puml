@@ -8,6 +8,7 @@ entity users {
     --
     ~room_id: uuid
     ~icon_id: int
+    #is_admin: boolean
     #created_at: timestamp
 }
 note right: ルームに参加する匿名ユーザー

@@ -5,6 +5,7 @@ class User {
 
   constructor(
     public readonly id: string,
+    public readonly isAdmin: boolean,
     private _roomId?: string,
     private _iconId?: IconId,
     private _speakAt?: number,

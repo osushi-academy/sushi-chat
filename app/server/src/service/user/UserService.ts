@@ -8,7 +8,6 @@ import User from "../../domain/user/User"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import IUserDelivery from "../../domain/user/IUserDelivery"
 import ChatItemModelBuilder from "../chatItem/ChatItemModelBuilder"
-import Admin from "../../domain/admin/admin"
 import IAdminRepository from "../../domain/admin/IAdminRepository"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
@@ -25,21 +24,23 @@ class UserService {
 
   public static async findUserOrThrow(
     id: string,
-    adminRepository: IAdminRepository,
     userRepository: IUserRepository,
-  ): Promise<User | Admin> {
-    const admin = await adminRepository.find(id)
-    if (admin) return admin
-
+  ): Promise<User> {
     const user = await userRepository.find(id)
-    if (user) return user
-
-    throw new Error(`User|Admin(id:${id}) was not found.`)
+    if (!user) {
+      throw new Error(`User(id:${id}) was not found.`)
+    }
+    return user
   }
 
-  public createUser(command: CreateUserCommand): void {
-    const newUser = new User(command.userId)
-    this.userRepository.create(newUser)
+  public async createUser({
+    userId,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    idToken,
+  }: CreateUserCommand): Promise<void> {
+    const isAdmin = idToken ? await this.verifyIdToken(idToken) : false
+    const newUser = new User(userId, isAdmin)
+    await this.userRepository.create(newUser)
   }
 
   public async enterRoom({
@@ -58,21 +59,13 @@ class UserService {
       roomId,
       this.roomRepository,
     )
-    const user = await UserService.findUserOrThrow(
-      userId,
-      this.adminRepository,
-      this.userRepository,
-    )
+    const user = await UserService.findUserOrThrow(userId, this.userRepository)
 
     const activeUserCount = room.joinUser(userId)
+    user.enterRoom(roomId, NewIconId(iconId), speakerTopicId)
+
     this.userDelivery.enterRoom(user, activeUserCount)
-
-    if (user instanceof User) {
-      user.enterRoom(roomId, NewIconId(iconId), speakerTopicId)
-      this.userRepository.update(user)
-    }
-
-    await this.roomRepository.update(room)
+    this.userRepository.update(user)
 
     return {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
@@ -84,11 +77,7 @@ class UserService {
   }
 
   public async leaveRoom({ roomId, userId }: UserLeaveCommand) {
-    const user = await UserService.findUserOrThrow(
-      userId,
-      this.adminRepository,
-      this.userRepository,
-    )
+    const user = await UserService.findUserOrThrow(userId, this.userRepository)
 
     // まだRoomに参加していないユーザーなら何もしない
     if (!roomId) return
@@ -99,13 +88,15 @@ class UserService {
     )
 
     const activeUserCount = room.leaveUser(user.id)
+    user.leaveRoom()
+
     this.userDelivery.leaveRoom(user, activeUserCount)
+    this.userRepository.update(user)
+  }
 
-    if (user instanceof User) {
-      user.leaveRoom()
-    }
-
-    this.roomRepository.update(room)
+  private async verifyIdToken(idToken: string): Promise<boolean> {
+    console.log(idToken)
+    throw new Error("Not implemented.")
   }
 }
 

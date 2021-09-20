@@ -7,6 +7,7 @@ import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
 import Admin from "../admin/admin"
 import { RoomState, TopicState } from "sushi-chat-shared"
+import User from "../user/User"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -308,7 +309,7 @@ class RoomClass {
       uuid(),
       this.id,
       topicId,
-      Admin.ICON_ID,
+      User.ADMIN_ICON_ID,
       "admin",
       content,
       null,

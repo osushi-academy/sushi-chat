@@ -1,5 +1,6 @@
 export type CreateUserCommand = {
   userId: string
+  idToken?: string
 }
 
 export type AdminEnterCommand = {

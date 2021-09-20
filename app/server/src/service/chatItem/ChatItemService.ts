@@ -19,6 +19,7 @@ import { ChatItemSenderType } from "sushi-chat-shared"
 import UserService from "../user/UserService"
 import IconId from "../../domain/user/IconId"
 import RealtimeRoomService from "../room/RealtimeRoomService"
+import User from "../../domain/user/User"
 
 class ChatItemService {
   constructor(
@@ -194,19 +195,15 @@ class ChatItemService {
     senderType: ChatItemSenderType
     iconId: IconId
   }> => {
-    const user = await UserService.findUserOrThrow(
-      userId,
-      this.adminRepository,
-      this.userRepository,
-    )
-    const isAdmin = user instanceof Admin
+    const user = await UserService.findUserOrThrow(userId, this.userRepository)
+    const isAdmin = user.isAdmin
 
     const senderType = isAdmin
       ? "admin"
       : user.speakAt === topicId
       ? "speaker"
       : "general"
-    const iconId = isAdmin ? Admin.ICON_ID : user.getIconIdOrThrow()
+    const iconId = isAdmin ? User.ADMIN_ICON_ID : user.getIconIdOrThrow()
 
     return { senderType, iconId }
   }

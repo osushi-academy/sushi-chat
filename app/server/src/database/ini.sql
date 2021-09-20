@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS users
   id         UUID PRIMARY KEY,
   room_id    UUID REFERENCES rooms (id),
   icon_id    INT REFERENCES icons (id),
+  is_admin   BOOLEAN   NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
 );
 
@@ -154,7 +155,7 @@ CREATE TABLE IF NOT EXISTS stamps
   room_id    UUID      NOT NULL,
   topic_id   INT       NOT NULL,
   user_id    UUID      NOT NULL REFERENCES users (id),
-  timestamp  INT NOT NULL ,
+  timestamp  INT       NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (room_id, topic_id) REFERENCES topics (room_id, id)
 );
