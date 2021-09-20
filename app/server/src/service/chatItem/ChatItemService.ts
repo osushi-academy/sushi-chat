@@ -13,7 +13,6 @@ import {
 } from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
-import Admin from "../../domain/admin/admin"
 import IAdminRepository from "../../domain/admin/IAdminRepository"
 import { ChatItemSenderType } from "sushi-chat-shared"
 import UserService from "../user/UserService"
