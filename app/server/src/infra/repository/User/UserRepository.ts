@@ -8,9 +8,9 @@ class UserRepository implements IUserRepository {
   public async create(user: User) {
     const pgClient = await this.pgPool.client()
 
-    const query = "INSERT INTO users (id) VALUES ($1)"
+    const query = "INSERT INTO users (id, is_admin) VALUES ($1, $2)"
     try {
-      await pgClient.query(query, [user.id])
+      await pgClient.query(query, [user.id, user.isAdmin])
     } catch (e) {
       UserRepository.logError(e, "create()")
       throw e
@@ -23,13 +23,19 @@ class UserRepository implements IUserRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT u.id, u.room_id, u.icon_id, ts.topic_id FROM users u JOIN topics_speakers ts on u.id = ts.user_id WHERE id = $1"
+      "SELECT u.is_admin, u.room_id, u.icon_id, ts.topic_id FROM users u JOIN topics_speakers ts on u.id = ts.user_id WHERE id = $1"
     try {
       const res = await pgClient.query(query, [userId])
       if (res.rowCount < 1) return null
 
       const row = res.rows[0]
-      return new User(row.id, row.room_id, row.icon_id, row.topic_id)
+      return new User(
+        userId,
+        row.is_admin,
+        row.room_id,
+        row.icon_id,
+        row.topic_id,
+      )
     } catch (e) {
       UserRepository.logError(e, "find()")
       throw e
@@ -42,12 +48,14 @@ class UserRepository implements IUserRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT u.id, u.room_id, u.icon_id, ts.topic_id FROM users u JOIN topics_speakers ts on u.id = ts.user_id WHERE u.room_id = $1"
+      "SELECT u.id, u.is_admin, u.room_id, u.icon_id, ts.topic_id FROM users u JOIN topics_speakers ts on u.id = ts.user_id WHERE u.room_id = $1"
     try {
       const res = await pgClient.query(query, [roomId])
-      return res.rows.map((r) => {
-        return new User(r.id, r.room_id, r.icon_id, r.topic_id)
+      const users = res.rows.map((r) => {
+        return new User(r.id, r.is_admin, r.room_id, r.icon_id, r.topic_id)
       })
+
+      return users
     } catch (e) {
       UserRepository.logError(e, "selectByRoomId()")
       throw e
