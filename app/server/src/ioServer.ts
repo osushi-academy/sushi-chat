@@ -119,9 +119,6 @@ const createSocketIOServer = async (
         new UserDelivery(socket, io),
       )
 
-      const userId = socket.id
-      userService.createUser({ userId })
-
       activeUserCount++
       console.log("user joined, now", activeUserCount)
 

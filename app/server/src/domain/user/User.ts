@@ -3,11 +3,12 @@ import IconId, { NewIconId } from "./IconId"
 class User {
   public static readonly ADMIN_ICON_ID = NewIconId("0")
 
-  private _roomId: string | null = null
-  private _iconId: IconId | null = null
-  private _isAdmin = false
-
-  constructor(public readonly id: string) {}
+  constructor(
+    public readonly id: string,
+    private _roomId: string | null,
+    private _iconId: IconId | null,
+    private _isAdmin: boolean | null,
+  ) {}
 
   public get roomId(): string | null {
     return this._roomId
@@ -27,15 +28,13 @@ class User {
     return this._iconId
   }
 
-  public enterRoom(roomId: string, iconId: IconId): void {
-    this._roomId = roomId
-    this._iconId = iconId
+  public get isAdmin(): boolean | null {
+    return this._isAdmin
   }
 
-  public enterRoomAsAdmin(roomId: string, iconId: IconId): void {
-    this._roomId = roomId
-    this._iconId = iconId
-    this._isAdmin = true
+  public getIsAdminOrThrow(): boolean {
+    this.assertHasIsAdmin(this._isAdmin)
+    return this._isAdmin
   }
 
   public leaveRoom(): void {
@@ -44,6 +43,7 @@ class User {
 
     this._roomId = null
     this._iconId = null
+    this._isAdmin = null
   }
 
   private assertIsInRoom(roomId: string | null): asserts roomId is string {
@@ -55,6 +55,14 @@ class User {
   private assertHasIconId(iconId: IconId | null): asserts iconId is IconId {
     if (iconId === null) {
       throw new Error(`User(id:${this.id}) doesn't have iconId.`)
+    }
+  }
+
+  private assertHasIsAdmin(
+    isAdmin: boolean | null,
+  ): asserts isAdmin is boolean {
+    if (isAdmin === null) {
+      throw new Error(`User(id:${this.id}) doesn't have admin status.`)
     }
   }
 }

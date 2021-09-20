@@ -21,24 +21,22 @@ class UserService {
     private readonly userDelivery: IUserDelivery,
   ) {}
 
-  public createUser(command: CreateUserCommand): void {
-    const newUser = new User(command.userId)
-    this.userRepository.create(newUser)
-  }
-
   public async adminEnterRoom(command: AdminEnterCommand): Promise<{
     chatItems: ChatItem[]
     topics: Topic[]
     activeUserCount: number
   }> {
     const room = await this.findRoomOrThrow(command.roomId)
-    const user = this.userRepository.find(command.userId)
-
     // roomが始まっていない/adminでないとここでエラー
     const activeUserCount = room.joinAdminUser(command.userId, command.adminId)
 
-    // roomにjoinできたらuserにもroomIdとiconIdを覚えさせる
-    user.enterRoomAsAdmin(command.roomId, User.ADMIN_ICON_ID)
+    // roomにjoinできたらuserも作成
+    const user = this.createUser(
+      command.userId,
+      command.roomId,
+      User.ADMIN_ICON_ID,
+      true,
+    )
 
     this.userDelivery.enterRoom(user, activeUserCount)
     this.userRepository.update(user)
@@ -57,14 +55,12 @@ class UserService {
     activeUserCount: number
   }> {
     const room = await this.findRoomOrThrow(command.roomId)
-    const user = this.userRepository.find(command.userId)
-
     // roomが始まっていないとここでエラー
     const activeUserCount = room.joinUser(command.userId)
 
-    // roomにjoinできたらuserにもroomIdとiconIdを覚えさせる
     const iconId: IconId = NewIconId(command.iconId)
-    user.enterRoom(command.roomId, iconId)
+    // roomにjoinできたらuserも作成
+    const user = this.createUser(command.userId, command.roomId, iconId, false)
 
     this.userDelivery.enterRoom(user, activeUserCount)
     this.userRepository.update(user)
@@ -90,6 +86,18 @@ class UserService {
 
     this.userRepository.update(user)
     this.roomRepository.update(room)
+  }
+
+  private createUser(
+    userId: string,
+    roomId: string,
+    iconId: IconId,
+    isAdmin: boolean,
+  ): User {
+    const newUser = new User(userId, roomId, iconId, isAdmin)
+    this.userRepository.create(newUser)
+
+    return newUser
   }
 
   private async findRoomOrThrow(roomId: string): Promise<RoomClass> {
