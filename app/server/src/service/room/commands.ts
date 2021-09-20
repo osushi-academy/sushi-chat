@@ -13,7 +13,7 @@ export type InviteRoomCommand = {
   adminId: string
 }
 
-export type CheckIsAdminCommand = {
+export type checkAdminAndfindCommand = {
   id: string
   adminId: string
 }

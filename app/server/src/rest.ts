@@ -92,29 +92,16 @@ export const restSetup = (
   app.get("/room/:id", async (req, res) => {
     try {
       const roomId = req.params.id
-      const room = await roomService.find(roomId)
-
       const adminId = "hoge" /* 本当はヘッダーから。 */
-      const isAdmin = await roomService.isAdmin({
+
+      const room = await roomService.checkAdminAndfind({
         id: roomId,
         adminId: adminId,
       })
 
       res.send({
         result: "success",
-        room: [
-          {
-            id: room.id,
-            title: room.title,
-            description: room.description,
-            topics: room.topics,
-            state: room.state,
-            adminInviteKey: isAdmin ? room.adminInviteKey : null,
-            /*
-             * startDate: newRoom.startDate,
-             */
-          },
-        ],
+        data: room,
       })
     } catch (e) {
       res.status(400).send({
