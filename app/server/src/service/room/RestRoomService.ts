@@ -60,9 +60,9 @@ class RestRoomService {
     if (isAdmin) {
       return {
         id: room.id,
-        name: room.title,
+        title: room.title,
         topics: /* room.topics */ [],
-        state: /* room.state */ "OPEN",
+        state: room.state,
         description: room.description,
         startDate: /* room.startDate */ "",
         adminInviteKey: room.adminInviteKey,
@@ -70,9 +70,9 @@ class RestRoomService {
     } else {
       return {
         id: room.id,
-        name: room.title,
+        title: room.title,
         topics: /* room.topics */ [],
-        state: /* room.state */ "OPEN",
+        state: room.state,
         description: room.description,
         startDate: /* room.startDate */ "",
         adminInviteKey: undefined,
