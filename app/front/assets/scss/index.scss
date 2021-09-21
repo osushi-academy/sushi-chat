@@ -231,43 +231,66 @@
 }
 
 .input-area {
-  //position: sticky;
-  height: 150px;
   bottom: 0;
-  padding: 0.5em 1em;
   background: white;
   border-top: 2px solid $gray;
-  // box-shadow: rgba(100, 100, 111, 0.2) 0px 2px 4px 0px;
+  position: relative;
 
-  & > .main-line {
+  .textarea-header {
+    width: 100%;
     display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    margin-bottom: 0.5rem;
+    margin-right: -4px;
+    padding: 0.5em 1em;
+    border-bottom: 2px solid $gray;
+    align-items: center;
+    color: #808080;
+    font-weight: bold;
+  }
 
-    & > .textarea {
-      padding: 0.5em;
-      border: none;
-      background: transparent;
+  & > .sender-badge-wrapper {
+    width: 100%;
+    margin-top: 0.3em;
+    & > .sender-badge {
+      font-size: 75%;
+      color: white;
+      padding: 0.15em 0.5em;
       border-radius: 5px;
-      margin-right: 1em;
-      line-height: 1.5;
-      width: 100%;
-      min-height: 5em;
-      white-space: pre-line;
+      margin: 0.5em 1em;
+    }
+  }
+  .presenter {
+    background-color: $primary;
+  }
+  .admin {
+    background-color: $text-gray;
+  }
+  & > .textarea {
+    padding: 0.5em 1em;
+    border: none;
+    background: transparent;
+    margin-right: 1em;
+    line-height: 1.5;
+    width: 100%;
+    min-height: 60px;
+    white-space: pre-line;
+    resize: none;
 
-      &:empty::before {
-        content: attr(placeholder);
-        pointer-events: none;
-        display: block;
-        color: rgb(167, 167, 167);
-      }
-
-      &:focus {
-        outline: none;
-      }
+    &:empty::before {
+      content: attr(placeholder);
+      pointer-events: none;
+      display: block;
+      color: rgb(167, 167, 167);
     }
 
+    &:focus {
+      outline: none;
+    }
+  }
+  & > .textarea-footer {
+    display: flex;
+    align-items: flex-end;
+    padding: 0em 1em 0.5em;
+    justify-content: flex-end;
     & > .submit-button {
       position: relative;
       flex-shrink: 0;
@@ -279,8 +302,8 @@
       background: transparent;
       border-radius: 10px;
       display: grid;
-      align-items: center;
-
+      align-items: end;
+      color: $primary;
       &:disabled {
         color: rgb(172, 172, 172);
       }
@@ -291,71 +314,124 @@
         height: 0.75rem;
         line-height: 0.75rem;
         border-radius: 100%;
-        font-size: 7.5px;
+        font-size: 0.5rem;
         font-weight: bold;
         text-align: center;
         background: rgb(48, 135, 248);
         color: white;
-        bottom: 0.25rem;
-        right: 0.5rem;
+        bottom: -0.15rem;
+        right: 0.4rem;
       }
     }
-  }
-  .instruction {
-    display: flex;
-    justify-content: flex-end;
-
-    & > .key-instruct {
-      font-size: 70%;
-      color: gray;
-      margin-bottom: 0.5rem;
-      text-align: end;
-      flex: 1;
-      user-select: none;
+    .admin {
+      color: $black;
     }
 
+    & > .instruction {
+      display: inline-block;
+      flex: 1;
+      & > .key-instruct {
+        font-size: 70%;
+        color: gray;
+        user-select: none;
+      }
+    }
+
+    & > .question-checkbox {
+      font-size: 85%;
+      margin-right: 3em;
+      user-select: none;
+    }
+  }
+  & > .error-message {
+    display: block;
+    text-align: right;
+    padding: 0 1em;
+    margin-bottom: -13px;
     & > .text-counter {
       font-size: 70%;
       user-select: none;
       display: none;
+      position: relative;
+      right: 0;
     }
-
     & > .over {
       color: red;
       display: inline;
     }
   }
 
-  & > .question-checkbox {
-    font-size: 85%;
-    margin-left: 0.5em;
-    user-select: none;
-  }
-}
+  & > .reply-bar {
+    background-color: $placeholder-gray;
+    width: 100%;
+    display: flex;
+    margin-right: -4px;
+    padding: 0.5em 1em;
+    align-items: center;
+    font-size: 80%;
 
-.sender-badge {
-  display: inline-block;
-  vertical-align: top;
-  font-size: 8px;
-  background-color: $primary;
-  color: white;
-  padding: 0.25em 0.5em;
-  margin-top: -1.5em;
-  margin-left: -1.6em;
-  border-top-left-radius: 4px;
-  border-bottom-right-radius: 5px;
-  min-width: 7rem;
-}
+    & > .reply-type {
+      color: white;
+    }
+    .reply {
+      background-color: $syoyu;
+      border-radius: 5px;
+      padding: 0.15em 0.5em;
+    }
 
-.admin {
-  & > .sender-badge {
-    background-color: $text-gray;
+    .answer {
+      background-color: $answer-label;
+      border-radius: 5px;
+      padding: 0.15em 0.5em;
+    }
+
+    & > .reply-content {
+      display: -webkit-box;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+      overflow: hidden;
+      color: $text-gray;
+      flex: 1;
+      margin: 0 0.5rem;
+    }
+    & > .material-icons {
+      display: inline;
+      font-size: 16px;
+      color: $text-gray;
+      &:hover {
+        color: $black;
+      }
+      &:active {
+        color: $black;
+      }
+    }
   }
 }
 
 .chatitem-wrapper {
   padding: 0.5em 0;
   scroll-snap-align: end;
+  .sender-badge {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 8px;
+    background-color: $primary;
+    color: white;
+    padding: 0.25em 0.5em;
+    margin-top: -1.5em;
+    margin-left: -1.6em;
+    border-top-left-radius: 4px;
+    border-bottom-right-radius: 5px;
+    min-width: 7rem;
+  }
+
+  .admin {
+    & > .sender-badge {
+      background-color: $text-gray;
+    }
+  }
 
   & > .system_message {
     position: relative;
@@ -380,7 +456,7 @@
     .main-contents {
       display: flex;
       margin-top: -0.5em;
-      min-height: 3rem;
+      min-height: 1rem;
       & > .text {
         flex: 1;
         word-break: break-all;
@@ -440,10 +516,10 @@
           }
           & > .answer-reply {
             &:hover {
-              color: $pink;
+              color: $answer-label;
             }
             &:active {
-              color: $pink;
+              color: $answer-label;
             }
           }
         }
@@ -550,7 +626,7 @@
       font-size: 10px;
       font-weight: bold;
       text-align: center;
-      background: $pink;
+      background: $answer-label;
       color: white;
       position: absolute;
       bottom: -0.2rem;
@@ -576,28 +652,6 @@
         height: 1.1rem;
         transform: rotate(-15deg);
       }
-    }
-  }
-}
-
-.reply-bar {
-  background-color: $gray;
-  display: flex;
-  justify-content: flex-end;
-  & > .reply-content {
-    display: inline;
-    color: $text-gray;
-    font-size: 80%;
-  }
-  & > .material-icons {
-    display: inline;
-    font-size: 20px;
-    color: $text-gray;
-    &:hover {
-      color: $black;
-    }
-    &:active {
-      color: $black;
     }
   }
 }

@@ -31,12 +31,16 @@
             class="home-creation-completed-modal__invitation__content__detail"
           >
             <div
-              class=" home-creation-completed-modal__invitation__content__detail--url"
+              class="
+                home-creation-completed-modal__invitation__content__detail--url
+              "
             >
               https://sushi-chat.cyan/12345?user=admin
             </div>
             <button
-              class=" home-creation-completed-modal__invitation__content__detail--button"
+              class="
+                home-creation-completed-modal__invitation__content__detail--button
+              "
             >
               コピーする
             </button>
@@ -44,9 +48,9 @@
         </div>
       </section>
     </template>
-    <template #hide-button
-      ><NuxtLink to="/home"> マイページに戻る </NuxtLink></template
-    >
+    <template #hide-button>
+      <NuxtLink to="/home"> マイページに戻る </NuxtLink>
+    </template>
   </Modal>
 </template>
 
