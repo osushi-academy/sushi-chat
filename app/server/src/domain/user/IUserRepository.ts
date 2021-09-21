@@ -4,7 +4,7 @@ interface IUserRepository {
   create(user: User): void
   update(user: User): void
   find(userId: string): User
-  delete(user: User): void
+  leaveRoom(user: User): void
   selectByRoomId(roomId: string): User[]
 }
 
