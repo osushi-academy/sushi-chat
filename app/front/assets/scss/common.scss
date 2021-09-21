@@ -1,6 +1,5 @@
 body {
   font-family: "M PLUS 1p", sans-serif;
-  //overflow: hidden; // 縦方向は１画面に収める（スクロールさせない）
   touch-action: manipulation; // ダブルタップによるズームは抑止
   -webkit-font-smoothing: antialiased;
   color: $black;

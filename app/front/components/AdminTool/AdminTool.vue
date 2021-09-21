@@ -1,34 +1,29 @@
 <template>
   <div class="drawer-menu-wrapper">
     <div class="drawer-menu">
-      <div class="header">
-        <div class="icon-space">
-          <picture class="icon-wrapper">
-            <source :srcset="icon.webp" type="image/webp" />
-            <img :src="icon.png" alt="" />
-          </picture>
-        </div>
+      <div class="drawer-menu__header">
         <div class="room-info">
           <div class="room-title">
-            <p>{{ title }}</p>
+            <p>管理者ツール - {{ title }}</p>
           </div>
           <div class="room-url">
-            <span>{{ shareUrl }}</span>
-            <button
-              class="material-icons copy-button"
-              :disabled="
-                topics.findIndex((t) => topicStateItems[t.id] === 'active') ==
-                null
-              "
-              @click="writeToClipboard"
-            >
-              content_copy
+            <button @click="writeToClipboard(shareUrl)">
+              <span>参加者用<br />招待URLのコピー</span>
+              <div class="material-icons copy-button">content_copy</div>
+            </button>
+            <button @click="writeToClipboard(adminUrl)">
+              <span>管理者用<br />招待URLのコピー</span>
+              <div class="material-icons copy-button">content_copy</div>
             </button>
           </div>
         </div>
+        <button v-if="!isRoomStarted" @click="startRoom">
+          <div class="material-icons">play_circle</div>
+          <span>ルームを開始する</span>
+        </button>
       </div>
 
-      <div class="topic-list">
+      <div class="drawer-menu__topic-list">
         <div
           v-for="(topic, index) in topics"
           :key="topic.id"
@@ -45,12 +40,12 @@
               >一時停止</span
             >
           </div>
-          <div class="buttons">
+          <div v-if="isRoomStarted" class="buttons">
             <button
               v-if="topicStateItems[topic.id] != 'finished'"
               @click="clickPlayPauseButton(topic.id)"
             >
-              <span class="material-icons">{{
+              <span class="material-icons-outlined">{{
                 playOrPause(topicStateItems[topic.id])
               }}</span>
             </button>
@@ -61,10 +56,25 @@
               "
               @click="clickFinishButton(topic.id)"
             >
-              <span class="material-icons">stop</span>
+              <span class="material-icons-outlined danger">stop_circle</span>
             </button>
+            <button
+              v-if="topicStateItems[topic.id] === 'finished'"
+              @click="clickRestartButton(topic.id)"
+            >
+              <span class="material-icons">restart_alt</span>
+            </button>
+            <div>334users</div>
+            <div>334comments</div>
+            <div>334stamps</div>
           </div>
         </div>
+      </div>
+      <div class="drawer-menu__footer">
+        <button v-if="!isRoomStarted" @click="endRoom">
+          <span>ルームを終了する</span>
+          <div class="material-icons-outlined danger">info</div>
+        </button>
       </div>
     </div>
   </div>
@@ -74,10 +84,16 @@
 import Vue from "vue"
 import ICONS from "@/utils/icons"
 import { Topic } from "@/models/contents"
+import socket from "~/utils/socketIO"
 import { UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
 
+// Data型
+type DataType = {
+  isRoomStarted: boolean
+}
+
 export default Vue.extend({
-  name: "SettingPage",
+  name: "AdminTool",
   props: {
     roomId: {
       type: String,
@@ -87,6 +103,11 @@ export default Vue.extend({
       type: String,
       required: true,
     },
+  },
+  data(): DataType {
+    return {
+      isRoomStarted: false,
+    }
   },
   computed: {
     topics(): Topic[] {
@@ -98,15 +119,20 @@ export default Vue.extend({
     icon() {
       return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
     },
-    shareUrl() {
+    adminUrl(): string {
+      return `${location.origin}?user=admin&roomId=${encodeURIComponent(
+        this.roomId,
+      )}`
+    },
+    shareUrl(): string {
       return `${location.origin}?roomId=${encodeURIComponent(this.roomId)}`
     },
     playOrPause() {
       return function (topicState: string) {
         if (topicState === "active") {
-          return "pause"
+          return "pause_circle"
         } else if (topicState === "paused" || topicState === "not-started") {
-          return "play_arrow"
+          return "play_circle"
         } else {
           return null
         }
@@ -114,8 +140,17 @@ export default Vue.extend({
     },
   },
   methods: {
-    writeToClipboard() {
-      navigator.clipboard.writeText(this.shareUrl)
+    // ルーム開始
+    startRoom() {
+      socket.emit("ADMIN_START_ROOM", { roomId: this.roomId })
+      this.isRoomStarted = true
+    },
+    // ルーム終了
+    endRoom() {
+      // TODO:ルーム終了
+    },
+    writeToClipboard(s: string) {
+      navigator.clipboard.writeText(s)
     },
     clickPlayPauseButton(topicId: string) {
       if (this.topicStateItems[topicId] === "active") {
@@ -133,6 +168,10 @@ export default Vue.extend({
         TopicStateItemStore.change({ key: topicId, state: "finished" })
         this.$emit("change-topic-state", topicId, "closed")
       }
+    },
+    clickRestartButton(topicId: string) {
+      TopicStateItemStore.change({ key: topicId, state: "finished" })
+      this.$emit("change-topic-state", topicId, "active")
     },
   },
 })

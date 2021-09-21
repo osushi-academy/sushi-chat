@@ -120,7 +120,7 @@ export default {
   // WebFontLoader
   webfontloader: {
     google: {
-      families: ["M PLUS 1p:100,400,700", "Material Icons"],
+      families: ["M PLUS 1p:100,400,700", "Material Icons", "Material Icons Outlined"],
     },
   },
 
