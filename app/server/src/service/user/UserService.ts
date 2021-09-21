@@ -9,7 +9,6 @@ import User from "../../domain/user/User"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import IUserDelivery from "../../domain/user/IUserDelivery"
 import ChatItemModelBuilder from "../chatItem/ChatItemModelBuilder"
-import IAdminRepository from "../../domain/admin/IAdminRepository"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
 import StampModelBuilder from "../stamp/StampModelBuilder"
@@ -17,7 +16,6 @@ import { NewIconId } from "../../domain/user/IconId"
 
 class UserService {
   constructor(
-    private readonly adminRepository: IAdminRepository,
     private readonly userRepository: IUserRepository,
     private readonly roomRepository: IRoomRepository,
     private readonly userDelivery: IUserDelivery,

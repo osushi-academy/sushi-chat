@@ -110,7 +110,6 @@ const createSocketIOServer = async (
   //本体
   io.on("connection", (socket: UserSocket) => {
     const userService = new UserService(
-      adminRepository,
       userRepository,
       roomRepository,
       new UserDelivery(socket, io),
