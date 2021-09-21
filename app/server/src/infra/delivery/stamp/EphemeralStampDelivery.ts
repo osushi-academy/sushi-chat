@@ -10,6 +10,14 @@ class EphemeralStampDelivery implements IStampDelivery {
     private readonly interval = 100,
   ) {}
 
+  public pushStamp(stamp: Stamp): void {
+    EphemeralStampDelivery.stamps.push(stamp)
+
+    if (EphemeralStampDelivery.intervalDeliveryTimer === null) {
+      this.startIntervalDelivery()
+    }
+  }
+
   private static finishIntervalDelivery(): void {
     if (EphemeralStampDelivery.intervalDeliveryTimer === null) return
 
@@ -29,14 +37,6 @@ class EphemeralStampDelivery implements IStampDelivery {
       this.subscribers.forEach((s) => s.push(...EphemeralStampDelivery.stamps))
       EphemeralStampDelivery.stamps.length = 0
     }, this.interval)
-  }
-
-  pushStamp(stamp: Stamp): void {
-    EphemeralStampDelivery.stamps.push(stamp)
-
-    if (EphemeralStampDelivery.intervalDeliveryTimer === null) {
-      this.startIntervalDelivery()
-    }
   }
 }
 

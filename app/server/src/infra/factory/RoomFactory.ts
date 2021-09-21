@@ -12,7 +12,7 @@ class RoomFactory implements IRoomFactory {
     const roomId = uuid()
     const inviteKey = uuid()
 
-    return new RoomClass(roomId, title, description ?? "", inviteKey, topics)
+    return new RoomClass(roomId, title, inviteKey, description ?? "", topics)
   }
 }
 

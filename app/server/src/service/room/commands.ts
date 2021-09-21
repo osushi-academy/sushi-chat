@@ -1,10 +1,13 @@
-import { ChangeTopicStateType } from "../../events"
+import { TopicState } from "sushi-chat-shared"
 import Topic from "../../domain/room/Topic"
 
 export type BuildRoomCommand = {
   title: string
-  topics: Omit<Topic, "id" | "state">[]
+  topics: Omit<Topic, "id" | "state" | "pinnedChatItemId">[]
   description?: string
+}
+export type FinishRoomCommand = {
+  userId: string
 }
 
 export type StartRoomCommand = {
@@ -30,6 +33,6 @@ export type ArchiveRoomCommand = {
 
 export type ChangeTopicStateCommand = {
   userId: string
-  topicId: string
-  type: ChangeTopicStateType
+  topicId: number
+  state: TopicState
 }

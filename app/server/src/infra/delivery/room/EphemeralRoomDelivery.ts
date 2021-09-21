@@ -1,5 +1,5 @@
 import IRoomDelivery from "../../../domain/room/IRoomDelivery"
-import { ChangeTopicStateType } from "../../../events"
+import Topic from "../../../domain/room/Topic"
 
 export type DeliveryType = "START" | "CLOSE" | "FINISH" | "CHANGE_TOPIC_STATE"
 
@@ -15,33 +15,11 @@ class EphemeralRoomDelivery implements IRoomDelivery {
     return [...this._subscribers.map((s) => [...s])]
   }
 
-  public start(roomId: string): void {
-    this._subscribers.forEach((s) =>
-      s.push({ type: "START", content: { roomId } }),
-    )
-  }
-
-  public close(roomId: string): void {
-    this._subscribers.forEach((s) =>
-      s.push({ type: "CLOSE", content: { roomId } }),
-    )
-  }
-
-  public finish(roomId: string): void {
-    this._subscribers.forEach((s) =>
-      s.push({ type: "FINISH", content: { roomId } }),
-    )
-  }
-
-  public changeTopicState(
-    type: ChangeTopicStateType,
-    roomId: string,
-    topicId: string,
-  ): void {
+  public changeTopicState(roomId: string, topic: Topic) {
     this._subscribers.forEach((s) =>
       s.push({
         type: "CHANGE_TOPIC_STATE",
-        content: { type, roomId, topicId },
+        content: { roomId, topic },
       }),
     )
   }
