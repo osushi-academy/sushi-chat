@@ -57,27 +57,21 @@ class RestRoomService {
   ): Promise<RoomModel> {
     const room = await this.find(command.id)
     const isAdmin = room.isAdmin(command.adminId)
-    if (isAdmin) {
-      return {
-        id: room.id,
-        title: room.title,
-        topics: /* room.topics */ [],
-        state: room.state,
-        description: room.description,
-        startDate: /* room.startDate */ "",
-        adminInviteKey: room.adminInviteKey,
-      }
-    } else {
-      return {
-        id: room.id,
-        title: room.title,
-        topics: /* room.topics */ [],
-        state: room.state,
-        description: room.description,
-        startDate: /* room.startDate */ "",
-        adminInviteKey: undefined,
-      }
+    const roomDefault: RoomModel = {
+      id: room.id,
+      title: room.title,
+      topics: /* room.topics */ [],
+      state: room.state,
+      description: room.description,
+      startDate: /* room.startDate */ "",
+      adminInviteKey: undefined,
     }
+    // adminの時のみadminInviteKeyに値をいれる
+    if (isAdmin) {
+      roomDefault.adminInviteKey = room.adminInviteKey
+    }
+
+    return roomDefault
   }
 
   // Roomを探す
