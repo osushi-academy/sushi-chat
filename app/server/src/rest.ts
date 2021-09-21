@@ -28,7 +28,6 @@ export const restSetup = (
             adminInviteKey: newRoom.adminInviteKey,
             /*
               startDate: newRoom.startDate,
-              adminInviteKey: newRoom.adminInviteKey
               */
           },
         ],
@@ -84,6 +83,32 @@ export const restSetup = (
         error: {
           code: 400,
           message: `${e ?? "Unknown error."} (USER_ROOM_HISTORY)`,
+        },
+      })
+    }
+  })
+
+  // ルーム情報を取得する
+  app.get("/room/:id", async (req, res) => {
+    try {
+      const roomId = req.params.id
+      const adminId = "hoge" /* 本当はヘッダーから。 */
+
+      const room = await roomService.checkAdminAndfind({
+        id: roomId,
+        adminId: adminId,
+      })
+
+      res.send({
+        result: "success",
+        data: room,
+      })
+    } catch (e) {
+      res.status(400).send({
+        result: "error",
+        error: {
+          code: 400,
+          message: `${e.message ?? "Unknown error."} (USER_FIND_ROOM)`,
         },
       })
     }
