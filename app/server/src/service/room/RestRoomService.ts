@@ -6,13 +6,11 @@ import {
   InviteRoomCommand,
   StartRoomCommand,
 } from "./commands"
-import IUserRepository from "../../domain/user/IUserRepository"
 import IRoomFactory from "../../domain/room/IRoomFactory"
 
 class RestRoomService {
   constructor(
     private readonly roomRepository: IRoomRepository,
-    private readonly userRepository: IUserRepository,
     private readonly roomFactory: IRoomFactory,
   ) {}
 

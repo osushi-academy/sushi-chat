@@ -21,6 +21,7 @@ const pgPool = new PGPool(
   process.env.DB_SSL !== "OFF",
 )
 
+const roomFactory = new RoomFactory()
 const userRepository = LocalMemoryUserRepository.getInstance()
 const chatItemRepository = new ChatItemRepository(pgPool)
 const stampRepository = new StampRepository(pgPool)
@@ -30,7 +31,7 @@ const roomRepository = new RoomRepository(
   chatItemRepository,
   stampRepository,
 )
-const roomService = new RestRoomService(roomRepository, userRepository)
+const roomService = new RestRoomService(roomRepository, roomFactory)
 
 createSocketIOServer(
   httpServer,
@@ -38,7 +39,7 @@ createSocketIOServer(
   roomRepository,
   chatItemRepository,
   stampRepository,
-  new RoomFactory(),
+  roomFactory,
 )
 
 const PORT = process.env.PORT || 7000
