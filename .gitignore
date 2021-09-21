@@ -140,3 +140,5 @@ temp/
 
 .DS_Store
 .env
+
+.vercel

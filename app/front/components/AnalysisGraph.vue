@@ -11,7 +11,6 @@
 </template>
 <script lang="ts">
 import Vue from "vue"
-import type { PropOptions } from "vue"
 import { ChartData, ChartOptions } from "chart.js"
 import { Topic } from "@/models/contents"
 import ChartLine from "~/utils/ChartLine"
@@ -22,11 +21,7 @@ type DataType = {
   chartData: ChartData
   chartOption: ChartOptions
   chartStyles: any
-  icon: any
-}
-
-type ChatDataPropType = {
-  topic: Topic
+  icon: string
 }
 
 export default Vue.extend({
@@ -35,10 +30,14 @@ export default Vue.extend({
     ChartLine,
   },
   props: {
-    chatData: {
-      type: Object,
+    topicTitle: {
+      type: String,
       required: true,
-    } as PropOptions<ChatDataPropType>,
+    },
+    topicId: {
+      type: String,
+      required: true,
+    },
   },
   data(): DataType {
     return {
@@ -50,7 +49,7 @@ export default Vue.extend({
       chartOption: {
         title: {
           display: true,
-          text: this.chatData.topic.title + "の盛り上がり度",
+          text: this.topicTitle + "の盛り上がり度",
         },
         scales: {
           xAxes: [
@@ -80,7 +79,7 @@ export default Vue.extend({
     }
   },
   // グラフの描画: 10秒ごとに分けて値をカウント→値を描画する。
-  mounted(): any {
+  mounted() {
     this.fillData()
   },
   methods: {
@@ -102,6 +101,7 @@ export default Vue.extend({
     fillData() {
       const commentStamp: Array<number> = ChatItemStore.chatItems
         .filter(({ iconId }) => iconId !== "0")
+        .filter(({ topicId }) => topicId === this.topicId)
         .map((message) => Math.floor(message.timestamp / 10000))
       const maxStamp: number = Math.max(...commentStamp)
       const commentNum: { [key: number]: number } = this.toCountStamp(
@@ -116,7 +116,6 @@ export default Vue.extend({
             // データのラベル
             label: "コメント",
             // データの値。labelsと同じサイズ
-            // @ts-ignore
             data: Object.values(commentNum),
             borderColor: "rgba(0, 0, 255, 0.3)",
             backgroundColor: "rgba(0, 0, 255, 0.3)",

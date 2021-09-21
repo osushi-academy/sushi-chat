@@ -1,15 +1,14 @@
 <template>
-  <article class="topic-block">
+  <article v-if="topic" class="topic-block">
     <TopicHeader
-      :title="topicIndex + '. ' + chatData.topic.title"
+      :title="topicIndex + '. ' + topic.title"
       :topic-state="topicState"
-      @topic-activate="clickTopicActivate"
       @download="clickDownload"
     />
     <div class="chat-area">
       <div class="text-zone">
         <transition-group
-          :id="chatData.topic.id"
+          :id="topicId"
           ref="scrollable"
           class="scrollable list-complete"
           tag="div"
@@ -21,7 +20,7 @@
           >
             <MessageComponent
               :message="message"
-              @click-card="clickReaction"
+              @click-thumb-up="clickReaction"
               @click-reply="selectedChatItem = message"
             />
           </div>
@@ -32,11 +31,11 @@
               <XIcon></XIcon>
             </button>
           </div>
-          <AnalysisGraph :chat-data="chatData" />
+          <AnalysisGraph :topic-title="topic.title" :topic-id="topicId" />
         </div>
         <button
           v-if="topicState === 'finished' && !showGraph"
-          :key="chatData.topic.id"
+          :key="topicId"
           class="show-graph-button"
           @click="showGraph = true"
         >
@@ -46,11 +45,8 @@
       </div>
       <div class="stamp-zone">
         <FavoriteButton
-          :favorite-callback-register="
-            (callback) => favoriteCallbackRegister(chatData.topic.id, callback)
-          "
           :disabled="topicState !== 'active'"
-          @favorite="clickFavorite"
+          :topic-id="topicId"
         />
       </div>
       <button
@@ -62,39 +58,28 @@
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
-    <div v-if="selectedChatItem" class="reply-bar">
-      <div class="reply-content">{{ selectedChatItem.content }} に返信中</div>
-      <div class="material-icons" @click="deselectChatItem">close</div>
-    </div>
     <TextArea
-      :topic="chatData.topic"
+      :topic-title="topic.title"
+      :topic-id="topicId"
       :disabled="topicState == 'not-started'"
+      :selected-chat-item="selectedChatItem"
       @submit="clickSubmit"
+      @deselectChatItem="deselectChatItem"
     />
   </article>
 </template>
 <script lang="ts">
 import Vue from "vue"
-import type { PropOptions } from "vue"
 import throttle from "lodash.throttle"
 import { XIcon, ChevronUpIcon } from "vue-feather-icons"
 import AnalysisGraph from "./AnalysisGraph.vue"
-import { Topic, Message, Question, Answer } from "@/models/contents"
+import { Message, Question, Answer } from "@/models/contents"
 import TopicHeader from "@/components/TopicHeader.vue"
 import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
-import { ChatItemStore, TopicStateItemStore } from "~/store"
-
-type ChatDataPropType = {
-  topic: Topic
-}
-
-type FavoriteCallbackRegisterPropType = (
-  topicId: string,
-  callback: (count: number) => void,
-) => void
+import { ChatItemStore, TopicStore, TopicStateItemStore } from "~/store"
 
 // Data型
 type DataType = {
@@ -115,19 +100,14 @@ export default Vue.extend({
     ChevronUpIcon,
   },
   props: {
-    chatData: {
-      type: Object,
+    topicId: {
+      type: String,
       required: true,
-    } as PropOptions<ChatDataPropType>,
+    },
     topicIndex: {
       type: Number,
       required: true,
-      default: 0,
     },
-    favoriteCallbackRegister: {
-      type: Function,
-      required: true,
-    } as PropOptions<FavoriteCallbackRegisterPropType>,
   },
   data(): DataType {
     return {
@@ -139,11 +119,14 @@ export default Vue.extend({
   computed: {
     chatItems() {
       return ChatItemStore.chatItems.filter(
-        ({ topicId }) => topicId === this.chatData.topic.id,
+        ({ topicId }) => topicId === this.topicId,
       )
     },
+    topic() {
+      return TopicStore.topics.find(({ id }) => id === this.topicId)
+    },
     topicState() {
-      return TopicStateItemStore.topicStateItems[this.chatData.topic.id]
+      return TopicStateItemStore.topicStateItems[this.topicId]
     },
   },
   watch: {
@@ -173,7 +156,7 @@ export default Vue.extend({
     // 送信ボタン
     clickSubmit(text: string, isQuestion: boolean) {
       const target = this.selectedChatItem
-      const topicId = this.chatData.topic.id
+      const topicId = this.topicId
       if (target == null) {
         if (isQuestion) {
           // 質問
@@ -192,13 +175,11 @@ export default Vue.extend({
       this.clickScroll()
       this.selectedChatItem = null
     },
+    // リアクションボタン
     clickReaction(message: Message) {
       ChatItemStore.postReaction({ message })
     },
-    // ハートボタン
-    clickFavorite() {
-      this.$emit("send-stamp", this.chatData.topic.id)
-    },
+    // スクロール
     handleScroll: throttle(function (this: any, e: Event) {
       if (!this.isScrollBottom(e.target)) {
         this.isNotify = true
@@ -235,9 +216,6 @@ export default Vue.extend({
         element.scrollHeight < element.scrollTop + element.offsetHeight + 200
       )
     },
-    clickTopicActivate() {
-      this.$emit("topic-activate", this.chatData.topic.id)
-    },
     clickDownload() {
       const messages = ChatItemStore.chatItems
         .filter(({ type }) => type === "message")
@@ -246,10 +224,13 @@ export default Vue.extend({
           (message) =>
             "🍣: " + (message as Message).content.replaceAll("\n", "\n") + "\n",
         )
-      exportText(`${this.topicIndex}_${this.chatData.topic.title}_comments`, [
-        this.chatData.topic.title + "\n",
-        ...messages,
-      ])
+      // this.topicがnullになることは基本的にない
+      if (this.topic) {
+        exportText(`${this.topicIndex}_${this.topic.title}_comments`, [
+          this.topic.title + "\n",
+          ...messages,
+        ])
+      }
     },
     // 選択したアイテム取り消し
     deselectChatItem() {

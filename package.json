@@ -11,6 +11,7 @@
     "dev:front": "yarn workspace sushi-chat-front dev",
     "dev:server": "yarn workspace sushi-chat-server dev",
     "dev:shared": "yarn workspace sushi-chat-shared dev",
+    "build:server": "yarn workspace sushi-chat-server build",
     "build:shared": "yarn workspace sushi-chat-shared build",
     "lint": "yarn workspaces run lint",
     "lint:front": "yarn workspace sushi-chat-front lint",

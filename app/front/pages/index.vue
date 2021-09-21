@@ -1,13 +1,5 @@
 <template>
   <div class="container page">
-    <header v-if="isAdmin">
-      <button @click="clickDrawerMenu">
-        <span class="material-icons"> {{ hamburgerMenu }} </span>
-      </button>
-      <button v-if="!isRoomStarted" @click="startRoom">
-        ルームをオープンする
-      </button>
-    </header>
     <main>
       <CreateRoomModal
         v-if="isAdmin && room.id == null"
@@ -18,20 +10,14 @@
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
-      <SettingPage
-        v-if="isDrawer && isAdmin"
+      <AdminTool
+        v-if="isAdmin"
         :room-id="room.id"
-        :title="''"
+        :title="'技育CAMPハッカソン vol.5'"
         @change-topic-state="changeTopicState"
       />
-      <div v-for="(chatData, index) in chatDataList" :key="index">
-        <ChatRoom
-          :topic-index="index"
-          :chat-data="chatData"
-          :favorite-callback-register="favoriteCallbackRegister"
-          @send-stamp="sendFavorite"
-          @topic-activate="changeActiveTopic"
-        />
+      <div v-for="(topic, index) in topics" :key="index">
+        <ChatRoom :topic-index="index" :topic-id="topic.id" />
       </div>
     </main>
   </div>
@@ -40,8 +26,9 @@
 <script lang="ts">
 import Vue from "vue"
 import VModal from "vue-js-modal"
-import { Room, ChatItem, Topic, TopicState, Stamp } from "@/models/contents"
+import { Room, ChatItem, Stamp, Topic, TopicState } from "@/models/contents"
 import { AdminBuildRoomResponse } from "@/models/event"
+import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
@@ -50,14 +37,10 @@ import {
   ChatItemStore,
   DeviceStore,
   UserItemStore,
+  StampStore,
   TopicStore,
   TopicStateItemStore,
 } from "~/store"
-
-// 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
-type ChatData = {
-  topic: Topic
-}
 
 // Data型
 type DataType = {
@@ -67,12 +50,12 @@ type DataType = {
   // ルーム情報
   activeUserCount: number
   room: Room
-  isRoomStarted: boolean
 }
 Vue.use(VModal)
 export default Vue.extend({
   name: "Index",
   components: {
+    AdminTool,
     ChatRoom,
     SelectIconModal,
     CreateRoomModal,
@@ -85,22 +68,18 @@ export default Vue.extend({
       // ルーム情報
       activeUserCount: 0,
       room: {} as Room,
-      isRoomStarted: false,
     }
   },
   computed: {
-    chatDataList(): ChatData[] {
-      return this.topics.map((topic) => ({
-        topic,
-      }))
-    },
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
     },
     topics(): Topic[] {
+      // 各トピックの情報
       return TopicStore.topics
     },
     topicStateItems() {
+      // 各トピックの状態
       return TopicStateItemStore.topicStateItems
     },
   },
@@ -127,7 +106,6 @@ export default Vue.extend({
           ChatItemStore.addList(chatItems)
           TopicStore.set(topics)
           this.activeUserCount = activeUserCount
-          this.isRoomStarted = true // TODO: API側の対応が必要
         },
       )
     } else {
@@ -155,6 +133,12 @@ export default Vue.extend({
       } else if (res.type === "CLOSE") {
         TopicStateItemStore.change({ key: res.topicId, state: "finished" })
       }
+    })
+    // スタンプ通知時の、SocketIOのコールバックの登録
+    socket.on("PUB_STAMP", (stamps: Stamp[]) => {
+      stamps.forEach((stamp) => {
+        StampStore.add(stamp)
+      })
     })
     DeviceStore.determineOs()
   },
@@ -246,22 +230,6 @@ export default Vue.extend({
       this.$modal.hide("sushi-modal")
     },
 
-    startRoom() {
-      const socket = (this as any).socket
-      socket.emit("ADMIN_START_ROOM", { roomId: this.room.id })
-      this.isRoomStarted = true
-    },
-
-    // アクティブトピックが変わる
-    changeActiveTopic(topicId: string) {
-      const socket = (this as any).socket
-      socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-        roomId: this.room.id,
-        topicId,
-        type: "OPEN",
-      })
-    },
-
     // ユーザ関連
     // modalを消し、topic作成
     hide(): any {
@@ -292,28 +260,6 @@ export default Vue.extend({
     // アイコン選択
     clickIcon(index: number) {
       UserItemStore.changeMyIcon(index)
-    },
-
-    sendFavorite(topicId: string) {
-      const socket = (this as any).socket
-      socket.emit("POST_STAMP", { topicId })
-    },
-    // スタンプが通知された時に実行されるコールバックの登録
-    // NOTE: スタンプ周りのUI表示が複雑なため、少しややこしい実装を採用しています。
-    favoriteCallbackRegister(
-      topicId: string,
-      callback: (count: number) => void,
-    ) {
-      const socket = (this as any).socket
-      socket.on("PUB_STAMP", (stamps: Stamp[]) => {
-        const stampsAboutTopicId = stamps.filter(
-          // スタンプは自分が押したものも通知されるため省く処理を入れています
-          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id,
-        )
-        if (stampsAboutTopicId.length > 0) {
-          callback(stampsAboutTopicId.length)
-        }
-      })
     },
   },
 })

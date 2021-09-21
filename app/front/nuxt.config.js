@@ -88,6 +88,27 @@ export default {
     "@nuxtjs/axios",
     "nuxt-webfontloader",
     "socket.io-client",
+    [
+      '@nuxtjs/firebase',
+      {
+        config: {
+          apiKey: 'AIzaSyCBQ3FB9HwLD0m1tn9UvbOHyovydVxffLE',
+          authDomain: 'sushi-chat-osushi.firebaseapp.com',
+          projectId: 'sushi-chat-osushi',
+          storageBucket: 'sushi-chat-osushi.appspot.com',
+          messagingSenderId: '803145893857',
+          appId: '1:803145893857:web:762dc197f836b4fcfb34a0',
+          measurementId: 'G-3L8Q6J93EC'
+        },
+        services: {
+          auth: {
+            initialize: {
+              onIdTokenChangedAction: 'auth/onIdTokenChangedAction',
+            },
+          }
+        }
+      }
+    ]
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -99,7 +120,7 @@ export default {
   // WebFontLoader
   webfontloader: {
     google: {
-      families: ["M PLUS 1p:100,400,700", "Material Icons"],
+      families: ["M PLUS 1p:100,400,700", "Material Icons", "Material Icons Outlined"],
     },
   },
 
