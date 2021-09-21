@@ -1,107 +1,68 @@
 <template>
   <div class="chatitem-wrapper">
-    <!--Admin Message-->
-    <article
-      v-if="message.type == 'message' && message.iconId == '0'"
-      class="comment admin"
-    >
-      <div class="icon-wrapper">
-        <picture>
-          <source :srcset="icon.webp" type="image/webp" />
-          <img :src="icon.png" alt="" />
-        </picture>
-        <div class="admin-badge">運 営</div>
-      </div>
-      <div class="text">
-        <UrlToLink :text="message.content" />
-      </div>
-      <div class="comment-timestamp">
-        {{ showTimestamp(message.timestamp) }}
-      </div>
-    </article>
-
     <!-- Message -->
     <article
-      v-else-if="message.type == 'message'"
+      v-if="message.type != 'reaction'"
       class="comment"
-      @click="clickCard"
+      :class="{
+        admin: message.iconId == '0',
+        question: message.type == 'question',
+        answer: message.type == 'answer',
+      }"
     >
-      <div class="icon-wrapper">
-        <picture>
-          <source :srcset="icon.webp" type="image/webp" />
-          <img :src="icon.png" alt="" />
-        </picture>
-      </div>
-      <div v-if="message.target == null" class="text">
-        <UrlToLink :text="message.content" />
-      </div>
-      <div v-else class="text">
-        <span :style="{ color: 'gray', fontSize: '80%' }" @click.stop>
-          <UrlToLink :text="`> ` + message.target.content" />
-        </span>
-        <UrlToLink :text="message.content" />
-      </div>
-      <div class="comment-timestamp">
-        {{ showTimestamp(message.timestamp) }}
-      </div>
-      <div class="bg-good-icon">
-        <span class="material-icons"> thumb_up </span>
-      </div>
-    </article>
-
-    <!--Question Message-->
-    <article
-      v-else-if="message.type == 'question'"
-      class="comment question"
-      @click="clickCard"
-    >
-      <div class="icon-wrapper">
-        <picture>
-          <source :srcset="icon.webp" type="image/webp" />
-          <img :src="icon.png" alt="" />
-        </picture>
-        <div class="question-badge">Q</div>
-        <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
-      </div>
-      <div class="text">
-        <UrlToLink :text="message.content" />
-      </div>
-      <div class="comment-timestamp">
-        {{ showTimestamp(message.timestamp) }}
-      </div>
-      <div class="bg-good-icon">
-        <span class="material-icons"> thumb_up </span>
-      </div>
-    </article>
-
-    <!--Answer Message-->
-    <article
-      v-else-if="message.type == 'answer'"
-      class="comment answer"
-      @click="clickCard"
-    >
-      <div class="icon-wrapper">
-        <picture>
-          <source :srcset="icon.webp" type="image/webp" />
-          <img :src="icon.png" alt="" />
-        </picture>
-        <div class="answer-badge">A</div>
-        <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
-      </div>
-      <div class="text">
-        <span>
-          <UrlToLink
-            :text="'Q. ' + message.target.content"
+      <div class="sender-badge">from おすしアカデミー</div>
+      <div class="main-contents">
+        <div class="icon-wrapper">
+          <picture>
+            <source :srcset="icon.webp" type="image/webp" />
+            <img :src="icon.png" alt="" />
+          </picture>
+          <div v-if="message.type == 'question'" class="question-badge">Q</div>
+          <div v-if="message.type == 'answer'" class="answer-badge">A</div>
+        </div>
+        <div
+          v-if="message.type == 'question' || message.target == null"
+          class="text"
+        >
+          <UrlToLink :text="message.content" />
+        </div>
+        <div v-else class="text">
+          <span
+            class="long-text"
             :style="{ color: 'gray', fontSize: '80%' }"
-          />
-        </span>
-        <UrlToLink :text="'A. ' + message.content" />
+            @click.stop
+          >
+            <UrlToLink
+              v-if="message.type != 'answer'"
+              :text="`> ` + message.target.content"
+            />
+            <UrlToLink v-else :text="`Q. ` + message.target.content" />
+          </span>
+          <UrlToLink :text="message.content" />
+        </div>
       </div>
-      <div class="comment-timestamp">
-        {{ showTimestamp(message.timestamp) }}
-      </div>
-      <div class="bg-good-icon">
-        <span class="material-icons"> thumb_up </span>
+      <div class="comment-footer">
+        <div class="comment-timestamp">
+          {{ showTimestamp(message.timestamp) }}
+        </div>
+        <div class="badges">
+          <button class="reply-icon" @click="clickReply">
+            <span class="material-icons"> reply </span>
+          </button>
+          <button class="bg-good-icon">
+            <span
+              :style="{
+                backgroundColor: isLikedChatItem ? icon.colorCode : '',
+                color: isLikedChatItem ? 'white' : '',
+                transform: isLikedChatItem ? 'rotate(-20deg)' : '',
+              }"
+              class="material-icons"
+              @click="clickThumbUp"
+            >
+              thumb_up
+            </span>
+          </button>
+        </div>
       </div>
     </article>
 
@@ -109,31 +70,26 @@
     <article v-else-if="message.type == 'reaction'" class="reaction">
       <div class="icon-wrapper">
         <picture>
-          <source :srcset="icon.webp" type="image/webp" />
-          <img :src="icon.png" alt="" />
+          <source :srcset="targetIcon.webp" type="image/webp" />
+          <img :src="targetIcon.png" alt="" />
         </picture>
+        <div
+          class="raction-badge"
+          :style="{
+            backgroundColor: icon.colorCode,
+          }"
+        ></div>
       </div>
       <span class="material-icons"> thumb_up </span>
       <div class="long-text">
         {{ message.target.content }}
       </div>
-      <div class="comment-timestamp">
-        {{ showTimestamp(message.timestamp) }}
-      </div>
+      <span class="material-icons"> north_west </span>
     </article>
-    <!--Reply Badge-->
-    <button
-      v-if="message.type != 'reaction' && message.iconId != '0'"
-      class="reply-icon"
-      @click="clickReply"
-    >
-      <span
-        class="material-icons"
-        :class="{ 'answer-reply': message.type === 'question' }"
-      >
-        reply
-      </span>
-    </button>
+    <!--System Message-->
+    <!--article class="system_message">
+      <UrlToLink :text="message.content" />
+    </article-->
   </div>
 </template>
 <script lang="ts">
@@ -142,6 +98,10 @@ import type { PropOptions } from "vue"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
 import { ChatItemPropType } from "~/models/contents"
+
+type DataType = {
+  isLikedChatItem: boolean
+}
 
 export default Vue.extend({
   name: "Message",
@@ -154,14 +114,23 @@ export default Vue.extend({
       required: true,
     } as PropOptions<ChatItemPropType>,
   },
+  data(): DataType {
+    return {
+      isLikedChatItem: false,
+    }
+  },
   computed: {
     icon() {
       return ICONS[this.$props.message.iconId] ?? ICONS[0]
     },
+    targetIcon() {
+      return ICONS[this.$props.message.target.iconId]
+    },
   },
   methods: {
-    clickCard() {
-      this.$emit("click-card", this.message)
+    clickThumbUp() {
+      if (!this.isLikedChatItem) this.isLikedChatItem = true
+      this.$emit("click-thumb-up", this.message)
     },
     clickReply() {
       this.$emit("click-reply")
