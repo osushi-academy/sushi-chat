@@ -1,13 +1,5 @@
 <template>
   <div class="container page">
-    <header v-if="isAdmin">
-      <button @click="clickDrawerMenu">
-        <span class="material-icons"> {{ hamburgerMenu }} </span>
-      </button>
-      <button v-if="!isRoomStarted" @click="startRoom">
-        ルームをオープンする
-      </button>
-    </header>
     <main>
       <CreateRoomModal
         v-if="isAdmin && room.id == null"
@@ -21,24 +13,15 @@
       <SidebarDrawer
         :title="'技育CAMPハッカソン vol.5'"
         :description="'2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。'"
-        :topics="[
-          { id: 1, label: 'おすしアカデミー' },
-          { id: 2, label: '量子力学セミナー' },
-          { id: 3, label: 'だしまきたまご' },
-        ]"
       />
-      <SettingPage
-        v-if="isDrawer && isAdmin"
+      <AdminTool
+        v-if="isAdmin"
         :room-id="room.id"
-        :title="''"
+        :title="'技育CAMPハッカソン vol.5'"
         @change-topic-state="changeTopicState"
       />
       <div v-for="(topic, index) in topics" :key="index">
-        <ChatRoom
-          :topic-index="index"
-          :topic-id="topic.id"
-          @topic-activate="changeActiveTopic"
-        />
+        <ChatRoom :topic-index="index" :topic-id="topic.id" />
       </div>
     </main>
   </div>
@@ -49,6 +32,7 @@ import Vue from "vue"
 import VModal from "vue-js-modal"
 import { Room, ChatItem, Stamp, Topic, TopicState } from "@/models/contents"
 import { AdminBuildRoomResponse } from "@/models/event"
+import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
@@ -71,12 +55,12 @@ type DataType = {
   // ルーム情報
   activeUserCount: number
   room: Room
-  isRoomStarted: boolean
 }
 Vue.use(VModal)
 export default Vue.extend({
   name: "Index",
   components: {
+    AdminTool,
     ChatRoom,
     SelectIconModal,
     CreateRoomModal,
@@ -90,7 +74,6 @@ export default Vue.extend({
       // ルーム情報
       activeUserCount: 0,
       room: {} as Room,
-      isRoomStarted: false,
     }
   },
   computed: {
@@ -129,7 +112,6 @@ export default Vue.extend({
           ChatItemStore.addList(chatItems)
           TopicStore.set(topics)
           this.activeUserCount = activeUserCount
-          this.isRoomStarted = true // TODO: API側の対応が必要
         },
       )
     } else {
@@ -252,22 +234,6 @@ export default Vue.extend({
 
       // ルーム開始
       this.$modal.hide("sushi-modal")
-    },
-
-    startRoom() {
-      const socket = (this as any).socket
-      socket.emit("ADMIN_START_ROOM", { roomId: this.room.id })
-      this.isRoomStarted = true
-    },
-
-    // アクティブトピックが変わる
-    changeActiveTopic(topicId: string) {
-      const socket = (this as any).socket
-      socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-        roomId: this.room.id,
-        topicId,
-        type: "OPEN",
-      })
     },
 
     // ユーザ関連

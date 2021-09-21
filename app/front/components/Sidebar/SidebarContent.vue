@@ -84,7 +84,7 @@
                     >#<span class="subchannel-index">{{
                       index + 1
                     }}</span></span
-                  >{{ topic.label }}
+                  >{{ topic.title }}
                 </button>
               </li>
             </ul>
@@ -109,7 +109,7 @@
                   }}</span></span
                 >{{
                   //@ts-ignore
-                  selectedTopic != null && selectedTopic.label
+                  selectedTopic != null && selectedTopic.title
                 }}
               </button>
             </li>
@@ -162,7 +162,7 @@ export default Vue.extend({
     topics: {
       type: Array,
       required: true,
-    } as PropOptions<{ id: number; label: string }[]>, // NOTE: ここの受け渡しの形は暫定
+    } as PropOptions<{ id: number; title: string }[]>, // NOTE: ここの受け渡しの形は暫定
     showHumberger: {
       type: Boolean,
       default: false,

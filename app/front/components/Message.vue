@@ -74,13 +74,14 @@
           <img :src="targetIcon.png" alt="" />
         </picture>
         <div
-          class="raction-badge"
+          class="material-icons raction-badge"
           :style="{
             backgroundColor: icon.colorCode,
           }"
-        ></div>
+        >
+          thumb_up
+        </div>
       </div>
-      <span class="material-icons"> thumb_up </span>
       <div class="long-text">
         {{ message.target.content }}
       </div>

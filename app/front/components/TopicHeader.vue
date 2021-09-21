@@ -5,14 +5,6 @@
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>
       <div class="title">{{ title }}</div>
-      <button
-        v-show="isAdmin"
-        class="download-button zap"
-        :disabled="topicState === 'active'"
-        @click="clickTopicActivate"
-      >
-        <zap-icon size="18"></zap-icon>
-      </button>
       <button class="link-button">
         <span class="material-icons"> link </span>
       </button>
@@ -28,15 +20,12 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
-import { ZapIcon } from "vue-feather-icons"
 import { TopicState } from "@/models/contents"
 import { UserItemStore } from "~/store"
 
 export default Vue.extend({
   name: "TopicHeader",
-  components: {
-    ZapIcon,
-  },
+  components: {},
   props: {
     title: {
       type: String,
@@ -57,9 +46,6 @@ export default Vue.extend({
     },
   },
   methods: {
-    clickTopicActivate() {
-      this.$emit("topic-activate")
-    },
     clickDownload() {
       this.$emit("download")
     },
