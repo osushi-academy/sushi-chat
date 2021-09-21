@@ -28,6 +28,10 @@ class LocalMemoryUserRepository implements IUserRepository {
     return this.users[userId]
   }
 
+  public delete(user: User): void {
+    delete this.users[user.id]
+  }
+
   public selectByRoomId(roomId: string): User[] {
     return Object.values(this.users).filter((u) => u.roomId === roomId)
   }

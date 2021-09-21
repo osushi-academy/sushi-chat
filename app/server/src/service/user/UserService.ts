@@ -78,6 +78,8 @@ class UserService {
     const room = await this.findRoomOrThrow(user.roomId)
     const activeUserCount = room.leaveUser(user.id)
 
+    this.userRepository.delete(user)
+
     this.userDelivery.leaveRoom(user, activeUserCount)
 
     this.roomRepository.update(room)
