@@ -25,8 +25,8 @@ class ChatItemService {
 
   public async postMessage(command: PostMessageCommand) {
     const user = this.findUser(command.userId)
-    const roomId = user.getRoomIdOrThrow()
-    const iconId = user.getIconIdOrThrow()
+    const roomId = user.roomId
+    const iconId = user.iconId
 
     const room = await this.findRoom(roomId)
     const target =
@@ -56,8 +56,8 @@ class ChatItemService {
 
   public async postReaction(command: PostReactionCommand) {
     const user = this.findUser(command.userId)
-    const roomId = user.getRoomIdOrThrow()
-    const iconId = user.getIconIdOrThrow()
+    const roomId = user.roomId
+    const iconId = user.iconId
 
     const room = await this.findRoom(roomId)
     const target = (await this.chatItemRepository.find(command.targetId)) as
@@ -84,8 +84,8 @@ class ChatItemService {
 
   public async postQuestion(command: PostQuestionCommand) {
     const user = this.findUser(command.userId)
-    const roomId = user.getRoomIdOrThrow()
-    const iconId = user.getIconIdOrThrow()
+    const roomId = user.roomId
+    const iconId = user.iconId
 
     const room = await this.findRoom(roomId)
 
@@ -108,9 +108,8 @@ class ChatItemService {
 
   public async postAnswer(command: PostAnswerCommand): Promise<void> {
     const user = this.findUser(command.userId)
-    const roomId = user.getRoomIdOrThrow()
-    const iconId = user.getIconIdOrThrow()
-
+    const roomId = user.roomId
+    const iconId = user.iconId
     const [room, target] = await Promise.all([
       await this.findRoom(roomId),
       (await this.chatItemRepository.find(command.targetId)) as Question,

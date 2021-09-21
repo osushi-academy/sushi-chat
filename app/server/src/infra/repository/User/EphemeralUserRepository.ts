@@ -16,6 +16,8 @@ class EphemeralUserRepository implements IUserRepository {
     return this.users[userId]
   }
 
+  public leaveRoom(user: User): void {}
+
   public selectByRoomId(roomId: string): User[] {
     return [...Object.values(this.users).filter((u) => u.roomId === roomId)]
   }

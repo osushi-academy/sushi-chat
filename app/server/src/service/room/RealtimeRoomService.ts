@@ -20,21 +20,10 @@ class RealtimeRoomService {
     private readonly roomFactory: IRoomFactory,
   ) {}
 
-  public async start(userId: string) {
-    const user = this.findUserOrThrow(userId)
-    const roomId = user.getRoomIdOrThrow()
-
-    const room = await this.findRoomOrThrow(roomId)
-    room.startRoom()
-
-    this.roomDelivery.start(room.id)
-    this.roomRepository.update(room)
-  }
-
   // Roomを終了し、投稿をできなくする。閲覧は可能
   public async finish(userId: string) {
     const user = this.findUserOrThrow(userId)
-    const roomId = user.getRoomIdOrThrow()
+    const roomId = user.roomId
 
     const room = await this.findRoomOrThrow(roomId)
     room.finishRoom()
@@ -45,7 +34,7 @@ class RealtimeRoomService {
 
   public async changeTopicState(command: ChangeTopicStateCommand) {
     const user = this.findUserOrThrow(command.userId)
-    const roomId = user.getRoomIdOrThrow()
+    const roomId = user.roomId
 
     const room = await this.findRoomOrThrow(roomId)
     const messages = room.changeTopicState(command.topicId, command.type)

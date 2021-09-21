@@ -89,8 +89,10 @@ class RoomClass {
 
   /**
    * ルームを開始する
+   * @param adminId adminのID
    */
-  public startRoom = () => {
+  public startRoom = (adminId: string) => {
+    this.assertIsAdmin(adminId)
     this.assertRoomIsNotStarted()
     this._state = "ongoing"
   }
@@ -119,6 +121,20 @@ class RoomClass {
    * @returns number アクティブなユーザー数
    */
   public joinUser = (userId: string): number => {
+    this.assertRoomIsOngoing()
+    this.userIds.add(userId)
+    return this.activeUserCount
+  }
+
+  /**
+   * 管理者であることを確認してルームに参加させる
+   * @param userId 参加させるユーザーのID
+   * @param adminId 参加させるユーザーの管理者ID
+   * @returns number アクティブなユーザー数
+   */
+  public joinAdminUser = (userId: string, adminId: string): number => {
+    this.assertRoomIsOngoing()
+    this.assertIsAdmin(adminId)
     this.userIds.add(userId)
     return this.activeUserCount
   }

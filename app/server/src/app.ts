@@ -31,11 +31,7 @@ const roomRepository = new RoomRepository(
   stampRepository,
 )
 const roomFactory = new RoomFactory()
-const roomService = new RestRoomService(
-  roomRepository,
-  userRepository,
-  roomFactory,
-)
+const roomService = new RestRoomService(roomRepository, roomFactory)
 
 createSocketIOServer(
   httpServer,
