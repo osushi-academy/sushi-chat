@@ -23,16 +23,15 @@ class AdminService {
       )
     }
 
-    const managedRooms: RoomClass[] = []
-    managedRoomsIds.forEach(async (roomId) => {
-      const room = await this.findRoom(roomId)
-      if (!room) {
-        // TODO: roomがないならadminのmanagedRoomsIdsからroomIdを消す
-        // そしてadminをアップデート
-      } else {
-        managedRooms.push(room)
-      }
-    })
+    // roomがnullの場合は無視する
+    const managedRooms: RoomClass[] = (
+      await Promise.all(
+        managedRoomsIds.map(async (roomId) => {
+          const room = await this.findRoom(roomId)
+          return room
+        }),
+      )
+    ).filter((room): room is RoomClass => room != null)
 
     return managedRooms
   }
