@@ -1,15 +1,6 @@
 <template>
   <div class="topic-header">
     <div class="main-line">
-      <SidebarDrawer
-        :title="'技育CAMPハッカソン vol.5'"
-        :description="'2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。'"
-        :topics="[
-          { id: 1, label: 'おすしアカデミー' },
-          { id: 2, label: '量子力学セミナー' },
-          { id: 3, label: 'だしまきたまご' },
-        ]"
-      ></SidebarDrawer>
       <div class="index">
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>
