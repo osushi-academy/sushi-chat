@@ -71,17 +71,15 @@ class UserService {
   }
 
   public async leaveRoom(command: UserLeaveCommand) {
+    // まだRoomに参加していないユーザーなら見つからない？
     const user = this.userRepository.find(command.userId)
-    // まだRoomに参加していないユーザーなら何もしない
-    if (user.roomId === null) return
+    if (user === null) return
 
     const room = await this.findRoomOrThrow(user.roomId)
     const activeUserCount = room.leaveUser(user.id)
 
     this.userDelivery.leaveRoom(user, activeUserCount)
-    user.leaveRoom()
 
-    this.userRepository.update(user)
     this.roomRepository.update(room)
   }
 
