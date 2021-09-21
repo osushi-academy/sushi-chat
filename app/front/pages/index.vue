@@ -10,10 +10,6 @@
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
-      <SidebarDrawer
-        :title="'技育CAMPハッカソン vol.5'"
-        :description="'2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。'"
-      />
       <AdminTool
         v-if="isAdmin"
         :room-id="room.id"
@@ -36,7 +32,6 @@ import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
-import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
 import socket from "~/utils/socketIO"
 import {
   ChatItemStore,
@@ -64,7 +59,6 @@ export default Vue.extend({
     ChatRoom,
     SelectIconModal,
     CreateRoomModal,
-    SidebarDrawer,
   },
   data(): DataType {
     return {

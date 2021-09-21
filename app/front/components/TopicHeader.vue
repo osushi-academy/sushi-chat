@@ -1,6 +1,10 @@
 <template>
   <div class="topic-header">
     <div class="main-line">
+      <SidebarDrawer
+        :title="'技育CAMPハッカソン vol.5'"
+        :description="'2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。'"
+      />
       <div class="index">
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>
@@ -20,12 +24,15 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
+import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
 import { TopicState } from "@/models/contents"
 import { UserItemStore } from "~/store"
 
 export default Vue.extend({
   name: "TopicHeader",
-  components: {},
+  components: {
+    SidebarDrawer,
+  },
   props: {
     title: {
       type: String,
