@@ -3,10 +3,12 @@ import RoomClass from "../../domain/room/Room"
 import {
   ArchiveRoomCommand,
   BuildRoomCommand,
+  checkAdminAndfindCommand,
   InviteRoomCommand,
   StartRoomCommand,
 } from "./commands"
 import IRoomFactory from "../../domain/room/IRoomFactory"
+import { RoomModel } from "sushi-chat-shared"
 
 class RestRoomService {
   constructor(
@@ -56,6 +58,30 @@ class RestRoomService {
     this.roomRepository.update(room)
   }
 
+  // 管理者であるかどうかを確認する
+  public async checkAdminAndfind(
+    command: checkAdminAndfindCommand,
+  ): Promise<RoomModel> {
+    const room = await this.find(command.id)
+    const isAdmin = room.isAdmin(command.adminId)
+    const roomDefault: RoomModel = {
+      id: room.id,
+      title: room.title,
+      topics: /* room.topics */ [],
+      state: room.state,
+      description: room.description,
+      startDate: /* room.startDate */ "",
+      adminInviteKey: undefined,
+    }
+    // adminの時のみadminInviteKeyに値をいれる
+    if (isAdmin) {
+      roomDefault.adminInviteKey = room.adminInviteKey
+    }
+
+    return roomDefault
+  }
+
+  // Roomを探す
   public async find(roomId: string): Promise<RoomClass> {
     const room = await this.roomRepository.find(roomId)
     if (!room) {

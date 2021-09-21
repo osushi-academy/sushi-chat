@@ -1,6 +1,6 @@
 export type ChatItemType = "message" | "reaction" | "question" | "answe"
 export type ChatItemSenderType = "general" | "admin" | "speaker" | "system"
-export type RoomState = "OPEN" | "PAUSE" | "CLOSE"
+export type RoomState = "not-started" | "ongoing" | "finished" | "archived"
 
 export type ChatItemModel = {
   id: string
@@ -24,12 +24,12 @@ export type StampModel = {
 export type Topic = {
   id: number
   order: number
-  name: string
+  title: string
 }
 
 export type RoomModel = {
   id: string
-  name: string
+  title: string
   topics: Topic[]
   state: RoomState
   description?: string
