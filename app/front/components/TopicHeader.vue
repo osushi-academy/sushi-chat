@@ -1,39 +1,37 @@
 <template>
-  <div
-    class="topic-header"
-    :class="{
-      'finished-topic': topicState === 'finished',
-      'active-topic': topicState === 'active',
-    }"
-  >
+  <div class="topic-header">
     <div class="main-line">
-      <h1 class="title">{{ title }}</h1>
-      <button
-        v-show="isAdmin"
-        class="download-button"
-        :disabled="topicState === 'active'"
-        @click="clickTopicActivate"
-      >
-        <zap-icon size="18"></zap-icon>
+      <SidebarDrawer
+        :title="'技育CAMPハッカソン vol.5'"
+        :description="'2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。'"
+      />
+      <div class="index">
+        #<span style="font-size: 80%">{{ topicIndex }}</span>
+      </div>
+      <div class="title">{{ title }}</div>
+      <button class="link-button">
+        <span class="material-icons"> link </span>
       </button>
-      <button class="download-button" @click="clickDownload">
+      <button class="more-button">
+        <span class="material-icons"> more_vert </span>
+      </button>
+      <!--button class="download-button" @click="clickDownload">
         <download-icon size="18"></download-icon>
-      </button>
+      </button-->
     </div>
   </div>
 </template>
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
-import { DownloadIcon, ZapIcon } from "vue-feather-icons"
+import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
 import { TopicState } from "@/models/contents"
 import { UserItemStore } from "~/store"
 
 export default Vue.extend({
   name: "TopicHeader",
   components: {
-    DownloadIcon,
-    ZapIcon,
+    SidebarDrawer,
   },
   props: {
     title: {
@@ -44,6 +42,10 @@ export default Vue.extend({
       type: String,
       required: true,
     } as PropOptions<TopicState>,
+    topicIndex: {
+      type: Number,
+      required: true,
+    },
   },
   computed: {
     isAdmin(): boolean {
@@ -51,9 +53,6 @@ export default Vue.extend({
     },
   },
   methods: {
-    clickTopicActivate() {
-      this.$emit("topic-activate")
-    },
     clickDownload() {
       this.$emit("download")
     },

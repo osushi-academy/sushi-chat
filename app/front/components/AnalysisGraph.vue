@@ -12,6 +12,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { ChartData, ChartOptions } from "chart.js"
+import { Topic } from "@/models/contents"
 import ChartLine from "~/utils/ChartLine"
 import { ChatItemStore } from "~/store"
 
