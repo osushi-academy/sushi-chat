@@ -1,6 +1,5 @@
 import {
   AdminEnterCommand,
-  CreateUserCommand,
   UserEnterCommand,
   UserLeaveCommand,
 } from "./commands"
@@ -21,24 +20,24 @@ class UserService {
     private readonly userDelivery: IUserDelivery,
   ) {}
 
-  public createUser(command: CreateUserCommand): void {
-    const newUser = new User(command.userId)
-    this.userRepository.create(newUser)
-  }
-
   public async adminEnterRoom(command: AdminEnterCommand): Promise<{
     chatItems: ChatItem[]
     topics: Topic[]
     activeUserCount: number
   }> {
     const room = await this.findRoomOrThrow(command.roomId)
-    const activeUserCount = room.joinUser(command.adminId)
+    // roomが始まっていない/adminでないとここでエラー
+    const activeUserCount = room.joinAdminUser(command.userId, command.adminId)
 
-    const admin = this.userRepository.find(command.adminId)
-    admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
+    // roomにjoinできたらuserも作成
+    const user = this.createUser(
+      command.userId,
+      command.roomId,
+      User.ADMIN_ICON_ID,
+      true,
+    )
 
-    this.userDelivery.enterRoom(admin, activeUserCount)
-    this.userRepository.update(admin)
+    this.userDelivery.enterRoom(user, activeUserCount)
     await this.roomRepository.update(room)
 
     return {
@@ -54,14 +53,14 @@ class UserService {
     activeUserCount: number
   }> {
     const room = await this.findRoomOrThrow(command.roomId)
+    // roomが始まっていないとここでエラー
     const activeUserCount = room.joinUser(command.userId)
-    const iconId: IconId = NewIconId(command.iconId)
 
-    const user = this.userRepository.find(command.userId)
-    user.enterRoom(command.roomId, iconId)
+    const iconId: IconId = NewIconId(command.iconId)
+    // roomにjoinできたらuserも作成
+    const user = this.createUser(command.userId, command.roomId, iconId, false)
 
     this.userDelivery.enterRoom(user, activeUserCount)
-    this.userRepository.update(user)
     await this.roomRepository.update(room)
 
     return {
@@ -72,18 +71,30 @@ class UserService {
   }
 
   public async leaveRoom(command: UserLeaveCommand) {
+    // まだRoomに参加していないユーザーなら見つからない？
     const user = this.userRepository.find(command.userId)
-    // まだRoomに参加していないユーザーなら何もしない
-    if (user.roomId === null) return
+    if (user === null) return
 
     const room = await this.findRoomOrThrow(user.roomId)
     const activeUserCount = room.leaveUser(user.id)
 
-    this.userDelivery.leaveRoom(user, activeUserCount)
-    user.leaveRoom()
+    this.userRepository.leaveRoom(user)
 
-    this.userRepository.update(user)
+    this.userDelivery.leaveRoom(user, activeUserCount)
+
     this.roomRepository.update(room)
+  }
+
+  private createUser(
+    userId: string,
+    roomId: string,
+    iconId: IconId,
+    isAdmin: boolean,
+  ): User {
+    const newUser = new User(userId, roomId, iconId, isAdmin)
+    this.userRepository.create(newUser)
+
+    return newUser
   }
 
   private async findRoomOrThrow(roomId: string): Promise<RoomClass> {

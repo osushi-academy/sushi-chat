@@ -6,6 +6,7 @@ export type CreateUserCommand = {
 
 export type AdminEnterCommand = {
   adminId: string
+  userId: string
   roomId: string
 }
 

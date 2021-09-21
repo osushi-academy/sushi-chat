@@ -80,6 +80,27 @@ export const restSetup = (
     }
   })
 
+  // ルームを開始する
+  app.put("/room/:id/start", (req, res) => {
+    // TODO:adminIdをheaderから取得
+    const adminId = ""
+    roomService
+      .start({
+        id: req.params.id,
+        adminId: adminId,
+      })
+      .then(() => res.send({ result: "success" }))
+      .catch((e) => {
+        res.status(400).send({
+          result: "error",
+          error: {
+            code: 400,
+            message: `${e.message ?? "Unknown error."} (ADMIN_START_ROOM)`,
+          },
+        })
+      })
+  })
+
   // ルームを公開停止にする
   app.put("/room/:id/archive", (req, res) => {
     // TODO:adminIdをheaderから取得

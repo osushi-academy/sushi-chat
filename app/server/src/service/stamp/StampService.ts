@@ -17,7 +17,7 @@ class StampService {
 
   public async post(command: PostStampCommand) {
     const user = this.findUser(command.userId)
-    const roomId = user.getRoomIdOrThrow()
+    const roomId = user.roomId
 
     const room = await this.findRoom(roomId)
     const timestamp = room.calcTimestamp(command.topicId)
