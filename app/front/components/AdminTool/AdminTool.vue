@@ -8,17 +8,17 @@
           </div>
           <div class="room-url">
             <button @click="writeToClipboard(shareUrl)">
-              <span>参加者用<br />招待URLのコピー</span>
+              <div class="room-text">参加者用<br />招待URLのコピー</div>
               <div class="material-icons copy-button">content_copy</div>
             </button>
             <button @click="writeToClipboard(adminUrl)">
-              <span>管理者用<br />招待URLのコピー</span>
+              <div class="room-text">管理者用<br />招待URLのコピー</div>
               <div class="material-icons copy-button">content_copy</div>
             </button>
           </div>
         </div>
-        <button v-if="!isRoomStarted" @click="startRoom">
-          <div class="material-icons">play_circle</div>
+        <button v-if="!isRoomStarted" class="start-button" @click="startRoom">
+          <div class="material-icons-outlined">play_circle</div>
           <span>ルームを開始する</span>
         </button>
       </div>
@@ -64,14 +64,20 @@
             >
               <span class="material-icons">restart_alt</span>
             </button>
-            <div>334users</div>
-            <div>334comments</div>
-            <div>334stamps</div>
+            <div class="topic-info">
+              334<span class="text-mini">users</span>
+            </div>
+            <div class="topic-info">
+              334<span class="text-mini">comments</span>
+            </div>
+            <div class="topic-info">
+              334<span class="text-mini">stamps</span>
+            </div>
           </div>
         </div>
       </div>
       <div class="drawer-menu__footer">
-        <button v-if="!isRoomStarted" @click="endRoom">
+        <button v-if="isRoomStarted" class="end-button" @click="endRoom">
           <span>ルームを終了する</span>
           <div class="material-icons-outlined danger">info</div>
         </button>

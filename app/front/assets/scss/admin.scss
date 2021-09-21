@@ -17,7 +17,19 @@
 
     &__header {
       display: flex;
-
+      flex-direction: column;
+      .start-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0.5em;
+        background-color: white;
+        border: none;
+        border-radius: 4px;
+        &:hover {
+          background-color: $gray;
+        }
+      }
       .room-info {
         flex: 1;
         min-width: 0;
@@ -27,32 +39,33 @@
         }
         .room-url {
           display: flex;
-          .copy-button {
-            border: none;
-            background: none;
-            color: rgb(110, 110, 110);
-            width: 1.5em;
-            height: 1.5em;
-            border-radius: 100%;
+          button {
             display: flex;
             align-items: center;
-            justify-content: center;
+            padding: 0.5em;
+            margin: 1em 1em 1em 0;
+            background-color: white;
+            border: none;
+            border-radius: 4px;
+            &:hover {
+              background-color: $gray;
+            }
+            .room-text {
+              text-align: left;
+            }
+            .copy-button {
+              border: none;
+              background: none;
+              color: rgb(110, 110, 110);
+              width: 1.5em;
+              height: 1.5em;
+              border-radius: 100%;
+              align-items: center;
+              justify-content: center;
+            }
           }
         }
       }
-    }
-    .next-topic-button {
-      border: none;
-      background-color: #f6666e;
-      color: white;
-      margin-top: 15px;
-      min-height: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 6px;
-      font-size: 150%;
-      font-weight: bold;
     }
     &__topic-list {
       flex: 1 1 0;
@@ -114,6 +127,16 @@
           vertical-align: middle;
         }
       }
+      .topic-info {
+        width: 4em;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        & .text-mini {
+          font-size: 60%;
+        }
+      }
 
       .buttons {
         display: flex;
@@ -132,8 +155,21 @@
       }
     }
     &__footer {
-      & .danger {
-        color: $danger;
+      .end-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1em;
+        background-color: white;
+        border: none;
+        border-radius: 4px;
+        &:hover {
+          background-color: $gray;
+        }
+        & .danger {
+          padding-left: 0.5em;
+          color: $danger;
+        }
       }
     }
   }
