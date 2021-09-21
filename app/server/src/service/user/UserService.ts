@@ -1,6 +1,5 @@
 import {
   AdminEnterCommand,
-  CreateUserCommand,
   UserEnterCommand,
   UserLeaveCommand,
 } from "./commands"
@@ -39,7 +38,6 @@ class UserService {
     )
 
     this.userDelivery.enterRoom(user, activeUserCount)
-    this.userRepository.update(user)
     await this.roomRepository.update(room)
 
     return {
@@ -63,7 +61,6 @@ class UserService {
     const user = this.createUser(command.userId, command.roomId, iconId, false)
 
     this.userDelivery.enterRoom(user, activeUserCount)
-    this.userRepository.update(user)
     await this.roomRepository.update(room)
 
     return {
