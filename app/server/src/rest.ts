@@ -1,11 +1,48 @@
 import express from "express"
+import AdminService from "./service/admin/AdminService"
 import RestRoomService from "./service/room/RestRoomService"
 
 export const restSetup = (
   app: ReturnType<typeof express>,
   roomService: RestRoomService,
+  adminService: AdminService,
 ) => {
   app.get("/", (req, res) => res.send("ok"))
+
+  // 管理しているルーム一覧を取得する
+  app.get("/room", async (req, res) => {
+    try {
+      // TODO:adminIdをheaderから取得
+      const adminId = ""
+
+      const rooms = await adminService.getManagedRooms({ adminId: adminId })
+
+      res.send({
+        result: "success",
+        room: rooms.map((room) => {
+          return {
+            id: room.id,
+            title: room.title,
+            description: room.description,
+            topics: room.topics,
+            state: room.state,
+            adminInviteKey: room.adminInviteKey,
+            /*
+              startDate: newRoom.startDate
+              */
+          }
+        }),
+      })
+    } catch (e) {
+      res.status(400).send({
+        result: "error",
+        error: {
+          code: 400,
+          message: `${e ?? "Unknown error."} (ADMIN_GET_ROOMS)`,
+        },
+      })
+    }
+  })
 
   // 新しくルームを作成する
   app.post("/room", (req, res) => {
@@ -162,7 +199,7 @@ export const restSetup = (
       .inviteAdmin({
         id: req.params.id,
         adminInviteKey: adminInviteKey,
-        adminId: "should get from header",
+        adminId: "af3b9483-a1dc-478f-a2ec-a1e7a7c72a12",
       })
       .then(() => res.send({ result: "success" }))
       .catch((e) => {

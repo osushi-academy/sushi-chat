@@ -10,6 +10,8 @@ import RestRoomService from "./service/room/RestRoomService"
 import { Routes } from "./expressRoute"
 import RoomFactory from "./infra/factory/RoomFactory"
 import PGPool from "./infra/repository/PGPool"
+import AdminService from "./service/admin/AdminService"
+import AdminRepository from "./infra/repository/admin/AdminRepository"
 
 const app = express()
 const httpServer = createServer(app)
@@ -24,6 +26,7 @@ const pgPool = new PGPool(
 const userRepository = LocalMemoryUserRepository.getInstance()
 const chatItemRepository = new ChatItemRepository(pgPool)
 const stampRepository = new StampRepository(pgPool)
+const adminRepository = new AdminRepository(pgPool)
 const roomRepository = new RoomRepository(
   pgPool,
   userRepository,
@@ -32,6 +35,7 @@ const roomRepository = new RoomRepository(
 )
 const roomFactory = new RoomFactory()
 const roomService = new RestRoomService(roomRepository, roomFactory)
+const adminService = new AdminService(adminRepository, roomRepository)
 
 createSocketIOServer(
   httpServer,
@@ -50,7 +54,7 @@ httpServer.listen(PORT, () => {
 
 app.use(express.json())
 
-restSetup(app, roomService)
+restSetup(app, roomService, adminService)
 
 // NOTE: apiRoutesの使い方の例
 // apiRoutes.get("/room/:id/history", (req, res) => {
