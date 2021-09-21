@@ -12,12 +12,14 @@ import RealtimeRoomService from "../room/RealtimeRoomService"
 import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
 import StampModelBuilder from "../stamp/StampModelBuilder"
 import IconId, { NewIconId } from "../../domain/user/IconId"
+import IAdminAuth from "../../domain/admin/IAdminAuth"
 
 class UserService {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly roomRepository: IRoomRepository,
     private readonly userDelivery: IUserDelivery,
+    private readonly adminAuth: IAdminAuth,
   ) {}
 
   public static async findUserOrThrow(
@@ -47,8 +49,9 @@ class UserService {
       this.roomRepository,
     )
 
-    // roomが始まっていない or adminでないとここでエラー
-    const activeUserCount = room.joinAdminUser(userId, adminId)
+    // roomが始まっていない or adminでないと、ここでエラー
+    const verifyRes = await this.adminAuth.verifyIdToken(idToken)
+    const activeUserCount = room.joinAdminUser(userId, verifyRes.adminId)
 
     // roomにjoinできたらuserも作成
     const user = this.createUser(userId, roomId, User.ADMIN_ICON_ID, true)

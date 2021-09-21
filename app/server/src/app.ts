@@ -13,6 +13,7 @@ import AdminRepository from "./infra/repository/admin/AdminRepository"
 import UserRepository from "./infra/repository/User/UserRepository"
 import StampFactory from "./infra/factory/StampFactory"
 import AdminService from "./service/admin/AdminService"
+import AdminAuth from "./infra/auth/AdminAuth"
 
 const app = express()
 const httpServer = createServer(app)
@@ -35,8 +36,11 @@ const roomRepository = new RoomRepository(
   chatItemRepository,
   stampRepository,
 )
+
 const roomFactory = new RoomFactory()
 const stampFactory = new StampFactory()
+
+const adminAuth = new AdminAuth()
 
 const roomService = new RestRoomService(roomRepository, roomFactory)
 const adminService = new AdminService(adminRepository, roomRepository)
@@ -49,6 +53,7 @@ createSocketIOServer(
   chatItemRepository,
   stampRepository,
   stampFactory,
+  adminAuth,
 )
 
 const PORT = process.env.PORT || 7000

@@ -26,6 +26,7 @@ import { createClient } from "redis"
 import IAdminRepository from "./domain/admin/IAdminRepository"
 import { DefaultEventsMap } from "socket.io/dist/typed-events"
 import IStampFactory from "./domain/stamp/IStampFactory"
+import IAdminAuth from "./domain/admin/IAdminAuth"
 
 export class GlobalSocket extends Server<
   DefaultEventsMap,
@@ -45,6 +46,7 @@ const createSocketIOServer = async (
   chatItemRepository: IChatItemRepository,
   stampRepository: IStampRepository,
   stampFactory: IStampFactory,
+  adminAuth: IAdminAuth,
 ) => {
   const io = new GlobalSocket(httpServer, {
     cors: {
@@ -113,6 +115,7 @@ const createSocketIOServer = async (
       userRepository,
       roomRepository,
       new UserDelivery(socket, io),
+      adminAuth,
     )
     // socketのidは一意なので、それを匿名ユーザーのidとして用いる
     const userId = socket.id
