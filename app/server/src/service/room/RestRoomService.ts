@@ -5,15 +5,14 @@ import {
   BuildRoomCommand,
   checkAdminAndfindCommand,
   InviteRoomCommand,
+  StartRoomCommand,
 } from "./commands"
-import IUserRepository from "../../domain/user/IUserRepository"
 import IRoomFactory from "../../domain/room/IRoomFactory"
 import { RoomModel } from "sushi-chat-shared"
 
 class RestRoomService {
   constructor(
     private readonly roomRepository: IRoomRepository,
-    private readonly userRepository: IUserRepository,
     private readonly roomFactory: IRoomFactory,
   ) {}
 
@@ -29,6 +28,14 @@ class RestRoomService {
     console.log(`new room build: ${room.id}`)
 
     return room
+  }
+
+  // Roomを開始する。
+  public async start(command: StartRoomCommand) {
+    const room = await this.find(command.id)
+    room.startRoom(command.adminId)
+
+    this.roomRepository.update(room)
   }
 
   // Roomに管理者を紐付ける

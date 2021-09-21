@@ -4,7 +4,8 @@ export type CreateUserCommand = {
 }
 
 export type AdminEnterCommand = {
-  userId: string
+  idToken: string // サービスに登録している管理者としての認証をするためのID Token
+  userId: string // WebSocket接続してきたユーザーとしてのID
   roomId: string
 }
 

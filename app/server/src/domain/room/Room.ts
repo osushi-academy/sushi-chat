@@ -102,9 +102,12 @@ class RoomClass {
 
   /**
    * ルームを開始する
+   * @param adminId adminのID
    */
-  public startRoom = () => {
+  public startRoom = (adminId: string) => {
+    this.assertIsAdmin(adminId)
     this.assertRoomIsNotStarted()
+
     this._state = "ongoing"
   }
 
@@ -113,6 +116,7 @@ class RoomClass {
    */
   public finishRoom = () => {
     this.assertRoomIsOngoing()
+
     this._state = "finished"
   }
 
@@ -123,6 +127,7 @@ class RoomClass {
   public archiveRoom = (adminId: string) => {
     this.assertIsAdmin(adminId)
     this.assertRoomIsFinished()
+
     this._state = "archived"
   }
 
@@ -133,7 +138,24 @@ class RoomClass {
    */
   public joinUser = (userId: string): number => {
     this.assertRoomIsOngoing()
+
     this.userIds.add(userId)
+
+    return this.activeUserCount
+  }
+
+  /**
+   * 管理者であることを確認してルームに参加させる
+   * @param userId 参加させるユーザーのID
+   * @param adminId 参加させるユーザーの管理者ID
+   * @returns number アクティブなユーザー数
+   */
+  public joinAdminUser = (userId: string, adminId: string): number => {
+    this.assertRoomIsOngoing()
+    this.assertIsAdmin(adminId)
+
+    this.userIds.add(userId)
+
     return this.activeUserCount
   }
 
@@ -145,6 +167,7 @@ class RoomClass {
   public leaveUser = (userId: string): number => {
     this.assertUserExists(userId)
     this.userIds.delete(userId)
+
     return this.activeUserCount
   }
 
@@ -350,13 +373,6 @@ class RoomClass {
     return openedDate
   }
 
-  private findChatItemOrThrow(chatItemId: string) {
-    const chatItem = this._chatItems.find((c) => c.id === chatItemId)
-    if (!chatItem) {
-      throw new Error(`ChatItem(id:${chatItemId}) was not found.`)
-    }
-    return chatItem
-  }
   private assertRoomIsOngoing() {
     if (this._state != "ongoing") {
       throw new Error(`Room(id: ${this.id}) is not ongoing.`)
@@ -399,10 +415,10 @@ class RoomClass {
   }
 
   private assertIsAdmin(adminId: string) {
-    const exists = this.adminIds.has(adminId)
-    if (!exists) {
+    const isAdmin = this.adminIds.has(adminId)
+    if (!isAdmin) {
       throw new Error(
-        `[sushi-chat-server] Admin(id: ${adminId}) does not management this room(id:${this.id}).`,
+        `Admin(id:${adminId}) is not admin of this room(id:${this.id}).`,
       )
     }
   }

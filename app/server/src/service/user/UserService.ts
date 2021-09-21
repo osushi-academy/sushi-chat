@@ -1,6 +1,5 @@
 import {
   AdminEnterCommand,
-  CreateUserCommand,
   UserEnterCommand,
   UserLeaveCommand,
 } from "./commands"
@@ -12,7 +11,7 @@ import ChatItemModelBuilder from "../chatItem/ChatItemModelBuilder"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
 import StampModelBuilder from "../stamp/StampModelBuilder"
-import { NewIconId } from "../../domain/user/IconId"
+import IconId, { NewIconId } from "../../domain/user/IconId"
 
 class UserService {
   constructor(
@@ -32,23 +31,11 @@ class UserService {
     return user
   }
 
-  public static validateAdmin(user: User): void {
-    if (!user.isAdmin) {
-      throw new Error(`User(id:${user.id}) is not admin.`)
-    }
-  }
-
-  public async createUser({
+  public async adminEnterRoom({
+    roomId,
     userId,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     idToken,
-  }: CreateUserCommand): Promise<void> {
-    const isAdmin = idToken ? await this.verifyIdToken(idToken) : false
-    const newUser = new User(userId, isAdmin)
-    await this.userRepository.create(newUser)
-  }
-
-  public async adminEnterRoom({ roomId, userId }: AdminEnterCommand): Promise<{
+  }: AdminEnterCommand): Promise<{
     chatItems: ChatItemModel[]
     stamps: StampModel[]
     activeUserCount: number
@@ -59,14 +46,13 @@ class UserService {
       roomId,
       this.roomRepository,
     )
-    const user = await UserService.findUserOrThrow(userId, this.userRepository)
-    UserService.validateAdmin(user)
 
-    const activeUserCount = room.joinUser(userId)
-    user.enterRoom(roomId, User.ADMIN_ICON_ID)
+    // roomが始まっていない or adminでないとここでエラー
+    const activeUserCount = room.joinAdminUser(userId, adminId)
 
-    this.userDelivery.enterRoom(user, activeUserCount)
-    this.userRepository.update(user)
+    // roomにjoinできたらuserも作成
+    const user = this.createUser(userId, roomId, User.ADMIN_ICON_ID, true)
+    this._enterRoom(user, activeUserCount)
 
     return {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
@@ -93,13 +79,18 @@ class UserService {
       roomId,
       this.roomRepository,
     )
-    const user = await UserService.findUserOrThrow(userId, this.userRepository)
 
+    // roomが始まっていないとここでエラー
     const activeUserCount = room.joinUser(userId)
-    user.enterRoom(roomId, NewIconId(iconId), speakerTopicId)
 
-    this.userDelivery.enterRoom(user, activeUserCount)
-    this.userRepository.update(user)
+    const user = this.createUser(
+      userId,
+      roomId,
+      NewIconId(iconId),
+      false,
+      speakerTopicId,
+    )
+    this._enterRoom(user, activeUserCount)
 
     return {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
@@ -112,26 +103,34 @@ class UserService {
 
   public async leaveRoom({ userId }: UserLeaveCommand) {
     const user = await UserService.findUserOrThrow(userId, this.userRepository)
-    const roomId = user.roomId
-
-    // まだroomに参加していないuserならば何もしない
-    if (!roomId) return
 
     const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
+      user.roomId,
       this.roomRepository,
     )
 
     const activeUserCount = room.leaveUser(user.id)
-    user.leaveRoom()
 
     this.userDelivery.leaveRoom(user, activeUserCount)
-    this.userRepository.update(user)
+    this.userRepository.leaveRoom(user)
   }
 
-  private async verifyIdToken(idToken: string): Promise<boolean> {
-    console.log(idToken)
-    throw new Error("Not implemented.")
+  private createUser(
+    userId: string,
+    roomId: string,
+    iconId: IconId,
+    isAdmin: boolean,
+    speakAt?: number,
+  ): User {
+    const newUser = new User(userId, isAdmin, roomId, iconId, speakAt)
+    this.userRepository.create(newUser)
+
+    return newUser
+  }
+
+  private _enterRoom(user: User, activeUserCount: number) {
+    this.userDelivery.enterRoom(user, activeUserCount)
+    this.userRepository.create(user)
   }
 }
 

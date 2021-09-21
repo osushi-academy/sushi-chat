@@ -9,7 +9,7 @@ class UserDelivery implements IUserDelivery {
   ) {}
 
   public enterRoom(user: User, activeUserCount: number): void {
-    const roomId = user.getRoomIdOrThrow()
+    const roomId = user.roomId
     this.userSocket.join(roomId)
     this.userSocket.broadcast.to(roomId).emit("PUB_USER_COUNT", {
       activeUserCount,
@@ -17,7 +17,7 @@ class UserDelivery implements IUserDelivery {
   }
 
   public leaveRoom(user: User, activeUserCount: number): void {
-    const roomId = user.getRoomIdOrThrow()
+    const roomId = user.roomId
     this.userSocket.leave(roomId)
     this.globalSocket.to(roomId).emit("PUB_USER_COUNT", {
       activeUserCount,

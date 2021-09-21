@@ -161,7 +161,6 @@ class ChatItemService {
       roomId,
       this.roomRepository,
     )
-
     const quote = (await this.chatItemRepository.find(quoteId)) as Question
 
     const answer = new Answer(
@@ -204,13 +203,13 @@ class ChatItemService {
     const user = await UserService.findUserOrThrow(userId, this.userRepository)
     const isAdmin = user.isAdmin
 
-    const roomId = user.getRoomIdOrThrow()
+    const roomId = user.roomId
     const senderType = isAdmin
       ? "admin"
       : user.speakAt === topicId
       ? "speaker"
       : "general"
-    const iconId = isAdmin ? User.ADMIN_ICON_ID : user.getIconIdOrThrow()
+    const iconId = isAdmin ? User.ADMIN_ICON_ID : user.iconId
 
     return { roomId, senderType, iconId }
   }

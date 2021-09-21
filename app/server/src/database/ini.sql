@@ -64,9 +64,10 @@ CREATE TABLE IF NOT EXISTS icons
 CREATE TABLE IF NOT EXISTS users
 (
   id         TEXT PRIMARY KEY,
-  room_id    UUID REFERENCES rooms (id),
-  icon_id    INT REFERENCES icons (id),
+  room_id    UUID      NOT NULL REFERENCES rooms (id),
+  icon_id    INT       NOT NULL REFERENCES icons (id),
   is_admin   BOOLEAN   NOT NULL,
+  has_left   BOOLEAN   NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
 );
 CREATE TABLE IF NOT EXISTS topics_speakers

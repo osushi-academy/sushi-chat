@@ -8,9 +8,21 @@ class UserRepository implements IUserRepository {
   public async create(user: User) {
     const pgClient = await this.pgPool.client()
 
-    const query = "INSERT INTO users (id, is_admin) VALUES ($1, $2)"
+    const userQuery =
+      "INSERT INTO users (id, is_admin, room_id, icon_id) VALUES ($1, $2, $3, $4)"
+    const topicSpeakerQuery =
+      "INSERT INTO topics_speakers (user_id, room_id, topic_id) VALUES ($1, $2, $3)"
+
     try {
-      await pgClient.query(query, [user.id, user.isAdmin])
+      await Promise.all([
+        pgClient.query(userQuery, [
+          user.id,
+          user.isAdmin,
+          user.roomId,
+          user.iconId,
+        ]),
+        pgClient.query(topicSpeakerQuery, [user.id, user.roomId, user.speakAt]),
+      ])
     } catch (e) {
       UserRepository.logError(e, "create()")
       throw e
@@ -23,7 +35,7 @@ class UserRepository implements IUserRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT u.is_admin, u.room_id, u.icon_id, ts.topic_id FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE id = $1"
+      "SELECT u.is_admin, u.room_id, u.icon_id, ts.topic_id as speak_at FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE id = $1"
     try {
       const res = await pgClient.query(query, [userId])
       if (res.rowCount < 1) return null
@@ -34,7 +46,7 @@ class UserRepository implements IUserRepository {
         row.is_admin,
         row.room_id,
         row.icon_id,
-        row.topic_id,
+        row.speak_at,
       )
     } catch (e) {
       UserRepository.logError(e, "find()")
@@ -48,7 +60,7 @@ class UserRepository implements IUserRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT u.id, u.is_admin, u.room_id, u.icon_id, ts.topic_id FROM users u JOIN topics_speakers ts on u.id = ts.user_id WHERE u.room_id = $1"
+      "SELECT u.id, u.is_admin, u.room_id, u.icon_id, ts.topic_id FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE u.room_id = $1"
     try {
       const res = await pgClient.query(query, [roomId])
       const users = res.rows.map((r) => {
@@ -64,25 +76,15 @@ class UserRepository implements IUserRepository {
     }
   }
 
-  public async update(user: User) {
+  public async leaveRoom(user: User) {
     const pgClient = await this.pgPool.client()
 
-    const userQuery =
-      "UPDATE users SET room_id = $1, icon_id = $2 WHERE id = $3"
-    const topicsSpeakerQuery =
-      "INSERT INTO topics_speakers (user_id, room_id, topic_id) VALUES ($1, $2, $3)"
+    const query = "UPDATE users SET has_left = true WHERE id = $1"
 
     try {
-      await Promise.all([
-        pgClient.query(userQuery, [user.roomId, user.iconId, user.id]),
-        pgClient.query(topicsSpeakerQuery, [
-          user.id,
-          user.roomId,
-          user.speakAt,
-        ]),
-      ])
+      await pgClient.query(query, [user.id])
     } catch (e) {
-      UserRepository.logError(e, "update()")
+      UserRepository.logError(e, "leaveRoom()")
       throw e
     } finally {
       pgClient.release()

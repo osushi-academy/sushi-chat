@@ -37,12 +37,12 @@ class RealtimeRoomService {
    */
   public async finish({ userId }: FinishRoomCommand) {
     const user = await UserService.findUserOrThrow(userId, this.userRepository)
-    UserService.validateAdmin(user)
-
-    const roomId = user.getRoomIdOrThrow()
+    if (!user.isAdmin) {
+      throw new Error(`User(id:${userId}) is not admin.`)
+    }
 
     const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
+      user.roomId,
       this.roomRepository,
     )
 
@@ -63,9 +63,11 @@ class RealtimeRoomService {
     state,
   }: ChangeTopicStateCommand) {
     const user = await UserService.findUserOrThrow(userId, this.userRepository)
-    UserService.validateAdmin(user)
+    if (!user.isAdmin) {
+      throw new Error(`User(id:${userId}) is not admin.`)
+    }
 
-    const roomId = user.getRoomIdOrThrow()
+    const roomId = user.roomId
 
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,

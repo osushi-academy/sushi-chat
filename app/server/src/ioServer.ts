@@ -116,9 +116,6 @@ const createSocketIOServer = async (
     )
     // socketのidは一意なので、それを匿名ユーザーのidとして用いる
     const userId = socket.id
-    // adminの場合、connection時にidTokenが渡される
-    const idToken = socket.handshake.auth.token
-    userService.createUser({ userId, idToken })
 
     // ルームに参加する
     socket.on("ENTER_ROOM", async (received, callback) => {
@@ -138,9 +135,13 @@ const createSocketIOServer = async (
 
     socket.on("ADMIN_ENTER_ROOM", async (received, callback) => {
       try {
+        // adminの場合、EnterRoom時にidTokenが渡される
+        const idToken = socket.handshake.auth.token
+
         const res = await userService.adminEnterRoom({
-          roomId: received.roomId,
+          idToken,
           userId,
+          roomId: received.roomId,
         })
 
         callback({ result: "success", data: res })

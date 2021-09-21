@@ -18,7 +18,7 @@ class StampService {
 
   public async post({ userId, topicId }: PostStampCommand) {
     const user = await UserService.findUserOrThrow(userId, this.userRepository)
-    const roomId = user.getRoomIdOrThrow()
+    const roomId = user.roomId
 
     const room = await RealtimeRoomService.findRoomOrThrow(
       roomId,

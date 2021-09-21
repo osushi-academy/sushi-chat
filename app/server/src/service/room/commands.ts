@@ -10,6 +10,11 @@ export type FinishRoomCommand = {
   userId: string
 }
 
+export type StartRoomCommand = {
+  id: string
+  adminId: string
+}
+
 export type InviteRoomCommand = {
   id: string
   adminInviteKey: string

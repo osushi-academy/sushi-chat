@@ -81,11 +81,11 @@ class RoomRepository implements IRoomRepository {
       "FROM topic ORDER BY topic.id"
 
     try {
-      const [roomRes, topicsRes, admins, users, stamps, chatItems] =
+      const [roomRes, topicsRes, adminIds, users, stamps, chatItems] =
         await Promise.all([
           pgClient.query(roomQuery, [roomId]),
           pgClient.query(topicsQuery, [roomId]),
-          this.adminRepository.selectByRoomId(roomId),
+          this.adminRepository.selectIdsByRoomId(roomId),
           this.userRepository.selectByRoomId(roomId),
           this.stampRepository.selectByRoomId(roomId),
           this.chatItemRepository.selectByRoomId(roomId),
@@ -112,7 +112,6 @@ class RoomRepository implements IRoomRepository {
         }
       }
 
-      const adminIds = new Set<string>(admins.map((a) => a.id))
       const userIds = new Set<string>(users.map((u) => u.id))
 
       return new RoomClass(
@@ -121,7 +120,7 @@ class RoomRepository implements IRoomRepository {
         room.invite_key,
         room.description,
         topics,
-        adminIds,
+        new Set(adminIds),
         roomState,
         room.start_at,
         topicTimeData,
