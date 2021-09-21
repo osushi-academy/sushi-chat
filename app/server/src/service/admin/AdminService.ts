@@ -17,12 +17,6 @@ class AdminService {
     const admin = await this.find(command.adminId)
     const managedRoomsIds = admin.managedRoomsIds
 
-    if (!managedRoomsIds) {
-      throw new Error(
-        `[sushi-chat-server] temporary managedRoomsIds undefined error.`,
-      )
-    }
-
     // roomがnullの場合は無視する
     const managedRooms: RoomClass[] = (
       await Promise.all(
