@@ -13,11 +13,6 @@
       <SidebarDrawer
         :title="'技育CAMPハッカソン vol.5'"
         :description="'2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。'"
-        :topics="[
-          { id: 1, label: 'おすしアカデミー' },
-          { id: 2, label: '量子力学セミナー' },
-          { id: 3, label: 'だしまきたまご' },
-        ]"
       />
       <AdminTool
         v-if="isAdmin"
@@ -26,11 +21,7 @@
         @change-topic-state="changeTopicState"
       />
       <div v-for="(topic, index) in topics" :key="index">
-        <ChatRoom
-          :topic-index="index"
-          :topic-id="topic.id"
-          @topic-activate="changeActiveTopic"
-        />
+        <ChatRoom :topic-index="index" :topic-id="topic.id" />
       </div>
     </main>
   </div>
@@ -243,16 +234,6 @@ export default Vue.extend({
 
       // ルーム開始
       this.$modal.hide("sushi-modal")
-    },
-
-    // アクティブトピックが変わる
-    changeActiveTopic(topicId: string) {
-      const socket = (this as any).socket
-      socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-        roomId: this.room.id,
-        topicId,
-        type: "OPEN",
-      })
     },
 
     // ユーザ関連

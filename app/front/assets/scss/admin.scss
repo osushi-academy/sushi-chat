@@ -102,9 +102,6 @@
       .not-started {
         background-color: white;
         color: $disabled-gray;
-        .buttons > button {
-          color: $disabled-gray;
-        }
       }
 
       .topic-number {

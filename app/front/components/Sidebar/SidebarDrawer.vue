@@ -21,9 +21,10 @@
 </template>
 <script lang="ts">
 import Vue from "vue"
-import type { PropOptions } from "vue"
 import { MenuIcon } from "vue-feather-icons"
+import { Topic } from "@/models/contents"
 import SidebarContent from "@/components/Sidebar/SidebarContent.vue"
+import { TopicStore } from "~/store"
 
 type DataType = {
   showSidebar: boolean
@@ -44,10 +45,6 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    topics: {
-      type: Array,
-      required: true,
-    } as PropOptions<{ id: number; label: string }[]>, // NOTE: ここの受け渡しの形は暫定
     imageUrl: {
       type: String,
       default: undefined,
@@ -58,7 +55,12 @@ export default Vue.extend({
       showSidebar: true,
     }
   },
-  computed: {},
+  computed: {
+    topics(): Topic[] {
+      // 各トピックの情報
+      return TopicStore.topics
+    },
+  },
   methods: {},
 })
 </script>

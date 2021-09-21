@@ -3,7 +3,6 @@
     <TopicHeader
       :title="topicIndex + '. ' + topic.title"
       :topic-state="topicState"
-      @topic-activate="clickTopicActivate"
       @download="clickDownload"
     />
     <div class="chat-area">
@@ -216,9 +215,6 @@ export default Vue.extend({
       return (
         element.scrollHeight < element.scrollTop + element.offsetHeight + 200
       )
-    },
-    clickTopicActivate() {
-      this.$emit("topic-activate", this.topicId)
     },
     clickDownload() {
       const messages = ChatItemStore.chatItems

@@ -64,14 +64,16 @@
             >
               <span class="material-icons">restart_alt</span>
             </button>
-            <div class="topic-info">
-              334<span class="text-mini">users</span>
-            </div>
-            <div class="topic-info">
-              334<span class="text-mini">comments</span>
-            </div>
-            <div class="topic-info">
-              334<span class="text-mini">stamps</span>
+            <div v-if="!isRoomStarted">
+              <div class="topic-info">
+                334<span class="text-mini">users</span>
+              </div>
+              <div class="topic-info">
+                334<span class="text-mini">comments</span>
+              </div>
+              <div class="topic-info">
+                334<span class="text-mini">stamps</span>
+              </div>
             </div>
           </div>
         </div>
@@ -160,10 +162,13 @@ export default Vue.extend({
     },
     clickPlayPauseButton(topicId: string) {
       if (this.topicStateItems[topicId] === "active") {
+        // activeならばpausedに
         this.$emit("change-topic-state", topicId, "paused")
       } else if (
-        this.topicStateItems[topicId] === ("paused" || "not-started")
+        this.topicStateItems[topicId] === "paused" ||
+        this.topicStateItems[topicId] === "not-started"
       ) {
+        // paused, not-startedならばactiveに
         this.$emit("change-topic-state", topicId, "active")
       }
     },
