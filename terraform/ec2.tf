@@ -31,8 +31,8 @@ resource "aws_autoscaling_group" "main" {
 
 resource "aws_launch_template" "main" {
   name                   = "${var.project}-launch-template"
-  image_id               = var.ami.amazon-linux-2
-  instance_type          = "t3.nano"
+  image_id               = var.ami.sushi-chat
+  instance_type          = "t3.micro"
   key_name               = var.key-pair
   vpc_security_group_ids = [aws_security_group.public_instance.id]
   user_data              = filebase64("userdata.sh")
