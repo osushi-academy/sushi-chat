@@ -10,7 +10,7 @@ class EphemeralStampRepository implements IStampRepository {
 
   public count(
     roomId: string,
-    topicId?: string,
+    topicId?: number,
     userId?: string,
   ): Promise<number> {
     let matched = this.stamps.filter((m) => m.roomId === roomId)
@@ -24,6 +24,10 @@ class EphemeralStampRepository implements IStampRepository {
     }
 
     return Promise.resolve(matched.length)
+  }
+
+  public selectByRoomId(roomId: string): Promise<Stamp[]> {
+    return Promise.resolve(this.stamps.filter((s) => s.roomId === roomId))
   }
 }
 

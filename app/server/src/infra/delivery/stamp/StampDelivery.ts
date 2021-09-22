@@ -1,12 +1,7 @@
 import IStampDelivery from "../../../domain/stamp/IStampDelivery"
 import Stamp from "../../../domain/stamp/Stamp"
-import { Server } from "socket.io"
-
-type DeliveredStamp = {
-  userId: string
-  topicId: string
-  timestamp: number
-}
+import { StampModel } from "sushi-chat-shared"
+import { GlobalSocket } from "../../../ioServer"
 
 class StampDelivery implements IStampDelivery {
   private static stamps: Stamp[] = []
@@ -17,7 +12,7 @@ class StampDelivery implements IStampDelivery {
    * @param interval stampを送信するインターバル[millisecond]
    */
   constructor(
-    private readonly globalSocket: Server,
+    private readonly globalSocket: GlobalSocket,
     private readonly interval = 2000,
   ) {}
 
@@ -38,12 +33,13 @@ class StampDelivery implements IStampDelivery {
         return
       }
 
-      const stampsPerRoom: Record<string, DeliveredStamp[]> = {}
+      const stampsPerRoom: Record<string, StampModel[]> = {}
       for (const s of StampDelivery.stamps) {
-        const stamp = {
-          userId: s.userId,
+        const stamp: StampModel = {
+          id: s.id,
           topicId: s.topicId,
           timestamp: s.timestamp,
+          createdAt: s.createdAt.toISOString(),
         }
         if (s.roomId in stampsPerRoom) {
           stampsPerRoom[s.roomId].push(stamp)

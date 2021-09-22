@@ -6,26 +6,41 @@ import Reaction from "../../../domain/chatItem/Reaction"
 import ChatItem from "../../../domain/chatItem/ChatItem"
 
 class EphemeralChatItemDelivery implements IChatItemDelivery {
-  constructor(private readonly _subscribers: ChatItem[][]) {}
+  constructor(
+    private readonly _subscribers: {
+      type: "post" | "pin"
+      chatItem: ChatItem
+    }[][],
+  ) {}
 
   public get subscribers() {
-    return [...this._subscribers.map((s) => [...s])]
+    return this._subscribers.map((s) => [...s])
   }
 
-  public postMessage(message: Message): void {
-    this._subscribers.forEach((s) => s.push(message))
+  public postMessage(message: Message) {
+    this._subscribers.forEach((s) =>
+      s.push({ type: "post", chatItem: message }),
+    )
   }
 
-  public postReaction(reaction: Reaction): void {
-    this._subscribers.forEach((s) => s.push(reaction))
+  public postReaction(reaction: Reaction) {
+    this._subscribers.forEach((s) =>
+      s.push({ type: "post", chatItem: reaction }),
+    )
   }
 
-  public postQuestion(question: Question): void {
-    this._subscribers.forEach((s) => s.push(question))
+  public postQuestion(question: Question) {
+    this._subscribers.forEach((s) =>
+      s.push({ type: "post", chatItem: question }),
+    )
   }
 
-  public postAnswer(answer: Answer): void {
-    this._subscribers.forEach((s) => s.push(answer))
+  public postAnswer(answer: Answer) {
+    this._subscribers.forEach((s) => s.push({ type: "post", chatItem: answer }))
+  }
+
+  public pinChatItem(chatItem: ChatItem) {
+    this._subscribers.forEach((s) => s.push({ type: "pin", chatItem }))
   }
 }
 

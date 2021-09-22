@@ -9,8 +9,9 @@ interface IChatItemRepository {
   saveReaction(reaction: Reaction): void
   saveQuestion(question: Question): void
   saveAnswer(answer: Answer): void
-  find(chatItemId: string): Promise<ChatItem>
+  find(chatItemId: string): Promise<ChatItem | null>
   selectByRoomId(roomId: string): Promise<ChatItem[]>
+  pinChatItem(chatItem: ChatItem): void
 }
 
 export default IChatItemRepository

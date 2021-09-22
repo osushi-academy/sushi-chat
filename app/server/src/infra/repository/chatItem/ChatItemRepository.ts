@@ -4,129 +4,113 @@ import Reaction from "../../../domain/chatItem/Reaction"
 import Question from "../../../domain/chatItem/Question"
 import Answer from "../../../domain/chatItem/Answer"
 import ChatItem from "../../../domain/chatItem/ChatItem"
-import { ChatItemType } from "../../../chatItem"
 import PGPool from "../PGPool"
+import { ChatItemSenderType, ChatItemType } from "sushi-chat-shared"
+import { formatDate } from "../../../utils/date"
 
 class ChatItemRepository implements IChatItemRepository {
   constructor(private readonly pgPool: PGPool) {}
 
-  public async saveMessage(message: Message): Promise<void> {
+  public async saveMessage(message: Message) {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
-      "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
-    const type: ChatItemType = "message"
+      "INSERT INTO chat_items (id, room_id, topic_id, user_id, chat_item_type_id, sender_type_id, quote_id, content, timestamp, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
 
     try {
       await pgClient.query(query, [
         message.id,
-        type,
         message.roomId,
         message.topicId,
-        message.userIconId,
-        message.timestamp,
-        ChatItemRepository.formatDate(message.createdAt),
+        message.iconId,
+        ChatItemRepository.chatItemTypeMap["message"],
+        ChatItemRepository.senderTypeMap[message.senderType],
+        message.quote ? message.quote.id : null,
         message.content,
-        message.target ? message.target.id : null,
+        message.timestamp,
+        formatDate(message.createdAt),
       ])
     } catch (e) {
-      console.error(
-        `${e.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
-        new Date().toISOString(),
-      )
+      ChatItemRepository.logError(e, "saveMessage()")
       throw e
     } finally {
       pgClient.release()
     }
   }
 
-  public async saveReaction(reaction: Reaction): Promise<void> {
+  public async saveReaction(reaction: Reaction) {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
-      "VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, $8)"
-    const type: ChatItemType = "reaction"
+      "INSERT INTO chat_items (id, room_id, topic_id, user_id, chat_item_type_id, sender_type_id, quote_id, content, timestamp, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, $8, $9)"
 
     try {
       await pgClient.query(query, [
         reaction.id,
-        type,
         reaction.roomId,
         reaction.topicId,
-        reaction.userIconId,
+        reaction.iconId,
+        ChatItemRepository.chatItemTypeMap["reaction"],
+        ChatItemRepository.senderTypeMap[reaction.senderType],
+        reaction.quote.id,
         reaction.timestamp,
-        ChatItemRepository.formatDate(reaction.createdAt),
-        reaction.target.id,
+        formatDate(reaction.createdAt),
       ])
     } catch (e) {
-      console.log(
-        `${e.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
-        new Date().toISOString(),
-      )
-
+      ChatItemRepository.logError(e, "saveReaction()")
       throw e
     } finally {
       pgClient.release()
     }
   }
 
-  public async saveQuestion(question: Question): Promise<void> {
+  public async saveQuestion(question: Question) {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
-      "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NULL)"
-    const type: ChatItemType = "question"
+      "INSERT INTO chat_items (id, room_id, topic_id, user_id, chat_item_type_id, sender_type_id, quote_id, content, timestamp, created_at) VALUES ($1, $2, $3, $4, $5, $6, NULL, $7, $8, $9)"
 
     try {
       await pgClient.query(query, [
         question.id,
-        type,
         question.roomId,
         question.topicId,
-        question.userIconId,
-        question.timestamp,
-        ChatItemRepository.formatDate(question.createdAt),
+        question.iconId,
+        ChatItemRepository.chatItemTypeMap["question"],
+        ChatItemRepository.senderTypeMap[question.senderType],
         question.content,
+        question.timestamp,
+        formatDate(question.createdAt),
       ])
     } catch (e) {
-      console.log(
-        `${e.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
-        new Date().toISOString(),
-      )
+      ChatItemRepository.logError(e, "saveQuestion()")
       throw e
     } finally {
       pgClient.release()
     }
   }
 
-  public async saveAnswer(answer: Answer): Promise<void> {
+  public async saveAnswer(answer: Answer) {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "INSERT INTO Chatitems (id, type, roomid, topicid, iconid, timestamp, createdat, content, targetid) " +
-      "VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)"
-    const type: ChatItemType = "answer"
+      "INSERT INTO chat_items (id, room_id, topic_id, user_id, chat_item_type_id, sender_type_id, quote_id, content, timestamp, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
 
     try {
       await pgClient.query(query, [
         answer.id,
-        type,
         answer.roomId,
         answer.topicId,
-        answer.userIconId,
-        answer.timestamp,
-        ChatItemRepository.formatDate(answer.createdAt),
+        answer.iconId,
+        ChatItemRepository.chatItemTypeMap["answer"],
+        ChatItemRepository.senderTypeMap[answer.senderType],
+        answer.quote.id,
         answer.content,
-        answer.target.id,
+        answer.timestamp,
+        formatDate(answer.createdAt),
       ])
     } catch (e) {
-      console.error(
-        `${e.message ?? "Unknown error."} (SAVE ROOM/TOPIC IN DB)`,
-        new Date().toISOString(),
-      )
+      ChatItemRepository.logError(e, "saveAnswer()")
       throw e
     } finally {
       pgClient.release()
@@ -134,98 +118,181 @@ class ChatItemRepository implements IChatItemRepository {
   }
 
   // NOTE: arrow functionにしないとthisの挙動のせいでバグる
-  public find = async (chatItemId: string): Promise<ChatItem> => {
+  public find = async (chatItemId: string): Promise<ChatItem | null> => {
     const pgClient = await this.pgPool.client()
 
-    const query = "SELECT * FROM chatitems WHERE id = $1"
-    const res = await pgClient
-      .query(query, [chatItemId])
-      .finally(pgClient.release)
-    const row = res.rows[0]
+    const query =
+      "SELECT id, room_id, topic_id, user_id, chat_item_type_id, sender_type_id, quote_id, content, timestamp, created_at FROM chat_items WHERE id = $1"
+    try {
+      const res = await pgClient.query(query, [chatItemId])
+      if (res.rowCount < 1) return null
 
-    return await this.buildChatItem(row)
+      return await this.buildChatItem(res.rows[0])
+    } catch (e) {
+      ChatItemRepository.logError(e, "find()")
+      throw e
+    } finally {
+      pgClient.release()
+    }
   }
 
   public async selectByRoomId(roomId: string): Promise<ChatItem[]> {
     const pgClient = await this.pgPool.client()
 
-    const query = "SELECT * FROM chatitems WHERE roomid = $1"
-    const res = await pgClient.query(query, [roomId]).finally(pgClient.release)
-    const rows = res.rows
+    const query = "SELECT * FROM chat_items WHERE room_id = $1"
+    try {
+      const res = await pgClient.query(query, [roomId])
+      return Promise.all(res.rows.map(this.buildChatItem))
+    } catch (e) {
+      ChatItemRepository.logError(e, "selectByRoomId()")
+      throw e
+    } finally {
+      pgClient.release()
+    }
+  }
 
-    return Promise.all(rows.map(this.buildChatItem))
+  public async pinChatItem(chatItem: ChatItem) {
+    const pgClient = await this.pgPool.client()
+
+    const query =
+      "INSERT INTO topics_pinned_chat_items (room_id, topic_id, chat_item_id) VALUES ($1,$2, $3)"
+    try {
+      await pgClient.query(query, [
+        chatItem.roomId,
+        chatItem.topicId,
+        chatItem.id,
+      ])
+    } catch (e) {
+      ChatItemRepository.logError(e, "pinChatItem()")
+      throw e
+    } finally {
+      pgClient.release()
+    }
   }
 
   // NOTE: arrow functionにしないとthisの挙動のせいでバグる
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private buildChatItem = async (row: any) => {
-    // ChatItemモデルのtopicIdの型がstringなので、DB上ではINTで保存しているtopicIdをキャストする
-    const topicId = `${row.topicid}`
+    const id = row.id
+    const roomId = row.room_id
+    const topicId = row.topic_id
+    const userId = row.user_id
+    const chatItemType = ChatItemRepository.intToChatItemType(
+      row.chat_item_type_id,
+    )
+    const senderType = ChatItemRepository.intToSenderType(row.sender_type_id)
+    const timestamp = row.timestamp
+    const createdAt = row.created_at
 
     // NOTE: 複数回クエリを発行するとパフォーマンスの低下につながるので、一回のクエリでとってこれるならそうしたい
-    switch (row.type) {
+    switch (chatItemType) {
       case "message": {
-        const target =
-          row.targetid !== null
-            ? ((await this.find(row.targetid)) as Message | Answer)
+        const quoteId = row.quote_id
+        const quote =
+          quoteId !== null
+            ? ((await this.find(quoteId)) as Message | Answer)
             : null
+
         return new Message(
-          row.id,
+          id,
+          roomId,
           topicId,
-          row.roomid,
-          row.iconid,
-          row.createdat,
+          userId,
+          senderType,
           row.content,
-          target,
-          row.timestamp,
+          quote,
+          createdAt,
+          timestamp,
         )
       }
       case "reaction": {
-        const target = (await this.find(row.targetid)) as
+        const quote = (await this.find(row.quote_id)) as
           | Message
           | Question
           | Answer
+
         return new Reaction(
-          row.id,
+          id,
+          roomId,
           topicId,
-          row.roomid,
-          row.iconid,
-          row.createdat,
-          target,
-          row.timestamp,
+          userId,
+          senderType,
+          quote,
+          createdAt,
+          timestamp,
         )
       }
       case "question": {
         return new Question(
-          row.id,
+          id,
+          roomId,
           topicId,
-          row.roomid,
-          row.iconid,
-          row.createdat,
+          userId,
+          senderType,
           row.content,
-          row.timestamp,
+          createdAt,
+          timestamp,
         )
       }
       case "answer": {
-        const target = (await this.find(row.targetid)) as Question
+        const quote = (await this.find(row.targetid)) as Question
+
         return new Answer(
-          row.id,
+          id,
+          roomId,
           topicId,
-          row.roomid,
-          row.iconid,
-          row.createdat,
+          userId,
+          senderType,
           row.content,
-          target,
-          row.timestamp,
+          quote,
+          createdAt,
+          timestamp,
         )
       }
       default: {
-        throw new Error(`row.type(${row.type}) is invalid.`)
+        throw new Error(`chatItemType(${chatItemType}) is invalid.`)
       }
     }
   }
 
-  private static formatDate(date: Date): string {
-    return date.toISOString().replace(/T/, " ").replace(/\..+/, "")
+  private static chatItemTypeMap: Record<ChatItemType, number> = {
+    message: 1,
+    reaction: 2,
+    question: 3,
+    answer: 4,
+  }
+
+  private static intToChatItemType(n: number): ChatItemType {
+    for (const [k, v] of Object.entries(ChatItemRepository.chatItemTypeMap)) {
+      if (v === n) return k as ChatItemType
+    }
+
+    throw new Error(`${n} is not assigned chat-item-type int.`)
+  }
+
+  private static senderTypeMap = {
+    general: 1,
+    admin: 2,
+    speaker: 3,
+    system: 4,
+  }
+
+  private static intToSenderType(n: number): ChatItemSenderType {
+    for (const [k, v] of Object.entries(ChatItemRepository.senderTypeMap)) {
+      if (v === n) return k as ChatItemSenderType
+    }
+
+    throw new Error(`${n} is not assigned sender-type int.`)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private static logError(error: any, context: string) {
+    const datetime = new Date().toISOString()
+    console.error(
+      `[${datetime}] ChatItemRepository.${context}: ${
+        error ?? "Unknown error."
+      }`,
+    )
   }
 }
 

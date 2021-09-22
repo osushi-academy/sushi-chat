@@ -1,97 +1,139 @@
 import {
   AdminEnterCommand,
-  CreateUserCommand,
   UserEnterCommand,
   UserLeaveCommand,
 } from "./commands"
 import IUserRepository from "../../domain/user/IUserRepository"
 import User from "../../domain/user/User"
 import IRoomRepository from "../../domain/room/IRoomRepository"
-import RoomClass from "../../domain/room/Room"
 import IUserDelivery from "../../domain/user/IUserDelivery"
-import ChatItemResponseBuilder from "../chatItem/ChatItemResponseBuilder"
-import { ChatItem } from "../../chatItem"
-import Topic from "../../domain/room/Topic"
+import ChatItemModelBuilder from "../chatItem/ChatItemModelBuilder"
+import RealtimeRoomService from "../room/RealtimeRoomService"
+import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
+import StampModelBuilder from "../stamp/StampModelBuilder"
 import IconId, { NewIconId } from "../../domain/user/IconId"
+import IAdminAuth from "../../domain/admin/IAdminAuth"
 
 class UserService {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly roomRepository: IRoomRepository,
     private readonly userDelivery: IUserDelivery,
+    private readonly adminAuth: IAdminAuth,
   ) {}
 
-  public createUser(command: CreateUserCommand): void {
-    const newUser = new User(command.userId)
-    this.userRepository.create(newUser)
+  public static async findUserOrThrow(
+    id: string,
+    userRepository: IUserRepository,
+  ): Promise<User> {
+    const user = await userRepository.find(id)
+    if (!user) {
+      throw new Error(`User(id:${id}) was not found.`)
+    }
+    return user
   }
 
-  public async adminEnterRoom(command: AdminEnterCommand): Promise<{
-    chatItems: ChatItem[]
-    topics: Topic[]
+  public async adminEnterRoom({
+    roomId,
+    userId,
+    idToken,
+  }: AdminEnterCommand): Promise<{
+    chatItems: ChatItemModel[]
+    stamps: StampModel[]
     activeUserCount: number
+    pinnedChatItemIds: (string | null)[]
+    topicStates: { topicId: number; state: TopicState }[]
   }> {
-    const room = await this.findRoomOrThrow(command.roomId)
-    const activeUserCount = room.joinUser(command.adminId)
+    const room = await RealtimeRoomService.findRoomOrThrow(
+      roomId,
+      this.roomRepository,
+    )
 
-    const admin = this.userRepository.find(command.adminId)
-    admin.enterRoom(command.roomId, User.ADMIN_ICON_ID)
+    // roomが始まっていない or adminでないと、ここでエラー
+    const verifyRes = await this.adminAuth.verifyIdToken(idToken)
+    const activeUserCount = room.joinAdminUser(userId, verifyRes.adminId)
 
-    this.userDelivery.enterRoom(admin, activeUserCount)
-    this.userRepository.update(admin)
-    await this.roomRepository.update(room)
+    // roomにjoinできたらuserも作成
+    const user = this.createUser(userId, roomId, User.ADMIN_ICON_ID, true)
+    this._enterRoom(user, activeUserCount)
 
     return {
-      chatItems: ChatItemResponseBuilder.buildChatItems(room.chatItems),
-      topics: room.topics,
+      chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
+      stamps: StampModelBuilder.buildStamps(room.stamps),
       activeUserCount,
+      pinnedChatItemIds: room.topics.map((t) => t.pinnedChatItemId ?? null),
+      topicStates: room.topics.map((t) => ({ topicId: t.id, state: t.state })),
     }
   }
 
-  public async enterRoom(command: UserEnterCommand): Promise<{
-    chatItems: ChatItem[]
-    topics: Topic[]
+  public async enterRoom({
+    roomId,
+    speakerTopicId,
+    userId,
+    iconId,
+  }: UserEnterCommand): Promise<{
+    chatItems: ChatItemModel[]
+    stamps: StampModel[]
     activeUserCount: number
+    pinnedChatItemIds: (string | null)[]
+    topicStates: { topicId: number; state: TopicState }[]
   }> {
-    const room = await this.findRoomOrThrow(command.roomId)
-    const activeUserCount = room.joinUser(command.userId)
-    const iconId: IconId = NewIconId(command.iconId)
+    const room = await RealtimeRoomService.findRoomOrThrow(
+      roomId,
+      this.roomRepository,
+    )
 
-    const user = this.userRepository.find(command.userId)
-    user.enterRoom(command.roomId, iconId)
+    // roomが始まっていないとここでエラー
+    const activeUserCount = room.joinUser(userId)
 
-    this.userDelivery.enterRoom(user, activeUserCount)
-    this.userRepository.update(user)
-    await this.roomRepository.update(room)
+    const user = this.createUser(
+      userId,
+      roomId,
+      NewIconId(iconId),
+      false,
+      speakerTopicId,
+    )
+    this._enterRoom(user, activeUserCount)
 
     return {
-      chatItems: ChatItemResponseBuilder.buildChatItems(room.chatItems),
-      topics: room.topics,
+      chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
+      stamps: StampModelBuilder.buildStamps(room.stamps),
       activeUserCount,
+      pinnedChatItemIds: room.topics.map((t) => t.pinnedChatItemId ?? null),
+      topicStates: room.topics.map((t) => ({ topicId: t.id, state: t.state })),
     }
   }
 
-  public async leaveRoom(command: UserLeaveCommand) {
-    const user = this.userRepository.find(command.userId)
-    // まだRoomに参加していないユーザーなら何もしない
-    if (user.roomId === null) return
+  public async leaveRoom({ userId }: UserLeaveCommand) {
+    const user = await UserService.findUserOrThrow(userId, this.userRepository)
 
-    const room = await this.findRoomOrThrow(user.roomId)
+    const room = await RealtimeRoomService.findRoomOrThrow(
+      user.roomId,
+      this.roomRepository,
+    )
+
     const activeUserCount = room.leaveUser(user.id)
 
     this.userDelivery.leaveRoom(user, activeUserCount)
-    user.leaveRoom()
-
-    this.userRepository.update(user)
-    this.roomRepository.update(room)
+    this.userRepository.leaveRoom(user)
   }
 
-  private async findRoomOrThrow(roomId: string): Promise<RoomClass> {
-    const room = await this.roomRepository.find(roomId)
-    if (!room) {
-      throw new Error(`[sushi-chat-server] Room(${roomId}) does not exists.`)
-    }
-    return room
+  private createUser(
+    userId: string,
+    roomId: string,
+    iconId: IconId,
+    isAdmin: boolean,
+    speakAt?: number,
+  ): User {
+    const newUser = new User(userId, isAdmin, roomId, iconId, speakAt)
+    this.userRepository.create(newUser)
+
+    return newUser
+  }
+
+  private _enterRoom(user: User, activeUserCount: number) {
+    this.userDelivery.enterRoom(user, activeUserCount)
+    this.userRepository.create(user)
   }
 }
 

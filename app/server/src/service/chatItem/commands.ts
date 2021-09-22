@@ -1,16 +1,16 @@
 export type PostChatItemCommand = {
   userId: string
   chatItemId: string
-  topicId: string
+  topicId: number
 }
 
 export type PostMessageCommand = PostChatItemCommand & {
   content: string
-  targetId: string | null
+  quoteId: string | null
 }
 
 export type PostReactionCommand = PostChatItemCommand & {
-  targetId: string
+  quoteId: string
 }
 
 export type PostQuestionCommand = PostChatItemCommand & {
@@ -19,5 +19,9 @@ export type PostQuestionCommand = PostChatItemCommand & {
 
 export type PostAnswerCommand = PostChatItemCommand & {
   content: string
-  targetId: string
+  quoteId: string
+}
+
+export type PinChatItemCommand = {
+  chatItemId: string
 }

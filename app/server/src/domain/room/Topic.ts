@@ -1,13 +1,11 @@
-type Topic = {
-  id: string
-  title: string
-  description: string
-  urls: Partial<Record<TopicLinkType, string>>
-  state: TopicState
-}
+import { TopicState } from "sushi-chat-shared"
 
-export type TopicLinkType = "github" | "slide" | "product"
-export type TopicState = "not-started" | "active" | "paused" | "finished"
+type Topic = {
+  id: number
+  title: string
+  state: TopicState
+  pinnedChatItemId?: string
+}
 
 /**
  * @var {number} topicTimeData.openedDate トピックの開始時刻

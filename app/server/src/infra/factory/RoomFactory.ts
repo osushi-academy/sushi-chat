@@ -7,9 +7,12 @@ class RoomFactory implements IRoomFactory {
   public create(
     title: string,
     topics: Omit<Topic, "id" | "state">[],
+    description?: string,
   ): RoomClass {
     const roomId = uuid()
-    return new RoomClass(roomId, title, topics)
+    const inviteKey = uuid()
+
+    return new RoomClass(roomId, title, inviteKey, description ?? "", topics)
   }
 }
 

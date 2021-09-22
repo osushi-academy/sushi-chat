@@ -4,23 +4,26 @@ hide circle
 skinparam inetype ortho
 
 entity users {
-    +id: uuid
+    +id: string
     --
     ~room_id: uuid
     ~icon_id: int
+    #is_admin: boolean
+    #has_left: boolean
     #created_at: timestamp
 }
 note right: ルームに参加する匿名ユーザー
 
 entity topics_speakers{
-    ~user_id: uuid
+    ~user_id: string
+    ~room_id: uuid
     ~topic_id: int
     --
 }
 note bottom: 匿名ユーザーは自分のトピックを登録できる
 
 entity admins {
-    +id: string
+    +id: uuid
     --
     #name: string
     #created_at: timestamp
@@ -29,7 +32,7 @@ entity admins {
 note bottom: ルームの管理を行うユーザー
 
 entity rooms_admins {
-    ~admin_id: string
+    ~admin_id: uuid
     ~room_id: uuid
     --
     #created_at: timestamp
@@ -57,12 +60,12 @@ entity rooms {
     --
     ~room_state_id: int
     #title: string
-    #invite_key: string
+    #invite_key: uuid
     #description: string
+    start_at: timestamp
+    finish_at: timestamp
+    archived_at: timestamp
     #created_at: timestamp
-    #start_at: timestamp
-    #finish_at: timestamp
-    #archived_at: timestamp
     #updated_at: timestamp
 }
 
@@ -89,11 +92,12 @@ entity topics_pinned_chat_item {
     ~room_id: uuid
     ~topic_id: int
     ~chat_item_id: uuid
+    +created_at: timestamp
     --
 }
 note bottom of topics_pinned_chat_item
-  1トピックに付き1つのチャットアイテムをピン留めでき、\
-
+  1トピックに付き1つのチャットアイテムをピン留めでき、
+  各トピックの最新のピン留めのみが適用される
 end note
 
 entity topic_states {
@@ -123,12 +127,12 @@ entity chat_items {
     --
     ~room_id: uuid
     ~topic_id: int
-    ~user_id: uuid
+    ~user_id: string
     ~chat_item_type_id: int
-    ~sender_type_id:
+    ~sender_type_id: int
     ~quote_id uuid
     content: string
-    #timestamp: int
+    timestamp: int
     #created_at: timestamp
 }
 note right of chat_items
@@ -161,7 +165,7 @@ entity stamps {
     --
     ~room_id: uuid
     ~topic_id: int
-    ~user_id: uuid
+    ~user_id: string
     #timestamp: int
     #created_at: timestamp
 }

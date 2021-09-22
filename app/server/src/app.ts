@@ -1,13 +1,19 @@
 import express from "express"
 import { createServer } from "http"
 import createSocketIOServer from "./ioServer"
-import LocalMemoryUserRepository from "./infra/repository/User/LocalMemoryUserRepository"
 import ChatItemRepository from "./infra/repository/chatItem/ChatItemRepository"
 import StampRepository from "./infra/repository/stamp/StampRepository"
 import RoomRepository from "./infra/repository/room/RoomRepository"
+import { restSetup } from "./rest"
+import RestRoomService from "./service/room/RestRoomService"
 import { Routes } from "./expressRoute"
 import RoomFactory from "./infra/factory/RoomFactory"
 import PGPool from "./infra/repository/PGPool"
+import AdminRepository from "./infra/repository/admin/AdminRepository"
+import UserRepository from "./infra/repository/User/UserRepository"
+import StampFactory from "./infra/factory/StampFactory"
+import AdminService from "./service/admin/AdminService"
+import AdminAuth from "./infra/auth/AdminAuth"
 import cors from "cors"
 import checkAndGetUserId from "./utils/auth"
 
@@ -21,21 +27,35 @@ const pgPool = new PGPool(
   process.env.DB_SSL !== "OFF",
 )
 
-const userRepository = LocalMemoryUserRepository.getInstance()
+const adminRepository = new AdminRepository(pgPool)
+const userRepository = new UserRepository(pgPool)
 const chatItemRepository = new ChatItemRepository(pgPool)
 const stampRepository = new StampRepository(pgPool)
-createSocketIOServer(
-  httpServer,
+const roomRepository = new RoomRepository(
+  pgPool,
+  adminRepository,
   userRepository,
-  new RoomRepository(
-    pgPool,
-    userRepository,
-    chatItemRepository,
-    stampRepository,
-  ),
   chatItemRepository,
   stampRepository,
-  new RoomFactory(),
+)
+
+const roomFactory = new RoomFactory()
+const stampFactory = new StampFactory()
+
+const adminAuth = new AdminAuth()
+
+const roomService = new RestRoomService(roomRepository, roomFactory)
+const adminService = new AdminService(adminRepository, roomRepository)
+
+createSocketIOServer(
+  httpServer,
+  adminRepository,
+  userRepository,
+  roomRepository,
+  chatItemRepository,
+  stampRepository,
+  stampFactory,
+  adminAuth,
 )
 
 const PORT = process.env.PORT || 7000
@@ -44,11 +64,19 @@ httpServer.listen(PORT, () => {
   console.log("server listening. Port:" + PORT)
 })
 
-app.use(cors())
+// ref: https://www.npmjs.com/package/cors#configuring-cors
+const corsOption = {
+  origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+  optionsSuccessStatus: 200,
+}
+const myCors = () => cors(corsOption)
+// NOTE: genericsでstringを指定しないと、オーバーロードがマッチしなくて型エラーが起こる
+app.options<string>("*", myCors())
+app.use(myCors())
 
 app.use(express.json())
 
-app.get("/", (req, res) => res.send("ok"))
+restSetup(app, roomService, adminService)
 
 app.get("/auth-test", async (req, res) => {
   const userId = await checkAndGetUserId(req, res)
@@ -60,6 +88,7 @@ app.get("/auth-test", async (req, res) => {
   })
 })
 
+// NOTE: apiRoutesの使い方の例
 // apiRoutes.get("/room/:id/history", (req, res) => {
 //   const roomId = req.params.id
 //   console.log(roomId)
