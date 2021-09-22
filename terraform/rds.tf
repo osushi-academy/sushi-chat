@@ -31,16 +31,15 @@ resource "aws_security_group_rule" "allow_private_postgres_access" {
 resource "aws_db_instance" "main" {
   identifier             = "${var.project}-db-instance"
   engine                 = "postgres"
-  engine_version         = "12.7"
-  instance_class         = "db.t2.micro"
+  engine_version         = "13.3"
+  instance_class         = "db.t3.micro"
   name                   = var.rds.db_name
   username               = var.rds.user
   password               = var.rds.password
-  allocated_storage      = 10
+  allocated_storage      = 20
   storage_type           = "gp2"
   vpc_security_group_ids = [aws_security_group.db.id]
   db_subnet_group_name   = aws_db_subnet_group.main.name
-  skip_final_snapshot    = true
 
   tags = {
     Name    = "${var.project}-db-instance"
