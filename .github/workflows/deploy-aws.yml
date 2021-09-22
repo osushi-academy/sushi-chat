@@ -25,7 +25,7 @@ jobs:
           --deployment-config-name CodeDeployDefault.OneAtATime \
           --deployment-group-name ${{ env.PROJECT }}-deploy-group \
           --description "Deployment for ${{ env.PROJECT }}" \
-          --github-location repository=KoukiNAGATA/sushi-chat,commitId="${{ github.sha }}"
+          --github-location repository=KoukiNAGATA/sushi-chat,commitId="${{ github.sha }}" \
           --file-exists-behavior RETAIN \
         env:
           PROJECT: sushi-chat
