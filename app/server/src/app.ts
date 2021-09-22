@@ -15,7 +15,6 @@ import StampFactory from "./infra/factory/StampFactory"
 import AdminService from "./service/admin/AdminService"
 import AdminAuth from "./infra/auth/AdminAuth"
 import cors from "cors"
-import checkAndGetUserId from "./utils/auth"
 
 const app = express()
 const httpServer = createServer(app)
@@ -77,16 +76,6 @@ app.use(myCors())
 app.use(express.json())
 
 restSetup(app, roomService, adminService)
-
-app.get("/auth-test", async (req, res) => {
-  const userId = await checkAndGetUserId(req, res)
-  return res.status(200).json({
-    result: "success",
-    data: {
-      userId,
-    },
-  })
-})
 
 // NOTE: apiRoutesの使い方の例
 // apiRoutes.get("/room/:id/history", (req, res) => {
