@@ -31,7 +31,7 @@ resource "aws_security_group_rule" "allow_private_postgres_access" {
 resource "aws_db_instance" "main" {
   identifier             = "${var.project}-db-instance"
   engine                 = "postgres"
-  engine_version         = "13.3"
+  engine_version         = "12.7"
   instance_class         = "db.t3.micro"
   name                   = var.rds.db_name
   username               = var.rds.user
