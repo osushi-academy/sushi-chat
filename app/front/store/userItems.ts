@@ -11,7 +11,7 @@ type UserItem = {
   namespaced: true,
 })
 export default class UserItems extends VuexModule {
-  private _userItems: UserItem = { myIconId: -1, isAdmin: false }
+  private _userItems: UserItem = { myIconId: 1, isAdmin: false }
 
   public get userItems(): UserItem {
     return this._userItems
