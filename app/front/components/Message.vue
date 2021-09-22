@@ -3,6 +3,7 @@
     <!-- Message -->
     <article
       v-if="message.type != 'reaction'"
+      :id="messageId"
       class="comment"
       :class="{
         admin: message.iconId == '0',
@@ -67,7 +68,11 @@
     </article>
 
     <!--Reaction Message-->
-    <article v-else-if="message.type == 'reaction'" class="reaction">
+    <article
+      v-else-if="message.type == 'reaction'"
+      :id="messageId"
+      class="reaction"
+    >
       <div class="icon-wrapper">
         <picture>
           <source :srcset="targetIcon.webp" type="image/webp" />
@@ -85,10 +90,13 @@
       <div class="long-text">
         {{ message.target.content }}
       </div>
-      <span class="material-icons"> north_west </span>
+      <!-- targetのmessageにスクロール -->
+      <span class="material-icons" @click="scrolltoMessage(message.target.id)">
+        north_west
+      </span>
     </article>
     <!--System Message-->
-    <!--article class="system_message">
+    <!--article class="system_message" :id="messageId">
       <UrlToLink :text="message.content" />
     </article-->
   </div>
@@ -114,6 +122,14 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<ChatItemPropType>,
+    messageId: {
+      type: String,
+      required: true,
+    },
+    topicId: {
+      type: String,
+      required: true,
+    },
   },
   data(): DataType {
     return {
@@ -135,6 +151,16 @@ export default Vue.extend({
     },
     clickReply() {
       this.$emit("click-reply")
+    },
+    // Reactionから対象のMessageへスクロール
+    scrolltoMessage(id: string) {
+      const element: HTMLElement | null = document.getElementById(id)
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        })
+      }
     },
     // タイムスタンプを分、秒単位に変換
     showTimestamp(timeStamp: number): string {
