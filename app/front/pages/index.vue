@@ -6,7 +6,7 @@
         @start-chat="startChat"
       />
       <SelectIconModal
-        v-if="!isAdmin"
+        v-if="!isAdmin && !isRoomEnter"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
@@ -50,6 +50,7 @@ type DataType = {
   // ルーム情報
   activeUserCount: number
   room: Room
+  isRoomEnter: boolean
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -68,6 +69,7 @@ export default Vue.extend({
       // ルーム情報
       activeUserCount: 0,
       room: {} as Room,
+      isRoomEnter: false,
     }
   },
   computed: {
@@ -233,7 +235,7 @@ export default Vue.extend({
     // ユーザ関連
     // modalを消し、topic作成
     hide(): any {
-      this.$modal.hide("sushi-modal")
+      this.isRoomEnter = true
       this.enterRoom(UserItemStore.userItems.myIconId)
     },
     // ルーム入室

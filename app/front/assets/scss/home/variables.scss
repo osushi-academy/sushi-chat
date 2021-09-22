@@ -32,6 +32,9 @@
     @else if $color == $danger{
       background-color: rgba(225,147,147,0.2);
     }
+    @else if $color == $primary{
+      background-color: rgba(242, 141, 47, 0.2);
+    }
   }
   @include invalidated-a-style;
 }
@@ -41,7 +44,13 @@
     font-size: 0.9rem;
   }
   @else if $size=="xl"{
-    font-size: 1.5rem;
+    font-size: 1rem;
+    @media screen and (min-width: $small+px) {
+      font-size: 1.5rem;
+    }
+    @media screen and (min-width: $large+px) {
+      font-size: 1.5rem;
+    }
   }
   @else if $size=="lg"{
     font-size: 1.2rem;
