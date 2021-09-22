@@ -25,7 +25,7 @@ export default {
       {
         hid: "og:url",
         property: "og:url",
-        content: "https://sushi-chat-cyan.vercel.app/",
+        content: "https://sushi-chat.com/",
       },
       {
         hid: "og:type",
