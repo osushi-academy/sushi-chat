@@ -8,7 +8,9 @@
       <div class="not-found__textbox--title">
         お探しのルームが見つかりません
       </div>
-      <div>お探しのルームは、公開が停止されたか削除された可能性があります</div>
+      <div class="not-found__textbox--content">
+        お探しのルームは、公開が停止されたか削除された可能性があります
+      </div>
     </div>
   </div>
 </template>

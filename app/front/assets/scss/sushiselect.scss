@@ -1,14 +1,25 @@
 @mixin sushi-select-layout($py:0) {
-    padding: $py+rem 5%;
-    margin-bottom: 2rem;
-    @media screen and (min-width: $small+px) {
-      padding: $py+rem 20%;
-    }
-    @media screen and (min-width: $large+px) {
-      padding: $py+rem 20%;
-    }
+  padding: $py+rem 5%;
+  margin-bottom: 2rem;
+  @media screen and (min-width: $small+px) {
+    padding: $py+rem 20%;
   }
+  @media screen and (min-width: $large+px) {
+    padding: $py+rem 20%;
+  }
+}
   
+@mixin sushi-select-card{
+  padding: 20px;
+  background-color: white;
+  &--title{
+    @include text-size(lg);
+    margin-bottom: 10px;
+  }
+  &--content{
+    color: #515151;
+  }    
+}
 
 .sushi-select{
   background-color: #F8F8F8;
@@ -186,11 +197,31 @@
     }
   }
   &__textbox{
-    padding: 20px;
-    background-color: white;
-    &--title{
-      @include text-size(lg);
-      margin-bottom: 10px;
+    @include sushi-select-card;
+  }
+}
+
+.not-started{
+  display: flex;
+  flex-direction: column;
+  &__title{
+    @include text-size(lg);
+    color: $text-gray;
+    align-self: center;
+    margin-bottom: 2rem;
+  }
+  &__textbox{
+    @include sushi-select-card;
+  }
+  &__warning{
+    text-align: center;
+    color: #FF0000;
+    margin: 2rem 0;
+  }
+  &__button{
+    button{
+      margin: 0 auto;
+      @include home-button-text($primary);
     }
   }
 }
