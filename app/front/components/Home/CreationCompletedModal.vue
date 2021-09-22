@@ -35,7 +35,7 @@
                 home-creation-completed-modal__invitation__content__detail--url
               "
             >
-              https://sushi-chat.cyan/12345?user=admin
+              https://sushi-chat.com/12345?user=admin
             </div>
             <button
               class="
