@@ -64,7 +64,16 @@ httpServer.listen(PORT, () => {
   console.log("server listening. Port:" + PORT)
 })
 
-app.use(cors())
+// ref: https://www.npmjs.com/package/cors#configuring-cors
+const corsOption = {
+  origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+  optionsSuccessStatus: 200,
+}
+const myCors = () => cors(corsOption)
+// NOTE: genericsでstringを指定しないと、オーバーロードがマッチしなくて型エラーが起こる
+app.options<string>("*", myCors())
+app.use(myCors())
+
 app.use(express.json())
 
 restSetup(app, roomService, adminService)
