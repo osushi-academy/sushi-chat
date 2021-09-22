@@ -102,7 +102,6 @@ hooks:
 # During the ApplicationStart deployment lifecycle event, run the commands
 #   in the script specified in "location".
   ApplicationStart:
-# This includes secret info, so ignored by VCS
     - location: scripts/start_app.sh
       timeout: 60
       runas: app

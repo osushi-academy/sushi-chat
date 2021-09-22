@@ -4,7 +4,7 @@
   "description": "server of sushi chat",
   "main": "app.js",
   "scripts": {
-    "start": "node ./dist/src/app.js",
+    "start": "node --require dotenv/config ./dist/src/app.js",
     "build": "tsc -p .",
     "dev": "ts-node-dev --require dotenv/config --transpile-only --rs ./src/app.ts",
     "test": "jest",
