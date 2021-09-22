@@ -3,7 +3,7 @@ name: Deploy server to AWS
 on:
   push:
     branches:
-      - main
+      - tomokon/aws-deploy-test
 
 jobs:
   deploy:
