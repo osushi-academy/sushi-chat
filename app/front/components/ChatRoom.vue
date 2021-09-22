@@ -1,7 +1,8 @@
 <template>
   <article v-if="topic" class="topic-block">
     <TopicHeader
-      :title="topicIndex + '. ' + topic.title"
+      :title="topic.title"
+      :topic-index="topicIndex"
       :topic-state="topicState"
       @download="clickDownload"
     />
@@ -19,6 +20,8 @@
             class="list-complete-item"
           >
             <MessageComponent
+              :message-id="message.id"
+              :topic-id="topicId"
               :message="message"
               @click-thumb-up="clickReaction"
               @click-reply="selectedChatItem = message"
