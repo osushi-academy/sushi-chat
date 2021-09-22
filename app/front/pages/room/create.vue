@@ -3,7 +3,7 @@
     <header class="home-create__header">イベントの作成</header>
     <section class="home-create__event-name">
       <div class="home-create__event-name--title">1.イベント名の入力</div>
-      <input class="home-create__event-name--input" />
+      <input v-model="roomName" class="home-create__event-name--input" />
     </section>
     <section class="home-create__room">
       <div class="home-create__room--title">2.ルームの登録</div>
@@ -67,10 +67,7 @@
         </div>
       </div>
     </section>
-    <button
-      class="home-create__create-new-event-button"
-      @click="$modal.show('home-creation-completed-modal')"
-    >
+    <button class="home-create__create-new-event-button" @click="createRoom">
       この内容で作成
     </button>
     <AddSessionsModal />
@@ -87,6 +84,7 @@ import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue
 
 Vue.use(VModal)
 type DataType = {
+  roomName: string
   sessionList: { name: string; id: number }[]
   isDragging: boolean
 }
@@ -100,6 +98,7 @@ export default Vue.extend({
   layout: "home",
   data(): DataType {
     return {
+      roomName: "",
       sessionList: [
         { name: "いけおく", id: 0 },
         { name: "池奥", id: 1 },
@@ -126,6 +125,31 @@ export default Vue.extend({
     },
     removeSession(idx: number) {
       this.sessionList.splice(idx, 1)
+    },
+    async createRoom() {
+      try {
+        const sessions = this.sessionList
+        const res = await this.$apiClient.post("/room", {
+          name: this.roomName,
+          topics: sessions,
+          description: "hello, world",
+        })
+
+        if (res.result === "error") {
+          throw new Error("エラーが発生しました")
+        }
+
+        console.log(res)
+        // @ts-ignore
+        const createdRoom = res.room[0]
+
+        this.$modal.show("home-creation-completed-modal", {
+          adminInviteKey: createdRoom.adminInviteKey,
+        })
+      } catch (e) {
+        console.error(e)
+        window.alert("エラーが発生しました")
+      }
     },
   },
 })
