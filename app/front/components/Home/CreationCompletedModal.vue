@@ -3,6 +3,7 @@
     name="home-creation-completed-modal"
     class="home-creation-completed-modal"
     :click-to-close="false"
+    @before-open="beforeOpen"
   >
     <template #title>イベントが作成されました</template>
     <template #content>
@@ -31,16 +32,12 @@
             class="home-creation-completed-modal__invitation__content__detail"
           >
             <div
-              class="
-                home-creation-completed-modal__invitation__content__detail--url
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--url"
             >
-              https://sushi-chat.com/12345?user=admin
+              https://sushi-chat.com/{{ adminInviteKey }}?user=admin
             </div>
             <button
-              class="
-                home-creation-completed-modal__invitation__content__detail--button
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--button"
             >
               コピーする
             </button>
@@ -58,11 +55,26 @@
 import Vue from "vue"
 import Modal from "@/components/Home/Modal.vue"
 
+type Data = {
+  adminInviteKey: string | null
+}
+
 export default Vue.extend({
   name: "HomeCreationCompletedModal",
   components: {
     Modal,
   },
   layout: "home",
+  data(): Data {
+    return {
+      adminInviteKey: null,
+    }
+  },
+  methods: {
+    beforeOpen(event: any) {
+      console.log(event)
+      this.adminInviteKey = event.params.time
+    },
+  },
 })
 </script>
