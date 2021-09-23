@@ -258,6 +258,11 @@
       margin: 0.5em 1em;
     }
   }
+
+  & > &__fixed-phrases{
+    display: flex;
+    padding: 0.5em 1em;
+  }
   .presenter {
     background-color: $primary;
   }
@@ -407,6 +412,18 @@
         color: $black;
       }
     }
+  }
+}
+
+.fixed-phrase{
+  background-color: white;
+  margin-right: 10px;
+  padding: 5px 10px;
+  border-radius: 99px;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  &:hover{
+    background-color: $placeholder-gray;
   }
 }
 
