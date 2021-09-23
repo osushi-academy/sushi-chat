@@ -67,7 +67,10 @@ class RestRoomService {
     const roomDefault: RoomModel = {
       id: room.id,
       title: room.title,
-      topics: room.topics,
+      topics: room.topics.map((topic) => ({
+        ...topic,
+        order: topic.id,
+      })),
       state: room.state,
       description: room.description,
       startDate: room.startAt?.toLocaleDateString("ja-JP") ?? "",

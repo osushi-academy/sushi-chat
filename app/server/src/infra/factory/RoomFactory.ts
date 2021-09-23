@@ -6,7 +6,7 @@ import RoomClass from "../../domain/room/Room"
 class RoomFactory implements IRoomFactory {
   public create(
     title: string,
-    topics: Omit<Topic, "id" | "order" | "state">[],
+    topics: Omit<Topic, "id" | "state">[],
     description?: string,
   ): RoomClass {
     const roomId = uuid()

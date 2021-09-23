@@ -4,7 +4,7 @@ import RoomClass from "./Room"
 interface IRoomFactory {
   create(
     title: string,
-    topics: Omit<Topic, "id" | "order" | "state">[],
+    topics: Omit<Topic, "id" | "state">[],
     description?: string,
   ): RoomClass
 }

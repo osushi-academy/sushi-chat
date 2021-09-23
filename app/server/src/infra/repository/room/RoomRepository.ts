@@ -101,7 +101,6 @@ class RoomRepository implements IRoomRepository {
       for (const r of topicsRes.rows) {
         topics.push({
           id: r.id,
-          order: r.id,
           title: r.title,
           state: RoomRepository.intToTopicState(r.topic_state_id),
           pinnedChatItemId: r.pinned_chat_item_id ?? undefined,
