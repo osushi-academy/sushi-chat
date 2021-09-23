@@ -15,6 +15,7 @@
         :room-id="room.id"
         :title="'技育CAMPハッカソン vol.5'"
         @change-topic-state="changeTopicState"
+        @finish-room="finishRoom"
       />
       <div v-for="(topic, index) in topics" :key="index">
         <ChatRoom :topic-index="index" :topic-id="topic.id" />
@@ -258,6 +259,11 @@ export default Vue.extend({
           })
         },
       )
+    },
+    // ルーム終了
+    finishRoom() {
+      const socket = (this as any).socket
+      socket.emit("ADMIN_FINISH_ROOM")
     },
     // アイコン選択
     clickIcon(index: number) {
