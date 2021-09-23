@@ -73,7 +73,7 @@ class RestRoomService {
       })),
       state: room.state,
       description: room.description,
-      startDate: room.startAt?.toLocaleDateString("ja-JP") ?? "",
+      startDate: room.startAt?.toISOString() ?? undefined,
       adminInviteKey: undefined,
     }
     // adminの時のみadminInviteKeyに値をいれる
