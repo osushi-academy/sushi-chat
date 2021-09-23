@@ -130,6 +130,7 @@
   }
   &--date{
     margin: 0 0.5rem;
+    width: 5rem;
     @media screen and (min-width: $small+px) {
       margin: 0 2rem;
     }
