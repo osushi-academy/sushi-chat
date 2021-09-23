@@ -1,3 +1,5 @@
+import User from "../../domain/user/User"
+
 export type CreateUserCommand = {
   userId: string
   idToken?: string
@@ -18,4 +20,5 @@ export type UserEnterCommand = {
 
 export type UserLeaveCommand = {
   userId: string
+  user?: User
 }

@@ -252,7 +252,7 @@ const createSocketIOServer = async (
     //接続解除時に行う処理
     socket.on("disconnect", () => {
       try {
-        userService.leaveRoom({
+        userService.leaveRoomOnDiscconect({
           userId,
         })
       } catch (e) {
