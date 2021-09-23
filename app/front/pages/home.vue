@@ -36,7 +36,12 @@
           <div class="home-top__event__list--date">{{ room.startDate }}</div>
           <div class="home-top__event__list--role">管理者</div>
           <div class="home-top__event__list--status">
-            <div class="home-top__event__list--status--label">公開停止</div>
+            <div
+              class="home-top__event__list--status--label"
+              @click="onClickArchive(room.id)"
+            >
+              公開停止
+            </div>
           </div>
         </div>
       </div>
@@ -122,6 +127,37 @@ export default Vue.extend({
   },
   mounted(): void {
     DeviceStore.determineOs()
+  },
+  methods: {
+    async onClickArchive(id: string) {
+      const continueArchive = window.confirm(
+        "ルームをの公開を停止しますか？これ以降このルームにアクセスすることはできません（チャット履歴の確認もできなくなります）。",
+      )
+
+      if (continueArchive) {
+        try {
+          console.log(id)
+          const response = await this.$apiClient.put(
+            {
+              pathname: "/room/:id/archive",
+              params: { id },
+            },
+            {},
+          )
+
+          if (response.result === "success") {
+            this.finishedRooms = this.finishedRooms.filter(
+              (room) => room.id !== id,
+            )
+          } else {
+            // NOTE: エラーハンドリングを適切に
+            throw new Error("ルームの公開停止に失敗しました")
+          }
+        } catch (e) {
+          window.alert("ルームの公開停止に失敗しました")
+        }
+      }
+    },
   },
 })
 </script>
