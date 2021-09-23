@@ -117,7 +117,7 @@
     &__sessions{
       display: grid;
       margin: 1rem 0;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: 20px 1fr;
       &__index{
         grid-column: 1;
         margin: 0 0.5rem 0 0;
@@ -131,7 +131,7 @@
         &--element{
           display: flex;
           align-items: center;
-          width: 85%;
+          //width: 85%;
           margin: 0 0 0.5rem 0;
           &--input{
             display: flex;
