@@ -108,7 +108,7 @@ import Vue from "vue"
 import { RoomModel } from "sushi-chat-shared"
 import { DeviceStore } from "~/store"
 
-type DataType = {
+type AsyncDataType = {
   ongoingRooms: RoomModel[]
   notStartedRooms: RoomModel[]
   finishedRooms: RoomModel[]
@@ -117,7 +117,7 @@ type DataType = {
 export default Vue.extend({
   name: "Home",
   layout: "home",
-  async asyncData({ app }) {
+  async asyncData({ app }): Promise<AsyncDataType> {
     const response = await app.$apiClient.get("/room", {})
     if (response.result === "success") {
       const rooms = response.data
@@ -133,18 +133,14 @@ export default Vue.extend({
       throw new Error("データの取得に失敗しました")
     }
   },
-  data(): DataType {
-    return {
-      ongoingRooms: [],
-      notStartedRooms: [],
-      finishedRooms: [],
-    }
+  data(): AsyncDataType {
+    return {} as AsyncDataType
   },
   mounted(): void {
     DeviceStore.determineOs()
   },
   methods: {
-    async onClickArchive(id: string) {
+    async onClickArchive(id: string): Promise<void> {
       const continueArchive = window.confirm(
         "ルームをの公開を停止しますか？これ以降参加者・管理者ともにこのルームにアクセスすることはできません（チャット履歴の確認もできなくなります）。",
       )
