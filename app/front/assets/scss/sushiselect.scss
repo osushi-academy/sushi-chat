@@ -61,12 +61,10 @@
     }
     &--help {
       position: relative;
+      @include material-icons-in-text;
       .material-icons {
         margin-left: 0.5rem;
-        display: inline-flex !important;
-        vertical-align: middle;
         font-size: 1rem;
-
         &:hover {
           cursor: pointer;
           color: $primary;
