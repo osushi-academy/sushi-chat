@@ -34,6 +34,6 @@ export type RoomModel = {
   topics: Topic[]
   state: RoomState
   description?: string
-  startDate: string
+  startDate?: string
   adminInviteKey?: string
 }

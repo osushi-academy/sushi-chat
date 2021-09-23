@@ -81,14 +81,14 @@ CREATE TABLE IF NOT EXISTS topics_speakers
 
 CREATE TABLE IF NOT EXISTS admins
 (
-  id         UUID PRIMARY KEY,
+  id         TEXT PRIMARY KEY,
   name       TEXT      NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS rooms_admins
 (
-  admin_id   UUID REFERENCES admins (id),
+  admin_id   TEXT REFERENCES admins (id),
   room_id    UUID REFERENCES rooms (id),
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (admin_id, room_id)

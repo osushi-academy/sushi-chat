@@ -7,6 +7,7 @@ import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
 import { RoomState, TopicState } from "sushi-chat-shared"
 import User from "../user/User"
+import { PartiallyPartial } from "../../types/utils"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -17,9 +18,8 @@ class RoomClass {
     public readonly title: string,
     public readonly adminInviteKey: string,
     public readonly description: string,
-    topics: (Omit<Topic, "id" | "state" | "pinnedChatItemId"> &
-      Partial<Pick<Topic, "id" | "state" | "pinnedChatItemId">>)[],
-    private adminIds = new Set<string>([]),
+    topics: PartiallyPartial<Topic, "id" | "state" | "pinnedChatItemId">[],
+    public readonly adminIds = new Set<string>([]),
     private _state: RoomState = "not-started",
     public _startAt: Date | null = null,
     topicTimeData: Record<number, TopicTimeData> = {},
@@ -68,12 +68,8 @@ class RoomClass {
     return [...this._stamps]
   }
 
-  public get pinnedChatItemIds(): string[] {
-    throw new Error("Not implemented.")
-  }
-
-  public get isOpened(): boolean {
-    return this._state == "ongoing"
+  public get pinnedChatItemIds(): (string | null)[] {
+    return this.topics.map((t) => t.pinnedChatItemId ?? null)
   }
 
   public get state(): RoomState {
@@ -109,6 +105,7 @@ class RoomClass {
     this.assertRoomIsNotStarted()
 
     this._state = "ongoing"
+    this._startAt = new Date()
   }
 
   /**
@@ -118,6 +115,7 @@ class RoomClass {
     this.assertRoomIsOngoing()
 
     this._state = "finished"
+    this._finishAt = new Date()
   }
 
   /**
@@ -129,6 +127,7 @@ class RoomClass {
     this.assertRoomIsFinished()
 
     this._state = "archived"
+    this._archivedAt = new Date()
   }
 
   /**

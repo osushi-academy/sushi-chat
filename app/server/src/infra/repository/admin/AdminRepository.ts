@@ -5,6 +5,22 @@ import PGPool from "../PGPool"
 class AdminRepository implements IAdminRepository {
   constructor(private readonly pgPool: PGPool) {}
 
+  public async createIfNotExist(admin: Admin) {
+    const pgClient = await this.pgPool.client()
+
+    const query =
+      "INSERT INTO admins (id, name) VALUES ($1, $2) ON CONFLICT DO NOTHING"
+
+    try {
+      await pgClient.query(query, [admin.id, admin.name])
+    } catch (e) {
+      AdminRepository.logError(e, "createIfNotExist()")
+      throw e
+    } finally {
+      pgClient.release()
+    }
+  }
+
   public async find(adminId: string): Promise<Admin | null> {
     const pgClient = await this.pgPool.client()
 

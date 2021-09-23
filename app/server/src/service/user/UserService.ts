@@ -50,8 +50,8 @@ class UserService {
     )
 
     // roomが始まっていない or adminでないと、ここでエラー
-    const verifyRes = await this.adminAuth.verifyIdToken(idToken)
-    const activeUserCount = room.joinAdminUser(userId, verifyRes.adminId)
+    const { adminId } = await this.adminAuth.verifyIdToken(idToken)
+    const activeUserCount = room.joinAdminUser(userId, adminId)
 
     // roomにjoinできたらuserも作成
     const user = this.createUser(userId, roomId, User.ADMIN_ICON_ID, true)
@@ -61,7 +61,7 @@ class UserService {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
       stamps: StampModelBuilder.buildStamps(room.stamps),
       activeUserCount,
-      pinnedChatItemIds: room.topics.map((t) => t.pinnedChatItemId ?? null),
+      pinnedChatItemIds: room.pinnedChatItemIds,
       topicStates: room.topics.map((t) => ({ topicId: t.id, state: t.state })),
     }
   }
@@ -99,7 +99,7 @@ class UserService {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
       stamps: StampModelBuilder.buildStamps(room.stamps),
       activeUserCount,
-      pinnedChatItemIds: room.topics.map((t) => t.pinnedChatItemId ?? null),
+      pinnedChatItemIds: room.pinnedChatItemIds,
       topicStates: room.topics.map((t) => ({ topicId: t.id, state: t.state })),
     }
   }

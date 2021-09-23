@@ -5,6 +5,7 @@ export type BuildRoomCommand = {
   title: string
   topics: Omit<Topic, "id" | "state" | "pinnedChatItemId">[]
   description?: string
+  adminId: string
 }
 export type FinishRoomCommand = {
   userId: string
