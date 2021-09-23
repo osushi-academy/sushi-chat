@@ -122,15 +122,22 @@
         <a href="#">使い方</a>
       </div>
       <div class="footer-link">
-        <a href="#">フィードバック</a>
+        <a
+          href="https://forms.gle/mSSiZNMgEkp174oo9"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          お問い合わせ
+        </a>
       </div>
       <div class="footer-link">
         <a
           href="https://twitter.com/osushi_academy"
           target="_blank"
-          rel="norefferrer"
-          >@osushi_academy</a
+          rel="noopener noreferrer"
         >
+          Twitter
+        </a>
       </div>
     </div>
   </nav>
