@@ -75,7 +75,6 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
-import FixedPhrase from "./FixedPhrase.vue"
 import { TopicPropType, ChatItemPropType } from "@/models/contents"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 import { UserItemStore } from "~/store"
@@ -90,7 +89,6 @@ export default Vue.extend({
   name: "TextArea",
   components: {
     KeyInstruction,
-    FixedPhrase,
   },
   props: {
     topicTitle: {
