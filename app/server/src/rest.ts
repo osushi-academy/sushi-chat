@@ -52,7 +52,6 @@ export const restSetup = (
         topics: req.body.topics,
         description: req.body.description,
       })
-
       res.send({
         result: "success",
         data: {
@@ -62,7 +61,7 @@ export const restSetup = (
           topics: newRoom.topics,
           state: newRoom.state,
           adminInviteKey: newRoom.adminInviteKey,
-          startDate: newRoom.startAt?.getDate(),
+          startDate: null,
         },
       })
     } catch (e) {
