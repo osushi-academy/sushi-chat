@@ -25,6 +25,11 @@
         from おすしアカデミー
       </span>
     </div>
+    <!--div class="input-area__fixed-phrases">
+      <fixed-phrase text="8888888888" />
+      <fixed-phrase text="👏👏👏👏" />
+      <fixed-phrase text="🔥🔥🔥" />
+    </div-->
     <textarea
       v-model="text"
       :disabled="disabled"
@@ -70,6 +75,7 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
+import FixedPhrase from "./FixedPhrase.vue"
 import { TopicPropType, ChatItemPropType } from "@/models/contents"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 import { UserItemStore } from "~/store"
@@ -84,6 +90,7 @@ export default Vue.extend({
   name: "TextArea",
   components: {
     KeyInstruction,
+    FixedPhrase,
   },
   props: {
     topicTitle: {
