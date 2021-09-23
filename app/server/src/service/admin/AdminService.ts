@@ -23,7 +23,7 @@ class AdminService {
       .catch()
     const admin = new Admin(adminId, name, [])
 
-    this.adminRepository.createIfNotExist(admin)
+    await this.adminRepository.createIfNotExist(admin)
 
     return adminId
   }

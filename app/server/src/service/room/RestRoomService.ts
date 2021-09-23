@@ -37,16 +37,15 @@ class RestRoomService {
     const room = await this.find(command.id)
     room.startRoom(command.adminId)
 
-    this.roomRepository.update(room)
+    await this.roomRepository.update(room)
   }
 
   // Roomに管理者を紐付ける
   public async inviteAdmin(command: InviteRoomCommand): Promise<RoomClass> {
     const room = await this.find(command.id)
-    // きっとこんな感じになると思っている
     room.inviteAdmin(command.adminId, command.adminInviteKey)
 
-    this.roomRepository.update(room)
+    await this.roomRepository.update(room)
     console.log(`new admin invited to room: ${command.id}`)
 
     return room
@@ -55,9 +54,9 @@ class RestRoomService {
   // Roomをアーカイブし、閲覧できなくする。
   public async archive(command: ArchiveRoomCommand) {
     const room = await this.find(command.id)
-    room.archiveRoom(command.adminId)
+    await room.archiveRoom(command.adminId)
 
-    this.roomRepository.update(room)
+    await this.roomRepository.update(room)
   }
 
   // 管理者であるかどうかを確認する

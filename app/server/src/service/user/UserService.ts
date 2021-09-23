@@ -55,7 +55,7 @@ class UserService {
 
     // roomにjoinできたらuserも作成
     const user = this.createUser(userId, roomId, User.ADMIN_ICON_ID, true)
-    this._enterRoom(user, activeUserCount)
+    await this._enterRoom(user, activeUserCount)
 
     return {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
@@ -93,7 +93,7 @@ class UserService {
       false,
       speakerTopicId,
     )
-    this._enterRoom(user, activeUserCount)
+    await this._enterRoom(user, activeUserCount)
 
     return {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
@@ -115,7 +115,7 @@ class UserService {
     const activeUserCount = room.leaveUser(user.id)
 
     this.userDelivery.leaveRoom(user, activeUserCount)
-    this.userRepository.leaveRoom(user)
+    await this.userRepository.leaveRoom(user)
   }
 
   private createUser(
@@ -131,9 +131,9 @@ class UserService {
     return newUser
   }
 
-  private _enterRoom(user: User, activeUserCount: number) {
+  private async _enterRoom(user: User, activeUserCount: number) {
     this.userDelivery.enterRoom(user, activeUserCount)
-    this.userRepository.create(user)
+    await this.userRepository.create(user)
   }
 }
 

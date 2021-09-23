@@ -73,7 +73,7 @@ class ChatItemService {
     console.log(`message: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postMessage(message)
-    this.chatItemRepository.saveMessage(message)
+    await this.chatItemRepository.saveMessage(message)
   }
 
   public async postReaction({
@@ -110,7 +110,7 @@ class ChatItemService {
     console.log(`reaction to ${quoteId}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postReaction(reaction)
-    this.chatItemRepository.saveReaction(reaction)
+    await this.chatItemRepository.saveReaction(reaction)
   }
 
   public async postQuestion({
@@ -143,7 +143,7 @@ class ChatItemService {
     console.log(`question: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postQuestion(question)
-    this.chatItemRepository.saveQuestion(question)
+    await this.chatItemRepository.saveQuestion(question)
   }
 
   public async postAnswer({
@@ -179,7 +179,7 @@ class ChatItemService {
     console.log(`answer: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postAnswer(answer)
-    this.chatItemRepository.saveAnswer(answer)
+    await this.chatItemRepository.saveAnswer(answer)
   }
 
   public async pinChatItem({ chatItemId }: PinChatItemCommand) {
@@ -189,7 +189,7 @@ class ChatItemService {
     )
 
     this.chatItemDelivery.pinChatItem(pinnedChatItem)
-    this.chatItemRepository.pinChatItem(pinnedChatItem)
+    await this.chatItemRepository.pinChatItem(pinnedChatItem)
   }
 
   private fetchUserData = async (
