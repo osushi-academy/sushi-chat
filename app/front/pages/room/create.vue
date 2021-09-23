@@ -127,6 +127,9 @@ export default Vue.extend({
     },
     // textareaに入力された文字を改行で区切ってTopic追加
     separateTopics(titles: string) {
+      // titleが空のsessionListを削除
+      this.sessionList = this.sessionList.filter(({ title }) => title !== "")
+
       // 追加済みTopic名リスト作成
       const set = new Set<string>()
       for (const topic of this.sessionList.slice(0, this.sessionList.length)) {
