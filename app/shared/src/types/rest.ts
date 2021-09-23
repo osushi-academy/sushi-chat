@@ -93,7 +93,7 @@ export type RestApiDefinition = {
       id: string
     }
     methods: {
-      put: {
+      post: {
         query: {
           admin_invite_key: string
         }
