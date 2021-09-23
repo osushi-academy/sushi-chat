@@ -6,40 +6,38 @@
         <div class="home-add-sessions-modal__separators--new-line">
           <input
             id="new-line"
-            type="radio"
+            v-model="newline"
+            type="checkbox"
             name="separator"
             value="new-line"
-            checked
-            @click="separator[0].checked = true"
           />
           <label for="new-line">改行で区切る</label>
         </div>
         <div class="home-add-sessions-modal__separators--comma">
           <input
             id="comma"
-            type="radio"
+            v-model="comma"
+            type="checkbox"
             name="separator"
             value="comma"
-            @click="separator[1].checked = true"
           />
           <label for="comma">カンマで区切る</label>
         </div>
         <div class="home-add-sessions-modal__separators--blank">
           <input
             id="blank"
-            type="radio"
+            v-model="space"
+            type="checkbox"
             name="separator"
             value="blank"
-            @click="separator[2].checked = true"
           />
           <label for="blank">空白で区切る</label>
         </div>
       </div>
-      <textarea
-        :value="text"
-        class="home-add-sessions-modal__textarea"
-        @input="$emit('input', $event.target.value)"
-      />
+      <textarea v-model="text" class="home-add-sessions-modal__textarea" />
+      <div class="home-add-sessions-modal__count">
+        入力件数：{{ topicCount }}件
+      </div>
     </template>
     <template #hide-button>
       <button
@@ -56,34 +54,53 @@
 import Vue from "vue"
 import Modal from "@/components/Home/Modal.vue"
 
+type Data = {
+  text: string
+  newline: boolean
+  comma: boolean
+  space: boolean
+}
+
 export default Vue.extend({
   name: "HomeAddSessionsModal",
   components: {
     Modal,
   },
   layout: "home",
-  props: {
-    text: {
-      type: String,
-      default: "",
-    },
-  },
-  data(): any {
+  data(): Data {
     return {
-      separator: document.getElementsByName("separator"),
+      // separator: document.getElementsByName("separator"),
+      text: "",
+      newline: true,
+      comma: false,
+      space: false,
     }
+  },
+  computed: {
+    topicCount(): number {
+      return this.text.split(
+        new RegExp(
+          `[${this.newline ? "\n" : ""}${this.comma ? "," : ""}${
+            this.space ? "\\s" : ""
+          }]+`,
+          "g",
+        ),
+      ).length
+    },
   },
   methods: {
     // 選択されている分割方法を返す
     separateTopics() {
-      let option = ""
+      const topicTitles = this.text.split(
+        new RegExp(
+          `[${this.newline ? "\n" : ""}${this.comma ? "," : ""}${
+            this.space ? "\\s" : ""
+          }]+`,
+          "g",
+        ),
+      )
 
-      for (let i = 0; i < 3; i++) {
-        if (this.separator.item(i).checked) {
-          option = this.separator.item(i).value
-        }
-      }
-      this.$emit("separate-topics", option)
+      this.$emit("separate-topics", topicTitles)
     },
   },
 })
