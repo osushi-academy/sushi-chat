@@ -68,7 +68,7 @@ export default Vue.extend({
       default: "",
     },
   },
-  data() {
+  data(): any {
     return {
       separator: document.getElementsByName("separator"),
     }
