@@ -13,6 +13,7 @@
       <div v-for="(room, id) in ongoingRooms" :key="id">
         <NuxtLink
           :to="{ path: '/', query: { roomId: room.id, user: 'admin' } }"
+          class="home-top__event--item"
         >
           <div class="home-top__event__list">
             <div class="home-top__event__list--name">{{ room.title }}</div>
@@ -27,6 +28,7 @@
       <div v-for="(room, id) in notStartedRooms" :key="id">
         <NuxtLink
           :to="{ path: '/', query: { roomId: room.id, user: 'admin' } }"
+          class="home-top__event--item"
         >
           <div class="home-top__event__list">
             <div class="home-top__event__list--name">{{ room.title }}</div>
@@ -41,6 +43,7 @@
       <div v-for="(room, id) in finishedRooms" :key="id">
         <NuxtLink
           :to="{ path: '/', query: { roomId: room.id, user: 'admin' } }"
+          class="home-top__event--item"
         >
           <div class="home-top__event__list">
             <div class="home-top__event__list--name">{{ room.title }}</div>
