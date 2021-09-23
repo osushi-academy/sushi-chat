@@ -102,7 +102,7 @@ export default Vue.extend({
   data(): DataType {
     return {
       roomName: "",
-      sessionList: [{ title: "", id: 1 }],
+      sessionList: [{ title: "", id: 0 }],
       isDragging: false,
     }
   },
@@ -118,7 +118,7 @@ export default Vue.extend({
   },
   methods: {
     addSession() {
-      this.sessionList.push({ title: "", id: this.sessionList.length - 1 })
+      this.sessionList.push({ title: "", id: this.sessionList.length })
     },
     removeSession(idx: number) {
       this.sessionList.splice(idx, 1)
