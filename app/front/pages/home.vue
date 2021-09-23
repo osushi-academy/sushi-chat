@@ -56,7 +56,22 @@
     <section class="home-top__inquiry">
       <div class="home-top__inquiry--title">お問い合わせ</div>
       <div class="home-top__inquiry--content">
-        <a href="/">Google Form</a> または <a href="/">Twitter</a>のDM
+        <a
+          href="https://forms.gle/mSSiZNMgEkp174oo9"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Google Form
+        </a>
+        または
+        <a
+          href="https://twitter.com/osushi_academy"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Twitter
+        </a>
+        のDM
       </div>
     </section>
     <section class="home-top__account">
