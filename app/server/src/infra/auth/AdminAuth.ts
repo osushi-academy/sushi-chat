@@ -18,7 +18,12 @@ class AdminAuth implements IAdminAuth {
 
   public async verifyIdToken(token: string): Promise<VerifyResult> {
     const decodedToken = await admin.auth().verifyIdToken(token)
-    return { adminId: decodedToken.uid }
+    const uid = decodedToken.uid
+
+    const userRecord = await admin.auth().getUser(uid)
+    const name = userRecord.displayName
+
+    return { adminId: uid, name }
   }
 }
 
