@@ -9,13 +9,15 @@
       <AdminTool
         v-if="isAdmin"
         :room-id="room.id"
-        :title="'技育CAMPハッカソン vol.5'"
+        :title="room.title"
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
       />
-      <div v-for="(topic, index) in topics" :key="index">
-        <ChatRoom :topic-index="index" :topic-id="`${topic.id}`" />
-      </div>
+      <template v-if="isRoomEnter">
+        <div v-for="(topic, index) in topics" :key="index">
+          <ChatRoom :topic-index="index" :topic-id="`${topic.id}`" />
+        </div>
+      </template>
     </main>
   </div>
 </template>
@@ -267,7 +269,7 @@ export default Vue.extend({
     },
     // アイコン選択
     clickIcon(index: number) {
-      UserItemStore.changeMyIcon(index)
+      UserItemStore.changeMyIcon(index - 1)
     },
   },
 })
