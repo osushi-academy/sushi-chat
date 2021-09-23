@@ -119,7 +119,7 @@ class UserService {
     this.userRepository.leaveRoom(user)
   }
 
-  public async leaveRoomOnDiscconect({ userId }: UserLeaveCommand) {
+  public async leaveRoomOnDisconnect({ userId }: UserLeaveCommand) {
     const user = await this.userRepository.find(userId)
     if (!user) {
       // 操作不要
