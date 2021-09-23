@@ -8,48 +8,36 @@
         </NuxtLink>
       </button>
     </section>
-    <section class="home-top__event">
+    <section v-if="ongoingRooms.length > 0" class="home-top__event">
       <div class="home-top__event--title">開催中のイベント</div>
-      <div class="home-top__event__list">
-        <div class="home-top__event__list--name">技育ハッカソン vol7</div>
-        <div class="home-top__event__list--date">2021/8/13</div>
-        <div class="home-top__event__list--role">共同管理者</div>
+      <div v-for="(room, id) in ongoingRooms" :key="id">
+        <div class="home-top__event__list">
+          <div class="home-top__event__list--name">{{ room.title }}</div>
+          <div class="home-top__event__list--date">{{ room.startDate }}</div>
+          <div class="home-top__event__list--role">管理者</div>
+        </div>
       </div>
     </section>
-    <section class="home-top__event">
+    <section v-if="notStartedRooms.length > 0" class="home-top__event">
       <div class="home-top__event--title">未開始のイベント</div>
-      <div class="home-top__event__list">
-        <div class="home-top__event__list--name">技育ハッカソン vol8</div>
-        <div class="home-top__event__list--date">2021/8/13</div>
-        <div class="home-top__event__list--role">共同管理者</div>
+      <div v-for="(room, id) in notStartedRooms" :key="id">
+        <div class="home-top__event__list">
+          <div class="home-top__event__list--name">{{ room.title }}</div>
+          <div class="home-top__event__list--date">{{ room.startDate }}</div>
+          <div class="home-top__event__list--role">管理者</div>
+        </div>
       </div>
     </section>
-    <section class="home-top__event">
+    <section v-if="finishedRooms.length > 0" class="home-top__event">
       <div class="home-top__event--title">終了済みのイベント</div>
-      <div class="home-top__event__list">
-        <div class="home-top__event__list--name">技育ハッカソン vol1</div>
-        <div class="home-top__event__list--date">2021/8/13</div>
-        <div class="home-top__event__list--role">管理者</div>
-        <div class="home-top__event__list--status">
-          <div class="home-top__event__list--status--label">公開停止</div>
-        </div>
-      </div>
-      <div class="home-top__event__list">
-        <div class="home-top__event__list--name">
-          技育ハッカソンああああああ vol2
-        </div>
-        <div class="home-top__event__list--date">2021/8/13</div>
-        <div class="home-top__event__list--role">共同管理者</div>
-        <div class="home-top__event__list--status">
-          <div class="home-top__event__list--status--label">公開停止</div>
-        </div>
-      </div>
-      <div class="home-top__event__list">
-        <div class="home-top__event__list--name">技育ハッカソン vol3</div>
-        <div class="home-top__event__list--date">2021/8/13</div>
-        <div class="home-top__event__list--role">管理者</div>
-        <div class="home-top__event__list--status">
-          <div class="home-top__event__list--status--label">公開停止</div>
+      <div v-for="(room, id) in finishedRooms" :key="id">
+        <div class="home-top__event__list">
+          <div class="home-top__event__list--name">{{ room.title }}</div>
+          <div class="home-top__event__list--date">{{ room.startDate }}</div>
+          <div class="home-top__event__list--role">管理者</div>
+          <div class="home-top__event__list--status">
+            <div class="home-top__event__list--status--label">公開停止</div>
+          </div>
         </div>
       </div>
     </section>
@@ -97,22 +85,41 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { RoomModel } from "sushi-chat-shared"
 import { DeviceStore } from "~/store"
+
+type DataType = {
+  ongoingRooms: RoomModel[]
+  notStartedRooms: RoomModel[]
+  finishedRooms: RoomModel[]
+}
 
 export default Vue.extend({
   name: "Home",
   layout: "home",
-  // async asyncData({ app }) {
-  //   const response = await app.$apiClient.get("/room", {})
-  //   if (response.result === "success") {
-  //     const rooms = response.data
-  //     console.log(rooms)
-  //     return { rooms }
-  //   } else {
-  //     // NOTE: エラーハンドリングどうやるのがベストかわかってない....
-  //     throw new Error("データの取得に失敗しました")
-  //   }
-  // },
+  async asyncData({ app }) {
+    const response = await app.$apiClient.get("/room", {})
+    if (response.result === "success") {
+      const rooms = response.data
+      const ongoingRooms = rooms.filter((room) => room.state === "ongoing")
+      const notStartedRooms = rooms.filter(
+        (room) => room.state === "not-started",
+      )
+      const finishedRooms = rooms.filter((room) => room.state === "finished")
+
+      return { ongoingRooms, notStartedRooms, finishedRooms }
+    } else {
+      // NOTE: エラーハンドリングを適切に
+      throw new Error("データの取得に失敗しました")
+    }
+  },
+  data(): DataType {
+    return {
+      ongoingRooms: [],
+      notStartedRooms: [],
+      finishedRooms: [],
+    }
+  },
   mounted(): void {
     DeviceStore.determineOs()
   },
