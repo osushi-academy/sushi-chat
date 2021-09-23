@@ -36,7 +36,7 @@ export default class Auth extends VuexModule {
   }
 
   @Mutation
-  private setIdToken(idToken: string) {
+  private setIdToken(idToken: string | null) {
     this._idToken = idToken
   }
 
@@ -44,6 +44,7 @@ export default class Auth extends VuexModule {
   public async onIdTokenChangedAction(res: { authUser?: firebase.User }) {
     if (res.authUser == null) {
       this.setAuthUser(null)
+      this.setIdToken(null)
       return
     }
     const { uid, email, displayName, photoURL, emailVerified } = res.authUser
