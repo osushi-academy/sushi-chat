@@ -35,7 +35,7 @@ class UserRepository implements IUserRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT u.is_admin, u.room_id, u.icon_id, ts.topic_id as speak_at FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE id = $1"
+      "SELECT u.is_admin, u.room_id, u.icon_id, ts.topic_id as speak_at FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE u.id = $1 AND u.has_left = false"
     try {
       const res = await pgClient.query(query, [userId])
       if (res.rowCount < 1) return null
@@ -60,7 +60,7 @@ class UserRepository implements IUserRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT u.id, u.is_admin, u.room_id, u.icon_id, ts.topic_id FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE u.room_id = $1"
+      "SELECT u.id, u.is_admin, u.room_id, u.icon_id, ts.topic_id FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE u.room_id = $1 AND u.has_left = false"
     try {
       const res = await pgClient.query(query, [roomId])
       const users = res.rows.map((r) => {
