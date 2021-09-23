@@ -14,7 +14,7 @@
     <div class="home-modal__content">
       <slot name="content" />
     </div>
-    <div class="home-modal__footer home-modal__hide-button">
+    <div class="home-modal__footer">
       <slot name="hide-button" />
     </div>
   </modal>

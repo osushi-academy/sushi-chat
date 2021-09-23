@@ -73,7 +73,7 @@
     <button class="home-create__create-new-event-button" @click="createRoom">
       この内容で作成
     </button>
-    <AddSessionsModal :text="tmpTopics" @separate-topics="separateTopics" />
+    <AddSessionsModal v-model="tmpTopics" @separate-topics="separateTopics" />
     <CreationCompletedModal />
   </div>
 </template>
@@ -129,8 +129,6 @@ export default Vue.extend({
     },
     // textareaに入力された文字を改行で区切ってTopic追加
     separateTopics(option: string) {
-      console.log(option)
-      console.log(this.sessionList)
       // 追加済みTopic名リスト作成
       const set = new Set<string>()
       for (const topic of this.sessionList.slice(0, this.sessionList.length)) {
