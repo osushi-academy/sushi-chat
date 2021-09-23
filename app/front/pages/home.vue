@@ -4,7 +4,7 @@
     <section class="home-top__new-event">
       <button class="home-top__new-event--button">
         <NuxtLink to="/room/create">
-          <span class="material-icons"> add </span>新しいイベントを追加
+          <span class="material-icons"> add </span>新しいイベントを作成
         </NuxtLink>
       </button>
     </section>
