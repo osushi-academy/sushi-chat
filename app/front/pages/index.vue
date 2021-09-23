@@ -1,10 +1,6 @@
 <template>
   <div class="container page">
     <main>
-      <CreateRoomModal
-        v-if="isAdmin && room.id == null"
-        @start-chat="startChat"
-      />
       <SelectIconModal
         v-if="!isAdmin && !isRoomEnter"
         @click-icon="clickIcon"
@@ -18,7 +14,7 @@
         @finish-room="finishRoom"
       />
       <div v-for="(topic, index) in topics" :key="index">
-        <ChatRoom :topic-index="index" :topic-id="topic.id" />
+        <ChatRoom :topic-index="index" :topic-id="`${topic.id}`" />
       </div>
     </main>
   </div>
@@ -27,11 +23,11 @@
 <script lang="ts">
 import Vue from "vue"
 import VModal from "vue-js-modal"
-import { Room, ChatItem, Stamp, Topic, TopicState } from "@/models/contents"
+import { Topic } from "sushi-chat-shared"
+import { Room, ChatItem, Stamp, TopicState } from "@/models/contents"
 import { AdminBuildRoomResponse } from "@/models/event"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
-import CreateRoomModal from "@/components/CreateRoomModal.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
 import socket from "~/utils/socketIO"
 import {
@@ -60,7 +56,6 @@ export default Vue.extend({
     AdminTool,
     ChatRoom,
     SelectIconModal,
-    CreateRoomModal,
   },
   data(): DataType {
     return {
@@ -97,13 +92,19 @@ export default Vue.extend({
     if (this.room.id !== "") {
       // TODO: this.room.idが存在しない→404
     }
-    // topics取得
-    const res = await this.$apiClient.get("/room/" + this.room.id)
+    const res = await this.$apiClient.get(
+      {
+        pathname: "/room/:id",
+        params: {
+          id: this.room.id,
+        },
+      },
+      {},
+    )
     if (res.result === "error") {
       throw new Error("エラーが発生しました")
     }
     TopicStore.set(res.data.topics)
-    console.log(res.data)
     // socket接続
     ;(this as any).socket = socket
     if (this.isAdmin && this.room.id != null) {

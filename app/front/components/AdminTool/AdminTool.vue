@@ -90,8 +90,8 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { Topic } from "sushi-chat-shared"
 import ICONS from "@/utils/icons"
-import { Topic } from "@/models/contents"
 import socket from "~/utils/socketIO"
 import { UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
 

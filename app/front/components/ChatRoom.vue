@@ -126,7 +126,7 @@ export default Vue.extend({
       )
     },
     topic() {
-      return TopicStore.topics.find(({ id }) => id === this.topicId)
+      return TopicStore.topics.find(({ id }) => `${id}` === this.topicId)
     },
     topicState() {
       return TopicStateItemStore.topicStateItems[this.topicId]
