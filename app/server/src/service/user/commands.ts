@@ -20,5 +20,4 @@ export type UserEnterCommand = {
 
 export type UserLeaveCommand = {
   userId: string
-  user?: User
 }
