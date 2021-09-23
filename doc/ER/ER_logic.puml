@@ -23,7 +23,7 @@ entity topics_speakers{
 note bottom: 匿名ユーザーは自分のトピックを登録できる
 
 entity admins {
-    +id: uuid
+    +id: string
     --
     #name: string
     #created_at: timestamp
