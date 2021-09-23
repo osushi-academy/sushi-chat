@@ -32,7 +32,7 @@ export const restSetup = (
             topics: covertToNewTopicArray(room.topics),
             state: room.state,
             adminInviteKey: room.adminInviteKey,
-            startDate: room.startAt.toDateString(),
+            startDate: room.startAt?.toDateString() ?? undefined,
           }
         }),
       })
@@ -64,7 +64,7 @@ export const restSetup = (
           topics: covertToNewTopicArray(newRoom.topics),
           state: newRoom.state,
           adminInviteKey: newRoom.adminInviteKey,
-          startDate: null,
+          startDate: undefined,
         },
       })
     } catch (e) {
