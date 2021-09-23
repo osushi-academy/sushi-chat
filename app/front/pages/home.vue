@@ -85,7 +85,9 @@
             sushi-chat@example.com
           </div>
         </div>
-        <div class="home-top__account--logout-button">ログアウト</div>
+        <button class="home-top__account--logout-button" @click="logout()">
+          ログアウト
+        </button>
       </div>
     </section>
     <section class="home-top__other">
@@ -102,8 +104,19 @@ import { DeviceStore } from "~/store"
 export default Vue.extend({
   name: "Home",
   layout: "home",
+  middleware: "privateRoute",
   mounted(): void {
     DeviceStore.determineOs()
+  },
+  methods: {
+    async logout() {
+      try {
+        await this.$fire.auth.signOut()
+        this.$router.push("/login")
+      } catch {
+        alert("ログアウトに失敗しました")
+      }
+    },
   },
 })
 </script>
