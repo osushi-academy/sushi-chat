@@ -45,7 +45,15 @@ class RoomRepository implements IRoomRepository {
       .join(", ")
     const insertTopicsQuery = `INSERT INTO Topics (id, room_id, topic_state_id, title) VALUES ${insertedTopicsStr}`
 
+    const creatorAdminId = room.adminIds.values().next().value
+    if (!creatorAdminId) {
+      throw new Error(`Admin who created room(${room.id}) is not set.`)
+    }
+    const insertRoomAdminQuery =
+      "INSERT INTO rooms_admins (admin_id, room_id) VALUES ($1, $2)"
+
     try {
+      // 依存先になるので先に作成
       await pgClient.query(insertRoomQuery, [
         room.id,
         RoomRepository.roomStateMap[room.state],
@@ -53,7 +61,10 @@ class RoomRepository implements IRoomRepository {
         room.adminInviteKey,
         room.description,
       ])
-      await pgClient.query(insertTopicsQuery, insertedTopics.flat())
+      await Promise.all([
+        pgClient.query(insertTopicsQuery, insertedTopics.flat()),
+        pgClient.query(insertRoomAdminQuery, [creatorAdminId, room.id]),
+      ])
     } catch (e) {
       RoomRepository.logError(e, "build()")
       throw e

@@ -19,7 +19,7 @@ class RoomClass {
     public readonly description: string,
     topics: (Omit<Topic, "id" | "state" | "pinnedChatItemId"> &
       Partial<Pick<Topic, "id" | "state" | "pinnedChatItemId">>)[],
-    private adminIds = new Set<string>([]),
+    public readonly adminIds = new Set<string>([]),
     private _state: RoomState = "not-started",
     public _startAt: Date | null = null,
     topicTimeData: Record<number, TopicTimeData> = {},
