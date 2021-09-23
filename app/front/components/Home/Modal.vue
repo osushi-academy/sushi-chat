@@ -14,10 +14,8 @@
     <div class="home-modal__content">
       <slot name="content" />
     </div>
-    <div class="home-modal__footer">
-      <button class="home-modal__hide-button" @click="$modal.hide(name)">
-        <slot name="hide-button" />
-      </button>
+    <div class="home-modal__footer home-modal__hide-button">
+      <slot name="hide-button" />
     </div>
   </modal>
 </template>
