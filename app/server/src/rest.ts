@@ -190,7 +190,7 @@ export const restSetup = (
   })
 
   // ルームと新しい管理者を紐付ける
-  app.put("/room/:id/invited", (req, res) => {
+  app.post("/room/:id/invited", (req, res) => {
     const adminInviteKey = req.query["admin_invite_key"]
     if (!adminInviteKey) {
       res.status(400).send({
