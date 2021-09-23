@@ -105,20 +105,11 @@ class UserService {
   }
 
   public async leaveRoom({ userId }: UserLeaveCommand) {
-    const user = await UserService.findUserOrThrow(userId, this.userRepository)
-    this.leaveRoomMain(user)
-  }
-
-  public async leaveRoomOnDisconnect({ userId }: UserLeaveCommand) {
     const user = await this.userRepository.find(userId)
     if (!user) {
       // 操作不要
       return
     }
-    this.leaveRoomMain(user)
-  }
-
-  private async leaveRoomMain(user: User) {
     const room = await RealtimeRoomService.findRoomOrThrow(
       user.roomId,
       this.roomRepository,
