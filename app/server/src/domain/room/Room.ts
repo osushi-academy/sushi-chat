@@ -7,6 +7,7 @@ import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
 import { RoomState, TopicState } from "sushi-chat-shared"
 import User from "../user/User"
+import { PartiallyPartial } from "../../types/utils"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -17,8 +18,7 @@ class RoomClass {
     public readonly title: string,
     public readonly adminInviteKey: string,
     public readonly description: string,
-    topics: (Omit<Topic, "id" | "order" | "state" | "pinnedChatItemId"> &
-      Partial<Pick<Topic, "id" | "order" | "state" | "pinnedChatItemId">>)[],
+    topics: PartiallyPartial<Topic, "id" | "state" | "pinnedChatItemId">[],
     private adminIds = new Set<string>([]),
     private _state: RoomState = "not-started",
     public _startAt: Date | null = null,
