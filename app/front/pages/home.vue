@@ -102,6 +102,17 @@ import { DeviceStore } from "~/store"
 export default Vue.extend({
   name: "Home",
   layout: "home",
+  // async asyncData({ app }) {
+  //   const response = await app.$apiClient.get("/room", {})
+  //   if (response.result === "success") {
+  //     const rooms = response.data
+  //     console.log(rooms)
+  //     return { rooms }
+  //   } else {
+  //     // NOTE: エラーハンドリングどうやるのがベストかわかってない....
+  //     throw new Error("データの取得に失敗しました")
+  //   }
+  // },
   mounted(): void {
     DeviceStore.determineOs()
   },
