@@ -25,8 +25,8 @@
 <script lang="ts">
 import Vue from "vue"
 import VModal from "vue-js-modal"
-import { Topic } from "sushi-chat-shared"
-import { Room, ChatItem, Stamp, TopicState } from "@/models/contents"
+import { Topic, TopicState } from "sushi-chat-shared"
+import { Room, ChatItem, Stamp } from "@/models/contents"
 import { AdminBuildRoomResponse } from "@/models/event"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
@@ -118,7 +118,12 @@ export default Vue.extend({
         },
         (res: any) => {
           ChatItemStore.add(res.data.chatItems)
-          TopicStateItemStore.set(res.data.topicStates)
+          res.data.topicStates.forEach((topicState: any) => {
+            TopicStateItemStore.change({
+              key: `${topicState.topicId}`,
+              state: topicState.state,
+            })
+          })
           this.activeUserCount = res.data.activeUserCount
         },
       )
@@ -133,16 +138,16 @@ export default Vue.extend({
     })
     socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
       if (res.type === "OPEN") {
-        // 現在activeなトピックがあればfinishedにする
+        // 現在ongoingなトピックがあればfinishedにする
         const t = Object.fromEntries(
           Object.entries(this.topicStateItems).map(([topicId, topicState]) => [
             topicId,
-            topicState === "active" ? "finished" : topicState,
+            topicState === "ongoing" ? "finished" : topicState,
           ]),
         )
         TopicStateItemStore.set(t)
         // クリックしたTopicのStateを変える
-        TopicStateItemStore.change({ key: res.topicId, state: "active" })
+        TopicStateItemStore.change({ key: res.topicId, state: "ongoing" })
       } else if (res.type === "PAUSE") {
         TopicStateItemStore.change({ key: res.topicId, state: "paused" })
       } else if (res.type === "CLOSE") {
@@ -176,7 +181,7 @@ export default Vue.extend({
       socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
         roomId: this.room.id,
         type:
-          state === "active" ? "OPEN" : state === "paused" ? "PAUSE" : "CLOSE",
+          state === "ongoing" ? "OPEN" : state === "paused" ? "PAUSE" : "CLOSE",
         topicId,
       })
     },
@@ -230,7 +235,12 @@ export default Vue.extend({
             },
             (res: any) => {
               ChatItemStore.add(res.data.chatItems)
-              TopicStateItemStore.set(res.data.topicStates)
+              res.data.topicStates.forEach((topicState: any) => {
+                TopicStateItemStore.change({
+                  key: `${topicState.topicId}`,
+                  state: topicState.state,
+                })
+              })
               this.activeUserCount = res.data.activeUserCount
             },
           )
@@ -258,7 +268,12 @@ export default Vue.extend({
         },
         (res: any) => {
           ChatItemStore.add(res.data.chatItems)
-          TopicStateItemStore.set(res.data.topicStates)
+          res.data.topicStates.forEach((topicState: any) => {
+            TopicStateItemStore.change({
+              key: `${topicState.topicId}`,
+              state: topicState.state,
+            })
+          })
         },
       )
     },

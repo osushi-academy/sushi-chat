@@ -33,7 +33,7 @@
           <div class="topic-number">{{ index }}</div>
           <div class="topic-name">
             {{ topic.title
-            }}<span v-if="topicStateItems[topic.id] === 'active'" class="label"
+            }}<span v-if="topicStateItems[topic.id] === 'ongoing'" class="label"
               >進行中</span
             >
             <span v-if="topicStateItems[topic.id] === 'paused'" class="label"
@@ -51,7 +51,7 @@
             </button>
             <button
               v-if="
-                topicStateItems[topic.id] === 'active' ||
+                topicStateItems[topic.id] === 'ongoing' ||
                 topicStateItems[topic.id] === 'paused'
               "
               @click="clickFinishButton(topic.id)"
@@ -137,7 +137,7 @@ export default Vue.extend({
     },
     playOrPause() {
       return function (topicState: string) {
-        if (topicState === "active") {
+        if (topicState === "ongoing") {
           return "pause_circle"
         } else if (topicState === "paused" || topicState === "not-started") {
           return "play_circle"
@@ -166,15 +166,15 @@ export default Vue.extend({
       navigator.clipboard.writeText(s)
     },
     clickPlayPauseButton(topicId: string) {
-      if (this.topicStateItems[topicId] === "active") {
-        // activeならばpausedに
+      if (this.topicStateItems[topicId] === "ongoing") {
+        // ongoingならばpausedに
         this.$emit("change-topic-state", topicId, "paused")
       } else if (
         this.topicStateItems[topicId] === "paused" ||
         this.topicStateItems[topicId] === "not-started"
       ) {
-        // paused, not-startedならばactiveに
-        this.$emit("change-topic-state", topicId, "active")
+        // paused, not-startedならばongoingに
+        this.$emit("change-topic-state", topicId, "ongoing")
       }
     },
     clickFinishButton(topicId: string) {
@@ -183,7 +183,7 @@ export default Vue.extend({
     },
     clickRestartButton(topicId: string) {
       TopicStateItemStore.change({ key: topicId, state: "finished" })
-      this.$emit("change-topic-state", topicId, "active")
+      this.$emit("change-topic-state", topicId, "ongoing")
     },
   },
 })

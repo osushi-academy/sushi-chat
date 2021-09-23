@@ -48,7 +48,7 @@
       </div>
       <div class="stamp-zone">
         <FavoriteButton
-          :disabled="topicState !== 'active'"
+          :disabled="topicState !== 'ongoing'"
           :topic-id="topicId"
         />
       </div>
