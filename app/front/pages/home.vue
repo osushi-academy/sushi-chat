@@ -11,39 +11,51 @@
     <section v-if="ongoingRooms.length > 0" class="home-top__event">
       <div class="home-top__event--title">開催中のイベント</div>
       <div v-for="(room, id) in ongoingRooms" :key="id">
-        <div class="home-top__event__list">
-          <div class="home-top__event__list--name">{{ room.title }}</div>
-          <div class="home-top__event__list--date">{{ room.startDate }}</div>
-          <div class="home-top__event__list--role">管理者</div>
-        </div>
+        <NuxtLink
+          :to="{ path: '/', query: { roomId: room.id, user: 'admin' } }"
+        >
+          <div class="home-top__event__list">
+            <div class="home-top__event__list--name">{{ room.title }}</div>
+            <div class="home-top__event__list--date">{{ room.startDate }}</div>
+            <div class="home-top__event__list--role">管理者</div>
+          </div>
+        </NuxtLink>
       </div>
     </section>
     <section v-if="notStartedRooms.length > 0" class="home-top__event">
       <div class="home-top__event--title">未開始のイベント</div>
       <div v-for="(room, id) in notStartedRooms" :key="id">
-        <div class="home-top__event__list">
-          <div class="home-top__event__list--name">{{ room.title }}</div>
-          <div class="home-top__event__list--date">{{ room.startDate }}</div>
-          <div class="home-top__event__list--role">管理者</div>
-        </div>
+        <NuxtLink
+          :to="{ path: '/', query: { roomId: room.id, user: 'admin' } }"
+        >
+          <div class="home-top__event__list">
+            <div class="home-top__event__list--name">{{ room.title }}</div>
+            <div class="home-top__event__list--date">{{ room.startDate }}</div>
+            <div class="home-top__event__list--role">管理者</div>
+          </div>
+        </NuxtLink>
       </div>
     </section>
     <section v-if="finishedRooms.length > 0" class="home-top__event">
       <div class="home-top__event--title">終了済みのイベント</div>
       <div v-for="(room, id) in finishedRooms" :key="id">
-        <div class="home-top__event__list">
-          <div class="home-top__event__list--name">{{ room.title }}</div>
-          <div class="home-top__event__list--date">{{ room.startDate }}</div>
-          <div class="home-top__event__list--role">管理者</div>
-          <div class="home-top__event__list--status">
-            <div
-              class="home-top__event__list--status--label"
-              @click="onClickArchive(room.id)"
-            >
-              公開停止
+        <NuxtLink
+          :to="{ path: '/', query: { roomId: room.id, user: 'admin' } }"
+        >
+          <div class="home-top__event__list">
+            <div class="home-top__event__list--name">{{ room.title }}</div>
+            <div class="home-top__event__list--date">{{ room.startDate }}</div>
+            <div class="home-top__event__list--role">管理者</div>
+            <div class="home-top__event__list--status">
+              <div
+                class="home-top__event__list--status--label"
+                @click="onClickArchive(room.id)"
+              >
+                公開停止
+              </div>
             </div>
           </div>
-        </div>
+        </NuxtLink>
       </div>
     </section>
     <section class="home-top__inquiry">
