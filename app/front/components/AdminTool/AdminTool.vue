@@ -79,7 +79,7 @@
         </div>
       </div>
       <div class="drawer-menu__footer">
-        <button v-if="isRoomStarted" class="end-button" @click="endRoom">
+        <button v-if="isRoomStarted" class="end-button" @click="finishRoom">
           <span>ルームを終了する</span>
           <div class="material-icons-outlined danger">info</div>
         </button>
@@ -150,12 +150,17 @@ export default Vue.extend({
   methods: {
     // ルーム開始
     startRoom() {
+      // TODO: ルームの状態をindex、またはvuexでもつ
       socket.emit("ADMIN_START_ROOM", { roomId: this.roomId })
       this.isRoomStarted = true
     },
     // ルーム終了
-    endRoom() {
-      // TODO:ルーム終了
+    finishRoom() {
+      if (confirm("本当にこのルームを終了しますか？この操作は取り消せません")) {
+        this.$emit("finish-room")
+        // TODO: ルームの状態をindex、またはvuexでもつ
+        this.isRoomStarted = false
+      }
     },
     writeToClipboard(s: string) {
       navigator.clipboard.writeText(s)
@@ -173,12 +178,8 @@ export default Vue.extend({
       }
     },
     clickFinishButton(topicId: string) {
-      if (
-        confirm("本当にこのトピックを終了しますか？この操作は取り消せません")
-      ) {
-        TopicStateItemStore.change({ key: topicId, state: "finished" })
-        this.$emit("change-topic-state", topicId, "closed")
-      }
+      TopicStateItemStore.change({ key: topicId, state: "finished" })
+      this.$emit("change-topic-state", topicId, "closed")
     },
     clickRestartButton(topicId: string) {
       TopicStateItemStore.change({ key: topicId, state: "finished" })
