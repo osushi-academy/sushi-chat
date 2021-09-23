@@ -91,12 +91,20 @@ export default Vue.extend({
       UserItemStore.changeIsAdmin(true)
     }
   },
-  mounted(): any {
+  async mounted() {
     // roomId取得
     this.room.id = this.$route.query.roomId as string
     if (this.room.id !== "") {
       // TODO: this.room.idが存在しない→404
     }
+    // topics取得
+    const res = await this.$apiClient.get("/room/" + this.room.id)
+    if (res.result === "error") {
+      throw new Error("エラーが発生しました")
+    }
+    TopicStore.set(res.data.topics)
+    console.log(res.data)
+    // socket接続
     ;(this as any).socket = socket
     if (this.isAdmin && this.room.id != null) {
       // 管理者の入室
