@@ -1,5 +1,12 @@
 <template>
   <div class="sushi-select">
+    <section class="sushi-select__header">
+      <h1 class="sushi-select__header--title">技育ハッカソンvol7</h1>
+      <p class="sushi-select__header--content">
+        2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。
+      </p>
+    </section>
+
     <section class="sushi-select__section">
       <div class="sushi-select__progressbar">
         <div class="sushi-select__progressbar--circle" />
