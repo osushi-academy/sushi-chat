@@ -10,13 +10,40 @@ export const restSetup = (
   // For health check
   app.get("/", (req, res) => res.send("ok"))
 
-  // 管理しているルーム一覧を取得する
-  app.get("/room", async (req, res) => {
-    try {
-      // TODO:adminIdをheaderから取得
-      const adminId = ""
+  // adminの認証/認可が必要なエンドポイントのルーター
+  const adminRouter = express.Router()
+  app.use("/", adminRouter)
 
-      const rooms = await adminService.getManagedRooms({ adminId: adminId })
+  // AuthorizationヘッダからidTokenをextractし、検証結果をbodyに入れる
+  adminRouter.use(async (req, res, next) => {
+    const authHeader = req.headers.authorization
+    if (!authHeader || !authHeader.startsWith("Bearer")) {
+      res.status(401).send({
+        result: "error",
+        error: {
+          code: 404,
+          message:
+            "Must specify authorization ID token; e.g. Authorization: Bearer <id token>",
+        },
+      })
+
+      return
+    }
+
+    // TODO:bodyがanyで入れるの簡単だったので入れてるが、本当は専用のフィールドに入れたい
+    const token = authHeader.substring("Bearer ".length, authHeader.length)
+    const adminId = adminService.verifyToken(token)
+    req.body.adminId = adminId
+
+    next()
+  })
+
+  // 管理しているルーム一覧を取得する
+  adminRouter.get("/room", async (req, res) => {
+    try {
+      const rooms = await adminService.getManagedRooms({
+        adminId: req.body.adminId,
+      })
 
       res.send({
         result: "success",
@@ -46,12 +73,13 @@ export const restSetup = (
   })
 
   // 新しくルームを作成する
-  app.post("/room", (req, res) => {
+  adminRouter.post("/room", async (req, res) => {
     try {
-      const newRoom = roomService.build({
+      const newRoom = await roomService.build({
         title: req.body.title,
         topics: req.body.topics,
         description: req.body.description,
+        adminId: req.body.adminId,
       })
 
       res.send({
@@ -82,13 +110,11 @@ export const restSetup = (
   })
 
   // ルームを開始する
-  app.put("/room/:id/start", (req, res) => {
-    // TODO:adminIdをheaderから取得
-    const adminId = ""
+  adminRouter.put("/room/:id/start", (req, res) => {
     roomService
       .start({
         id: req.params.id,
-        adminId: adminId,
+        adminId: req.body.adminId,
       })
       .then(() => res.send({ result: "success" }))
       .catch((e) => {
@@ -103,13 +129,11 @@ export const restSetup = (
   })
 
   // ルームを公開停止にする
-  app.put("/room/:id/archive", (req, res) => {
-    // TODO:adminIdをheaderから取得
-    const adminId = ""
+  adminRouter.put("/room/:id/archive", (req, res) => {
     roomService
       .archive({
         id: req.params.id,
-        adminId: adminId,
+        adminId: req.body.adminId,
       })
       .then(() => res.send({ result: "success" }))
       .catch((e) => {
@@ -150,12 +174,9 @@ export const restSetup = (
   // ルーム情報を取得する
   app.get("/room/:id", async (req, res) => {
     try {
-      const roomId = req.params.id
-      const adminId = "hoge" /* 本当はヘッダーから。 */
-
       const room = await roomService.checkAdminAndfind({
-        id: roomId,
-        adminId: adminId,
+        id: req.params.id,
+        adminId: req.body.adminId,
       })
 
       res.send({
@@ -174,7 +195,7 @@ export const restSetup = (
   })
 
   // ルームと新しい管理者を紐付ける
-  app.post("/room/:id/invite", (req, res) => {
+  adminRouter.post("/room/:id/invite", (req, res) => {
     const adminInviteKey = req.query["admin_invite_key"]
     if (!adminInviteKey) {
       res.status(400).send({
@@ -200,7 +221,7 @@ export const restSetup = (
       .inviteAdmin({
         id: req.params.id,
         adminInviteKey: adminInviteKey,
-        adminId: "af3b9483-a1dc-478f-a2ec-a1e7a7c72a12",
+        adminId: req.body.adminId,
       })
       .then(() => res.send({ result: "success" }))
       .catch((e) => {
