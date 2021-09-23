@@ -275,6 +275,7 @@
           align-items: flex-start;
         }
         &--url{
+          word-break : break-all;
           @media screen and (min-width: $small+px) {
             flex: 1;
 	          overflow-x: scroll;
@@ -285,6 +286,10 @@
           background:rgba(255, 255, 255, 0);
           color: $admin-primary;
           padding: 0;
+          margin-left: 5px;
+          .material-icons{
+            font-size: 18px;
+          }
         }
       }
     }

@@ -2,10 +2,6 @@
   <div class="home-top">
     <header class="home-top__header">マイページ</header>
     <section class="home-top__new-event">
-      <input
-        class="home-top__new-event--input"
-        placeholder="新しいイベントの名前を入力"
-      />
       <button class="home-top__new-event--button">
         <NuxtLink to="/room/create">
           <span class="material-icons"> add </span>新しいイベントを追加

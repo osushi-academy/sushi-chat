@@ -6,6 +6,7 @@
     :width="width"
     height="auto"
     :click-to-close="clickToClose"
+    @before-open="beforeOpen"
   >
     <div class="home-modal__header">
       <slot name="title" />
@@ -45,6 +46,11 @@ export default Vue.extend({
       } else {
         return "50%"
       }
+    },
+  },
+  methods: {
+    beforeOpen(event: any) {
+      this.$emit("before-open", event)
     },
   },
 })
