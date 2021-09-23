@@ -3,7 +3,7 @@
     <header class="home-create__header">イベントの作成</header>
     <section class="home-create__event-name">
       <div class="home-create__event-name--title">1.イベント名の入力</div>
-      <input class="home-create__event-name--input" />
+      <input v-model="roomName" class="home-create__event-name--input" />
     </section>
     <section class="home-create__room">
       <div class="home-create__room--title">2.ルームの登録</div>
@@ -33,7 +33,10 @@
                 class="home-create__room__sessions__list--element"
               >
                 <div class="home-create__room__sessions__list--element--input">
-                  <input v-model="list.name" placeholder="セッション名を入力" />
+                  <input
+                    v-model="list.title"
+                    placeholder="セッション名を入力"
+                  />
                   <div
                     class="home-create__room__sessions__list--element--remove"
                     @click="removeSession(idx)"
@@ -67,10 +70,7 @@
         </div>
       </div>
     </section>
-    <button
-      class="home-create__create-new-event-button"
-      @click="$modal.show('home-creation-completed-modal')"
-    >
+    <button class="home-create__create-new-event-button" @click="createRoom">
       この内容で作成
     </button>
     <AddSessionsModal />
@@ -87,7 +87,8 @@ import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue
 
 Vue.use(VModal)
 type DataType = {
-  sessionList: { name: string; id: number }[]
+  roomName: string
+  sessionList: { title: string; id: number }[]
   isDragging: boolean
 }
 export default Vue.extend({
@@ -100,13 +101,8 @@ export default Vue.extend({
   layout: "home",
   data(): DataType {
     return {
-      sessionList: [
-        { name: "いけおく", id: 0 },
-        { name: "池奥", id: 1 },
-        { name: "Ikeoku", id: 2 },
-        { name: "寿司処いけおく", id: 3 },
-        { name: "大乱闘いけおくブラザーズ", id: 4 },
-      ],
+      roomName: "",
+      sessionList: [{ title: "", id: 0 }],
       isDragging: false,
     }
   },
@@ -122,10 +118,43 @@ export default Vue.extend({
   },
   methods: {
     addSession() {
-      this.sessionList.push({ name: "", id: this.sessionList.length - 1 })
+      this.sessionList.push({ title: "", id: this.sessionList.length })
     },
     removeSession(idx: number) {
       this.sessionList.splice(idx, 1)
+    },
+    async createRoom() {
+      try {
+        // titleのないセッションは無視
+        const sessions = this.sessionList.filter(
+          (session) => session.title !== "",
+        )
+        // room名とセッションが不足していたらエラー
+        if (this.roomName === "" || sessions.length === 0) {
+          throw new Error("入力が不足しています")
+        }
+
+        const res = await this.$apiClient.post("/room", {
+          title: this.roomName,
+          topics: sessions,
+          description: "hello, world",
+        })
+
+        if (res.result === "error") {
+          throw new Error("エラーが発生しました")
+        }
+
+        const createdRoom = res.data
+
+        this.$modal.show("home-creation-completed-modal", {
+          title: createdRoom.title,
+          id: createdRoom.id,
+          adminInviteKey: createdRoom.adminInviteKey,
+        })
+      } catch (e) {
+        console.error(e)
+        window.alert(e.message ?? "不明なエラーが発生しました")
+      }
     },
   },
 })

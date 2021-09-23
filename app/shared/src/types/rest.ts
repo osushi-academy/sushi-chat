@@ -24,13 +24,13 @@ export type RestApiDefinition = {
       post: {
         query: Empty
         request: {
-          name: string
+          title: string
           topics: {
-            name: string
+            title: string
           }[]
           description?: string
         }
-        response: SuccessResponse<RoomModel[]> | ErrorResponse
+        response: SuccessResponse<RoomModel> | ErrorResponse
       }
     }
   }
@@ -141,8 +141,8 @@ export type PutMethodPath = PathsWithMethod<"put">
 export type RestApi<
   Method extends "get" | "post" | "put",
   Path extends keyof RestApiDefinition,
-> = Path extends GetMethodPath
-  ? Method extends "get"
+> = Method extends "get"
+  ? Path extends GetMethodPath
     ? {
         request: RestApiDefinition[Path]["methods"]["get"]["request"]
         response: RestApiDefinition[Path]["methods"]["get"]["response"]
@@ -150,8 +150,8 @@ export type RestApi<
         query: RestApiDefinition[Path]["methods"]["get"]["query"]
       }
     : never
-  : Path extends PostMethodPath
-  ? Method extends "post"
+  : Method extends "post"
+  ? Path extends PostMethodPath
     ? {
         request: RestApiDefinition[Path]["methods"]["post"]["request"]
         response: RestApiDefinition[Path]["methods"]["post"]["response"]
@@ -159,8 +159,8 @@ export type RestApi<
         query: RestApiDefinition[Path]["methods"]["post"]["query"]
       }
     : never
-  : Path extends PutMethodPath
-  ? Method extends "put"
+  : Method extends "put"
+  ? Path extends PutMethodPath
     ? {
         request: RestApiDefinition[Path]["methods"]["put"]["request"]
         response: RestApiDefinition[Path]["methods"]["put"]["response"]
