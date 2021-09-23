@@ -67,10 +67,10 @@ class RestRoomService {
     const roomDefault: RoomModel = {
       id: room.id,
       title: room.title,
-      topics: /* room.topics */ [],
+      topics: room.topics,
       state: room.state,
       description: room.description,
-      startDate: /* room.startDate */ "",
+      startDate: room.startAt?.toLocaleDateString("ja-JP") ?? "",
       adminInviteKey: undefined,
     }
     // adminの時のみadminInviteKeyに値をいれる

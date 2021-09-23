@@ -2,6 +2,7 @@ import { TopicState } from "sushi-chat-shared"
 
 type Topic = {
   id: number
+  order: number
   title: string
   state: TopicState
   pinnedChatItemId?: string

@@ -17,8 +17,8 @@ class RoomClass {
     public readonly title: string,
     public readonly adminInviteKey: string,
     public readonly description: string,
-    topics: (Omit<Topic, "id" | "state" | "pinnedChatItemId"> &
-      Partial<Pick<Topic, "id" | "state" | "pinnedChatItemId">>)[],
+    topics: (Omit<Topic, "id" | "order" | "state" | "pinnedChatItemId"> &
+      Partial<Pick<Topic, "id" | "order" | "state" | "pinnedChatItemId">>)[],
     private adminIds = new Set<string>([]),
     private _state: RoomState = "not-started",
     public _startAt: Date | null = null,
@@ -32,6 +32,7 @@ class RoomClass {
     this._topics = topics.map((topic, i) => ({
       ...topic,
       id: topic.id ?? i + 1,
+      order: topic.id ?? i + 1,
       state: topic.state ?? "not-started",
       pinnedChatItemId: topic.pinnedChatItemId,
     }))
