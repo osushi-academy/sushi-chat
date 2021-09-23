@@ -142,6 +142,7 @@ export const restSetup = (
         }),
       })
     } catch (e) {
+      console.log(e)
       res.status(400).send({
         result: "error",
         error: {
