@@ -73,7 +73,7 @@
     <button class="home-create__create-new-event-button" @click="createRoom">
       この内容で作成
     </button>
-    <AddSessionsModal />
+    <AddSessionsModal @separate-topics="separateTopics" />
     <CreationCompletedModal />
   </div>
 </template>
@@ -90,6 +90,7 @@ type DataType = {
   roomName: string
   sessionList: { title: string; id: number }[]
   isDragging: boolean
+  MAX_TOPIC_LENGTH: number
 }
 export default Vue.extend({
   name: "HomeEventCreate",
@@ -104,6 +105,7 @@ export default Vue.extend({
       roomName: "",
       sessionList: [{ title: "", id: 0 }],
       isDragging: false,
+      MAX_TOPIC_LENGTH: 100,
     }
   },
   computed: {
@@ -123,6 +125,37 @@ export default Vue.extend({
     removeSession(idx: number) {
       this.sessionList.splice(idx, 1)
     },
+    // textareaに入力された文字を改行で区切ってTopic追加
+    separateTopics(titles: string) {
+      // titleが空のsessionListを削除
+      this.sessionList = this.sessionList.filter(({ title }) => title !== "")
+
+      // 追加済みTopic名リスト作成
+      const set = new Set<string>()
+      for (const topic of this.sessionList.slice(0, this.sessionList.length)) {
+        set.add(topic.title)
+      }
+
+      for (const topicTitle of titles) {
+        // 空文字はカウントしない
+        if (topicTitle === "") continue
+        // 重複しているトピックはカウントしない
+        if (set.has(topicTitle)) continue
+        // 長さ制限を超えている
+        if (topicTitle.length > this.MAX_TOPIC_LENGTH) {
+          alert("セッション名は" + this.MAX_TOPIC_LENGTH + "文字までです。")
+          return
+        }
+        const t: { title: string; id: number } = {
+          title: topicTitle,
+          id: this.sessionList.length,
+        }
+        set.add(topicTitle)
+        this.sessionList.push(t)
+      }
+      this.$modal.hide("home-add-sessions-modal")
+    },
+    // ルーム作成
     async createRoom() {
       try {
         // titleのないセッションは無視
