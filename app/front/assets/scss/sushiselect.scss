@@ -113,8 +113,8 @@
       border-radius: 4px;
 
       & > .icon-box {
-        width: 80px;
-        height: 80px;
+        // width: 80px;
+        // height: 80px;
         box-sizing: border-box;
         display: flex;
         border-radius: 100%;
@@ -126,7 +126,7 @@
         padding: 8px;
         background: white;
         transition: all 0.2s;
-        margin: 12px;
+        margin: 4px;
       }
 
       & > .icon-box:hover {
@@ -147,12 +147,12 @@
     }
     &--button {
       align-self: center;
-      margin-left: 2rem;
+      margin-left: 1rem;
       button {
         @include home-button-text($primary);
       }
       @media screen and (min-width: $large+px) {
-        margin-left: 3rem;
+        margin-left: 2rem;
       }
     }
     &--my-sushi {
@@ -165,10 +165,6 @@
       align-items: center;
       justify-content: center;
       object-fit: contain;
-      @media screen and (min-width: $large+px) {
-        width: 70px;
-        height: 70px;
-      }
     }
   }
 
