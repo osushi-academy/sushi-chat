@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin"
 import IAdminAuth, { VerifyResult } from "../../domain/admin/IAdminAuth"
+import Admin from "../../domain/admin/admin"
 
 class AdminAuth implements IAdminAuth {
   private static cert = {
@@ -21,7 +22,7 @@ class AdminAuth implements IAdminAuth {
     const uid = decodedToken.uid
 
     const userRecord = await admin.auth().getUser(uid)
-    const name = userRecord.displayName
+    const name = userRecord.displayName ?? Admin.NO_NAME_USER
 
     return { adminId: uid, name }
   }
