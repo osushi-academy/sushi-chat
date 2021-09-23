@@ -1,5 +1,3 @@
-import User from "../../domain/user/User"
-
 export type CreateUserCommand = {
   userId: string
   idToken?: string
