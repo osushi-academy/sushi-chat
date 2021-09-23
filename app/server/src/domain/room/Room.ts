@@ -32,7 +32,6 @@ class RoomClass {
     this._topics = topics.map((topic, i) => ({
       ...topic,
       id: topic.id ?? i + 1,
-      order: topic.id ?? i + 1,
       state: topic.state ?? "not-started",
       pinnedChatItemId: topic.pinnedChatItemId,
     }))
