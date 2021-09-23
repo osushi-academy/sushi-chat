@@ -125,7 +125,15 @@ export default Vue.extend({
     },
     async createRoom() {
       try {
-        const sessions = this.sessionList
+        // titleのないセッションは無視
+        const sessions = this.sessionList.filter(
+          (session) => session.title !== "",
+        )
+        // room名とセッションが不足していたらエラー
+        if (this.roomName === "" || sessions.length === 0) {
+          throw new Error("入力が不足しています")
+        }
+
         const res = await this.$apiClient.post("/room", {
           title: this.roomName,
           topics: sessions,
@@ -136,15 +144,16 @@ export default Vue.extend({
           throw new Error("エラーが発生しました")
         }
 
-        console.log(res)
         const createdRoom = res.data
 
         this.$modal.show("home-creation-completed-modal", {
+          title: createdRoom.title,
+          id: createdRoom.id,
           adminInviteKey: createdRoom.adminInviteKey,
         })
       } catch (e) {
         console.error(e)
-        window.alert("エラーが発生しました")
+        window.alert(e.message ?? "不明なエラーが発生しました")
       }
     },
   },
