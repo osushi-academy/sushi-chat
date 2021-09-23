@@ -92,26 +92,27 @@ export default Vue.extend({
     }
   },
   mounted(): any {
-    if (this.$route.query.roomId != null) {
-      // TODO: redirect
+    // roomId取得
+    this.room.id = this.$route.query.roomId as string
+    if (this.room.id !== "") {
+      // TODO: this.room.idが存在しない→404
     }
     ;(this as any).socket = socket
-    if (this.isAdmin && this.$route.query.roomId != null) {
+    if (this.isAdmin && this.room.id != null) {
+      // 管理者の入室
       socket.emit(
         "ADMIN_ENTER_ROOM",
         {
-          roomId: this.$route.query.roomId,
+          roomId: this.room.id,
         },
-        ({ chatItems, topics, activeUserCount }: any) => {
-          topics.forEach(({ id, state }: any) => {
-            this.topicStateItems[id] = state
-          })
-          ChatItemStore.addList(chatItems)
-          TopicStore.set(topics)
-          this.activeUserCount = activeUserCount
+        (res: any) => {
+          ChatItemStore.add(res.data.chatItems)
+          TopicStateItemStore.set(res.data.topicStates)
+          this.activeUserCount = res.data.activeUserCount
         },
       )
     } else {
+      // ユーザーの入室
       this.$modal.show("sushi-modal")
     }
     // SocketIOのコールバックの登録
@@ -207,7 +208,6 @@ export default Vue.extend({
         },
         (room: AdminBuildRoomResponse) => {
           this.room = room
-          console.log(`ルームID: ${room.id}`)
           this.$router.push({
             path: this.$router.currentRoute.path,
             query: { ...this.$router.currentRoute.query, roomId: room.id },
@@ -217,18 +217,14 @@ export default Vue.extend({
             {
               roomId: room.id,
             },
-            ({ chatItems, topics, activeUserCount }: any) => {
-              topics.forEach(({ id, state }: any) => {
-                TopicStateItemStore.change({ key: id, state })
-              })
-              ChatItemStore.addList(chatItems)
-              TopicStore.set(topics)
-              this.activeUserCount = activeUserCount
+            (res: any) => {
+              ChatItemStore.add(res.data.chatItems)
+              TopicStateItemStore.set(res.data.topicStates)
+              this.activeUserCount = res.data.activeUserCount
             },
           )
         },
       )
-
       // ルーム開始
       this.$modal.hide("sushi-modal")
     },
@@ -242,21 +238,16 @@ export default Vue.extend({
     // ルーム入室
     enterRoom(iconId: number) {
       const socket = (this as any).socket
-
-      const roomId = this.$route.query.roomId as string
       socket.emit(
         "ENTER_ROOM",
         {
           iconId,
-          roomId,
+          roomId: this.room.id,
+          speakerTopicId: 1, // TODO: speakerTopicIdを渡す
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (res: any) => {
-          TopicStore.set(res.topics)
-          ChatItemStore.addList(res.chatItems)
-          res.topics.forEach((topic: any) => {
-            TopicStateItemStore.change({ key: topic.id, state: topic.state })
-          })
+          ChatItemStore.add(res.data.chatItems)
+          TopicStateItemStore.set(res.data.topicStates)
         },
       )
     },
