@@ -2,7 +2,6 @@ import { TopicState } from "sushi-chat-shared"
 import Topic from "../../domain/room/Topic"
 
 export type BuildRoomCommand = {
-  adminId: string
   title: string
   topics: Omit<Topic, "id" | "state" | "pinnedChatItemId">[]
   description?: string
