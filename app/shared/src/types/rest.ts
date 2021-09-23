@@ -30,7 +30,7 @@ export type RestApiDefinition = {
           }[]
           description?: string
         }
-        response: SuccessResponse<RoomModel[]> | ErrorResponse
+        response: SuccessResponse<RoomModel> | ErrorResponse
       }
     }
   }

@@ -137,8 +137,7 @@ export default Vue.extend({
         }
 
         console.log(res)
-        // @ts-ignore
-        const createdRoom = res.room[0]
+        const createdRoom = res.data
 
         this.$modal.show("home-creation-completed-modal", {
           adminInviteKey: createdRoom.adminInviteKey,

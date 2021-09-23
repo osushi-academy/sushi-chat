@@ -55,19 +55,15 @@ export const restSetup = (
 
       res.send({
         result: "success",
-        room: [
-          {
-            id: newRoom.id,
-            title: newRoom.title,
-            description: newRoom.description,
-            topics: newRoom.topics,
-            state: newRoom.state,
-            adminInviteKey: newRoom.adminInviteKey,
-            /*
-              startDate: newRoom.startDate,
-              */
-          },
-        ],
+        data: {
+          id: newRoom.id,
+          title: newRoom.title,
+          description: newRoom.description,
+          topics: newRoom.topics,
+          state: newRoom.state,
+          adminInviteKey: newRoom.adminInviteKey,
+          startDate: newRoom.startAt?.getDate(),
+        },
       })
     } catch (e) {
       res.status(400).send({
