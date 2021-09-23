@@ -7,6 +7,7 @@ export const restSetup = (
   roomService: RestRoomService,
   adminService: AdminService,
 ) => {
+  // For health check
   app.get("/", (req, res) => res.send("ok"))
 
   // 管理しているルーム一覧を取得する
