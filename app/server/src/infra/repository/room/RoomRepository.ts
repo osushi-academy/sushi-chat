@@ -165,6 +165,16 @@ class RoomRepository implements IRoomRepository {
       ])
     }
 
+    // 例: '($2 $1), ($3, $1), ($4, $1), ...'
+    const roomAdminValues = ArrayRange(room.adminIds.size)
+      .map((i) => `($${i + 2}, $1)`)
+      .join(", ")
+
+    const roomAdminsQuery = `INSERT INTO rooms_admins (admin_id, room_id) VALUES ${roomAdminValues} ON CONFLICT (admin_id, room_id) DO NOTHING`
+    const updateRoomAdmins = async () => {
+      await pgClient.query(roomAdminsQuery, [room.id, ...room.adminIds])
+    }
+
     const topicQuery =
       "UPDATE topics SET topic_state_id = $1, offset_mil_sec = $2, updated_at = $3 WHERE room_id = $4 AND id = $5"
     const updateTopic = async () => {
@@ -205,7 +215,12 @@ class RoomRepository implements IRoomRepository {
     try {
       // NOTE: 毎回全てのトピックのstateとtimeDataを更新しており、かつ複数クエリを発行しているので、
       //       パフォーマンスの問題が出てきたらここを疑う
-      await Promise.all([updateRoom(), updateTopic(), updateTopicTimeData()])
+      await Promise.all([
+        updateRoom(),
+        updateRoomAdmins(),
+        updateTopic(),
+        updateTopicTimeData(),
+      ])
     } catch (e) {
       RoomRepository.logError(e, "update()")
       throw e
