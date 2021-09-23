@@ -26,6 +26,7 @@
   width: 100vw;
   height: 100vh;
   @include sushi-select-layout(1);
+  margin-bottom: 0;
   padding-top: 3rem;
   @media screen and (min-width: $small+px) {
     padding-top: 5rem;
@@ -36,10 +37,10 @@
     // background-color: white;
     padding: 36px 0;
     @media screen and (min-width: $small+px) {
-      padding: 36px;
+      padding: 0;
     }
     border-radius: 4px;
-    margin-bottom: 36px;
+    margin-bottom: 64px;
     &--title {
       @include text-size(lg);
       margin-bottom: 10px;
@@ -87,7 +88,8 @@
       }
     }
     &--speaker {
-      width: 100%;
+      max-width: 100%;
+      width: 400px;
       padding: 10px 10px;
       border: 1px solid transparent;
       border-radius: 10px;
