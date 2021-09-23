@@ -117,7 +117,7 @@
     &__sessions{
       display: grid;
       margin: 1rem 0;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: 20px 1fr;
       &__index{
         grid-column: 1;
         margin: 0 0.5rem 0 0;
@@ -131,7 +131,7 @@
         &--element{
           display: flex;
           align-items: center;
-          width: 85%;
+          //width: 85%;
           margin: 0 0 0.5rem 0;
           &--input{
             display: flex;
@@ -171,6 +171,7 @@
         color: $admin-primary;
         cursor: pointer;
         margin: 0 1rem 0 0;
+        white-space: nowrap;
         .material-icons{
           font-size: 0.9rem;
         }
@@ -275,6 +276,7 @@
           align-items: flex-start;
         }
         &--url{
+          word-break : break-all;
           @media screen and (min-width: $small+px) {
             flex: 1;
 	          overflow-x: scroll;
@@ -285,6 +287,10 @@
           background:rgba(255, 255, 255, 0);
           color: $admin-primary;
           padding: 0;
+          margin-left: 5px;
+          .material-icons{
+            font-size: 18px;
+          }
         }
       }
     }

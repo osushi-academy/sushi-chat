@@ -41,7 +41,11 @@ const stampFactory = new StampFactory()
 const adminAuth = new AdminAuth()
 
 const roomService = new RestRoomService(roomRepository, roomFactory)
-const adminService = new AdminService(adminRepository, roomRepository)
+const adminService = new AdminService(
+  adminRepository,
+  roomRepository,
+  adminAuth,
+)
 
 createSocketIOServer(
   httpServer,
