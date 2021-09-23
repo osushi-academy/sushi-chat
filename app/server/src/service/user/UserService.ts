@@ -61,7 +61,7 @@ class UserService {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
       stamps: StampModelBuilder.buildStamps(room.stamps),
       activeUserCount,
-      pinnedChatItemIds: room.topics.map((t) => t.pinnedChatItemId ?? null),
+      pinnedChatItemIds: room.pinnedChatItemIds,
       topicStates: room.topics.map((t) => ({ topicId: t.id, state: t.state })),
     }
   }
@@ -99,7 +99,7 @@ class UserService {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
       stamps: StampModelBuilder.buildStamps(room.stamps),
       activeUserCount,
-      pinnedChatItemIds: room.topics.map((t) => t.pinnedChatItemId ?? null),
+      pinnedChatItemIds: room.pinnedChatItemIds,
       topicStates: room.topics.map((t) => ({ topicId: t.id, state: t.state })),
     }
   }

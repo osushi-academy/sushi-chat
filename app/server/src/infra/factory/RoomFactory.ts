@@ -19,7 +19,7 @@ class RoomFactory implements IRoomFactory {
       inviteKey,
       description ?? "",
       topics,
-      new Set(creatorId),
+      new Set([creatorId]),
     )
   }
 }

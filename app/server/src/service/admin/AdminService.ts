@@ -18,7 +18,9 @@ class AdminService {
    * @return Promise<string> 検証の結果得られたadminのID
    */
   public async verifyToken(idToken: string): Promise<string> {
-    const { adminId, name } = await this.adminAuth.verifyIdToken(idToken)
+    const { adminId, name } = await this.adminAuth
+      .verifyIdToken(idToken)
+      .catch()
     const admin = new Admin(adminId, name, [])
 
     this.adminRepository.createIfNotExist(admin)
