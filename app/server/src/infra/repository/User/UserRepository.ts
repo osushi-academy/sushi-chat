@@ -8,21 +8,29 @@ class UserRepository implements IUserRepository {
   public async create(user: User) {
     const pgClient = await this.pgPool.client()
 
+    const queries = []
+
     const userQuery =
       "INSERT INTO users (id, is_admin, room_id, icon_id) VALUES ($1, $2, $3, $4)"
-    const topicSpeakerQuery =
-      "INSERT INTO topics_speakers (user_id, room_id, topic_id) VALUES ($1, $2, $3)"
+    queries.push(() =>
+      pgClient.query(userQuery, [
+        user.id,
+        user.isAdmin,
+        user.roomId,
+        user.iconId,
+      ]),
+    )
+
+    if (user.speakAt) {
+      const topicSpeakerQuery =
+        "INSERT INTO topics_speakers (user_id, room_id, topic_id) VALUES ($1, $2, $3)"
+      queries.push(() =>
+        pgClient.query(topicSpeakerQuery, [user.id, user.roomId, user.speakAt]),
+      )
+    }
 
     try {
-      await Promise.all([
-        pgClient.query(userQuery, [
-          user.id,
-          user.isAdmin,
-          user.roomId,
-          user.iconId,
-        ]),
-        pgClient.query(topicSpeakerQuery, [user.id, user.roomId, user.speakAt]),
-      ])
+      await Promise.all(queries.map((q) => q()))
     } catch (e) {
       UserRepository.logError(e, "create()")
       throw e
