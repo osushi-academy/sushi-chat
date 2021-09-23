@@ -33,7 +33,10 @@
                 class="home-create__room__sessions__list--element"
               >
                 <div class="home-create__room__sessions__list--element--input">
-                  <input v-model="list.name" placeholder="セッション名を入力" />
+                  <input
+                    v-model="list.title"
+                    placeholder="セッション名を入力"
+                  />
                   <div
                     class="home-create__room__sessions__list--element--remove"
                     @click="removeSession(idx)"
@@ -85,7 +88,7 @@ import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue
 Vue.use(VModal)
 type DataType = {
   roomName: string
-  sessionList: { name: string; id: number }[]
+  sessionList: { title: string; id: number }[]
   isDragging: boolean
 }
 export default Vue.extend({
@@ -99,13 +102,7 @@ export default Vue.extend({
   data(): DataType {
     return {
       roomName: "",
-      sessionList: [
-        { name: "いけおく", id: 0 },
-        { name: "池奥", id: 1 },
-        { name: "Ikeoku", id: 2 },
-        { name: "寿司処いけおく", id: 3 },
-        { name: "大乱闘いけおくブラザーズ", id: 4 },
-      ],
+      sessionList: [{ title: "", id: 1 }],
       isDragging: false,
     }
   },
@@ -121,7 +118,7 @@ export default Vue.extend({
   },
   methods: {
     addSession() {
-      this.sessionList.push({ name: "", id: this.sessionList.length - 1 })
+      this.sessionList.push({ title: "", id: this.sessionList.length - 1 })
     },
     removeSession(idx: number) {
       this.sessionList.splice(idx, 1)
@@ -130,7 +127,7 @@ export default Vue.extend({
       try {
         const sessions = this.sessionList
         const res = await this.$apiClient.post("/room", {
-          name: this.roomName,
+          title: this.roomName,
           topics: sessions,
           description: "hello, world",
         })
