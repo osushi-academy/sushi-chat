@@ -24,9 +24,9 @@ export type RestApiDefinition = {
       post: {
         query: Empty
         request: {
-          name: string
+          title: string
           topics: {
-            name: string
+            title: string
           }[]
           description?: string
         }
