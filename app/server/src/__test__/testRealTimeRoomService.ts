@@ -15,7 +15,6 @@ import RealtimeRoomService from "../service/room/RealtimeRoomService"
 import User from "../domain/user/User"
 import { RoomState, TopicState } from "sushi-chat-shared"
 import { PartiallyPartial } from "../types/utils"
-import IUserRepository from "../domain/user/IUserRepository"
 import { NewIconId } from "../domain/user/IconId"
 
 describe("RealtimeRoomServiceのテスト", () => {
@@ -23,7 +22,6 @@ describe("RealtimeRoomServiceのテスト", () => {
   let topics: PartiallyPartial<Topic, "id" | "state" | "pinnedChatItemId">[]
 
   let roomRepository: IRoomRepository
-  let userRepository: IUserRepository
 
   let roomDeliverySubscribers: {
     type: RoomDeliveryType
@@ -38,7 +36,7 @@ describe("RealtimeRoomServiceのテスト", () => {
 
   beforeEach(() => {
     roomRepository = new EphemeralRoomRepository()
-    userRepository = new EphemeralUserRepository()
+    const userRepository = new EphemeralUserRepository()
 
     roomDeliverySubscribers = [[]]
     chatItemDeliverySubscribers = [[]]
