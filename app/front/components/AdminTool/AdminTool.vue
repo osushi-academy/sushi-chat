@@ -151,8 +151,16 @@ export default Vue.extend({
     // ルーム開始
     startRoom() {
       // TODO: ルームの状態をindex、またはvuexでもつ
-      socket.emit("ADMIN_START_ROOM", { roomId: this.roomId })
-      this.isRoomStarted = true
+      this.$apiClient
+        .put(
+          {
+            pathname: "/room/:id/start",
+            params: { id: this.roomId },
+          },
+          {},
+        )
+        .then(() => (this.isRoomStarted = true))
+        .catch(() => window.alert("ルームを開始できませんでした"))
     },
     // ルーム終了
     finishRoom() {
