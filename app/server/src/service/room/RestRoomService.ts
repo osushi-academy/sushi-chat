@@ -69,8 +69,9 @@ class RestRoomService {
       id: room.id,
       title: room.title,
       topics: room.topics.map((topic) => ({
-        ...topic,
+        id: topic.id,
         order: topic.id,
+        title: topic.title,
       })),
       state: room.state,
       description: room.description,
