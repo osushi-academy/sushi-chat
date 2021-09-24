@@ -320,7 +320,7 @@ export default Vue.extend({
     },
     // 管理者ルーム入室
     adminEnterRoom() {
-      // 管理者の入室
+      const socket = (this as any).socket
       socket.emit(
         "ADMIN_ENTER_ROOM",
         {
