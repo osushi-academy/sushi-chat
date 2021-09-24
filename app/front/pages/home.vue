@@ -4,7 +4,7 @@
     <section class="home-top__new-event">
       <button class="home-top__new-event--button">
         <NuxtLink to="/room/create">
-          <span class="material-icons"> add </span>新しいイベントを追加
+          <span class="material-icons"> add </span>新しいイベントを作成
         </NuxtLink>
       </button>
     </section>
@@ -93,7 +93,9 @@
             sushi-chat@example.com
           </div>
         </div>
-        <div class="home-top__account--logout-button">ログアウト</div>
+        <button class="home-top__account--logout-button" @click="logout()">
+          ログアウト
+        </button>
       </div>
     </section>
     <section class="home-top__other">
@@ -117,6 +119,7 @@ type AsyncDataType = {
 export default Vue.extend({
   name: "Home",
   layout: "home",
+  middleware: "privateRoute",
   async asyncData({ app }): Promise<AsyncDataType> {
     const response = await app.$apiClient.get("/room", {})
     if (response.result === "success") {
@@ -140,6 +143,14 @@ export default Vue.extend({
     DeviceStore.determineOs()
   },
   methods: {
+    async logout() {
+      try {
+        await this.$fire.auth.signOut()
+        this.$router.push("/login")
+      } catch {
+        alert("ログアウトに失敗しました")
+      }
+    },
     async onClickArchive(id: string): Promise<void> {
       const continueArchive = window.confirm(
         "ルームをの公開を停止しますか？これ以降参加者・管理者ともにこのルームにアクセスすることはできません（チャット履歴の確認もできなくなります）。",

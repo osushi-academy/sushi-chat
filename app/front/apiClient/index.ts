@@ -55,8 +55,12 @@ export default class Repository {
    * idTokenを設定する
    * @param idToken idToken
    */
-  public setToken(idToken: string) {
-    this.nuxtAxios.setToken(idToken)
+  public setToken(idToken: string | null) {
+    if (idToken != null) {
+      this.nuxtAxios.setToken(`Bearer ${idToken}`)
+    } else {
+      this.nuxtAxios.setToken(false)
+    }
   }
 
   /**
