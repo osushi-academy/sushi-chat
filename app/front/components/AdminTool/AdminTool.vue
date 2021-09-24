@@ -28,7 +28,11 @@
           v-for="(topic, index) in topics"
           :key="topic.id"
           class="topic"
-          :class="topicStateItems[topic.id]"
+          :class="
+            topicStateItems[topic.id]
+              ? topicStateItems[topic.id]
+              : 'not-started'
+          "
         >
           <div class="topic-number">{{ index }}</div>
           <div class="topic-name">
@@ -64,10 +68,7 @@
             >
               <span class="material-icons">restart_alt</span>
             </button>
-            <div v-if="isRoomOngoing || isRoomFinished">
-              <div class="topic-info">
-                334<span class="text-mini">users</span>
-              </div>
+            <div v-if="isRoomOngoing || isRoomFinished" class="topic-infos">
               <div class="topic-info">
                 334<span class="text-mini">comments</span>
               </div>
@@ -93,11 +94,6 @@ import Vue from "vue"
 import { Topic } from "sushi-chat-shared"
 import ICONS from "@/utils/icons"
 import { UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
-
-// Data型
-type DataType = {
-  isRoomStartedInAdmin: boolean
-}
 
 export default Vue.extend({
   name: "AdminTool",
