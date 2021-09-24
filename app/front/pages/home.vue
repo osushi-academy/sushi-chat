@@ -15,11 +15,11 @@
           :to="{ path: '/', query: { roomId: room.id, user: 'admin' } }"
           class="home-top__event--item"
         >
-          <button class="home-top__event__list">
+          <div class="home-top__event__list">
             <div class="home-top__event__list--name">{{ room.title }}</div>
             <div class="home-top__event__list--date">{{ room.startDate }}</div>
             <div class="home-top__event__list--role">管理者</div>
-          </button>
+          </div>
         </NuxtLink>
       </div>
     </section>
@@ -30,11 +30,11 @@
           :to="{ path: '/', query: { roomId: room.id, user: 'admin' } }"
           class="home-top__event--item"
         >
-          <button class="home-top__event__list">
+          <div class="home-top__event__list">
             <div class="home-top__event__list--name">{{ room.title }}</div>
             <div class="home-top__event__list--date">{{ room.startDate }}</div>
             <div class="home-top__event__list--role">管理者</div>
-          </button>
+          </div>
         </NuxtLink>
       </div>
     </section>
@@ -45,7 +45,7 @@
           :to="{ path: '/', query: { roomId: room.id, user: 'admin' } }"
           class="home-top__event--item"
         >
-          <button class="home-top__event__list">
+          <div class="home-top__event__list">
             <div class="home-top__event__list--name">{{ room.title }}</div>
             <div class="home-top__event__list--date">{{ room.startDate }}</div>
             <div class="home-top__event__list--role">管理者</div>
@@ -57,7 +57,7 @@
                 公開停止
               </button>
             </div>
-          </button>
+          </div>
         </NuxtLink>
       </div>
     </section>
