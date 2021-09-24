@@ -223,34 +223,8 @@ export const restSetup = (
       })
   })
 
-  // ルーム情報を取得する
-  app.get("/room/:id", async (req, res) => {
-    try {
-      const roomId = req.params.id
-      const adminId = "hoge" /* 本当はヘッダーから。 */
-
-      const room = await roomService.checkAdminAndfind({
-        id: roomId,
-        adminId: adminId,
-      })
-
-      res.send({
-        result: "success",
-        data: room,
-      })
-    } catch (e) {
-      res.status(400).send({
-        result: "error",
-        error: {
-          code: "ERROR_CODE",
-          message: `${e.message ?? "Unknown error."} (USER_FIND_ROOM)`,
-        },
-      })
-    }
-  })
-
   // ルームと新しい管理者を紐付ける
-  adminRouter.post("/room/:id/invite", (req, res) => {
+  adminRouter.post("/room/:id/invited", (req, res) => {
     const adminInviteKey = req.query["admin_invite_key"]
     if (!adminInviteKey) {
       res.status(400).send({
