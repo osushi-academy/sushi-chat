@@ -2,9 +2,9 @@
   <div class="sushi-select not-started">
     <div class="not-started__title">suhi-chatへようこそ</div>
     <div class="not-started__textbox">
-      <div class="not-started__textbox--title">技育CAMPハッカソン vol.5</div>
+      <div class="not-started__textbox--title">{{ title }}</div>
       <div>
-        2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。
+        {{ description }}
       </div>
     </div>
     <div class="not-started__warning">
@@ -21,6 +21,16 @@ import Vue from "vue"
 
 export default Vue.extend({
   name: "NotStarted",
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+  },
   methods: {
     onClickEnter() {
       this.$emit("check-status-and-action")

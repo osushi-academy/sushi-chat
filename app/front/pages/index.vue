@@ -8,6 +8,8 @@
       />
       <NotStarted
         v-if="!isRoomStarted && !isAdmin"
+        :title="room.title"
+        :description="room.description"
         @check-status-and-action="checkStatusAndAction"
         @click-icon="clickIcon"
         @hide-modal="hide"
