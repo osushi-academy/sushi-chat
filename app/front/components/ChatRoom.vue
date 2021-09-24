@@ -73,8 +73,10 @@
 </template>
 <script lang="ts">
 import Vue from "vue"
+import type { PropOptions } from "vue"
 import throttle from "lodash.throttle"
 import { XIcon, ChevronUpIcon } from "vue-feather-icons"
+import { TopicState } from "sushi-chat-shared"
 import AnalysisGraph from "./AnalysisGraph.vue"
 import { Message, Question, Answer } from "@/models/contents"
 import TopicHeader from "@/components/TopicHeader.vue"
@@ -82,7 +84,7 @@ import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
-import { ChatItemStore, TopicStore, TopicStateItemStore } from "~/store"
+import { ChatItemStore, TopicStore } from "~/store"
 
 // Data型
 type DataType = {
@@ -114,7 +116,7 @@ export default Vue.extend({
     topicState: {
       type: String,
       default: "not-started",
-    },
+    } as PropOptions<TopicState>,
   },
   data(): DataType {
     return {

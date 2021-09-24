@@ -65,7 +65,7 @@ export default Vue.extend({
     },
     topicState: {
       type: String,
-      required: true,
+      default: "not-started",
     } as PropOptions<TopicState>,
     topicIndex: {
       type: Number,

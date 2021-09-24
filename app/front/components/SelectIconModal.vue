@@ -89,11 +89,11 @@ export default Vue.extend({
   props: {
     title: {
       type: String,
-      required: true,
+      default: "",
     },
     description: {
       type: String,
-      required: true,
+      default: "",
     },
   },
   computed: {

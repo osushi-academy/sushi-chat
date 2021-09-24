@@ -130,6 +130,7 @@ export default Vue.extend({
     if (response.result === "error") {
       throw new Error("エラーが発生しました")
     }
+    this.room = response.data
     TopicStore.set(response.data.topics)
 
     // socket接続
