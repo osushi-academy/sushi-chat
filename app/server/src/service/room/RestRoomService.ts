@@ -64,7 +64,7 @@ class RestRoomService {
     command: checkAdminAndfindCommand,
   ): Promise<RoomModel> {
     const room = await this.find(command.id)
-    const isAdmin = room.isAdmin(command.adminId)
+    const isAdmin = command.adminId ? room.isAdmin(command.adminId) : false
     const roomDefault: RoomModel = {
       id: room.id,
       title: room.title,
