@@ -6,6 +6,7 @@
     :width="width"
     height="auto"
     :click-to-close="clickToClose"
+    @before-open="beforeOpen"
   >
     <div class="home-modal__header">
       <slot name="title" />
@@ -14,9 +15,7 @@
       <slot name="content" />
     </div>
     <div class="home-modal__footer">
-      <button class="home-modal__hide-button" @click="$modal.hide(name)">
-        <slot name="hide-button" />
-      </button>
+      <slot name="hide-button" />
     </div>
   </modal>
 </template>
@@ -45,6 +44,11 @@ export default Vue.extend({
       } else {
         return "50%"
       }
+    },
+  },
+  methods: {
+    beforeOpen(event: any) {
+      this.$emit("before-open", event)
     },
   },
 })

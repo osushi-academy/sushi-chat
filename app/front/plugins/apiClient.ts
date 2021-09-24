@@ -3,6 +3,18 @@ import ApiClient from "~/apiClient"
 
 const repositoryPlugin: Plugin = (context, inject) => {
   const apiClient = new ApiClient(context.$axios)
+
+  // NOTE: idTokenの変更を監視して、変更があればAPIClientに反映する
+  context.store.watch(
+    (state) => state.auth._idToken,
+    (idToken: string | null) => {
+      apiClient.setToken(idToken)
+    },
+    {
+      immediate: true,
+    },
+  )
+
   inject("apiClient", apiClient)
 }
 

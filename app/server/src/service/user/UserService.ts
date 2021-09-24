@@ -54,8 +54,14 @@ class UserService {
     const activeUserCount = room.joinAdminUser(userId, adminId)
 
     // roomにjoinできたらuserも作成
-    const user = this.createUser(userId, roomId, User.ADMIN_ICON_ID, true)
-    await this._enterRoom(user, activeUserCount)
+
+    await this.createUser(
+      activeUserCount,
+      userId,
+      roomId,
+      User.ADMIN_ICON_ID,
+      true,
+    )
 
     return {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
@@ -86,14 +92,14 @@ class UserService {
     // roomが始まっていないとここでエラー
     const activeUserCount = room.joinUser(userId)
 
-    const user = this.createUser(
+    await this.createUser(
+      activeUserCount,
       userId,
       roomId,
       NewIconId(iconId),
       false,
       speakerTopicId,
     )
-    await this._enterRoom(user, activeUserCount)
 
     return {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
@@ -105,8 +111,11 @@ class UserService {
   }
 
   public async leaveRoom({ userId }: UserLeaveCommand) {
-    const user = await UserService.findUserOrThrow(userId, this.userRepository)
-
+    const user = await this.userRepository.find(userId)
+    if (!user) {
+      // 操作不要
+      return
+    }
     const room = await RealtimeRoomService.findRoomOrThrow(
       user.roomId,
       this.roomRepository,
@@ -118,22 +127,18 @@ class UserService {
     await this.userRepository.leaveRoom(user)
   }
 
-  private createUser(
+  private async createUser(
+    activeUserCount: number,
     userId: string,
     roomId: string,
     iconId: IconId,
     isAdmin: boolean,
     speakAt?: number,
-  ): User {
+  ) {
     const newUser = new User(userId, isAdmin, roomId, iconId, speakAt)
-    this.userRepository.create(newUser)
 
-    return newUser
-  }
-
-  private async _enterRoom(user: User, activeUserCount: number) {
-    this.userDelivery.enterRoom(user, activeUserCount)
-    await this.userRepository.create(user)
+    this.userDelivery.enterRoom(newUser, activeUserCount)
+    await this.userRepository.create(newUser)
   }
 }
 

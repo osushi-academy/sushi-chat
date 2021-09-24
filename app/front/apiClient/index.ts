@@ -55,8 +55,12 @@ export default class Repository {
    * idTokenを設定する
    * @param idToken idToken
    */
-  public setToken(idToken: string) {
-    this.nuxtAxios.setToken(idToken)
+  public setToken(idToken: string | null) {
+    if (idToken != null) {
+      this.nuxtAxios.setToken(`Bearer ${idToken}`)
+    } else {
+      this.nuxtAxios.setToken(false)
+    }
   }
 
   /**
@@ -107,7 +111,7 @@ export default class Repository {
       : Path | PathObject<"put", Path>,
     data: RestApi<"put", Path>["request"],
   ) {
-    return await this.nuxtAxios.$post<RestApi<"put", Path>["response"]>(
+    return await this.nuxtAxios.$put<RestApi<"put", Path>["response"]>(
       typeof path === "string" ? path : pathBuilder(path),
       data,
     )

@@ -1,7 +1,7 @@
-.home{
+.home {
   background-color: $bg;
   min-height: 100vh;
-  &__header{
+  &__header {
     position: sticky;
     top: 0;
     background-color: $admin-primary;
@@ -10,64 +10,71 @@
     @include home-padding-layout(0.5);
     @include invalidated-a-style;
   }
-  &__main{
+  &__main {
     @include home-padding-layout(1);
   }
 }
 
-.home-top{
-  &__header{
+.home-top {
+  &__header {
     margin: 0 0 1.5rem 0;
     @include text-size("lg");
   }
-  &__new-event{
+  &__new-event {
     margin: 0 0 2rem 0;
-    &--input{
+    &--input {
       width: 100%;
       margin: 0 0 1rem 0;
-      @include white-text-box($expand:"true");
+      @include white-text-box($expand: "true");
     }
-    &--button{
-      margin:  0 auto;
+    &--button {
+      margin: 0 auto;
       @include home-button-text;
     }
   }
-  &__event{
+  &__event {
     margin: 0 0 1.5rem 0;
-    &--title{
+    &--title {
       margin: 0 0 0.7rem 0;
       @include text-size("mdi");
     }
-    &__list{
+    &--item {
+      text-decoration: none;
+      color: inherit;
+      :active {
+        color: inherit;
+      }
+    }
+    &__list {
       @include home-event-list-element;
     }
   }
-  &__inquiry{
+  &__inquiry {
     margin: 3rem 0;
-    &--title{
+    &--title {
       margin: 0 0 0.5rem 0;
       @include text-size("mdi");
     }
-    &--content{
-      a{
+    &--content {
+      a {
         text-decoration: underline !important;
       }
       @include invalidated-a-style;
     }
   }
-  &__account{
+  &__account {
     margin: 0 0 2rem 0;
-    &--title{
+    &--title {
       margin: 0 0 0.5rem 0;
       @include text-size("mdi");
     }
-    &--content{
+    &--content {
       @media screen and (min-width: $small+px) {
         display: flex;
         align-items: center;
       }
     }
-    &--name{
+    &--name {
       margin: 0 1rem 1rem 0;
       @media screen and (min-width: $small+px) {
         display: flex;
@@ -75,155 +82,160 @@
         margin: 0 1rem 0 0;
       }
     }
-    &--logout-button{
+    &--logout-button {
       display: inline !important;
       @include home-button-text;
     }
   }
-  &__other{
+  &__other {
     margin: 0 0 1.5rem 0;
-    &--title{
+    &--title {
       margin: 0 0 1rem 0;
       @include text-size("mdi");
     }
-    &--delete-button{
+    &--delete-button {
       display: inline !important;
       @include home-button-text($danger);
     }
   }
 }
 
-.home-create{
-  &__header{
+.home-create {
+  &__header {
     margin: 0 0 1.5rem 0;
-    @include text-size("xl")
+    @include text-size("xl");
   }
-  &__event-name{
+  &__event-name {
     margin: 0 0 1.5rem 0;
-    &--title{
+    &--title {
       margin: 0 0 0.5rem 0;
-      @include text-size("lg")
+      @include text-size("lg");
     }
-    &--input{
+    &--input {
       width: 100%;
-      @include white-text-box($expand:"true");
+      @include white-text-box($expand: "true");
     }
   }
-  &__room{
+  &__room {
     margin: 0 0 2rem 0;
-    &--title{
-      @include text-size("lg")
+    &--title {
+      @include text-size("lg");
     }
-    &__sessions{
+    &__sessions {
       display: grid;
       margin: 1rem 0;
       grid-template-columns: auto 1fr;
-      &__index{
+      &__index {
         grid-column: 1;
         margin: 0 0.5rem 0 0;
-        &--element{
+        &--element {
           margin: 0 0 0.5rem 0;
           padding: 0.5rem 0;
         }
       }
-      &__list{
+      &__list {
         grid-column: 2;
-        &--element{
+        &--element {
           display: flex;
           align-items: center;
           width: 85%;
           margin: 0 0 0.5rem 0;
-          &--input{
+          &--input {
             display: flex;
             flex: 1;
             margin: 0 0.5rem 0 0;
             padding: 0 !important;
-            @include white-text-box($expand:"true");
-            input{
+            @include white-text-box($expand: "true");
+            input {
               border: none;
               flex: 1;
               padding: 0;
-              @include white-text-box($expand:"true");
-              &:focus{
+              @include white-text-box($expand: "true");
+              &:focus {
                 outline: none;
               }
             }
           }
-          &--remove{
-            @include material-icon-button($size:"sm",$color:#F07B7B,$border:"solid");
+          &--remove {
+            @include material-icon-button(
+              $size: "sm",
+              $color: #f07b7b,
+              $border: "solid"
+            );
           }
-          &--sort{
+          &--sort {
             cursor: grab !important;
             @include material-icon-button;
-            &--dragging{
+            &--dragging {
               cursor: grabbing !important;
             }
           }
         }
+      }
     }
-    
-    }
-    &__add{
+    &__add {
       display: flex;
-      &--button, &--collective-button{
+      &--button,
+      &--collective-button {
         display: flex;
         align-items: center;
         color: $admin-primary;
         cursor: pointer;
         margin: 0 1rem 0 0;
-        .material-icons{
+        white-space: nowrap;
+        .material-icons {
           font-size: 0.9rem;
         }
-        @include text-size("normal")
+        @include text-size("normal");
       }
     }
   }
-  &__create-new-event-button{
+  &__create-new-event-button {
     @include home-button-text;
   }
 }
 
-.home-modal{
+.home-modal {
   display: flex;
   flex-direction: column;
   background-color: $bg !important;
   padding: 1.5rem;
-  &__header{
-    @include text-size("mdi")
+  &__header {
+    @include text-size("mdi");
   }
-  &__content{
+  &__content {
     flex: 1;
     margin: 1rem 0;
   }
-  &__footer{
+  &__footer {
     align-self: flex-end;
   }
-  &__hide-button{
+  &__hide-button {
     @include home-button-text;
   }
 }
-.vm--overlay{
-  background-color: rgba(10,10,10,0.5) !important;
+.vm--overlay {
+  background-color: rgba(10, 10, 10, 0.5) !important;
 }
 
-.home-add-sessions-modal{
-  &__separators{
+.home-add-sessions-modal {
+  &__separators {
     color: $text-gray;
     margin: 0 0 1rem 0;
     @include text-size;
     @media screen and (min-width: $small+px) {
       display: flex;
     }
-    input{
+    input {
       position: relative;
       top: 2px;
       margin: 0;
     }
-    label{
+    label {
       margin: 0 1rem 0 0;
     }
   }
-  &__textarea{
+  &__textarea {
     resize: vertical;
     width: 100%;
     @include white-text-box;
@@ -232,41 +244,46 @@
       min-height: 150px;
     }
   }
+  &__count {
+    text-align: end;
+    color: rgb(124, 124, 124);
+    @include text-size("normal");
+  }
 }
 
-.home-creation-completed-modal{
-  &__event-name{
+.home-creation-completed-modal {
+  &__event-name {
     margin: 0 0 1rem 0;
-    b{
+    b {
       margin-left: 0.5rem;
-      @include text-size("mdi")
+      @include text-size("mdi");
     }
   }
-  &__event-detail{
+  &__event-detail {
     margin: 0 0 1rem 0;
-    &--description{
-      a{
+    &--description {
+      a {
         text-decoration: underline !important;
       }
       @include invalidated-a-style;
     }
   }
-  &__invitation{
-    &--title{
+  &__invitation {
+    &--title {
       margin: 0 0 0.5rem 0;
     }
-    &__content{
+    &__content {
       @media screen and (min-width: $small+px) {
         display: flex;
       }
-      &--title{
+      &--title {
         margin: 0 0 5px 0;
         @include text-size("normal");
         @media screen and (min-width: $small+px) {
           margin: 10px 5px 0 0;
         }
       }
-      &__detail{
+      &__detail {
         @include text-size("normal");
         @include white-text-box;
         @media screen and (min-width: $small+px) {
@@ -274,17 +291,22 @@
           flex: 1;
           align-items: flex-start;
         }
-        &--url{
+        &--url {
+          word-break: break-all;
           @media screen and (min-width: $small+px) {
             flex: 1;
-	          overflow-x: scroll;
+            overflow-x: scroll;
           }
         }
-        &--button{
+        &--button {
           border: none;
-          background:rgba(255, 255, 255, 0);
+          background: rgba(255, 255, 255, 0);
           color: $admin-primary;
           padding: 0;
+          margin-left: 5px;
+          .material-icons {
+            font-size: 18px;
+          }
         }
       }
     }
