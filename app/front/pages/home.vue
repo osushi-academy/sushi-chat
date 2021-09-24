@@ -90,7 +90,7 @@
             ログイン中のアカウント：
           </div>
           <div class="home-top__account--name--mail">
-            sushi-chat@example.com
+            {{ email }}
           </div>
         </div>
         <button class="home-top__account--logout-button" @click="logout()">
@@ -108,7 +108,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { RoomModel } from "sushi-chat-shared"
-import { DeviceStore } from "~/store"
+import { DeviceStore, AuthStore } from "~/store"
 
 type AsyncDataType = {
   ongoingRooms: RoomModel[]
@@ -138,6 +138,14 @@ export default Vue.extend({
   },
   data(): AsyncDataType {
     return {} as AsyncDataType
+  },
+  computed: {
+    email(): string | null {
+      if (AuthStore.authUser != null) {
+        return AuthStore.authUser.email
+      }
+      return ""
+    },
   },
   mounted(): void {
     DeviceStore.determineOs()
