@@ -19,7 +19,7 @@ class RoomClass {
     public readonly adminInviteKey: string,
     public readonly description: string,
     topics: PartiallyPartial<Topic, "id" | "state" | "pinnedChatItemId">[],
-    public readonly adminIds = new Set<string>([]),
+    public readonly adminIds: Set<string>,
     private _state: RoomState = "not-started",
     private _startAt: Date | null = null,
     topicTimeData: Record<number, TopicTimeData> = {},
