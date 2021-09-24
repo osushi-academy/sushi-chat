@@ -57,10 +57,7 @@ describe("RealtimeRoomServiceのテスト", () => {
     const title = "テストルーム"
     const inviteKey = uuid()
     const description = "テスト用のルームです"
-    topics = [1, 2].map((i) => ({
-      title: `テストトピック${i}`,
-      description: `テスト用のトピック${i}です`,
-    }))
+    topics = [1, 2].map((i) => ({ title: `テストトピック${i}` }))
     const state: RoomState = "ongoing"
     const startAt = new Date()
     const room = new RoomClass(
