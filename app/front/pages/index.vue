@@ -94,6 +94,7 @@ export default Vue.extend({
   mounted(): any {
     // roomId取得
     this.room.id = this.$route.query.roomId as string
+    console.log(this.room.id)
     if (this.room.id !== "") {
       // TODO: this.room.idが存在しない→404
     }
