@@ -15,7 +15,11 @@
       />
       <template v-if="isRoomEnter">
         <div v-for="(topic, index) in topics" :key="index">
-          <ChatRoom :topic-index="index" :topic-id="`${topic.id}`" />
+          <ChatRoom
+            :topic-index="index"
+            :topic-id="`${topic.id}`"
+            :topic-state="topicStateItems[topic.id]"
+          />
         </div>
       </template>
     </main>
