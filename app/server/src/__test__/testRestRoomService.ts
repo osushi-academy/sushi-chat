@@ -6,7 +6,7 @@ import RoomFactory from "../infra/factory/RoomFactory"
 import Admin from "../domain/admin/admin"
 import RoomClass from "../domain/room/Room"
 import { PartiallyPartial } from "../types/utils"
-import Topic, { TopicTimeData } from "../domain/room/Topic"
+import Topic from "../domain/room/Topic"
 import { RoomModel, RoomState, Topic as TopicModel } from "sushi-chat-shared"
 
 describe("RestRoomServiceのテスト", () => {
