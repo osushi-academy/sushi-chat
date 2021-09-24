@@ -80,7 +80,7 @@ class RealtimeRoomService {
 
     await Promise.all([
       this.roomRepository.update(room),
-      messages.map((m) => this.chatItemRepository.saveMessage(m)),
+      ...messages.map((m) => this.chatItemRepository.saveMessage(m)),
     ])
   }
 }
