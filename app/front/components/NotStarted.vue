@@ -11,7 +11,7 @@
       ルームはまだ開始されていないようです...<br />ルームが開始されましたら下記ボタンからご参加ください！
     </div>
     <div class="not-started__button">
-      <button>参加する！</button>
+      <button @click="onClickEnter()">参加する！</button>
     </div>
   </div>
 </template>
@@ -21,5 +21,10 @@ import Vue from "vue"
 
 export default Vue.extend({
   name: "NotStarted",
+  methods: {
+    onClickEnter() {
+      this.$emit("check-status-and-action")
+    },
+  },
 })
 </script>
