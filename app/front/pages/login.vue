@@ -15,9 +15,8 @@ export default Vue.extend({
       immediate: true,
       handler() {
         if (this.isLoggedIn) {
-          // ログイン済みの場合はプロフィールページへリダイレクトする
-          // TODO: 正しいリダイレクト先を設定
-          this.$router.push("/profile")
+          // NOTE: ログイン済みの場合はプロフィールページへリダイレクトする
+          this.$router.push("/home")
         }
       },
     },

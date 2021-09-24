@@ -1,50 +1,48 @@
-@mixin home-padding-layout($py:0) {
-  padding: $py+rem 5%;
+@mixin home-padding-layout($py: 0) {
+  padding: $py + rem 5%;
   margin-bottom: 2rem;
   @media screen and (min-width: $small+px) {
-    padding: $py+rem 10%;
+    padding: $py + rem 10%;
   }
   @media screen and (min-width: $large+px) {
-    padding: $py+rem 20%;
+    padding: $py + rem 20%;
   }
 }
 
-@mixin home-button-text($color:$admin-primary){
+@mixin home-button-text($color: $admin-primary) {
   display: flex;
   align-items: center;
   color: $color;
   border: 2px solid;
   border-radius: 4px;
-  background:rgba(255, 255, 255, 0);
+  background: rgba(255, 255, 255, 0);
   padding: 8px 20px;
-  text-decoration:none;
+  text-decoration: none;
   white-space: nowrap;
-  .material-icons{
+  .material-icons {
     margin-left: -3px;
   }
-  a{
+  a {
     display: flex;
     align-items: center;
   }
-  &:hover,&:focus{
+  &:hover,
+  &:focus {
     @if $color == $admin-primary {
-      background-color: rgba(112,145,195,0.2);
-    }
-    @else if $color == $danger{
-      background-color: rgba(225,147,147,0.2);
-    }
-    @else if $color == $primary{
+      background-color: rgba(112, 145, 195, 0.2);
+    } @else if $color == $danger {
+      background-color: rgba(225, 147, 147, 0.2);
+    } @else if $color == $primary {
       background-color: rgba(242, 141, 47, 0.2);
     }
   }
   @include invalidated-a-style;
 }
 
-@mixin text-size($size:"normal"){
-  @if $size=="normal"{
+@mixin text-size($size: "normal") {
+  @if $size== "normal" {
     font-size: 0.9rem;
-  }
-  @else if $size=="xl"{
+  } @else if $size== "xl" {
     font-size: 1rem;
     @media screen and (min-width: $small+px) {
       font-size: 1.5rem;
@@ -52,62 +50,62 @@
     @media screen and (min-width: $large+px) {
       font-size: 1.5rem;
     }
-  }
-  @else if $size=="lg"{
+  } @else if $size== "lg" {
     font-size: 1.2rem;
-  }
-  @else if $size=="mdi"{
+  } @else if $size== "mdi" {
     font-size: 1rem;
-  }
-  @else if $size=="sm"{
+  } @else if $size== "sm" {
     font-size: 0.7rem;
   }
 }
 
-@mixin invalidated-a-style{
-  a{
+@mixin invalidated-a-style {
+  a {
     color: inherit;
     text-decoration: none;
   }
 }
 
-@mixin white-text-box($expand:"false"){
+@mixin white-text-box($expand: "false") {
   background-color: white;
   border: none;
   border-radius: 4px;
   padding: 0.5rem;
-  @if $expand=="true"{
+  @if $expand== "true" {
     padding: 0.5rem 1rem;
   }
-  &:focus{
+  &:focus {
     outline: none;
   }
 }
 
-@mixin material-icon-button($size:"normal",$color:$text-gray,$border:"none"){
+@mixin material-icon-button(
+  $size: "normal",
+  $color: $text-gray,
+  $border: "none"
+) {
   width: 36px;
   height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 100%;
-  &:hover,&:focus{
+  &:hover,
+  &:focus {
     cursor: pointer;
-    @if $color==#F07B7B{
-      background-color: rgba(240,123,123,0.2);
-    }
-    @else{
-      background-color: rgba(111,111,111,0.2);
+    @if $color==#F07B7B {
+      background-color: rgba(240, 123, 123, 0.2);
+    } @else {
+      background-color: rgba(111, 111, 111, 0.2);
     }
   }
-  .material-icons{
-    @if $size=="sm" {
+  .material-icons {
+    @if $size== "sm" {
       font-size: 8px;
-    }
-    @else if $size=="normal" {
+    } @else if $size== "normal" {
       font-size: 18px;
     }
-    @if $border=="solid"{
+    @if $border== "solid" {
       border: 2px solid;
       font-weight: bold;
     }
@@ -116,38 +114,38 @@
   }
 }
 
-
-@mixin home-event-list-element{
+@mixin home-event-list-element {
   display: flex;
   width: 100%;
   margin: 0 0 0.5rem 0;
+  padding: 1rem;
   text-align: left;
+  @include white-text-box($expand: "true");
   button {
     background-color: inherit;
   }
-  @include white-text-box($expand:"true");
-  &--name{
+  &--name {
     width: 30%;
     @media screen and (min-width: $small+px) {
       width: 50%;
     }
   }
-  &--date{
+  &--date {
     margin: 0 0.5rem;
     width: 5rem;
     @media screen and (min-width: $small+px) {
       margin: 0 2rem;
     }
   }
-  &--role{
+  &--role {
     flex: 1;
   }
-  &--status{
-    &--label{
+  &--status {
+    &--label {
       padding: 0px 6px !important;
       color: $danger;
       border-radius: 4px;
       border: 1px solid;
     }
-  }  
+  }
 }
