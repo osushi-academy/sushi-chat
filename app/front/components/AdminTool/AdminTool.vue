@@ -64,7 +64,7 @@
             >
               <span class="material-icons">restart_alt</span>
             </button>
-            <div v-if="!isRoomOngoing">
+            <div v-if="isRoomOngoing || isRoomFinished">
               <div class="topic-info">
                 334<span class="text-mini">users</span>
               </div>
@@ -115,17 +115,15 @@ export default Vue.extend({
       required: true,
     },
   },
-  data(): DataType {
-    return {
-      isRoomStartedInAdmin: this.isRoomStarted,
-    }
-  },
   computed: {
     isNotRoomStarted(): boolean {
       return this.roomState === "not-started"
     },
     isRoomOngoing(): boolean {
       return this.roomState === "ongoing"
+    },
+    isRoomFinished(): boolean {
+      return this.roomState === "finished"
     },
     topics(): Topic[] {
       return TopicStore.topics
