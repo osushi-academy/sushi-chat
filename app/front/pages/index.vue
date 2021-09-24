@@ -111,7 +111,7 @@ export default Vue.extend({
       UserItemStore.changeIsAdmin(true)
     }
   },
-  async mounted(): any {
+  async mounted() {
     if (this.room.id !== "") {
       // TODO: this.room.idが存在しない→404
     }
@@ -241,18 +241,18 @@ export default Vue.extend({
       })
       socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
         if (res.type === "OPEN") {
-          // 現在activeなトピックがあればfinishedにする
+          // 現在ongoingなトピックがあればfinishedにする
           const t = Object.fromEntries(
             Object.entries(this.topicStateItems).map(
               ([topicId, topicState]) => [
                 topicId,
-                topicState === "active" ? "finished" : topicState,
+                topicState === "ongoing" ? "finished" : topicState,
               ],
             ),
           )
           TopicStateItemStore.set(t)
           // クリックしたTopicのStateを変える
-          TopicStateItemStore.change({ key: res.topicId, state: "active" })
+          TopicStateItemStore.change({ key: res.topicId, state: "ongoing" })
         } else if (res.type === "PAUSE") {
           TopicStateItemStore.change({ key: res.topicId, state: "paused" })
         } else if (res.type === "CLOSE") {
