@@ -44,8 +44,10 @@ jobs:
       #      - name: Run format dry-run
       #        run: yarn fix:dry-run
       - name: Initialize DB
-        run: psql -f ./app/server/src/database/ini.sql ${{ env.DATABASE_URL }}
+        run: |
+          psql -f ./app/server/src/database/ini.sql ${{ env.DATABASE_URL }} \
+          cat ./app/server/src/database/seed/* | psql -f -  ${{ env.DATABASE_URL }}
       - name: build shared package
         run: yarn build:shared
-#      - name: Run test
-#        run: yarn workspace sushi-chat-server test
+      - name: Run test
+        run: yarn workspace sushi-chat-server test
