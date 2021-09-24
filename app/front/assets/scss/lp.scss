@@ -47,9 +47,12 @@
       text-align: center;
       &--catchcopy{
         font-size: 1.5rem;
+        background-color: white;
       }
       &--details{
+        text-align: left;
           font-size: 0.7rem;
+          background-color: white;
       }
       margin-top: 15px;
       @media screen and (min-width: $small+px) {
