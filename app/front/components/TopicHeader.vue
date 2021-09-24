@@ -45,7 +45,7 @@
 import Vue from "vue"
 import type { PropOptions } from "vue"
 // import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
-import { TopicState } from "@/models/contents"
+import { TopicState } from "sushi-chat-shared"
 import { UserItemStore } from "~/store"
 
 type DataType = {

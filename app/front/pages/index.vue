@@ -26,9 +26,15 @@
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
       />
-      <div v-for="(topic, index) in topics" :key="index">
-        <ChatRoom :topic-index="index" :topic-id="topic.id" />
-      </div>
+      <template v-if="isRoomEnter">
+        <div v-for="(topic, index) in topics" :key="index">
+          <ChatRoom
+            :topic-index="index"
+            :topic-id="`${topic.id}`"
+            :topic-state="topicStateItems[topic.id]"
+          />
+        </div>
+      </template>
     </main>
   </div>
 </template>
@@ -36,8 +42,8 @@
 <script lang="ts">
 import Vue from "vue"
 import VModal from "vue-js-modal"
-import { RoomModel, RoomState } from "sushi-chat-shared"
-import { ChatItem, Stamp, Topic, TopicState } from "@/models/contents"
+import { Topic, TopicState, RoomModel, RoomState } from "sushi-chat-shared"
+import { ChatItem, Stamp } from "@/models/contents"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
@@ -105,15 +111,85 @@ export default Vue.extend({
       UserItemStore.changeIsAdmin(true)
     }
   },
-  mounted(): any {
+  async mounted() {
     if (this.room.id !== "") {
       // TODO: this.room.idが存在しない→404
     }
+
+    // Topics取得
+    const response = await this.$apiClient.get(
+      {
+        pathname: "/room/:id",
+        params: {
+          id: this.room.id,
+        },
+      },
+      {},
+    )
+    if (response.result === "error") {
+      throw new Error("エラーが発生しました")
+    }
+    TopicStore.set(response.data.topics)
+
+    // socket接続
     ;(this as any).socket = socket
+    if (this.isAdmin) {
+      // 管理者の入室
+      socket.emit(
+        "ADMIN_ENTER_ROOM",
+        {
+          roomId: this.room.id,
+        },
+        (res: any) => {
+          ChatItemStore.add(res.data.chatItems)
+          res.data.topicStates.forEach((topicState: any) => {
+            TopicStateItemStore.change({
+              key: `${topicState.topicId}`,
+              state: topicState.state,
+            })
+          })
+          this.activeUserCount = res.data.activeUserCount
+        },
+      )
+      this.isRoomEnter = true
+    } else {
+      // ユーザーの入室
+      this.$modal.show("sushi-modal")
+    }
+
+    // SocketIOのコールバックの登録
+    socket.on("PUB_CHAT_ITEM", (chatItem: ChatItem) => {
+      // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
+      ChatItemStore.addOrUpdate(chatItem)
+    })
+    // TopicStateの変更の配信
+    socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
+      if (res.type === "OPEN") {
+        // 現在ongoingなトピックがあればfinishedにし、setする
+        const t = Object.fromEntries(
+          Object.entries(this.topicStateItems).map(([topicId, topicState]) => [
+            topicId,
+            topicState === "ongoing" ? "finished" : topicState,
+          ]),
+        )
+        TopicStateItemStore.set(t)
+        // クリックしたTopicのStateを変える
+        TopicStateItemStore.change({ key: res.topicId, state: "ongoing" })
+      } else if (res.type === "PAUSE") {
+        TopicStateItemStore.change({ key: res.topicId, state: "paused" })
+      } else if (res.type === "CLOSE") {
+        TopicStateItemStore.change({ key: res.topicId, state: "finished" })
+      }
+    })
+    // スタンプ通知時の、SocketIOのコールバックの登録
+    socket.on("PUB_STAMP", (stamps: Stamp[]) => {
+      stamps.forEach((stamp) => {
+        StampStore.add(stamp)
+      })
+    })
 
     // statusに合わせた操作をする
     this.checkStatusAndAction()
-
     DeviceStore.determineOs()
   },
   methods: {
@@ -165,18 +241,18 @@ export default Vue.extend({
       })
       socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
         if (res.type === "OPEN") {
-          // 現在activeなトピックがあればfinishedにする
+          // 現在ongoingなトピックがあればfinishedにする
           const t = Object.fromEntries(
             Object.entries(this.topicStateItems).map(
               ([topicId, topicState]) => [
                 topicId,
-                topicState === "active" ? "finished" : topicState,
+                topicState === "ongoing" ? "finished" : topicState,
               ],
             ),
           )
           TopicStateItemStore.set(t)
           // クリックしたTopicのStateを変える
-          TopicStateItemStore.change({ key: res.topicId, state: "active" })
+          TopicStateItemStore.change({ key: res.topicId, state: "ongoing" })
         } else if (res.type === "PAUSE") {
           TopicStateItemStore.change({ key: res.topicId, state: "paused" })
         } else if (res.type === "CLOSE") {
@@ -208,15 +284,15 @@ export default Vue.extend({
       socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
         roomId: this.room.id,
         type:
-          state === "active" ? "OPEN" : state === "paused" ? "PAUSE" : "CLOSE",
+          state === "ongoing" ? "OPEN" : state === "paused" ? "PAUSE" : "CLOSE",
         topicId,
       })
     },
     // ユーザ関連
-    // modalを消し、topic作成
+    // modalを消し、入室
     hide(): any {
-      this.isRoomEnter = true
       this.enterRoom(UserItemStore.userItems.myIconId)
+      this.isRoomEnter = true
     },
     // ルーム入室
     enterRoom(iconId: number) {
@@ -226,11 +302,16 @@ export default Vue.extend({
         {
           iconId,
           roomId: this.room.id,
-          speakerTopicId: 1, // TODO: speakerTopicIdを渡す
+          speakerTopicId: null, // TODO: speakerTopicIdを渡す
         },
         (res: any) => {
+          res.data.topicStates.forEach((topicState: any) => {
+            TopicStateItemStore.change({
+              key: `${topicState.topicId}`,
+              state: topicState.state,
+            })
+          })
           ChatItemStore.add(res.data.chatItems)
-          TopicStateItemStore.set(res.data.topicStates)
         },
       )
       this.socketSetUp()
@@ -259,7 +340,7 @@ export default Vue.extend({
     },
     // アイコン選択
     clickIcon(index: number) {
-      UserItemStore.changeMyIcon(index)
+      UserItemStore.changeMyIcon(index - 1)
     },
     // RESTでroomの開始
     startRoom() {

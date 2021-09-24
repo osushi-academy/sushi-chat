@@ -48,7 +48,7 @@
       </div>
       <div class="stamp-zone">
         <FavoriteButton
-          :disabled="topicState !== 'active'"
+          :disabled="topicState !== 'ongoing'"
           :topic-id="topicId"
         />
       </div>
@@ -111,6 +111,10 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
+    topicState: {
+      type: String,
+      default: "not-started",
+    },
   },
   data(): DataType {
     return {
@@ -126,10 +130,7 @@ export default Vue.extend({
       )
     },
     topic() {
-      return TopicStore.topics.find(({ id }) => id === this.topicId)
-    },
-    topicState() {
-      return TopicStateItemStore.topicStateItems[this.topicId]
+      return TopicStore.topics.find(({ id }) => `${id}` === this.topicId)
     },
   },
   watch: {

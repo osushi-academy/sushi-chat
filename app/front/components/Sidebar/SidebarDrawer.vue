@@ -22,7 +22,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { MenuIcon } from "vue-feather-icons"
-import { Topic } from "@/models/contents"
+import { Topic } from "sushi-chat-shared"
 import SidebarContent from "@/components/Sidebar/SidebarContent.vue"
 import { TopicStore } from "~/store"
 

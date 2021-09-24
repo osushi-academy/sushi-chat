@@ -1,5 +1,5 @@
 import { Module, VuexModule, Mutation } from "vuex-module-decorators"
-import { TopicState } from "~/models/contents"
+import { TopicState } from "sushi-chat-shared"
 
 type TopicStateItem = { [key: string]: TopicState }
 

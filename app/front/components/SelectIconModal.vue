@@ -19,7 +19,7 @@
             v-for="(icon, index) in userIcons"
             :key="index"
             :class="{
-              'icon-selected': myIconId - 1 == index,
+              'icon-selected': myIconId == index,
               'icon-shari': index === 10,
             }"
             class="icon-box"
@@ -65,8 +65,8 @@
         </div>
         <div class="sushi-select__section--start">
           <picture class="sushi-select__section--my-sushi">
-            <source :srcset="userIcons[myIconId - 1].webp" type="image/webp" />
-            <img :src="userIcons[myIconId - 1].png" alt="" />
+            <source :srcset="userIcons[myIconId].webp" type="image/webp" />
+            <img :src="userIcons[myIconId].png" alt="" />
           </picture>
           <div class="sushi-select__section--button">
             <button :disabled="myIconId < 1" type="button" @click="hideModal">
