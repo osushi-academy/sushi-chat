@@ -27,7 +27,6 @@ import Vue from "vue"
 import VModal from "vue-js-modal"
 import { Topic, TopicState } from "sushi-chat-shared"
 import { Room, ChatItem, Stamp } from "@/models/contents"
-import { AdminBuildRoomResponse } from "@/models/event"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
@@ -94,6 +93,22 @@ export default Vue.extend({
     if (this.room.id !== "") {
       // TODO: this.room.idが存在しない→404
     }
+
+    // Topics取得
+    const response = await this.$apiClient.get(
+      {
+        pathname: "/room/:id",
+        params: {
+          id: this.room.id,
+        },
+      },
+      {},
+    )
+    if (response.result === "error") {
+      throw new Error("エラーが発生しました")
+    }
+    TopicStore.set(response.data.topics)
+
     // socket接続
     ;(this as any).socket = socket
     if (this.isAdmin) {
@@ -114,25 +129,11 @@ export default Vue.extend({
           this.activeUserCount = res.data.activeUserCount
         },
       )
+      this.isRoomEnter = true
     } else {
       // ユーザーの入室
       this.$modal.show("sushi-modal")
     }
-
-    // Topics取得
-    const response = await this.$apiClient.get(
-      {
-        pathname: "/room/:id",
-        params: {
-          id: this.room.id,
-        },
-      },
-      {},
-    )
-    if (response.result === "error") {
-      throw new Error("エラーが発生しました")
-    }
-    TopicStore.set(response.data.topics)
 
     // SocketIOのコールバックの登録
     socket.on("PUB_CHAT_ITEM", (chatItem: ChatItem) => {

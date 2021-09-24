@@ -19,6 +19,7 @@ class RestRoomService {
   // Roomを作成する。
   public async build(command: BuildRoomCommand): Promise<RoomClass> {
     const room = this.roomFactory.create(
+      command.adminId,
       command.title,
       command.topics,
       command.description,
