@@ -18,7 +18,7 @@ import { PartiallyPartial } from "../types/utils"
 import IUserRepository from "../domain/user/IUserRepository"
 import { NewIconId } from "../domain/user/IconId"
 
-describe("RoomServiceのテスト", () => {
+describe("RealtimeRoomServiceのテスト", () => {
   let admin: User
   let topics: PartiallyPartial<Topic, "id" | "state" | "pinnedChatItemId">[]
 
