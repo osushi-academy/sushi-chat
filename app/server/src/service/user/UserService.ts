@@ -54,6 +54,7 @@ class UserService {
     const activeUserCount = room.joinAdminUser(userId, adminId)
 
     // roomにjoinできたらuserも作成
+
     await this.createUser(
       activeUserCount,
       userId,
@@ -123,7 +124,7 @@ class UserService {
     const activeUserCount = room.leaveUser(user.id)
 
     this.userDelivery.leaveRoom(user, activeUserCount)
-    this.userRepository.leaveRoom(user)
+    await this.userRepository.leaveRoom(user)
   }
 
   private async createUser(
