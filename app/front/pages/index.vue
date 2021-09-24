@@ -2,12 +2,12 @@
   <div class="container page">
     <main>
       <SelectIconModal
-        v-if="isRoomStart && !isAdmin && !isRoomEnter"
+        v-if="isRoomStarted && !isAdmin && !isRoomEnter"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
       <NotStarted
-        v-if="!isRoomStart && !isAdmin"
+        v-if="!isRoomStarted && !isAdmin"
         @check-status-and-action="checkStatusAndAction"
         @click-icon="clickIcon"
         @hide-modal="hide"
@@ -16,6 +16,7 @@
         v-if="isAdmin"
         :room-id="room.id"
         :title="room.title"
+        :is-started="isRoomStarted"
         @start-room="startRoom"
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
@@ -75,7 +76,7 @@ export default Vue.extend({
     }
   },
   computed: {
-    isRoomStart(): boolean {
+    isRoomStarted(): boolean {
       return this.room.state === "ongoing"
     },
     isAdmin(): boolean {

@@ -97,7 +97,7 @@ import { UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
 
 // Data型
 type DataType = {
-  isRoomStarted: boolean
+  isRoomStartedInAdmin: boolean
 }
 
 export default Vue.extend({
@@ -111,10 +111,14 @@ export default Vue.extend({
       type: String,
       required: true,
     },
+    isRoomStarted: {
+      type: Boolean,
+      required: true,
+    },
   },
   data(): DataType {
     return {
-      isRoomStarted: false,
+      isRoomStartedInAdmin: this.isRoomStarted,
     }
   },
   computed: {
@@ -151,14 +155,14 @@ export default Vue.extend({
     // ルーム開始
     startRoom() {
       this.$emit("start-room")
-      this.isRoomStarted = true
+      this.isRoomStartedInAdmin = true
     },
     // ルーム終了
     finishRoom() {
       if (confirm("本当にこのルームを終了しますか？この操作は取り消せません")) {
         this.$emit("finish-room")
         // TODO: ルームの状態をindex、またはvuexでもつ
-        this.isRoomStarted = false
+        this.isRoomStartedInAdmin = false
       }
     },
     writeToClipboard(s: string) {
