@@ -34,7 +34,7 @@ import { Room, ChatItem, Stamp } from "@/models/contents"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
-import socket from "~/utils/socketIO"
+import buildSocket from "~/utils/socketIO"
 import {
   ChatItemStore,
   DeviceStore,
@@ -42,6 +42,7 @@ import {
   StampStore,
   TopicStore,
   TopicStateItemStore,
+  AuthStore,
 } from "~/store"
 
 // Data型
@@ -114,6 +115,7 @@ export default Vue.extend({
     TopicStore.set(response.data.topics)
 
     // socket接続
+    const socket = buildSocket(AuthStore.idToken)
     ;(this as any).socket = socket
     if (this.isAdmin) {
       // 管理者の入室

@@ -151,7 +151,7 @@ export default Vue.extend({
     // ルーム開始
     startRoom() {
       // TODO: ルームの状態をindex、またはvuexでもつ
-      socket.emit("ADMIN_START_ROOM", { roomId: this.roomId })
+      // socket.emit("ADMIN_START_ROOM", { roomId: this.roomId })
       this.isRoomStarted = true
     },
     // ルーム終了
