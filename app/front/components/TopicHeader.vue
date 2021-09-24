@@ -10,15 +10,34 @@
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>
       <div class="title">{{ title }}</div>
-      <button class="link-button">
-        <span class="material-icons"> link </span>
-      </button>
-      <button class="more-button">
+      <button class="more-button" @click="isOpenDetails = !isOpenDetails">
         <span class="material-icons"> more_vert </span>
       </button>
-      <!--button class="download-button" @click="clickDownload">
-        <download-icon size="18"></download-icon>
-      </button-->
+    </div>
+    <div v-if="isOpenDetails" class="topic-header__details">
+      <button
+        class="topic-header__details--filter-btn"
+        :class="{ selected: isAllCommentShowed === true }"
+        @click="isAllCommentShowed = true"
+      >
+        すべて
+      </button>
+      <button
+        class="topic-header__details--filter-btn"
+        :class="{ selected: isAllCommentShowed === false }"
+        @click="isAllCommentShowed = false"
+      >
+        質問と回答
+      </button>
+      <div class="topic-header__details--description">
+        質問と回答：
+        質問と回答のみ表示されます（運営やスピーカーの投稿も表示されます）
+      </div>
+      <div class="topic-header__details--line" />
+      <div class="topic-header__details--download" @click="clickDownload">
+        <span class="material-icons"> file_download </span>
+        <span class="text">現在までのチャット履歴のダウンロード</span>
+      </div>
     </div>
   </div>
 </template>
@@ -28,6 +47,11 @@ import type { PropOptions } from "vue"
 // import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
 import { TopicState } from "sushi-chat-shared"
 import { UserItemStore } from "~/store"
+
+type DataType = {
+  isAllCommentShowed: boolean
+  isOpenDetails: boolean
+}
 
 export default Vue.extend({
   name: "TopicHeader",
@@ -47,6 +71,12 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
+  },
+  data(): DataType {
+    return {
+      isAllCommentShowed: true,
+      isOpenDetails: false,
+    }
   },
   computed: {
     isAdmin(): boolean {

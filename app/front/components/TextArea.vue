@@ -25,6 +25,11 @@
         from おすしアカデミー
       </span>
     </div>
+    <!--div class="input-area__fixed-phrases">
+      <fixed-phrase text="8888888888" />
+      <fixed-phrase text="👏👏👏👏" />
+      <fixed-phrase text="🔥🔥🔥" />
+    </div-->
     <textarea
       v-model="text"
       :disabled="disabled"

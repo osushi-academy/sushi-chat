@@ -54,8 +54,13 @@ class UserService {
     const activeUserCount = room.joinAdminUser(userId, adminId)
 
     // roomにjoinできたらuserも作成
-    const user = this.createUser(userId, roomId, User.ADMIN_ICON_ID, true)
-    this._enterRoom(user, activeUserCount)
+    await this.createUser(
+      activeUserCount,
+      userId,
+      roomId,
+      User.ADMIN_ICON_ID,
+      true,
+    )
 
     return {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
@@ -86,14 +91,14 @@ class UserService {
     // roomが始まっていないとここでエラー
     const activeUserCount = room.joinUser(userId)
 
-    const user = this.createUser(
+    await this.createUser(
+      activeUserCount,
       userId,
       roomId,
       NewIconId(iconId),
       false,
       speakerTopicId,
     )
-    this._enterRoom(user, activeUserCount)
 
     return {
       chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
@@ -121,22 +126,18 @@ class UserService {
     this.userRepository.leaveRoom(user)
   }
 
-  private createUser(
+  private async createUser(
+    activeUserCount: number,
     userId: string,
     roomId: string,
     iconId: IconId,
     isAdmin: boolean,
     speakAt?: number,
-  ): User {
+  ) {
     const newUser = new User(userId, isAdmin, roomId, iconId, speakAt)
-    this.userRepository.create(newUser)
 
-    return newUser
-  }
-
-  private _enterRoom(user: User, activeUserCount: number) {
-    this.userDelivery.enterRoom(user, activeUserCount)
-    this.userRepository.create(user)
+    this.userDelivery.enterRoom(newUser, activeUserCount)
+    await this.userRepository.create(newUser)
   }
 }
 
