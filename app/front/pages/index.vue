@@ -14,9 +14,10 @@
       />
       <AdminTool
         v-if="isAdmin"
+        :room="room"
         :room-id="room.id"
         :title="room.title"
-        :is-started="isRoomStarted"
+        :room-state="roomState"
         @start-room="startRoom"
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
@@ -31,12 +32,12 @@
 <script lang="ts">
 import Vue from "vue"
 import VModal from "vue-js-modal"
+import { RoomModel, RoomState } from "sushi-chat-shared"
 import { ChatItem, Stamp, Topic, TopicState } from "@/models/contents"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
 import socket from "~/utils/socketIO"
-import { RoomModel } from "~/../shared/dist"
 import {
   ChatItemStore,
   DeviceStore,
@@ -55,6 +56,7 @@ type DataType = {
   activeUserCount: number
   room: RoomModel
   isRoomEnter: boolean
+  roomState: RoomState
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -73,6 +75,7 @@ export default Vue.extend({
       activeUserCount: 0,
       room: {} as RoomModel,
       isRoomEnter: false,
+      roomState: "not-started",
     }
   },
   computed: {
@@ -110,9 +113,9 @@ export default Vue.extend({
     DeviceStore.determineOs()
   },
   methods: {
-    checkStatusAndAction() {
+    async checkStatusAndAction() {
       // ルーム情報取得・status更新
-      this.$apiClient
+      const res = await this.$apiClient
         .get(
           {
             pathname: "/room/:id",
@@ -120,16 +123,15 @@ export default Vue.extend({
           },
           {},
         )
-        .then((res) => {
-          if (res.result === "error") {
-            throw new Error(res.error.message)
-          }
-
-          this.room = res.data
-        })
         .catch((e) => {
           throw new Error(e)
         })
+
+      if (res.result === "error") {
+        throw new Error(res.error.message)
+      }
+      this.room = res.data
+      this.roomState = res.data.state
 
       // 未開始の時
       if (this.room.state === "not-started") {
@@ -249,6 +251,7 @@ export default Vue.extend({
     finishRoom() {
       const socket = (this as any).socket
       socket.emit("ADMIN_FINISH_ROOM")
+      this.roomState = "finished"
     },
     // アイコン選択
     clickIcon(index: number) {
@@ -267,6 +270,7 @@ export default Vue.extend({
         )
         .then(() => {
           this.adminEnterRoom()
+          this.roomState = "ongoing"
         })
         .catch(() => window.alert("ルームを開始できませんでした"))
     },

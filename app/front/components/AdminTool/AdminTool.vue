@@ -17,7 +17,7 @@
             </button>
           </div>
         </div>
-        <button v-if="!isRoomStarted" class="start-button" @click="startRoom">
+        <button v-if="isNotRoomStarted" class="start-button" @click="startRoom">
           <div class="material-icons-outlined">play_circle</div>
           <span>ルームを開始する</span>
         </button>
@@ -40,7 +40,7 @@
               >一時停止</span
             >
           </div>
-          <div v-if="isRoomStarted" class="buttons">
+          <div v-if="isRoomOngoing" class="buttons">
             <button
               v-if="topicStateItems[topic.id] != 'finished'"
               @click="clickPlayPauseButton(topic.id)"
@@ -64,7 +64,7 @@
             >
               <span class="material-icons">restart_alt</span>
             </button>
-            <div v-if="!isRoomStarted">
+            <div v-if="!isRoomOngoing">
               <div class="topic-info">
                 334<span class="text-mini">users</span>
               </div>
@@ -79,7 +79,7 @@
         </div>
       </div>
       <div class="drawer-menu__footer">
-        <button v-if="isRoomStarted" class="end-button" @click="finishRoom">
+        <button v-if="isRoomOngoing" class="end-button" @click="finishRoom">
           <span>ルームを終了する</span>
           <div class="material-icons-outlined danger">info</div>
         </button>
@@ -92,7 +92,6 @@
 import Vue from "vue"
 import ICONS from "@/utils/icons"
 import { Topic } from "@/models/contents"
-import socket from "~/utils/socketIO"
 import { UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
 
 // Data型
@@ -111,8 +110,8 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    isRoomStarted: {
-      type: Boolean,
+    roomState: {
+      type: String,
       required: true,
     },
   },
@@ -122,6 +121,12 @@ export default Vue.extend({
     }
   },
   computed: {
+    isNotRoomStarted(): boolean {
+      return this.roomState === "not-started"
+    },
+    isRoomOngoing(): boolean {
+      return this.roomState === "ongoing"
+    },
     topics(): Topic[] {
       return TopicStore.topics
     },
@@ -155,14 +160,11 @@ export default Vue.extend({
     // ルーム開始
     startRoom() {
       this.$emit("start-room")
-      this.isRoomStartedInAdmin = true
     },
     // ルーム終了
     finishRoom() {
       if (confirm("本当にこのルームを終了しますか？この操作は取り消せません")) {
         this.$emit("finish-room")
-        // TODO: ルームの状態をindex、またはvuexでもつ
-        this.isRoomStartedInAdmin = false
       }
     },
     writeToClipboard(s: string) {
