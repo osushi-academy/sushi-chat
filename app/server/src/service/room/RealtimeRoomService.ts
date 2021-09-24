@@ -48,7 +48,7 @@ class RealtimeRoomService {
 
     room.finishRoom()
 
-    this.roomRepository.update(room)
+    await this.roomRepository.update(room)
   }
 
   /** topicのstateを変更する
@@ -76,12 +76,12 @@ class RealtimeRoomService {
     const messages = room.changeTopicState(topicId, state)
 
     this.roomDelivery.changeTopicState(roomId, room.topics[topicId])
-    this.roomRepository.update(room)
+    messages.forEach((m) => this.chatItemDelivery.postMessage(m))
 
-    for (const m of messages) {
-      this.chatItemDelivery.postMessage(m)
-      this.chatItemRepository.saveMessage(m)
-    }
+    await Promise.all([
+      this.roomRepository.update(room),
+      ...messages.map((m) => this.chatItemRepository.saveMessage(m)),
+    ])
   }
 }
 

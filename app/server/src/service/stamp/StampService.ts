@@ -30,7 +30,7 @@ class StampService {
     room.postStamp(stamp)
 
     this.stampDelivery.pushStamp(stamp)
-    this.stampRepository.store(stamp)
+    await this.stampRepository.store(stamp)
   }
 }
 

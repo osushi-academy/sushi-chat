@@ -75,12 +75,13 @@
 
       .topic {
         display: flex;
+        flex-direction: row;
         align-items: center;
         padding: 0.5em 0;
         margin-bottom: 0.5em;
       }
 
-      .active {
+      .ongoing {
         background-color: white;
         .label {
           background-color: #f6666e;
@@ -124,14 +125,18 @@
           vertical-align: middle;
         }
       }
-      .topic-info {
-        width: 4em;
+      .topic-infos {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        & .text-mini {
-          font-size: 60%;
+        flex-direction: row;
+        .topic-info {
+          width: 4em;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          & .text-mini {
+            font-size: 60%;
+          }
         }
       }
 
