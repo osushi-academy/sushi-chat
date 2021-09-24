@@ -3,7 +3,6 @@
     <TopicHeader
       :title="topic.title"
       :topic-index="topicIndex"
-      :topic-state="topicState"
       @download="clickDownload"
     />
     <div class="chat-area">
