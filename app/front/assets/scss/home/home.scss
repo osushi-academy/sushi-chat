@@ -38,6 +38,13 @@
       margin: 0 0 0.7rem 0;
       @include text-size("mdi");
     }
+    &--item {
+      text-decoration: none;
+      color: inherit;
+      :active {
+        color: inherit;
+      }
+    }
     &__list {
       @include home-event-list-element;
     }
