@@ -3,6 +3,8 @@
     <main>
       <SelectIconModal
         v-if="isRoomStarted && !isAdmin && !isRoomEnter"
+        :title="room.title"
+        :description="room.description"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />

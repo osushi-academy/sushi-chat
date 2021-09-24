@@ -1,9 +1,9 @@
 <template>
   <div class="sushi-select">
     <section class="sushi-select__header">
-      <h1 class="sushi-select__header--title">技育ハッカソンvol7</h1>
+      <h1 class="sushi-select__header--title">{{ title }}</h1>
       <p class="sushi-select__header--content">
-        2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。
+        {{ description }}
       </p>
     </section>
 
@@ -86,6 +86,16 @@ import { UserItemStore } from "~/store"
 
 export default Vue.extend({
   name: "SelectIconModal",
+  props: {
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+  },
   computed: {
     myIconId() {
       return UserItemStore.userItems.myIconId
