@@ -91,7 +91,9 @@
       </section>
     </template>
     <template #hide-button>
-      <NuxtLink to="/home"> マイページに戻る </NuxtLink>
+      <NuxtLink to="/home" class="home-modal__hide-button">
+        マイページに戻る
+      </NuxtLink>
     </template>
   </Modal>
 </template>

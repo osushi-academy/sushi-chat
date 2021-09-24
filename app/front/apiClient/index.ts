@@ -111,7 +111,7 @@ export default class Repository {
       : Path | PathObject<"put", Path>,
     data: RestApi<"put", Path>["request"],
   ) {
-    return await this.nuxtAxios.$post<RestApi<"put", Path>["response"]>(
+    return await this.nuxtAxios.$put<RestApi<"put", Path>["response"]>(
       typeof path === "string" ? path : pathBuilder(path),
       data,
     )

@@ -118,9 +118,12 @@
   display: flex;
   width: 100%;
   margin: 0 0 0.5rem 0;
-  @include white-text-box($expand: "true");
   padding: 1rem;
-
+  text-align: left;
+  @include white-text-box($expand: "true");
+  button {
+    background-color: inherit;
+  }
   &--name {
     width: 30%;
     @media screen and (min-width: $small+px) {
@@ -129,6 +132,7 @@
   }
   &--date {
     margin: 0 0.5rem;
+    width: 5rem;
     @media screen and (min-width: $small+px) {
       margin: 0 2rem;
     }

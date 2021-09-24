@@ -19,7 +19,6 @@ class RestRoomService {
   // Roomを作成する。
   public async build(command: BuildRoomCommand): Promise<RoomClass> {
     const room = this.roomFactory.create(
-      command.adminId,
       command.title,
       command.topics,
       command.description,
@@ -69,10 +68,13 @@ class RestRoomService {
     const roomDefault: RoomModel = {
       id: room.id,
       title: room.title,
-      topics: /* room.topics */ [],
+      topics: room.topics.map((topic) => ({
+        ...topic,
+        order: topic.id,
+      })),
       state: room.state,
       description: room.description,
-      startDate: /* room.startDate */ "",
+      startDate: room.startAt?.toISOString() ?? undefined,
       adminInviteKey: undefined,
     }
     // adminの時のみadminInviteKeyに値をいれる

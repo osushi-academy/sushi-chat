@@ -1,9 +1,15 @@
+import Answer from "./domain/chatItem/Answer"
+import Message from "./domain/chatItem/Message"
+import Question from "./domain/chatItem/Question"
+import Reaction from "./domain/chatItem/Reaction"
+import { Routes } from "./expressRoute"
 import express, { Response } from "express"
 import AdminService from "./service/admin/AdminService"
 import RestRoomService from "./service/room/RestRoomService"
+import { covertToNewTopicArray } from "./utils/topics"
 
 export const restSetup = (
-  app: ReturnType<typeof express>,
+  app: Routes,
   roomService: RestRoomService,
   adminService: AdminService,
 ) => {
@@ -15,19 +21,40 @@ export const restSetup = (
     try {
       const room = await roomService.find(req.params.id)
 
+      const chatItems = room.chatItems.map((chatItem) => ({
+        ...chatItem,
+        type:
+          chatItem instanceof Message
+            ? ("message" as const)
+            : chatItem instanceof Reaction
+            ? ("reaction" as const)
+            : chatItem instanceof Question
+            ? ("question" as const)
+            : ("answer" as const),
+        createdAt: chatItem.createdAt.toISOString(),
+        iconId: chatItem.iconId as unknown as number,
+      }))
+
+      const stamps = room.stamps.map((stamp) => ({
+        ...stamp,
+        createdAt: stamp.createdAt.toISOString(),
+      }))
+
       res.send({
         result: "success",
         data: {
-          chatItems: room.chatItems,
-          stamps: room.stamps,
-          pinnedChatItemIds: room.pinnedChatItemIds,
+          chatItems,
+          stamps,
+          pinnedChatItemIds: room.pinnedChatItemIds.filter(
+            (chatItemId): chatItemId is string => chatItemId != null,
+          ),
         },
       })
     } catch (e) {
       res.status(400).send({
         result: "error",
         error: {
-          code: 400,
+          code: "ERROR_CODE",
           message: `${e ?? "Unknown error."} (USER_ROOM_HISTORY)`,
         },
       })
@@ -50,7 +77,7 @@ export const restSetup = (
       res.status(400).send({
         result: "error",
         error: {
-          code: 400,
+          code: "ERROR_CODE",
           message: `${e.message ?? "Unknown error."} (USER_FIND_ROOM)`,
         },
       })
@@ -58,8 +85,11 @@ export const restSetup = (
   })
 
   // adminの認証/認可が必要なエンドポイントのルーター
-  const adminRouter = express.Router()
-  app.use("/", adminRouter)
+  const _adminRouter = express.Router()
+  app.use("/", _adminRouter)
+
+  // NOTE: 無理矢理型を効かせるため
+  const adminRouter = _adminRouter as unknown as Routes
 
   // AuthorizationヘッダからidTokenをextractし、検証結果をbodyに入れる
   adminRouter.use(async (req, res, next) => {
@@ -99,17 +129,15 @@ export const restSetup = (
 
       res.send({
         result: "success",
-        room: rooms.map((room) => {
+        data: rooms.map((room) => {
           return {
             id: room.id,
             title: room.title,
             description: room.description,
-            topics: room.topics,
+            topics: covertToNewTopicArray(room.topics),
             state: room.state,
             adminInviteKey: room.adminInviteKey,
-            /*
-              startDate: newRoom.startDate
-              */
+            startDate: room.startAt?.toDateString() ?? undefined,
           }
         }),
       })
@@ -117,7 +145,7 @@ export const restSetup = (
       res.status(400).send({
         result: "error",
         error: {
-          code: 400,
+          code: "ERROR_CODE",
           message: `${e ?? "Unknown error."} (ADMIN_GET_ROOMS)`,
         },
       })
@@ -131,6 +159,7 @@ export const restSetup = (
         title: req.body.title,
         topics: req.body.topics,
         description: req.body.description,
+        // @ts-ignore adminIdは型定義で指定されていないため
         adminId: req.body.adminId,
       })
       res.send({
@@ -139,17 +168,17 @@ export const restSetup = (
           id: newRoom.id,
           title: newRoom.title,
           description: newRoom.description,
-          topics: newRoom.topics,
+          topics: covertToNewTopicArray(newRoom.topics),
           state: newRoom.state,
           adminInviteKey: newRoom.adminInviteKey,
-          startDate: null,
+          startDate: undefined,
         },
       })
     } catch (e) {
       res.status(400).send({
         result: "error",
         error: {
-          code: 400,
+          code: "ERROR_CODE",
           message: `${e ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
         },
       })
@@ -157,22 +186,22 @@ export const restSetup = (
   })
 
   // ルームを開始する
-  adminRouter.put("/room/:id/start", (req, res) => {
-    roomService
-      .start({
+  adminRouter.put("/room/:id/start", async (req, res) => {
+    try {
+      await roomService.start({
         id: req.params.id,
         adminId: req.body.adminId,
       })
-      .then(() => res.send({ result: "success" }))
-      .catch((e) => {
-        res.status(400).send({
-          result: "error",
-          error: {
-            code: 400,
-            message: `${e.message ?? "Unknown error."} (ADMIN_START_ROOM)`,
-          },
-        })
+      res.send({ result: "success", data: undefined })
+    } catch (e) {
+      res.status(400).send({
+        result: "error",
+        error: {
+          code: "ERROR_CODE",
+          message: `${e.message ?? "Unknown error."} (ADMIN_START_ROOM)`,
+        },
       })
+    }
   })
 
   // ルームを公開停止にする
@@ -182,16 +211,42 @@ export const restSetup = (
         id: req.params.id,
         adminId: req.body.adminId,
       })
-      .then(() => res.send({ result: "success" }))
+      .then(() => res.send({ result: "success", data: undefined }))
       .catch((e) => {
         res.status(400).send({
           result: "error",
           error: {
-            code: 400,
+            code: "ERROR_CODE",
             message: `${e ?? "Unknown error."} (ADMIN_ARCHIVE_ROOM)`,
           },
         })
       })
+  })
+
+  // ルーム情報を取得する
+  app.get("/room/:id", async (req, res) => {
+    try {
+      const roomId = req.params.id
+      const adminId = "hoge" /* 本当はヘッダーから。 */
+
+      const room = await roomService.checkAdminAndfind({
+        id: roomId,
+        adminId: adminId,
+      })
+
+      res.send({
+        result: "success",
+        data: room,
+      })
+    } catch (e) {
+      res.status(400).send({
+        result: "error",
+        error: {
+          code: "ERROR_CODE",
+          message: `${e.message ?? "Unknown error."} (USER_FIND_ROOM)`,
+        },
+      })
+    }
   })
 
   // ルームと新しい管理者を紐付ける
@@ -201,7 +256,7 @@ export const restSetup = (
       res.status(400).send({
         result: "error",
         error: {
-          code: 400,
+          code: "ERROR_CODE",
           message: `invite admin needs admin_invite_key. (ADMIN_INVITE_ROOM)`,
         },
       })
@@ -211,7 +266,7 @@ export const restSetup = (
       res.status(400).send({
         result: "error",
         error: {
-          code: 400,
+          code: "ERROR_CODE",
           message: `invaild parameter. (ADMIN_INVITE_ROOM)`,
         },
       })
@@ -221,14 +276,15 @@ export const restSetup = (
       .inviteAdmin({
         id: req.params.id,
         adminInviteKey: adminInviteKey,
+        // @ts-ignore adminIdは型定義で指定されていないため
         adminId: req.body.adminId,
       })
-      .then(() => res.send({ result: "success" }))
+      .then(() => res.send({ result: "success", data: undefined }))
       .catch((e) => {
         res.status(400).send({
           result: "error",
           error: {
-            code: 400,
+            code: "ERROR_CODE",
             message: `${e ?? "Unknown error."} (ADMIN_INVITE_ROOM)`,
           },
         })
