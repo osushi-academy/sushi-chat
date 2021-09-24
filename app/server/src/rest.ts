@@ -241,8 +241,7 @@ export const restSetup = (
   })
 
   const handleError = (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    error: any,
+    error: unknown,
     route: string,
     res: Response,
     code = 500,
@@ -254,8 +253,7 @@ export const restSetup = (
     })
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const logError = (context: string, error: any) => {
+  const logError = (context: string, error: unknown) => {
     const date = new Date().toISOString()
     console.error(`[${date}]${context}:${error ?? "Unknown error."}`)
   }

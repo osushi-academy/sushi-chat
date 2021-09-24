@@ -267,15 +267,13 @@ const createSocketIOServer = async (
 const handleError = (
   callback: (response: ErrorResponse) => void,
   event: ServerListenEventName,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any,
+  error: unknown,
 ) => {
   logError(event, error)
   callback({ result: "error", error: { code: "500", message: `${error}` } })
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const logError = (context: string, error: any) => {
+const logError = (context: string, error: unknown) => {
   const date = new Date().toISOString()
   console.error(`[${date}]${context}:${error ?? "Unknown error."}`)
 }
