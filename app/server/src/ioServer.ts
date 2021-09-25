@@ -168,7 +168,7 @@ const createSocketIOServer = async (
     })
 
     //messageで送られてきたときの処理
-    socket.on("POST_CHAT_ITEM", (received, callback) => {
+    socket.on("POST_CHAT_ITEM", async (received, callback) => {
       try {
         const commandBase: PostChatItemCommand = {
           userId,
@@ -178,7 +178,7 @@ const createSocketIOServer = async (
         const chatItemType = received.type
         switch (received.type) {
           case "message":
-            chatItemService.postMessage({
+            await chatItemService.postMessage({
               ...commandBase,
               content: received.content as string,
               quoteId: received.quoteId as string,
@@ -186,21 +186,21 @@ const createSocketIOServer = async (
             break
 
           case "reaction":
-            chatItemService.postReaction({
+            await chatItemService.postReaction({
               ...commandBase,
               quoteId: received.quoteId as string,
             })
             break
 
           case "question":
-            chatItemService.postQuestion({
+            await chatItemService.postQuestion({
               ...commandBase,
               content: received.content as string,
             })
             break
 
           case "answer":
-            chatItemService.postAnswer({
+            await chatItemService.postAnswer({
               ...commandBase,
               content: received.content as string,
               quoteId: received.quoteId as string,
