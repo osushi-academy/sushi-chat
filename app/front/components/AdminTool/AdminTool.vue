@@ -4,6 +4,8 @@
       <div class="drawer-menu__header">
         <div class="room-info">
           <div class="room-title">
+            <!-- {{ topics }}
+            {{ topicStateItems }} -->
             <p>管理者ツール - {{ title }}</p>
           </div>
           <div class="room-url">
@@ -22,6 +24,7 @@
           <span>ルームを開始する</span>
         </button>
       </div>
+      {{ isRoomOngoing }}
 
       <div class="drawer-menu__topic-list">
         <div
@@ -178,7 +181,7 @@ export default Vue.extend({
     },
     clickFinishButton(topicId: number) {
       TopicStateItemStore.change({ key: `${topicId}`, state: "finished" })
-      this.$emit("change-topic-state", topicId, "closed")
+      this.$emit("change-topic-state", topicId, "finished")
     },
     clickRestartButton(topicId: number) {
       TopicStateItemStore.change({ key: `${topicId}`, state: "finished" })

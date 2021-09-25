@@ -214,10 +214,16 @@ export default Vue.extend({
       }
       TopicStateItemStore.change({ key: topicId, state })
       const socket = (this as any).socket
-      socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-        state,
-        topicId,
-      })
+      socket.emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
+        {
+          state,
+          topicId,
+        },
+        (res: any) => {
+          console.log(res)
+        },
+      )
     },
     // ユーザ関連
     // modalを消し、入室
@@ -294,7 +300,10 @@ export default Vue.extend({
           this.adminEnterRoom()
           this.roomState = "ongoing"
         })
-        .catch(() => window.alert("ルームを開始できませんでした"))
+        .catch((e) => {
+          console.error(e)
+          window.alert("ルームを開始できませんでした")
+        })
     },
   },
 })
