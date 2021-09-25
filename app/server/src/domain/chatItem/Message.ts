@@ -13,8 +13,9 @@ class Message extends ChatItem {
     public readonly quote: Message | Answer | null,
     createdAt: Date,
     timestamp?: number,
+    isPinned = false,
   ) {
-    super(id, topicId, user, senderType, createdAt, timestamp)
+    super(id, topicId, user, senderType, createdAt, timestamp, isPinned)
   }
 }
 
