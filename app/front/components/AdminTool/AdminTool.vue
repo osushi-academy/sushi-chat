@@ -9,13 +9,19 @@
             <p>管理者ツール - {{ title }}</p>
           </div>
           <div class="room-url">
-            <button @click="writeToClipboard(shareUrl)">
+            <button @click="writeToClipboard(shareUrl, 0)">
               <div class="room-text">参加者用<br />招待URLのコピー</div>
-              <div class="material-icons copy-button">content_copy</div>
+              <div v-if="copyCompleted" class="material-icons copy-button">
+                done
+              </div>
+              <div v-else class="material-icons copy-button">content_copy</div>
             </button>
-            <button @click="writeToClipboard(adminUrl)">
+            <button @click="writeToClipboard(adminUrl, 1)">
               <div class="room-text">管理者用<br />招待URLのコピー</div>
-              <div class="material-icons copy-button">content_copy</div>
+              <div v-if="copyAdminCompleted" class="material-icons copy-button">
+                done
+              </div>
+              <div v-else class="material-icons copy-button">content_copy</div>
             </button>
           </div>
         </div>
@@ -98,6 +104,11 @@ import { Topic } from "sushi-chat-shared"
 import ICONS from "@/utils/icons"
 import { UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
 
+type DataType = {
+  copyCompleted: boolean
+  copyAdminCompleted: boolean
+}
+
 export default Vue.extend({
   name: "AdminTool",
   props: {
@@ -113,6 +124,12 @@ export default Vue.extend({
       type: String,
       required: true,
     },
+  },
+  data(): DataType {
+    return {
+      copyCompleted: false,
+      copyAdminCompleted: false,
+    }
   },
   computed: {
     isNotRoomStarted(): boolean {
@@ -164,8 +181,19 @@ export default Vue.extend({
         this.$emit("finish-room")
       }
     },
-    writeToClipboard(s: string) {
+    writeToClipboard(s: string, idx: number) {
       navigator.clipboard.writeText(s)
+      if (idx === 0) {
+        this.copyCompleted = true
+        setTimeout(() => {
+          this.copyCompleted = false
+        }, 2000)
+      } else {
+        this.copyAdminCompleted = true
+        setTimeout(() => {
+          this.copyAdminCompleted = false
+        }, 2000)
+      }
     },
     clickPlayPauseButton(topicId: number) {
       if (this.topicStateItems[topicId] === "ongoing") {
