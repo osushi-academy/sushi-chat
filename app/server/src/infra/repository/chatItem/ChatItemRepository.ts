@@ -13,7 +13,6 @@ class ChatItemRepository implements IChatItemRepository {
   constructor(private readonly pgPool: PGPool) {}
 
   public async saveMessage(message: Message) {
-    console.log(message)
     const pgClient = await this.pgPool.client()
 
     const query =
@@ -126,13 +125,12 @@ class ChatItemRepository implements IChatItemRepository {
     const query =
       "SELECT ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at, u.icon_id, u.is_admin, u.is_system, u.has_left " +
       "FROM chat_items as ci " +
-      "LEFT OUTER JOIN users as u " +
-      "ON ci.user_id = u.id"
+      "JOIN users u " +
+      "ON ci.user_id = u.id AND ci.id = $1"
 
     try {
       const res = await pgClient.query(query, [chatItemId])
       if (res.rowCount < 1) return null
-
       return await this.buildChatItem(res.rows[0])
     } catch (e) {
       ChatItemRepository.logError(e, "find()")
@@ -148,7 +146,7 @@ class ChatItemRepository implements IChatItemRepository {
     const query =
       "SELECT ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at, u.icon_id, u.is_admin, u.is_system, u.has_left " +
       "FROM chat_items ci " +
-      "LEFT OUTER JOIN users u " +
+      "JOIN users u " +
       "ON ci.user_id = u.id AND ci.room_id = $1"
     try {
       const res = await pgClient.query(query, [roomId])

@@ -30,7 +30,6 @@
           <span>ルームを開始する</span>
         </button>
       </div>
-      {{ isRoomOngoing }}
 
       <div class="drawer-menu__topic-list">
         <div

@@ -75,7 +75,7 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
-import { ChatItemPropType } from "@/models/contents"
+import { ChatItemModel } from "sushi-chat-shared"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 import { UserItemStore } from "~/store"
 
@@ -96,7 +96,7 @@ export default Vue.extend({
       required: true,
     },
     topicId: {
-      type: String,
+      type: Number,
       required: true,
     },
     disabled: {
@@ -106,7 +106,7 @@ export default Vue.extend({
     selectedChatItem: {
       type: Object,
       default: null,
-    } as PropOptions<ChatItemPropType>,
+    } as PropOptions<ChatItemModel>,
   },
   data(): DataType {
     return {
@@ -145,7 +145,9 @@ export default Vue.extend({
       this.isQuestion = false
 
       // スクロール
-      const element: HTMLElement | null = document.getElementById(this.topicId)
+      const element: HTMLElement | null = document.getElementById(
+        `${this.topicId}`,
+      )
       if (element) {
         element.scrollTo({
           top: element.scrollHeight,
