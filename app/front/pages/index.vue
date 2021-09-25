@@ -242,14 +242,19 @@ export default Vue.extend({
           roomId: this.room.id,
           speakerTopicId: 0, // TODO: speakerTopicIdを渡す
         },
-        (res: any) => {
-          res.data.topicStates.forEach((topicState: any) => {
+        (res) => {
+          if (res.result === "error") {
+            console.error(res.error)
+            return
+          }
+          res.data.topicStates.forEach((topicState) => {
             TopicStateItemStore.change({
               key: `${topicState.topicId}`,
               state: topicState.state,
             })
           })
-          ChatItemStore.add(res.data.chatItems)
+          console.log(res)
+          ChatItemStore.setChatItems(res.data.chatItems)
         },
       )
       this.socketSetUp()
@@ -262,9 +267,13 @@ export default Vue.extend({
         {
           roomId: this.room.id,
         },
-        (res: any) => {
-          ChatItemStore.add(res.data.chatItems)
-          res.data.topicStates.forEach((topicState: any) => {
+        (res) => {
+          if (res.result === "error") {
+            console.error(res.error)
+            return
+          }
+          ChatItemStore.setChatItems(res.data.chatItems)
+          res.data.topicStates.forEach((topicState) => {
             TopicStateItemStore.change({
               key: `${topicState.topicId}`,
               state: topicState.state,
