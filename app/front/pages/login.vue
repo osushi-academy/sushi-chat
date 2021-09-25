@@ -18,8 +18,8 @@
         <div class="lp__main__text--catchcopy">
           プレゼンテーションは<br />もっと美味しくなる
         </div>
-        <br />
         <div class="lp__main__text--details">
+          <br />
           sushi-chat（スシチャット）は<br />
           プレゼンテーションを聞きながら匿名で感想を書き込め<br />
           いいねやスタンプも押せるチャットツールです。
