@@ -1,0 +1,31 @@
+name: Deploy server to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: Deploy with AWS CodeDeploy
+        run: |
+          aws deploy create-deployment \
+          --application-name ${{ env.PROJECT }}-deploy-app \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --deployment-group-name ${{ env.PROJECT }}-deploy-group \
+          --description "Deployment for ${{ env.PROJECT }}" \
+          --github-location repository=KoukiNAGATA/sushi-chat,commitId="${{ github.sha }}" \
+          --file-exists-behavior RETAIN \
+        env:
+          PROJECT: sushi-chat

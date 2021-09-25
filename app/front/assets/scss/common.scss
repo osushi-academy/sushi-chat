@@ -1,7 +1,10 @@
 body {
-  font-family: 'M PLUS 1p', sans-serif;
-  //overflow: hidden; // 縦方向は１画面に収める（スクロールさせない）
+  font-family: "M PLUS 1p", sans-serif;
   touch-action: manipulation; // ダブルタップによるズームは抑止
+  -webkit-font-smoothing: antialiased;
+  color: $black;
+  font-size: 0.9rem;
+  background: white;
 }
 
 .material-icons {
@@ -25,7 +28,7 @@ label {
   cursor: pointer;
   padding-left: 0px;
 
-  & > input[type='checkbox'] {
+  & > input[type="checkbox"] {
     outline: none;
     margin: 0.2rem;
     width: 12px;
@@ -44,7 +47,7 @@ label {
       left: 0;
       transform: translateY(-50%);
       opacity: 1;
-      content: '';
+      content: "";
       display: inline-block;
       height: 16px;
       width: 16px;
@@ -64,7 +67,7 @@ label {
       left: 0;
       transform: translateY(-50%);
       opacity: 0;
-      content: '';
+      content: "";
       display: inline-block;
       height: 16px;
       width: 16px;

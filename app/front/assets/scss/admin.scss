@@ -1,11 +1,11 @@
 /*管理画面*/
 .drawer-menu-wrapper {
   position: absolute;
-  z-index: 40;
+  z-index: $z-modal;
   right: 0;
   width: 100%;
   height: 100%;
-  background-color: white;
+  background-color: $bg;
   word-break: break-all;
 
   .drawer-menu {
@@ -15,9 +15,21 @@
     height: 100%;
     width: 100%;
 
-    .header {
+    &__header {
       display: flex;
-
+      flex-direction: column;
+      .start-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0.5em;
+        background-color: white;
+        border: none;
+        border-radius: 4px;
+        &:hover {
+          background-color: $gray;
+        }
+      }
       .room-info {
         flex: 1;
         min-width: 0;
@@ -27,57 +39,35 @@
         }
         .room-url {
           display: flex;
-          .copy-button {
-            border: none;
-            background: none;
-            color: rgb(110, 110, 110);
-            width: 1.5em;
-            height: 1.5em;
-            border-radius: 100%;
+          button {
             display: flex;
             align-items: center;
-            justify-content: center;
+            padding: 0.5em;
+            margin: 1em 1em 1em 0;
+            background-color: white;
+            border: none;
+            border-radius: 4px;
             &:hover {
-              background: $hover-button-background;
+              background-color: $gray;
             }
-            &:active {
-              background: $active-button-background;
+            .room-text {
+              text-align: left;
+            }
+            .copy-button {
+              border: none;
+              background: none;
+              color: rgb(110, 110, 110);
+              width: 1.5em;
+              height: 1.5em;
+              border-radius: 100%;
+              align-items: center;
+              justify-content: center;
             }
           }
         }
       }
-      .icon-space {
-        min-width: 100px;
-        min-height: 100px;
-        word-break: break-all;
-        .icon-wrapper {
-          width: 100px;
-          height: 100px;
-          border-radius: 100%;
-          margin-right: 1em;
-          margin-bottom: 0.5rem;
-          padding: 3px;
-          background: rgb(223, 223, 223);
-        }
-      }
     }
-    .next-topic-button {
-      border: none;
-      background-color: #f6666e;
-      color: white;
-      margin-top: 15px;
-      min-height: 50px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 6px;
-      font-size: 150%;
-      font-weight: bold;
-      .material-icons {
-        font-size: 36px;
-      }
-    }
-    .topic-list {
+    &__topic-list {
       flex: 1 1 0;
       overflow-y: scroll;
       font-size: 120%;
@@ -85,23 +75,21 @@
 
       .topic {
         display: flex;
+        flex-direction: row;
         align-items: center;
-        border-bottom: 2px solid rgb(192, 192, 192);
-        padding: 6px 0;
-
-        &:first-child {
-          border-top: 2px solid rgb(192, 192, 192);
-        }
+        padding: 0.5em 0;
+        margin-bottom: 0.5em;
       }
 
-      .active {
-        background-color: #fff8b4;
+      .ongoing {
+        background-color: white;
         .label {
           background-color: #f6666e;
           color: white;
         }
       }
       .paused {
+        background-color: white;
         .label {
           color: #f6666e;
           background-color: white;
@@ -113,10 +101,8 @@
         background-color: $gray;
       }
       .not-started {
-        color: rgb(192, 192, 192);
-        .buttons > button {
-          color: rgb(192, 192, 192);
-        }
+        background-color: white;
+        color: $disabled-gray;
       }
 
       .topic-number {
@@ -139,6 +125,20 @@
           vertical-align: middle;
         }
       }
+      .topic-infos {
+        display: flex;
+        flex-direction: row;
+        .topic-info {
+          width: 4em;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          & .text-mini {
+            font-size: 60%;
+          }
+        }
+      }
 
       .buttons {
         display: flex;
@@ -146,16 +146,31 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          min-width: 60px;
-          min-height: 60px;
           border-radius: 100%;
           border: none;
           background-color: rgba(255, 0, 0, 0);
           color: gray;
-
-          .material-icons {
-            font-size: 250%;
+          & .danger {
+            color: $danger;
           }
+        }
+      }
+    }
+    &__footer {
+      .end-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 1em;
+        background-color: white;
+        border: none;
+        border-radius: 4px;
+        &:hover {
+          background-color: $gray;
+        }
+        & .danger {
+          padding-left: 0.5em;
+          color: $danger;
         }
       }
     }
@@ -164,7 +179,7 @@
 
 @media screen and (min-width: 880px) {
   .drawer-menu-wrapper {
-    width: calc(100% - 440px - 2em);
+    width: calc(80% - 440px - 2em);
   }
   .room-info {
     padding: 0px 3%;

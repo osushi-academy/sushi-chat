@@ -1,594 +1,318 @@
 <template>
   <div class="container page">
-    <header v-if="isAdmin">
-      <button @click="clickDrawerMenu">
-        <span class="material-icons"> {{ hamburgerMenu }} </span>
-      </button>
-      <button v-if="!isRoomStarted" @click="startRoom">
-        ルームをオープンする
-      </button>
-    </header>
     <main>
-      <CreateRoomModal
-        v-if="isAdmin && room.id == null"
-        @start-chat="startChat"
-      />
       <SelectIconModal
-        v-if="!isAdmin"
-        :icons="icons"
-        :icon-checked="iconChecked"
+        v-if="isRoomStarted && !isAdmin && !isRoomEnter"
+        :title="room.title"
+        :description="room.description"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
-      <SettingPage
-        v-if="isDrawer && isAdmin"
-        :room-id="roomId"
-        :title="''"
-        :topics="topics"
-        :topic-states="topicStates"
-        :my-icon-id="iconChecked + 1"
-        @change-topic-state="changeTopicState"
+      <NotStarted
+        v-if="!isRoomStarted && !isAdmin"
+        :title="room.title"
+        :description="room.description"
+        @check-status-and-action="checkStatusAndAction"
+        @click-icon="clickIcon"
+        @hide-modal="hide"
       />
-      <div v-for="(chatData, index) in chatDataList" :key="index">
-        <ChatRoom
-          :topic-index="index"
-          :is-admin="isAdmin"
-          :chat-data="chatData"
-          :favorite-callback-register="favoriteCallbackRegister"
-          :my-icon="iconChecked"
-          :topic-state="topicStates[chatData.topic.id]"
-          :device-type="deviceType"
-          @send-message="sendMessage"
-          @send-reaction="sendReaction"
-          @send-question="sendQuestion"
-          @send-answer="sendAnswer"
-          @send-stamp="sendFavorite"
-          @topic-activate="changeActiveTopic"
-        />
-      </div>
+      <AdminTool
+        v-if="isAdmin"
+        :room="room"
+        :room-id="room.id"
+        :title="room.title"
+        :room-state="roomState"
+        @start-room="startRoom"
+        @change-topic-state="changeTopicState"
+        @finish-room="finishRoom"
+      />
+      <template v-if="isRoomEnter">
+        <div v-for="(topic, index) in topics" :key="index">
+          <ChatRoom
+            :topic-index="index"
+            :topic-id="topic.id"
+            :topic-state="topicStateItems[topic.id]"
+          />
+        </div>
+      </template>
     </main>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import VModal from 'vue-js-modal'
+import Vue from "vue"
+import VModal from "vue-js-modal"
 import {
-  Room,
-  ChatItem,
-  Message,
   Topic,
   TopicState,
-  Stamp,
-  Answer,
-  Question,
-  DeviceType,
-} from '@/models/contents'
+  RoomModel,
+  RoomState,
+  StampModel,
+  ChatItemModel,
+  PubUserCountParam,
+} from "sushi-chat-shared"
+import AdminTool from "@/components/AdminTool/AdminTool.vue"
+import ChatRoom from "@/components/ChatRoom.vue"
+import SelectIconModal from "@/components/SelectIconModal.vue"
 import {
-  AdminBuildRoomResponse,
-  PostChatItemAnswerParams,
-  PostChatItemMessageParams,
-  PostChatItemQuestionParams,
-  PostChatItemReactionParams,
-} from '@/models/event'
-import ChatRoom from '@/components/ChatRoom.vue'
-import CreateRoomModal from '@/components/CreateRoomModal.vue'
-import SelectIconModal from '@/components/SelectIconModal.vue'
-import { io } from 'socket.io-client'
-import getUUID from '@/utils/getUUID'
-
-// 1つのトピックと、そのトピックに関するメッセージ一覧を含むデータ構造
-type ChatData = {
-  topic: Topic
-  message: ChatItem[]
-}
+  ChatItemStore,
+  DeviceStore,
+  UserItemStore,
+  StampStore,
+  TopicStore,
+  TopicStateItemStore,
+} from "~/store"
 
 // Data型
 type DataType = {
-  // OS判定
-  deviceType: DeviceType
   // 管理画面
   hamburgerMenu: string
   isDrawer: boolean
   // ルーム情報
-  topics: Topic[]
   activeUserCount: number
-  topicStates: { [key: string]: TopicState }
-  room: Room
-  isRoomStarted: boolean
-  // ユーザー関連
-  isAdmin: boolean
-  icons: any
-  iconChecked: number
-  // チャット関連
-  messages: ChatItem[]
+  room: RoomModel
+  isRoomEnter: boolean
+  roomState: RoomState
 }
 Vue.use(VModal)
 export default Vue.extend({
-  name: 'Index',
+  name: "Index",
   components: {
+    AdminTool,
     ChatRoom,
     SelectIconModal,
-    CreateRoomModal,
   },
   data(): DataType {
     return {
-      // OS判定
-      deviceType: 'windows',
       // 管理画面
-      hamburgerMenu: 'menu',
+      hamburgerMenu: "menu",
       isDrawer: false,
       // ルーム情報
-      topics: [],
       activeUserCount: 0,
-      topicStates: {},
-      room: {} as Room,
-      isRoomStarted: false,
-      // ユーザー関連
-      isAdmin: false,
-      icons: [
-        { url: require('@/assets/img/sushi_akami.png') },
-        { url: require('@/assets/img/sushi_ebi.png') },
-        { url: require('@/assets/img/sushi_harasu.png') },
-        { url: require('@/assets/img/sushi_ikura.png') },
-        { url: require('@/assets/img/sushi_iwashi.png') },
-        { url: require('@/assets/img/sushi_kai_hokkigai.png') },
-        { url: require('@/assets/img/sushi_salmon.png') },
-        { url: require('@/assets/img/sushi_shirasu.png') },
-        { url: require('@/assets/img/sushi_tai.png') },
-        { url: require('@/assets/img/sushi_uni.png') },
-        { url: require('@/assets/img/sushi_syari.png') },
-      ],
-      iconChecked: -1,
-      // チャット関連
-      messages: [],
+      room: {} as RoomModel,
+      isRoomEnter: false,
+      roomState: "not-started",
     }
   },
   computed: {
-    chatDataList(): ChatData[] {
-      return this.topics.map((topic) => ({
-        topic,
-        message: this.messages.filter(({ topicId }) => topicId === topic.id),
-      }))
+    isRoomStarted(): boolean {
+      return this.room.state === "ongoing"
     },
-    roomId(): string {
-      return (this.$router.currentRoute.query.roomId ?? '') as string
+    isAdmin(): boolean {
+      return UserItemStore.userItems.isAdmin
+    },
+    topics(): Topic[] {
+      // 各トピックの情報
+      return TopicStore.topics
+    },
+    topicStateItems() {
+      // 各トピックの状態
+      return TopicStateItemStore.topicStateItems
     },
   },
   created(): any {
-    if (this.$route.query.user === 'admin') {
-      this.isAdmin = true
+    // roomId取得
+    this.room.id = this.$route.query.roomId as string
+    if (this.$route.query.user === "admin") {
+      UserItemStore.changeIsAdmin(true)
     }
   },
-  mounted(): any {
-    const socket = io(process.env.apiBaseUrl as string)
-    ;(this as any).socket = socket
-
-    if (this.isAdmin && this.$route.query.roomId != null) {
-      socket.emit(
-        'ADMIN_ENTER_ROOM',
-        {
-          roomId: this.$route.query.roomId,
-        },
-        ({ chatItems, topics, activeUserCount }: any) => {
-          topics.forEach(({ id, state }: any) => {
-            this.topicStates[id] = state
-          })
-          this.messages = chatItems
-          this.topics = topics
-          this.activeUserCount = activeUserCount
-          this.isRoomStarted = true // TODO: API側の対応が必要
-        }
-      )
-    } else {
-      this.$modal.show('sushi-modal')
+  mounted() {
+    if (this.room.id !== "") {
+      // TODO: this.room.idが存在しない→404
     }
+    // socket接続
+    this.$initSocket(UserItemStore.userItems.isAdmin)
 
-    // SocketIOのコールバックの登録
-    socket.on('PUB_CHAT_ITEM', (chatItem: ChatItem) => {
-      if (this.messages.find(({ id }) => id === chatItem.id)) {
-        // 自分が送信したコメント
-        this.messages = this.messages.map((item) =>
-          item.id === chatItem.id ? chatItem : item
-        )
-      } else {
-        // 自分以外のユーザーが送信したコメント
-        this.messages.push(chatItem)
-      }
-    })
-
-    socket.on('PUB_CHANGE_TOPIC_STATE', (res: any) => {
-      if (res.type === 'OPEN') {
-        // 現在activeなトピックがあればfinishedにする
-        this.topicStates = Object.fromEntries(
-          Object.entries(this.topicStates).map(([topicId, topicState]) => [
-            topicId,
-            topicState === 'active' ? 'finished' : topicState,
-          ])
-        )
-        this.topicStates[res.topicId] = 'active'
-      } else if (res.type === 'PAUSE') {
-        this.topicStates[res.topicId] = 'paused'
-      } else if (res.type === 'CLOSE') {
-        this.topicStates[res.topicId] = 'finished'
-      }
-    })
-
-    // OS判定
-    const os = window.navigator.userAgent.toLowerCase()
-    if (os.includes('windows nt')) {
-      this.deviceType = 'windows'
-    } else if (os.includes('android')) {
-      this.deviceType = 'smartphone'
-    } else if (os.includes('iphone') || os.includes('ipad')) {
-      this.deviceType = 'smartphone'
-    } else if (os.includes('mac os x')) {
-      this.deviceType = 'mac'
-    } else {
-      this.deviceType = 'windows'
-    }
+    // statusに合わせた操作をする
+    this.checkStatusAndAction()
+    DeviceStore.determineOs()
   },
   methods: {
+    async checkStatusAndAction() {
+      // ルーム情報取得・status更新
+      const res = await this.$apiClient
+        .get(
+          {
+            pathname: "/room/:id",
+            params: { id: this.room.id },
+          },
+          {},
+        )
+        .catch((e) => {
+          throw new Error(e)
+        })
+
+      if (res.result === "error") {
+        throw new Error(res.error.message)
+      }
+      this.room = res.data
+      this.roomState = res.data.state
+      TopicStore.set(res.data.topics)
+
+      // 開催中の時
+      if (this.room.state === "ongoing") {
+        if (this.isAdmin) {
+          this.adminEnterRoom()
+        } else {
+          // ユーザーの入室
+          this.$modal.show("sushi-modal")
+        }
+      }
+      if (this.room.state === "finished") {
+        // 本当はRESTでアーカイブデータを取ってきて表示する
+      }
+      // NOTE: もしかして：archivedも返ってくる？
+    },
+    // socket.ioのセットアップ。配信を受け取る
+    socketSetUp() {
+      // SocketIOのコールバックの登録
+      this.$socket().on("PUB_CHAT_ITEM", (chatItem: ChatItemModel) => {
+        console.log(chatItem)
+        // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
+        ChatItemStore.addOrUpdate(chatItem)
+      })
+      this.$socket().on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
+        if (res.state === "ongoing") {
+          // 現在ongoingなトピックがあればfinishedにする
+          const t = Object.fromEntries(
+            Object.entries(this.topicStateItems).map(
+              ([topicId, topicState]) => [
+                topicId,
+                topicState === "ongoing" ? "finished" : topicState,
+              ],
+            ),
+          )
+          TopicStateItemStore.set(t)
+        }
+        // クリックしたTopicのStateを変える
+        TopicStateItemStore.change({ key: res.topicId, state: res.state })
+      })
+      // スタンプ通知時の、SocketIOのコールバックの登録
+      this.$socket().on("PUB_STAMP", (stamps: StampModel[]) => {
+        stamps.forEach((stamp) => {
+          StampStore.add(stamp)
+        })
+      })
+      // アクティブユーザー数のSocketIOのコールバックの登録
+      this.$socket().on("PUB_USER_COUNT", (res: PubUserCountParam) => {
+        this.activeUserCount = res.activeUserCount
+      })
+    },
     // 管理画面の開閉
     clickDrawerMenu() {
       this.isDrawer = !this.isDrawer
       if (this.isDrawer) {
-        this.hamburgerMenu = 'close'
+        this.hamburgerMenu = "close"
       } else {
-        this.hamburgerMenu = 'menu'
+        this.hamburgerMenu = "menu"
       }
     },
     changeTopicState(topicId: string, state: TopicState) {
-      if (state === 'not-started') {
+      // not-startedに変更はできない
+      if (state === "not-started") {
         return
       }
-      this.topicStates[topicId] = state
-      const socket = (this as any).socket
-      console.log(topicId, state)
-      socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
-        roomId: this.room.id,
-        type:
-          state === 'active' ? 'OPEN' : state === 'paused' ? 'PAUSE' : 'CLOSE',
-        topicId,
-      })
-    },
-    // ルーム情報
-    // topic反映
-    startChat(room: Room, topicsAdmin: Omit<Topic, 'id'>[]) {
-      this.room = room
-      let alertmessage: string = ''
-      // ルーム名絶対入れないとだめ
-      if (this.room.title === '') {
-        alertmessage = 'ルーム名を入力してください\n'
-      }
-
-      // 仮topicから空でないものをtopicsに
-      const topics: Omit<Topic, 'id'>[] = []
-      for (const t in topicsAdmin) {
-        if (topicsAdmin[t].title) {
-          topics.push(topicsAdmin[t])
-          // this.topicStates[this.topicsAdmin[t].id] = 'not-started'
-        }
-      }
-
-      // トピック0はだめ
-      if (topics.length === 0) {
-        alertmessage += 'トピック名を入力してください\n'
-      }
-
-      // ルーム名かトピック名が空ならアラート出して終了
-      if (alertmessage !== '') {
-        alert(alertmessage)
-        return
-      }
-
-      // ルームを作成
-      const socket = (this as any).socket
-      socket.emit(
-        'ADMIN_BUILD_ROOM',
+      TopicStateItemStore.change({ key: topicId, state })
+      this.$socket().emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
         {
-          title: this.room.title,
-          topics,
+          state,
+          topicId: parseInt(topicId),
         },
-        (room: AdminBuildRoomResponse) => {
-          this.room = room
-          console.log(`ルームID: ${room.id}`)
-          this.$router.push({
-            path: this.$router.currentRoute.path,
-            query: { ...this.$router.currentRoute.query, roomId: room.id },
-          })
-          socket.emit(
-            'ADMIN_ENTER_ROOM',
-            {
-              roomId: room.id,
-            },
-            ({ chatItems, topics, activeUserCount }: any) => {
-              topics.forEach(({ id, state }: any) => {
-                this.topicStates[id] = state
-              })
-              this.messages = chatItems
-              this.topics = topics
-              this.activeUserCount = activeUserCount
-            }
-          )
-        }
+        (res: any) => {
+          console.log(res)
+        },
       )
-
-      // ルーム開始
-      this.$modal.hide('sushi-modal')
     },
-
-    startRoom() {
-      const socket = (this as any).socket
-      socket.emit('ADMIN_START_ROOM', { roomId: this.room.id })
-      this.isRoomStarted = true
-    },
-
-    // アクティブトピックが変わる
-    changeActiveTopic(topicId: string) {
-      const socket = (this as any).socket
-      console.log(topicId)
-      socket.emit('ADMIN_CHANGE_TOPIC_STATE', {
-        roomId: this.room.id,
-        topicId,
-        type: 'OPEN',
-      })
-    },
-
     // ユーザ関連
-    // modalを消し、topic作成
+    // modalを消し、入室
     hide(): any {
-      this.$modal.hide('sushi-modal')
-      this.enterRoom(this.iconChecked + 1)
+      this.enterRoom(UserItemStore.userItems.myIconId)
     },
     // ルーム入室
     enterRoom(iconId: number) {
-      const socket = (this as any).socket
-
-      const roomId = this.$route.query.roomId as string
-      socket.emit(
-        'ENTER_ROOM',
+      this.$socket().emit(
+        "ENTER_ROOM",
         {
           iconId,
-          roomId,
+          roomId: this.room.id,
+          speakerTopicId: 0, // TODO: speakerTopicIdを渡す
         },
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        (res: any) => {
-          this.topics = res.topics
-          this.messages = res.chatItems ?? []
-          res.topics.forEach((topic: any) => {
-            this.topicStates[topic.id] = topic.state
+        (res) => {
+          if (res.result === "error") {
+            console.error(res.error)
+            return
+          }
+          res.data.topicStates.forEach((topicState) => {
+            TopicStateItemStore.change({
+              key: `${topicState.topicId}`,
+              state: topicState.state,
+            })
           })
-        }
+          console.log(res)
+          ChatItemStore.setChatItems(res.data.chatItems)
+        },
       )
+      this.socketSetUp()
+      this.isRoomEnter = true
+    },
+    // 管理者ルーム入室
+    adminEnterRoom() {
+      this.$socket().emit(
+        "ADMIN_ENTER_ROOM",
+        {
+          roomId: this.room.id,
+        },
+        (res) => {
+          if (res.result === "error") {
+            console.error(res.error)
+            return
+          }
+          ChatItemStore.setChatItems(res.data.chatItems)
+          res.data.topicStates.forEach((topicState) => {
+            TopicStateItemStore.change({
+              key: `${topicState.topicId}`,
+              state: topicState.state,
+            })
+          })
+          this.activeUserCount = res.data.activeUserCount
+        },
+      )
+      this.socketSetUp()
+      this.isRoomEnter = true
+    },
+    // ルーム終了
+    finishRoom() {
+      this.$socket().emit("ADMIN_FINISH_ROOM", {}, (res: any) => {
+        console.log(res)
+      })
+      this.roomState = "finished"
     },
     // アイコン選択
     clickIcon(index: number) {
-      this.iconChecked = index
+      UserItemStore.changeMyIcon(index)
     },
-
-    // チャット関連
-    sendMessage(
-      text: string,
-      topicId: string,
-      target: Message | Answer | null
-    ) {
-      console.log('send message: ', text)
-      const socket = (this as any).socket
-      const params: PostChatItemMessageParams = {
-        type: 'message',
-        id: getUUID(),
-        topicId,
-        content: text,
-        target: target?.id ?? null,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // NOTE: サーバと処理を共通化したい
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        type: 'message',
-        topicId,
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        content: text,
-        createdAt: new Date(),
-        target,
-        timestamp: 0, // TODO: 正しいタイムスタンプを設定する
-      })
-    },
-    sendReaction(message: Message) {
-      // 選択中の文字が存在する場合リアクションしない
-      if (
-        window.getSelection()!.getRangeAt(0).endOffset >
-        window.getSelection()!.getRangeAt(0).startOffset
-      )
-        return
-      const socket = (this as any).socket
-      const params: PostChatItemReactionParams = {
-        id: getUUID(),
-        topicId: message.topicId,
-        type: 'reaction',
-        reactionToId: message.id,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        topicId: message.topicId,
-        type: 'reaction',
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        createdAt: new Date(),
-        target: message,
-      })
-    },
-    sendQuestion(text: string, topicId: string) {
-      console.log('send question: ', text)
-      const socket = (this as any).socket
-      const params: PostChatItemQuestionParams = {
-        type: 'question',
-        id: getUUID(),
-        topicId,
-        content: text,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // NOTE: サーバと処理を共通化したい
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        type: 'question',
-        topicId,
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        content: text,
-        createdAt: new Date(),
-        timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
-      })
-    },
-    sendAnswer(text: string, question: Question) {
-      console.log('send answer: ', text)
-      const socket = (this as any).socket
-      const params: PostChatItemAnswerParams = {
-        id: getUUID(),
-        topicId: question.topicId,
-        type: 'answer',
-        target: question.id,
-        content: text,
-      }
-      // サーバーに反映する
-      socket.emit('POST_CHAT_ITEM', params)
-      // ローカルに反映する
-      this.messages.push({
-        id: params.id,
-        topicId: params.topicId,
-        type: 'answer',
-        iconId: (this.iconChecked + 1).toString(), // 運営のお茶の分足す
-        timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-        createdAt: new Date(),
-        target: question,
-        content: text,
-      })
-    },
-    sendFavorite(topicId: string) {
-      const socket = (this as any).socket
-      socket.emit('POST_STAMP', { topicId })
-    },
-    // スタンプが通知された時に実行されるコールバックの登録
-    // NOTE: スタンプ周りのUI表示が複雑なため、少しややこしい実装を採用しています。
-    favoriteCallbackRegister(
-      topicId: string,
-      callback: (count: number) => void
-    ) {
-      const socket = (this as any).socket
-      socket.on('PUB_STAMP', (stamps: Stamp[]) => {
-        const stampsAboutTopicId = stamps.filter(
-          // スタンプは自分が押したものも通知されるため省く処理を入れています
-          (stamp) => stamp.topicId === topicId && stamp.userId !== socket.id
+    // RESTでroomの開始
+    startRoom() {
+      // TODO: ルームの状態をindex、またはvuexでもつ
+      this.$apiClient
+        .put(
+          {
+            pathname: "/room/:id/start",
+            params: { id: this.room.id },
+          },
+          {},
         )
-        if (stampsAboutTopicId.length > 0) {
-          callback(stampsAboutTopicId.length)
-        }
-      })
+        .then(() => {
+          this.adminEnterRoom()
+          this.roomState = "ongoing"
+        })
+        .catch((e) => {
+          console.error(e)
+          window.alert("ルームを開始できませんでした")
+        })
     },
   },
 })
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const TOPICS = [
-  {
-    id: '1',
-    title: 'TITLE 0',
-    urls: {},
-  },
-  {
-    id: '2',
-    title: 'TITLE 0',
-    urls: {},
-  },
-  {
-    id: '3',
-    title: 'TITLE 0',
-    urls: {},
-  },
-]
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const CHAT_DUMMY_DATA: ChatItem[] = [
-  {
-    timestamp: 60,
-    iconId: '2',
-    createdAt: new Date('2021-05-08T00:00:00.000Z'),
-    id: '001',
-    topicId: '1',
-    type: 'message',
-    content: 'コメント',
-    target: null,
-  },
-  {
-    timestamp: 0,
-    iconId: '3',
-    createdAt: new Date('2021-05-08T00:00:00.000Z'),
-    target: {
-      id: '001',
-      topicId: '0',
-      type: 'message',
-      iconId: '2',
-      timestamp: 0,
-      createdAt: new Date('2021-05-08T00:00:00.000Z'),
-      content: 'コメント',
-      target: null,
-    },
-    id: '002',
-    topicId: '1',
-    type: 'reaction',
-  },
-  {
-    timestamp: 0,
-    iconId: '2',
-    createdAt: new Date('2021-05-08T00:00:00.000Z'),
-    id: '003',
-    topicId: '1',
-    type: 'question',
-    content: '質問',
-  },
-  {
-    timestamp: 0,
-    iconId: '3',
-    createdAt: new Date('2021-05-08T00:00:00.000Z'),
-    id: '004',
-    topicId: '1',
-    type: 'answer',
-    content: '回答',
-    target: {
-      id: '003',
-      topicId: '0',
-      type: 'question',
-      iconId: '2',
-      timestamp: 0,
-      createdAt: new Date('2021-05-08T00:00:00.000Z'),
-      content: '質問',
-    },
-  },
-  {
-    timestamp: 0,
-    iconId: '4',
-    createdAt: new Date('2021-05-08T00:00:00.000Z'),
-    target: {
-      id: '001',
-      topicId: '0',
-      type: 'message',
-      iconId: '2',
-      timestamp: 0,
-      createdAt: new Date('2021-05-08T00:00:00.000Z'),
-      content: 'コメント',
-      target: null,
-    },
-    id: '005',
-    topicId: '1',
-    type: 'message',
-    content: 'リプライ',
-  },
-]
 </script>

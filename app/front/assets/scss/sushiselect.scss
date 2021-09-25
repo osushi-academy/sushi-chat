@@ -1,0 +1,260 @@
+@mixin sushi-select-layout($py: 0) {
+  padding: $py + rem 5%;
+  margin-bottom: 2rem;
+  @media screen and (min-width: $small+px) {
+    padding: $py + rem 20%;
+  }
+  @media screen and (min-width: $large+px) {
+    padding: $py + rem 20%;
+  }
+}
+
+@mixin sushi-select-card {
+  padding: 20px;
+  background-color: white;
+  &--title {
+    @include text-size(lg);
+    margin-bottom: 10px;
+  }
+  &--content {
+    color: #515151;
+  }
+}
+
+.sushi-select {
+  background-color: transparent;
+  width: 100vw;
+  @include sushi-select-layout(1);
+
+  & > &__bg{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1000;
+    background-color: #f8f8f8;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  &__header {
+    color: #515151;
+    @media screen and (min-width: $small+px) {
+      padding: 0;
+      margin-bottom: 32px;
+    }
+    border-radius: 4px;
+    &--title {
+      @include text-size(lg);
+    }
+    margin-bottom: 10px;
+  }
+
+  &__section {
+    display: flex;
+
+    & > article {
+      flex-grow: 1;
+      width: 100%;
+    }
+
+    &--title {
+      @include text-size("lg");
+      color: $text-gray;
+      margin-bottom: 0.5rem;
+      
+    }
+    &--help {
+      position: relative;
+      @include material-icons-in-text;
+      .material-icons {
+        margin-left: 0.5rem;
+        font-size: 1rem;
+        &:hover {
+          cursor: pointer;
+          color: $primary;
+        }
+      }
+      &--message {
+        display: none;
+        position: absolute;
+        left: 10px;
+        width: 150px;
+        background-color: white;
+        padding: 5px 10px;
+        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
+        border-radius: 4px;
+        @include text-size("sm");
+      }
+      .material-icons:hover + &--message {
+        display: block;
+      }
+    }
+    &--speaker {
+      max-width: 100%;
+      width: 400px;
+      padding: 10px 10px;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      outline: none;
+      margin-bottom: 50px;
+      cursor: pointer;
+      @include text-size("normal");
+
+      &:focus-visible {
+        border-color: rgb(214, 214, 214);
+      }
+    }
+    /* アイコン選択モーダル */
+    &--icon-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      padding: 0;
+      margin: 0;
+      margin-bottom: 32px;
+      list-style-type: none;
+      background-color: white;
+      padding: 12px;
+      border-radius: 4px;
+
+      & > .icon-box {
+        width: 80px;
+        height: 80px;
+        box-sizing: border-box;
+        display: flex;
+        border-radius: 100%;
+        align-items: center;
+        justify-content: center;
+        object-fit: contain;
+        position: relative;
+        border: solid 3px transparent;
+        padding: 8px;
+        background: white;
+        transition: all 0.2s;
+        margin: 4px;
+      }
+
+      & > .icon-box:hover {
+        background: rgb(245, 245, 245);
+      }
+      & > .icon-shari {
+        opacity: 0.1;
+      }
+      & > .icon-selected {
+        border-color: $primary;
+        opacity: 1;
+      }
+    }
+    &--start {
+      display: flex;
+      margin-top: 1rem;
+      margin-bottom: 48px;
+    }
+    &--button {
+      align-self: center;
+      margin-left: 1rem;
+      button {
+        @include home-button-text($primary);
+      }
+      @media screen and (min-width: $large+px) {
+        margin-left: 2rem;
+      }
+    }
+    &--my-sushi {
+      width: 80px;
+      height: 80px;
+      padding: 10px;
+      border-radius: 16px;
+      background: #f2f2f2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      object-fit: contain;
+    }
+  }
+
+  &__progressbar {
+    width: 24px;
+    // margin-right: 0px;
+    display: none;
+    @media screen and (min-width: $small+px) {
+      margin-right: 20px;
+      display: block;
+    }
+    @media screen and (min-width: $large+px) {
+      margin-right: 30px;
+      width: 34px;
+      display: block;
+    }
+    &--circle {
+      width: 24px;
+      height: 24px;
+      background-color: $primary;
+      border-radius: 100%;
+      @media screen and (min-width: $large+px) {
+        width: 34px;
+        height: 34px;
+      }
+    }
+    &--line {
+      width: 3px;
+      height: 100%;
+      margin: 0 auto;
+      background-color: $primary;
+      @media screen and (min-width: $small+px) {
+        width: 3px;
+      }
+      @media screen and (min-width: $large+px) {
+        width: 5px;
+      }
+    }
+  }
+}
+
+.not-found {
+  display: flex;
+  flex-direction: column;
+  &__icon {
+    width: 100px;
+    height: 100px;
+    padding: 10px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    object-fit: contain;
+    align-self: center;
+    margin-bottom: 30px;
+    @media screen and (min-width: $large+px) {
+      width: 100px;
+      padding: 10px;
+    }
+  }
+  &__textbox {
+    @include sushi-select-card;
+  }
+}
+
+.not-started {
+  display: flex;
+  flex-direction: column;
+  &__title {
+    @include text-size(lg);
+    color: $text-gray;
+    align-self: center;
+    margin-bottom: 2rem;
+  }
+  &__textbox {
+    @include sushi-select-card;
+  }
+  &__warning {
+    text-align: center;
+    color: #ff0000;
+    margin: 2rem 0;
+  }
+  &__button {
+    button {
+      margin: 0 auto;
+      @include home-button-text($primary);
+    }
+  }
+}

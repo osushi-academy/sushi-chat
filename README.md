@@ -8,11 +8,6 @@
 
 🍣🍣 sushi-chatの近況をTwitterで発信しています！ → Twitterアカウントは[こちら](https://twitter.com/osushi_academy)
 
-## ローカルでの実行方法
-各種READMEをご覧ください
-
-→フロントエンドの[README](/app/front/README.md) / バックエンドの[README](/server/README.md)
-
 ## 概要
 ハッカソン等のプレゼンでのリアルタイムなフィードバックをより便利にするチャットアプリです。
 
@@ -33,6 +28,35 @@ https://user-images.githubusercontent.com/65712721/125596302-f5606786-3974-4ce7-
 - リアルタイム通信：SocketIO
 - その他：Github Discord Notion GithubActions（自動デプロイ）
 
+## ローカルでの実行方法
+※サーバーサイドの実行にはDB等の設定が必要です([詳しくはこちら](./app/server/README.md#1.-DBの準備))
+
+### 初回のみ
+ライブラリのインストール
+```
+yarn
+```
+共通パッケージのビルド
+```
+yarn workspace sushi-chat-shared build
+```
+### フロント
+フロントエンドの[README](/app/front/README.md)
+または
+```
+yarn dev:front
+```
+### サーバ
+```
+yarn dev:server
+```
+バックエンドの[README](/server/README.md)
+
+### shared（必要な場合は）
+```
+yarn dev:shared
+```
+
 ## ハッカソン資料
 [ハッカソンプレゼン資料](https://docs.google.com/presentation/d/1A8hxD4WBBODAvX_OhhWMsc2PKykCHYYPn0KdOFvcwsg/edit?usp=sharing)
 
@@ -47,7 +71,7 @@ https://user-images.githubusercontent.com/65712721/125596302-f5606786-3974-4ce7-
         <img src="https://github.com/yuta-ike.png" width="50px;">
       </a>
     </th>
-    <td>yuta-ike・フロントエンド/バックエンド担当
+    <td>yuta-ike・フロントエンド/バックエンド/デザイン担当
       <br>
       <a href="http://twitter.com/Selria1">
         <img height="20" src="https://img.shields.io/twitter/follow/Selria1?label=Twitter&logo=twitter&style=flat">
@@ -108,7 +132,7 @@ https://user-images.githubusercontent.com/65712721/125596302-f5606786-3974-4ce7-
 </table>
 <br>
 
-継続開発2からはインフラ担当として新たにメンバー1名を迎え、5人体制で開発をしています。
+継続開発2からは新たにメンバー1名を迎え、5人体制で開発をしています。
 <table>
   <tr>
     <th>
@@ -116,7 +140,7 @@ https://user-images.githubusercontent.com/65712721/125596302-f5606786-3974-4ce7-
         <img src="https://github.com/TOMOFUMI-KONDO.png" width="50px;">
       </a>
     </th>
-    <td>tomokon・インフラ担当
+    <td>tomokon・バックエンド/インフラ担当
       <br>
       <a href="http://twitter.com/tomokon_0314">
         <img height="20" src="https://img.shields.io/twitter/follow/tomokon_0314?label=Twitter&logo=twitter&style=flat">
@@ -127,3 +151,4 @@ https://user-images.githubusercontent.com/65712721/125596302-f5606786-3974-4ce7-
     </td>
   </tr>
 </table>
+

@@ -1,15 +1,19 @@
 module.exports = {
-  root: true,
   env: {
     browser: true,
     node: true,
   },
   extends: [
-    '@nuxtjs/eslint-config-typescript',
-    'plugin:prettier/recommended',
-    'plugin:nuxt/recommended',
+    "@nuxtjs/eslint-config-typescript",
+    // 'plugin:prettier/recommended',
+    "prettier",
+    "plugin:nuxt/recommended",
   ],
   plugins: [],
-  // add your custom rules here
-  rules: {},
+  rules: {
+    "vue/script-setup-uses-vars": "off",
+    "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "@typescript-eslint/no-unused-vars": "warn",
+  },
 }

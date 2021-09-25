@@ -1,15 +1,58 @@
-resource "aws_instance" "main" {
-  ami                    = var.ami.amazon-linux-2
-  instance_type          = "t2.micro"
-  subnet_id              = aws_subnet.public_a.id
-  vpc_security_group_ids = [aws_security_group.public_instance.id]
-  user_data              = file("./user_data.tpl")
+resource "aws_autoscaling_group" "main" {
+  name                = "${var.project}-autoscaling-group"
+  max_size            = 4
+  min_size            = 2
+  vpc_zone_identifier = [aws_subnet.public_a.id, aws_subnet.public_c.id]
+  target_group_arns   = [aws_lb_target_group.main.arn]
+  health_check_type   = "ELB"
+
+  depends_on = [aws_db_instance.main, aws_elasticache_cluster.main]
+
+  launch_template {
+    id      = aws_launch_template.main.id
+    version = "$Latest"
+  }
+
+  tags = concat(
+    [
+      {
+        key                 = "Name"
+        value               = "${var.project}-autoscaling-group"
+        propagate_at_launch = false
+      },
+      {
+        key                 = "Project"
+        value               = var.project
+        propagate_at_launch = false
+      }
+    ]
+  )
+}
+
+resource "aws_launch_template" "main" {
+  name                   = "${var.project}-launch-template"
+  image_id               = var.ami.sushi-chat
+  instance_type          = "t3.micro"
   key_name               = var.key-pair
-  iam_instance_profile   = aws_iam_instance_profile.write_cloud_watch_logs.id
+  vpc_security_group_ids = [aws_security_group.public_instance.id]
+  user_data              = filebase64("userdata.sh")
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.write_cloud_watch_logs.name
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = {
+      Name    = "${var.project}-ec2"
+      Project = var.project
+    }
+  }
 
   tags = {
-    Name    = "${var.project}-ec2-instance"
-    project = var.project
+    Name    = "${var.project}-launch-template"
+    Project = var.project
   }
 }
 
@@ -47,12 +90,7 @@ data "aws_iam_policy" "cloud_watch_agent_server_policy" {
   name = "CloudWatchAgentServerPolicy"
 }
 
-resource "aws_alb_target_group_attachment" "main" {
-  target_group_arn = aws_lb_target_group.main.arn
-  target_id        = aws_instance.main.id
-  port             = 80
-}
-
+// TODO: 手動デプロイする必要がなくなったらprivateサブネットに配置する。ただその場合はNat Gatewayが必要になるので注意
 resource "aws_security_group" "public_instance" {
   description = "This is a security group for API server for sushi-chat app. It allows http and https from alb, and ssh from admin."
   vpc_id      = aws_vpc.main.id

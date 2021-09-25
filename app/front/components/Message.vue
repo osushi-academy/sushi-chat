@@ -1,133 +1,119 @@
 <template>
   <div class="chatitem-wrapper">
-    <!--Admin Message-->
-    <article
-      v-if="message.type == 'message' && message.iconId == '0'"
-      class="comment admin"
-    >
-      <div class="icon-wrapper">
-        <img :src="icon" alt="" />
-        <div class="admin-badge">運 営</div>
-      </div>
-      <div class="text">
-        <UrlToLink :text="message.content" />
-      </div>
-      <div class="comment-timestamp">
-        {{ showTimestamp(message.timestamp) }}
-      </div>
-    </article>
-
     <!-- Message -->
     <article
-      v-else-if="message.type == 'message'"
+      v-if="message.type != 'reaction'"
+      :id="messageId"
       class="comment"
-      @click="clickCard"
+      :class="{
+        admin: message.iconId == 0,
+        question: message.type == 'question',
+        answer: message.type == 'answer',
+      }"
     >
-      <div class="icon-wrapper">
-        <img :src="icon" alt="" />
-      </div>
-      <div v-if="message.target == null" class="text">
-        <UrlToLink :text="message.content" />
-      </div>
-      <div v-else class="text">
-        <span :style="{ color: 'gray', fontSize: '80%' }" @click.stop>
-          <UrlToLink :text="`> ` + message.target.content" />
-        </span>
-        <UrlToLink :text="message.content" />
-      </div>
-      <div class="comment-timestamp">
-        {{ showTimestamp(message.timestamp) }}
-      </div>
-      <div class="bg-good-icon">
-        <span class="material-icons"> thumb_up </span>
-      </div>
-    </article>
-
-    <!--Question Message-->
-    <article
-      v-else-if="message.type == 'question'"
-      class="comment question"
-      @click="clickCard"
-    >
-      <div class="icon-wrapper">
-        <img :src="icon" alt="" />
-        <div class="question-badge">Q</div>
-        <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
-      </div>
-      <div class="text">
-        <UrlToLink :text="message.content" />
-      </div>
-      <div class="comment-timestamp">
-        {{ showTimestamp(message.timestamp) }}
-      </div>
-      <div class="bg-good-icon">
-        <span class="material-icons"> thumb_up </span>
-      </div>
-    </article>
-
-    <!--Answer Message-->
-    <article
-      v-else-if="message.type == 'answer'"
-      class="comment answer"
-      @click="clickCard"
-    >
-      <div class="icon-wrapper">
-        <img :src="icon" alt="" />
-        <div class="answer-badge">A</div>
-        <div v-if="message.iconId == '0'" class="admin-badge">運 営</div>
-      </div>
-      <div class="text">
-        <span>
-          <UrlToLink
-            :text="'Q. ' + message.target.content"
+      <div class="sender-badge">from おすしアカデミー</div>
+      <div class="main-contents">
+        <div class="icon-wrapper">
+          <picture>
+            <source :srcset="icon.webp" type="image/webp" />
+            <img :src="icon.png" alt="" />
+          </picture>
+          <div v-if="message.type == 'question'" class="question-badge">Q</div>
+          <div v-if="message.type == 'answer'" class="answer-badge">A</div>
+        </div>
+        <div
+          v-if="message.type == 'question' || message.quote == null"
+          class="text"
+        >
+          <UrlToLink :text="message.content" />
+        </div>
+        <div v-else class="text">
+          <span
+            class="long-text"
             :style="{ color: 'gray', fontSize: '80%' }"
-          />
-        </span>
-        <UrlToLink :text="'A. ' + message.content" />
+            @click.stop
+          >
+            <UrlToLink
+              v-if="message.type != 'answer'"
+              :text="`> ` + message.quote.content"
+            />
+            <UrlToLink v-else :text="`Q. ` + message.quote.content" />
+          </span>
+          <UrlToLink :text="message.content" />
+        </div>
       </div>
-      <div class="comment-timestamp">
-        {{ showTimestamp(message.timestamp) }}
-      </div>
-      <div class="bg-good-icon">
-        <span class="material-icons"> thumb_up </span>
+      <div class="comment-footer">
+        <div class="comment-timestamp">
+          {{ showTimestamp(message.timestamp) }}
+        </div>
+        <div class="badges">
+          <button class="reply-icon" @click="clickReply">
+            <span class="material-icons"> reply </span>
+          </button>
+          <button class="bg-good-icon">
+            <span
+              :style="{
+                backgroundColor: isLikedChatItem ? icon.colorCode : '',
+                color: isLikedChatItem ? 'white' : '',
+                transform: isLikedChatItem ? 'rotate(-20deg)' : '',
+              }"
+              class="material-icons"
+              @click="clickThumbUp"
+            >
+              thumb_up
+            </span>
+          </button>
+        </div>
       </div>
     </article>
 
     <!--Reaction Message-->
-    <article v-else-if="message.type == 'reaction'" class="reaction">
-      <div class="icon-wrapper">
-        <img :src="icon" alt="" />
-      </div>
-      <span class="material-icons"> thumb_up </span>
-      <div class="long-text">
-        {{ message.target.content }}
-      </div>
-      <div class="comment-timestamp">
-        {{ showTimestamp(message.timestamp) }}
-      </div>
-    </article>
-    <!--Reply Badge-->
-    <button
-      v-if="message.type != 'reaction' && message.iconId != '0'"
-      class="reply-icon"
-      @click="clickReply"
+    <article
+      v-else-if="message.type == 'reaction'"
+      :id="messageId"
+      class="reaction"
     >
-      <span
-        class="material-icons"
-        :class="{ 'answer-reply': message.type === 'question' }"
-      >
-        reply
+      <div class="icon-wrapper">
+        <picture>
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
+        </picture>
+        <div
+          class="material-icons raction-badge"
+          :style="{
+            backgroundColor: icon.colorCode,
+          }"
+        >
+          thumb_up
+        </div>
+      </div>
+      <div class="long-text">
+        {{ message.quote.content }}
+      </div>
+      <!-- quoteのmessageにスクロール -->
+      <span class="material-icons" @click="scrolltoMessage(message.quote.id)">
+        north_west
       </span>
-    </button>
+    </article>
+    <!--System Message-->
+    <!--article class="system_message" :id="messageId">
+      <UrlToLink :text="message.content" />
+    </article-->
   </div>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import UrlToLink from '@/components/UrlToLink.vue'
-import { ChatItemPropType } from '~/models/contents'
+import Vue from "vue"
+import type { PropOptions } from "vue"
+import { ChatItemModel } from "sushi-chat-shared"
+import UrlToLink from "@/components/UrlToLink.vue"
+import ICONS from "@/utils/icons"
+
+type DataType = {
+  isLikedChatItem: boolean
+}
 
 export default Vue.extend({
-  name: 'Message',
+  name: "Message",
   components: {
     UrlToLink,
   },
@@ -135,46 +121,55 @@ export default Vue.extend({
     message: {
       type: Object,
       required: true,
-    } as PropOptions<ChatItemPropType>,
+    } as PropOptions<ChatItemModel>,
+    messageId: {
+      type: String,
+      required: true,
+    },
+    topicId: {
+      type: Number,
+      required: true,
+    },
+  },
+  data(): DataType {
+    return {
+      isLikedChatItem: false,
+    }
   },
   computed: {
-    icon(): { icon: unknown } {
-      return ICONS[this.$props.message.iconId]?.icon ?? ICONS[0].icon
+    icon() {
+      return ICONS[this.$props.message.iconId] ?? ICONS[0]
     },
   },
   methods: {
-    clickCard() {
-      this.$emit('click-card', this.message)
+    clickThumbUp() {
+      if (!this.isLikedChatItem) this.isLikedChatItem = true
+      this.$emit("click-thumb-up", this.message)
     },
     clickReply() {
-      this.$emit('click-reply')
+      this.$emit("click-reply")
+    },
+    // Reactionから対象のMessageへスクロール
+    scrolltoMessage(id: string) {
+      const element: HTMLElement | null = document.getElementById(id)
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        })
+      }
     },
     // タイムスタンプを分、秒単位に変換
-    showTimestamp(timeStamp: number): string {
-      let sec: number = Math.floor(timeStamp / 1000)
+    showTimestamp(timeStamp?: number): string {
+      let sec: number = Math.floor((timeStamp as number) / 1000)
       const min: number = Math.floor(sec / 60)
       sec %= 60
       if (sec < 10) {
-        return String(min) + ':0' + String(sec)
+        return `${min}` + ":0" + `${sec}`
       } else {
-        return String(min) + ':' + String(sec)
+        return `${min}` + ":" + `${sec}`
       }
     },
   },
 })
-
-const ICONS = [
-  { icon: require('@/assets/img/tea.png') },
-  { icon: require('@/assets/img/sushi_akami.png') },
-  { icon: require('@/assets/img/sushi_ebi.png') },
-  { icon: require('@/assets/img/sushi_harasu.png') },
-  { icon: require('@/assets/img/sushi_ikura.png') },
-  { icon: require('@/assets/img/sushi_iwashi.png') },
-  { icon: require('@/assets/img/sushi_kai_hokkigai.png') },
-  { icon: require('@/assets/img/sushi_salmon.png') },
-  { icon: require('@/assets/img/sushi_shirasu.png') },
-  { icon: require('@/assets/img/sushi_tai.png') },
-  { icon: require('@/assets/img/sushi_uni.png') },
-  { icon: require('@/assets/img/sushi_syari.png') },
-]
 </script>

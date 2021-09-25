@@ -1,28 +1,35 @@
 <template>
-  <article class="topic-block">
+  <article v-if="topic" class="topic-block">
     <TopicHeader
-      :title="topicIndex + '. ' + chatData.topic.title"
-      :topic-state="topicState"
-      :is-admin="isAdmin"
-      @topic-activate="clickTopicActivate"
+      :title="topic.title"
+      :topic-index="topicIndex"
       @download="clickDownload"
+      @click-show-all="clickShowAll"
+      @click-not-show-all="clickNotShowAll"
     />
     <div class="chat-area">
       <div class="text-zone">
         <transition-group
-          :id="chatData.topic.id"
+          :id="topicId"
           ref="scrollable"
           class="scrollable list-complete"
           tag="div"
         >
           <div
-            v-for="message in chatData.message"
+            v-for="message in chatItems"
             :key="message.id"
             class="list-complete-item"
           >
             <MessageComponent
+              v-if="
+                isAllCommentShowed ||
+                message.type == 'question' ||
+                message.type == 'answer'
+              "
+              :message-id="message.id"
+              :topic-id="topicId"
               :message="message"
-              @click-card="clickReaction"
+              @click-thumb-up="clickReaction"
               @click-reply="selectedChatItem = message"
             />
           </div>
@@ -33,11 +40,11 @@
               <XIcon></XIcon>
             </button>
           </div>
-          <AnalysisGraph :chat-data="chatData" />
+          <AnalysisGraph :topic-title="topic.title" :topic-id="topicId" />
         </div>
         <button
           v-if="topicState === 'finished' && !showGraph"
-          :key="chatData.topic.id"
+          :key="topicId"
           class="show-graph-button"
           @click="showGraph = true"
         >
@@ -47,11 +54,8 @@
       </div>
       <div class="stamp-zone">
         <FavoriteButton
-          :favorite-callback-register="
-            (callback) => favoriteCallbackRegister(chatData.topic.id, callback)
-          "
-          :disabled="topicState !== 'active'"
-          @favorite="clickFavorite"
+          :disabled="topicState !== 'ongoing'"
+          :topic-id="topicId"
         />
       </div>
       <button
@@ -63,58 +67,40 @@
         <div class="material-icons">arrow_downward</div>
       </button>
     </div>
-    <div v-if="selectedChatItem" class="reply-bar">
-      <div class="reply-content">{{ selectedChatItem.content }} に返信中</div>
-      <div class="material-icons" @click="deselectChatItem">close</div>
-    </div>
     <TextArea
-      :topic="chatData.topic"
-      :my-icon="myIcon"
-      :disabled="isNotStartedTopic"
-      :device-type="deviceType"
+      :topic-title="topic.title"
+      :topic-id="topicId"
+      :disabled="topicState == 'not-started'"
+      :selected-chat-item="selectedChatItem"
       @submit="clickSubmit"
+      @deselectChatItem="deselectChatItem"
     />
   </article>
 </template>
 <script lang="ts">
-import Vue, { PropOptions } from 'vue'
-import {
-  Topic,
-  ChatItem,
-  Message,
-  TopicState,
-  DeviceType,
-} from '@/models/contents'
-import throttle from 'lodash.throttle'
-import TopicHeader from '@/components/TopicHeader.vue'
-import MessageComponent from '@/components/Message.vue'
-import TextArea from '@/components/TextArea.vue'
-import FavoriteButton from '@/components/FavoriteButton.vue'
-import exportText from '@/utils/textExports'
-import { XIcon, ChevronUpIcon } from 'vue-feather-icons'
-import AnalysisGraph from './AnalysisGraph.vue'
-
-type ChatDataPropType = {
-  topic: Topic
-  message: ChatItem[]
-}
-
-type FavoriteCallbackRegisterPropType = {
-  favoriteCallbackRegister: (
-    topicId: string,
-    callback: (count: number) => void
-  ) => void
-}
+import Vue from "vue"
+import type { PropOptions } from "vue"
+import throttle from "lodash.throttle"
+import { XIcon, ChevronUpIcon } from "vue-feather-icons"
+import { ChatItemModel, TopicState } from "sushi-chat-shared"
+import AnalysisGraph from "./AnalysisGraph.vue"
+import TopicHeader from "@/components/TopicHeader.vue"
+import MessageComponent from "@/components/Message.vue"
+import TextArea from "@/components/TextArea.vue"
+import FavoriteButton from "@/components/FavoriteButton.vue"
+import exportText from "@/utils/textExports"
+import { ChatItemStore, TopicStore } from "~/store"
 
 // Data型
 type DataType = {
   isNotify: boolean
-  selectedChatItem: ChatItem | null
+  selectedChatItem: ChatItemModel | null
   showGraph: boolean
+  isAllCommentShowed: boolean
 }
 
 export default Vue.extend({
-  name: 'ChatRoom',
+  name: "ChatRoom",
   components: {
     TopicHeader,
     MessageComponent,
@@ -125,50 +111,39 @@ export default Vue.extend({
     ChevronUpIcon,
   },
   props: {
-    chatData: {
-      type: Object,
-      required: true,
-    } as PropOptions<ChatDataPropType>,
-    topicIndex: {
+    topicId: {
       type: Number,
       required: true,
-      default: 0,
     },
-    favoriteCallbackRegister: {
-      type: Function,
-      required: true,
-    } as PropOptions<FavoriteCallbackRegisterPropType>,
-    myIcon: {
+    topicIndex: {
       type: Number,
       required: true,
     },
     topicState: {
       type: String,
-      required: true,
+      default: "not-started",
     } as PropOptions<TopicState>,
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
-    deviceType: {
-      type: String,
-      default: 'windows',
-    } as PropOptions<DeviceType>,
   },
   data(): DataType {
     return {
       isNotify: false,
       selectedChatItem: null,
       showGraph: false,
+      isAllCommentShowed: true,
     }
   },
   computed: {
-    isNotStartedTopic() {
-      return this.topicState === 'not-started'
+    chatItems() {
+      return ChatItemStore.chatItems.filter(
+        ({ topicId }) => topicId === this.topicId,
+      )
+    },
+    topic() {
+      return TopicStore.topics.find(({ id }) => id === this.topicId)
     },
   },
   watch: {
-    chatData() {
+    chatItems() {
       Vue.nextTick(() => {
         this.scrollToBottomOrShowModal()
       })
@@ -177,7 +152,7 @@ export default Vue.extend({
   mounted() {
     const element = (this.$refs.scrollable as Vue).$el
     if (element != null) {
-      element.addEventListener('scroll', this.handleScroll)
+      element.addEventListener("scroll", this.handleScroll)
       element.scrollTo({
         top: element.scrollHeight,
         left: 0,
@@ -187,45 +162,37 @@ export default Vue.extend({
   beforeDestroy() {
     const element = (this.$refs.scrollable as Vue).$el
     if (element != null) {
-      element.removeEventListener('scroll', this.handleScroll)
+      element.removeEventListener("scroll", this.handleScroll)
     }
   },
   methods: {
     // 送信ボタン
     clickSubmit(text: string, isQuestion: boolean) {
-      if (this.selectedChatItem == null) {
+      const target = this.selectedChatItem
+      const topicId = this.topicId
+      if (target == null) {
         if (isQuestion) {
           // 質問
-          this.$emit('send-question', text, this.chatData.topic.id)
+          ChatItemStore.postQuestion({ text, topicId })
         } else {
           // 通常メッセージ
-          this.$emit('send-message', text, this.chatData.topic.id, null)
+          ChatItemStore.postMessage({ text, topicId })
         }
-      } else if (
-        this.selectedChatItem.type === 'message' ||
-        this.selectedChatItem.type === 'answer'
-      ) {
+      } else if (target.type === "message" || target.type === "answer") {
         // リプライ
-        this.$emit(
-          'send-message',
-          text,
-          this.chatData.topic.id,
-          this.selectedChatItem
-        )
-      } else if (this.selectedChatItem.type === 'question') {
+        ChatItemStore.postMessage({ text, topicId, target })
+      } else if (target.type === "question") {
         // 回答
-        this.$emit('send-answer', text, this.selectedChatItem)
+        ChatItemStore.postAnswer({ text, topicId, target })
       }
       this.clickScroll()
       this.selectedChatItem = null
     },
-    clickReaction(message: Message) {
-      this.$emit('send-reaction', message)
+    // リアクションボタン
+    clickReaction(message: ChatItemModel) {
+      ChatItemStore.postReaction({ message })
     },
-    // ハートボタン
-    clickFavorite() {
-      this.$emit('send-stamp', this.chatData.topic.id)
-    },
+    // スクロール
     handleScroll: throttle(function (this: any, e: Event) {
       if (!this.isScrollBottom(e.target)) {
         this.isNotify = true
@@ -240,7 +207,7 @@ export default Vue.extend({
         element.scrollTo({
           top: element.scrollHeight,
           left: 0,
-          behavior: 'smooth',
+          behavior: "smooth",
         })
       }
     },
@@ -251,7 +218,7 @@ export default Vue.extend({
         element.scrollTo({
           top: element.scrollHeight,
           left: 0,
-          behavior: 'smooth',
+          behavior: "smooth",
         })
         this.isNotify = false
       }
@@ -262,25 +229,31 @@ export default Vue.extend({
         element.scrollHeight < element.scrollTop + element.offsetHeight + 200
       )
     },
-    clickTopicActivate() {
-      this.$emit('topic-activate', this.chatData.topic.id)
-    },
     clickDownload() {
-      const messages = this.chatData.message
-        .filter(({ type }) => type === 'message')
-        .filter(({ iconId }) => iconId !== '0')
+      const messages = ChatItemStore.chatItems
+        .filter(({ type }) => type === "message")
+        .filter(({ iconId }) => iconId !== 0)
         .map(
           (message) =>
-            '🍣: ' + (message as Message).content.replaceAll('\n', '\n') + '\n'
+            "🍣: " + (message.content as string).replaceAll("\n", "\n") + "\n",
         )
-      exportText(`${this.topicIndex}_${this.chatData.topic.title}_comments`, [
-        this.chatData.topic.title + '\n',
-        ...messages,
-      ])
+      // this.topicがnullになることは基本的にない
+      if (this.topic) {
+        exportText(`${this.topicIndex}_${this.topic.title}_comments`, [
+          this.topic.title + "\n",
+          ...messages,
+        ])
+      }
     },
     // 選択したアイテム取り消し
     deselectChatItem() {
       this.selectedChatItem = null
+    },
+    clickShowAll() {
+      this.isAllCommentShowed = true
+    },
+    clickNotShowAll() {
+      this.isAllCommentShowed = false
     },
   },
 })

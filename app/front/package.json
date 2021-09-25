@@ -1,28 +1,34 @@
 {
-  "name": "sushi-chat",
+  "name": "sushi-chat-front",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
-    "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
+    "lint:js": "eslint --ext \".js,.ts,.vue\" --ignore-path .gitignore .",
     "lint": "yarn lint:js",
+    "fix": "prettier --write \"**/*.{js,ts,vue}\" --ignore-path .gitignore .",
+    "fix:dry-run": "prettier --check \"**/*.{js,ts,vue}\" --ignore-path .gitignore .",
     "test": "jest"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.13.1",
+    "@nuxtjs/firebase": "^7.6.1",
     "@types/chart.js": "^2.9.32",
     "chart.js": "^2.9.4",
     "core-js": "^3.9.1",
+    "firebase": "^8.10.0",
     "lodash.throttle": "^4.1.1",
     "nuxt": "^2.15.3",
     "nuxt-webfontloader": "^1.1.0",
     "socket.io-client": "^4.0.1",
+    "sushi-chat-shared": "^1.0.0",
+    "ts-loader": "^8.0.17",
     "vue-chartjs": "^3.5.1",
     "vue-feather-icons": "^5.1.0",
-    "vue-js-modal": "^2.0.0-rc.6"
+    "vue-js-modal": "^2.0.0-rc.6",
+    "vuedraggable": "^2.24.3"
   },
   "devDependencies": {
     "@nuxt/types": "^2.15.3",
@@ -38,9 +44,7 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
     "eslint": "^7.22.0",
-    "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-nuxt": "^2.0.0",
-    "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.7.0",
     "jest": "^26.6.3",
     "node-sass": "^5.0.0",
@@ -48,6 +52,7 @@
     "sass-loader": "^10.1.1",
     "ts-jest": "^26.5.4",
     "vue-jest": "^3.0.4",
-    "vue-loading-template": "^1.3.2"
+    "vue-loading-template": "^1.3.2",
+    "vuex-module-decorators": "^1.0.1"
   }
 }
