@@ -8,6 +8,7 @@ import RoomClass from "../domain/room/Room"
 import { PartiallyPartial } from "../types/utils"
 import Topic from "../domain/room/Topic"
 import { RoomModel, RoomState, Topic as TopicModel } from "sushi-chat-shared"
+import EphemeralAdminRepository from "../infra/repository/admin/EphemeralAdminRepository"
 
 describe("RestRoomServiceのテスト", () => {
   let admin: Admin
@@ -29,9 +30,12 @@ describe("RestRoomServiceのテスト", () => {
     const adminName = "Admin"
     admin = new Admin(adminId, adminName, [])
 
-    roomRepository = new EphemeralRoomRepository()
+    const adminRepository = new EphemeralAdminRepository()
+    roomRepository = new EphemeralRoomRepository(adminRepository)
     const roomFactory = new RoomFactory()
     roomService = new RestRoomService(roomRepository, roomFactory)
+
+    adminRepository.createIfNotExist(admin)
 
     roomId = uuid()
     title = "テストルーム"
