@@ -47,6 +47,7 @@ import {
   TopicState,
   RoomModel,
   RoomState,
+  StampModel,
   ChatItemModel,
 } from "sushi-chat-shared"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
@@ -59,7 +60,6 @@ import {
   StampStore,
   TopicStore,
   TopicStateItemStore,
-  AuthStore,
 } from "~/store"
 
 // Data型
@@ -194,12 +194,12 @@ export default Vue.extend({
         // クリックしたTopicのStateを変える
         TopicStateItemStore.change({ key: res.topicId, state: res.state })
       })
-      // // スタンプ通知時の、SocketIOのコールバックの登録
-      // socket.on("PUB_STAMP", (stamps: Stamp[]) => {
-      //   stamps.forEach((stamp) => {
-      //     StampStore.add(stamp)
-      //   })
-      // })
+      // スタンプ通知時の、SocketIOのコールバックの登録
+      this.$socket().on("PUB_STAMP", (stamps: StampModel[]) => {
+        stamps.forEach((stamp) => {
+          StampStore.add(stamp)
+        })
+      })
     },
     // 管理画面の開閉
     clickDrawerMenu() {
