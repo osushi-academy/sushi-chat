@@ -14,8 +14,9 @@ class Reaction extends ChatItem {
     public readonly quote: Message | Question | Answer,
     createdAt: Date,
     timestamp?: number,
+    isPinned = false,
   ) {
-    super(id, topicId, user, senderType, createdAt, timestamp)
+    super(id, topicId, user, senderType, createdAt, timestamp, isPinned)
   }
 }
 

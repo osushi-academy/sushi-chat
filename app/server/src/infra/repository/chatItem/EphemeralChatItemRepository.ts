@@ -6,36 +6,92 @@ import Question from "../../../domain/chatItem/Question"
 import Reaction from "../../../domain/chatItem/Reaction"
 
 class EphemeralChatItemRepository implements IChatItemRepository {
-  private readonly chatItems: Record<string, ChatItem> = {}
+  private chatItems: ChatItem[] = []
 
   public find(chatItemId: string) {
-    return Promise.resolve(this.chatItems[chatItemId])
+    return Promise.resolve(
+      this.chatItems.find((c) => c.id === chatItemId) ?? null,
+    )
   }
 
   public saveAnswer(answer: Answer) {
-    this.chatItems[answer.id] = answer
+    this.chatItems.push(answer)
   }
 
   public saveMessage(message: Message) {
-    this.chatItems[message.id] = message
+    this.chatItems.push(message)
   }
 
   public saveQuestion(question: Question) {
-    this.chatItems[question.id] = question
+    this.chatItems.push(question)
   }
 
   public saveReaction(reaction: Reaction) {
-    this.chatItems[reaction.id] = reaction
+    this.chatItems.push(reaction)
   }
 
   public async selectByRoomId(roomId: string) {
     return Promise.resolve(
-      Object.values(this.chatItems).filter((c) => c.user.roomId === roomId),
+      this.chatItems.filter((c) => c.user.roomId === roomId),
     )
   }
 
   public pinChatItem(chatItem: ChatItem) {
-    throw new Error("Not implemented")
+    this.chatItems = this.chatItems.filter((c) => c.id !== chatItem.id)
+
+    let pinned: ChatItem
+
+    if (chatItem instanceof Message) {
+      pinned = new Message(
+        chatItem.id,
+        chatItem.topicId,
+        chatItem.user,
+        chatItem.senderType,
+        chatItem.content,
+        chatItem.quote,
+        chatItem.createdAt,
+        chatItem.timestamp,
+        true,
+      )
+    } else if (chatItem instanceof Reaction) {
+      pinned = new Reaction(
+        chatItem.id,
+        chatItem.topicId,
+        chatItem.user,
+        chatItem.senderType,
+        chatItem.quote,
+        chatItem.createdAt,
+        chatItem.timestamp,
+        true,
+      )
+    } else if (chatItem instanceof Question) {
+      pinned = new Question(
+        chatItem.id,
+        chatItem.topicId,
+        chatItem.user,
+        chatItem.senderType,
+        chatItem.content,
+        chatItem.createdAt,
+        chatItem.timestamp,
+        true,
+      )
+    } else if (chatItem instanceof Answer) {
+      pinned = new Answer(
+        chatItem.id,
+        chatItem.topicId,
+        chatItem.user,
+        chatItem.senderType,
+        chatItem.content,
+        chatItem.quote,
+        chatItem.createdAt,
+        chatItem.timestamp,
+        true,
+      )
+    } else {
+      throw new Error(`ChatItem(${chatItem.id}) instance type is invalid.`)
+    }
+
+    this.chatItems.push(pinned)
   }
 }
 

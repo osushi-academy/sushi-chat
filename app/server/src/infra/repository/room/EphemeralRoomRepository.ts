@@ -4,12 +4,12 @@ import Admin from "../../../domain/admin/admin"
 import EphemeralAdminRepository from "../admin/EphemeralAdminRepository"
 
 class EphemeralRoomRepository implements IRoomRepository {
-  private readonly rooms: Record<string, RoomClass> = {}
+  private rooms: RoomClass[] = []
 
   constructor(private readonly adminRepository: EphemeralAdminRepository) {}
 
   public build(room: RoomClass) {
-    this.rooms[room.id] = room
+    this.rooms.push(room)
 
     // room作成者のmanagedRoomIdsを更新
     const adminId = room.adminIds.values().next().value as string
@@ -26,15 +26,12 @@ class EphemeralRoomRepository implements IRoomRepository {
   }
 
   public async find(roomId: string) {
-    if (roomId in this.rooms) {
-      return this.rooms[roomId]
-    } else {
-      return null
-    }
+    return Promise.resolve(this.rooms.find((r) => r.id === roomId) ?? null)
   }
 
   public update(room: RoomClass) {
-    this.rooms[room.id] = room
+    this.rooms = this.rooms.filter((r) => r.id !== room.id)
+    this.rooms.push(room)
   }
 }
 
