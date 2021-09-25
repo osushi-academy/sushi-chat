@@ -75,9 +75,8 @@ import Vue from "vue"
 import type { PropOptions } from "vue"
 import throttle from "lodash.throttle"
 import { XIcon, ChevronUpIcon } from "vue-feather-icons"
-import { TopicState } from "sushi-chat-shared"
+import { ChatItemModel, TopicState } from "sushi-chat-shared"
 import AnalysisGraph from "./AnalysisGraph.vue"
-import { Message, Question, Answer } from "@/models/contents"
 import TopicHeader from "@/components/TopicHeader.vue"
 import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
@@ -88,7 +87,7 @@ import { ChatItemStore, TopicStore } from "~/store"
 // Data型
 type DataType = {
   isNotify: boolean
-  selectedChatItem: Message | Question | Answer | null
+  selectedChatItem: ChatItemModel | null
   showGraph: boolean
 }
 
@@ -105,7 +104,7 @@ export default Vue.extend({
   },
   props: {
     topicId: {
-      type: String,
+      type: Number,
       required: true,
     },
     topicIndex: {
@@ -131,7 +130,7 @@ export default Vue.extend({
       )
     },
     topic() {
-      return TopicStore.topics.find(({ id }) => `${id}` === this.topicId)
+      return TopicStore.topics.find(({ id }) => id === this.topicId)
     },
   },
   watch: {
@@ -181,7 +180,7 @@ export default Vue.extend({
       this.selectedChatItem = null
     },
     // リアクションボタン
-    clickReaction(message: Message) {
+    clickReaction(message: ChatItemModel) {
       ChatItemStore.postReaction({ message })
     },
     // スクロール
@@ -224,10 +223,12 @@ export default Vue.extend({
     clickDownload() {
       const messages = ChatItemStore.chatItems
         .filter(({ type }) => type === "message")
-        .filter(({ iconId }) => iconId !== "0")
+        .filter(({ iconId }) => iconId !== 0)
         .map(
           (message) =>
-            "🍣: " + (message as Message).content.replaceAll("\n", "\n") + "\n",
+            "🍣: " +
+            (message as ChatItemModel).content.replaceAll("\n", "\n") +
+            "\n",
         )
       // this.topicがnullになることは基本的にない
       if (this.topic) {

@@ -1,11 +1,5 @@
 import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
-import { Answer, ChatItem, Message, Question } from "~/models/contents"
-import {
-  PostChatItemAnswerParams,
-  PostChatItemMessageParams,
-  PostChatItemQuestionParams,
-  PostChatItemReactionParams,
-} from "~/models/event"
+import { PostChatItemRequest, ChatItemModel } from "sushi-chat-shared"
 import getUUID from "~/utils/getUUID"
 import { AuthStore, UserItemStore } from "~/store"
 import buildSocket from "~/utils/socketIO"
@@ -16,24 +10,24 @@ import buildSocket from "~/utils/socketIO"
   namespaced: true,
 })
 export default class ChatItems extends VuexModule {
-  private _chatItems: ChatItem[] = []
+  private _chatItems: ChatItemModel[] = []
 
-  public get chatItems(): ChatItem[] {
+  public get chatItems(): ChatItemModel[] {
     return this._chatItems
   }
 
   @Mutation
-  public add(chatItem: ChatItem) {
+  public add(chatItem: ChatItemModel) {
     this._chatItems.push(chatItem)
   }
 
   @Mutation
-  public setChatItems(chatItems: ChatItem[]) {
+  public setChatItems(chatItems: ChatItemModel[]) {
     this._chatItems = chatItems
   }
 
   @Mutation
-  public addList(chatItems: ChatItem[]) {
+  public addList(chatItems: ChatItemModel[]) {
     if (chatItems.length === 0) {
       return
     }
@@ -41,14 +35,14 @@ export default class ChatItems extends VuexModule {
   }
 
   @Mutation
-  public update(chatItem: ChatItem) {
+  public update(chatItem: ChatItemModel) {
     this._chatItems = this._chatItems.map((item) =>
       item.id === chatItem.id ? chatItem : item,
     )
   }
 
   @Action({ rawError: true })
-  public addOrUpdate(chatItem: ChatItem) {
+  public addOrUpdate(chatItem: ChatItemModel) {
     if (this._chatItems.find(({ id }) => id === chatItem.id)) {
       this.update(chatItem)
     } else {
@@ -63,25 +57,26 @@ export default class ChatItems extends VuexModule {
     target,
   }: {
     text: string
-    topicId: string
-    target?: Message | Answer
+    topicId: number
+    target?: ChatItemModel
   }) {
-    const params: PostChatItemMessageParams = {
-      type: "message",
+    const params: PostChatItemRequest = {
       id: getUUID(),
+      type: "message",
       topicId,
       content: text,
-      target: target?.id ?? null,
+      quoteId: target?.id,
     }
     // ローカルに反映する
     this.add({
       id: params.id,
-      type: "message",
       topicId,
-      iconId: (UserItemStore.userItems.myIconId + 1).toString(),
+      type: "message",
+      senderType: "general", // TODO: senderType取得
+      iconId: UserItemStore.userItems.myIconId + 1,
       content: text,
-      createdAt: new Date(),
-      target: target ?? null,
+      createdAt: new Date().toISOString(),
+      quote: target,
       timestamp: 0, // TODO: 正しいタイムスタンプを設定する
     })
     // サーバーに送信する
@@ -91,7 +86,7 @@ export default class ChatItems extends VuexModule {
   }
 
   @Action({ rawError: true })
-  public postReaction({ message }: { message: Message | Question | Answer }) {
+  public postReaction({ message }: { message: ChatItemModel }) {
     const selection = window.getSelection()
     // 選択中の文字が存在する場合リアクションしない
     if (
@@ -99,21 +94,22 @@ export default class ChatItems extends VuexModule {
       selection.getRangeAt(0).endOffset > selection.getRangeAt(0).startOffset
     )
       return
-    const params: PostChatItemReactionParams = {
+    const params: PostChatItemRequest = {
       id: getUUID(),
-      topicId: message.topicId,
       type: "reaction",
-      reactionToId: message.id,
+      topicId: message.topicId,
+      quoteId: message.id,
     }
     // ローカルに反映する
     this.add({
       id: params.id,
       topicId: message.topicId,
       type: "reaction",
-      iconId: (UserItemStore.userItems.myIconId + 1).toString(),
+      senderType: "general", // TODO: senderType取得
+      iconId: UserItemStore.userItems.myIconId + 1,
       timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-      createdAt: new Date(),
-      target: message,
+      createdAt: new Date().toISOString(),
+      quote: message,
     })
     // サーバーに反映する
     const socket = buildSocket(AuthStore.idToken)
@@ -122,21 +118,22 @@ export default class ChatItems extends VuexModule {
   }
 
   @Action({ rawError: true })
-  public postQuestion({ text, topicId }: { text: string; topicId: string }) {
-    const params: PostChatItemQuestionParams = {
-      type: "question",
+  public postQuestion({ text, topicId }: { text: string; topicId: number }) {
+    const params: PostChatItemRequest = {
       id: getUUID(),
+      type: "question",
       topicId,
       content: text,
     }
     // ローカルに反映する
     this.add({
       id: params.id,
-      type: "question",
       topicId,
-      iconId: (UserItemStore.userItems.myIconId + 1).toString(),
+      type: "question",
+      senderType: "general", // TODO: senderType取得
+      iconId: UserItemStore.userItems.myIconId + 1,
       content: text,
-      createdAt: new Date(),
+      createdAt: new Date().toISOString(),
       timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
     })
     // サーバーに反映する
@@ -152,14 +149,14 @@ export default class ChatItems extends VuexModule {
     target,
   }: {
     text: string
-    topicId: string
-    target: Question
+    topicId: number
+    target: ChatItemModel
   }) {
-    const params: PostChatItemAnswerParams = {
+    const params: PostChatItemRequest = {
       id: getUUID(),
-      topicId,
       type: "answer",
-      target: target.id,
+      topicId,
+      quoteId: target.id,
       content: text,
     }
     // サーバーに反映する
@@ -170,10 +167,11 @@ export default class ChatItems extends VuexModule {
       id: params.id,
       topicId,
       type: "answer",
-      iconId: (UserItemStore.userItems.myIconId + 1).toString(),
+      senderType: "general", // TODO: senderType取得
+      iconId: UserItemStore.userItems.myIconId + 1,
       timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
-      createdAt: new Date(),
-      target,
+      createdAt: new Date().toISOString(),
+      quote: target || null,
       content: text,
     })
     console.log("send answer: ", text)

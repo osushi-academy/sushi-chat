@@ -30,7 +30,7 @@
         <div v-for="(topic, index) in topics" :key="index">
           <ChatRoom
             :topic-index="index"
-            :topic-id="`${topic.id}`"
+            :topic-id="topic.id"
             :topic-state="topicStateItems[topic.id]"
           />
         </div>
@@ -42,8 +42,14 @@
 <script lang="ts">
 import Vue from "vue"
 import VModal from "vue-js-modal"
-import { Topic, TopicState, RoomModel, RoomState } from "sushi-chat-shared"
-import { ChatItem, Stamp } from "@/models/contents"
+import {
+  Topic,
+  TopicState,
+  RoomModel,
+  RoomState,
+  ChatItemModel,
+} from "sushi-chat-shared"
+import { Stamp } from "@/models/contents"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
@@ -171,10 +177,11 @@ export default Vue.extend({
     socketSetUp() {
       const socket = (this as any).socket
       // SocketIOのコールバックの登録
-      // socket.on("PUB_CHAT_ITEM", (chatItem: ChatItem) => {
-      //   // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
-      //   ChatItemStore.addOrUpdate(chatItem)
-      // })
+      socket.on("PUB_CHAT_ITEM", (chatItem: ChatItemModel) => {
+        console.log(chatItem)
+        // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
+        ChatItemStore.addOrUpdate(chatItem)
+      })
       socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
         if (res.state === "ongoing") {
           // 現在ongoingなトピックがあればfinishedにする
@@ -191,12 +198,12 @@ export default Vue.extend({
         // クリックしたTopicのStateを変える
         TopicStateItemStore.change({ key: res.topicId, state: res.state })
       })
-      // スタンプ通知時の、SocketIOのコールバックの登録
-      socket.on("PUB_STAMP", (stamps: Stamp[]) => {
-        stamps.forEach((stamp) => {
-          StampStore.add(stamp)
-        })
-      })
+      // // スタンプ通知時の、SocketIOのコールバックの登録
+      // socket.on("PUB_STAMP", (stamps: Stamp[]) => {
+      //   stamps.forEach((stamp) => {
+      //     StampStore.add(stamp)
+      //   })
+      // })
     },
     // 管理画面の開閉
     clickDrawerMenu() {

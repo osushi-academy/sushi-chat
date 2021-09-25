@@ -6,7 +6,7 @@
       :id="messageId"
       class="comment"
       :class="{
-        admin: message.iconId == '0',
+        admin: message.iconId == 0,
         question: message.type == 'question',
         answer: message.type == 'answer',
       }"
@@ -22,7 +22,7 @@
           <div v-if="message.type == 'answer'" class="answer-badge">A</div>
         </div>
         <div
-          v-if="message.type == 'question' || message.target == null"
+          v-if="message.type == 'question' || message.quote == null"
           class="text"
         >
           <UrlToLink :text="message.content" />
@@ -35,9 +35,9 @@
           >
             <UrlToLink
               v-if="message.type != 'answer'"
-              :text="`> ` + message.target.content"
+              :text="`> ` + message.quote.content"
             />
-            <UrlToLink v-else :text="`Q. ` + message.target.content" />
+            <UrlToLink v-else :text="`Q. ` + message.quote.content" />
           </span>
           <UrlToLink :text="message.content" />
         </div>
@@ -88,10 +88,10 @@
         </div>
       </div>
       <div class="long-text">
-        {{ message.target.content }}
+        {{ message.quote.content }}
       </div>
-      <!-- targetのmessageにスクロール -->
-      <span class="material-icons" @click="scrolltoMessage(message.target.id)">
+      <!-- quoteのmessageにスクロール -->
+      <span class="material-icons" @click="scrolltoMessage(message.quote.id)">
         north_west
       </span>
     </article>
@@ -104,9 +104,9 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
+import { ChatItemModel } from "sushi-chat-shared"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
-import { ChatItemPropType } from "~/models/contents"
 
 type DataType = {
   isLikedChatItem: boolean
@@ -121,13 +121,13 @@ export default Vue.extend({
     message: {
       type: Object,
       required: true,
-    } as PropOptions<ChatItemPropType>,
+    } as PropOptions<ChatItemModel>,
     messageId: {
       type: String,
       required: true,
     },
     topicId: {
-      type: String,
+      type: Number,
       required: true,
     },
   },
@@ -163,7 +163,7 @@ export default Vue.extend({
       }
     },
     // タイムスタンプを分、秒単位に変換
-    showTimestamp(timeStamp: number): string {
+    showTimestamp(timeStamp?: number): string {
       let sec: number = Math.floor(timeStamp / 1000)
       const min: number = Math.floor(sec / 60)
       sec %= 60

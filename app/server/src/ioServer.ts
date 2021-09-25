@@ -175,6 +175,7 @@ const createSocketIOServer = async (
           chatItemId: received.id,
           topicId: received.topicId,
         }
+        console.log(received)
         const chatItemType = received.type
         switch (received.type) {
           case "message":

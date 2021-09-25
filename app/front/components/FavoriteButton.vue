@@ -40,7 +40,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue"
-import { Stamp } from "@/models/contents"
+import { StampModel } from "sushi-chat-shared"
 import { randomWaitedLoop } from "@/utils/waitedLoop"
 import { HSLColor, getRandomColor } from "@/utils/color"
 import buildSocket from "~/utils/socketIO"
@@ -67,7 +67,7 @@ export default Vue.extend({
       required: true,
     },
     topicId: {
-      type: String,
+      type: Number,
       required: true,
     },
   },
@@ -80,12 +80,12 @@ export default Vue.extend({
     }
   },
   computed: {
-    stamps(): Stamp[] {
+    stamps(): StampModel[] {
       const socket = buildSocket(AuthStore.idToken)
       return StampStore.stamps.filter(
         // 自分が押したものも通知されるため省く処理
         (stamp: any) =>
-          stamp.topicId === this.topicId && stamp.userId !== socket.id,
+          stamp.topicId === this.topicId && stamp.id !== socket.id,
       )
     },
   },
