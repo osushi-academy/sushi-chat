@@ -32,7 +32,7 @@ export const restSetup = (
             ? ("question" as const)
             : ("answer" as const),
         createdAt: chatItem.createdAt.toISOString(),
-        iconId: chatItem.iconId as unknown as number,
+        iconId: chatItem.user.iconId as unknown as number,
       }))
 
       const stamps = room.stamps.map((stamp) => ({
@@ -250,7 +250,7 @@ export const restSetup = (
   })
 
   // ルームと新しい管理者を紐付ける
-  adminRouter.post("/room/:id/invite", (req, res) => {
+  adminRouter.post("/room/:id/invited", (req, res) => {
     const adminInviteKey = req.query["admin_invite_key"]
     if (!adminInviteKey) {
       res.status(400).send({
