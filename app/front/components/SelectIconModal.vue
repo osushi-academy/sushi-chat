@@ -51,8 +51,7 @@
         </div>
         <select name="speaker" class="sushi-select__section--speaker">
           <option>未選択</option>
-          <option>大乱闘池奥ブラザーズ</option>
-          <option>寿司処池奥</option>
+          <option>おすしアカデミー</option>
         </select>
       </article>
     </section>
