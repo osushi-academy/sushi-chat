@@ -1,5 +1,6 @@
 <template>
   <div class="sushi-select not-found">
+    <div class="sushi-select__bg" />
     <picture class="not-found__icon">
       <source :srcset="icon.webp" type="image/webp" />
       <img :src="icon.png" alt="" />

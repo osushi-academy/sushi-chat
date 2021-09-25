@@ -45,8 +45,8 @@
     border-radius: 4px;
     &--title {
       @include text-size(lg);
-      margin-bottom: 10px;
     }
+    margin-bottom: 10px;
   }
 
   &__section {
