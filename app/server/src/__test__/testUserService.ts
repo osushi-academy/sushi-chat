@@ -127,7 +127,7 @@ describe("UserServiceのテスト", () => {
     })
 
     test("正常系_管理者ユーザーがroomから退出する", async () => {
-      userRepository.create(new User(userId, true, roomId, iconId))
+      userRepository.create(new User(userId, true, false, roomId, iconId))
 
       await userService.leaveRoom({ userId })
 
@@ -138,7 +138,7 @@ describe("UserServiceのテスト", () => {
     })
 
     test("正常系_一般ユーザーがroomから退出する", async () => {
-      userRepository.create(new User(userId, false, roomId, iconId))
+      userRepository.create(new User(userId, false, false, roomId, iconId))
 
       await userService.leaveRoom({ userId })
 

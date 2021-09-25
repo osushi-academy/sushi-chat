@@ -58,7 +58,7 @@ describe("RealtimeRoomServiceのテスト", () => {
     const adminUserId = uuid()
     const roomId = uuid()
     // WebSocket接続するadmin user
-    adminUser = new User(adminUserId, true, roomId, User.ADMIN_ICON_ID)
+    adminUser = new User(adminUserId, true, false, roomId, User.ADMIN_ICON_ID)
     userRepository.create(adminUser)
 
     const title = "テストルーム"
@@ -232,6 +232,7 @@ describe("RealtimeRoomServiceのテスト", () => {
     test("異常系_adminでないuserはroomをfinishできない", async () => {
       const notAdminUser = new User(
         uuid(),
+        false,
         false,
         adminUser.roomId,
         NewIconId(1),
