@@ -245,7 +245,7 @@ class ChatItemRepository implements IChatItemRepository {
         )
       }
       case "answer": {
-        const quote = (await this.find(row.targetid)) as Question
+        const quote = (await this.find(row.quote_id)) as Question
 
         return new Answer(
           id,
