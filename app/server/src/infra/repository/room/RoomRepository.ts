@@ -9,6 +9,7 @@ import PGPool from "../PGPool"
 import { RoomState, TopicState } from "sushi-chat-shared"
 import { formatDate } from "../../../utils/date"
 import IAdminRepository from "../../../domain/admin/IAdminRepository"
+import User from "../../../domain/user/User"
 
 class RoomRepository implements IRoomRepository {
   constructor(
@@ -87,7 +88,8 @@ class RoomRepository implements IRoomRepository {
     const pgClient = await this.pgPool.client()
 
     const roomQuery =
-      "SELECT title, room_state_id, invite_key, description, start_at FROM rooms WHERE id = $1"
+      "SELECT r.title, r.room_state_id, r.invite_key, r.description, r.start_at, r.finish_at, r.archived_at, u.id as system_user_id  " +
+      "FROM rooms r JOIN users u on u.is_system = true AND r.id = u.room_id  WHERE r.id = $1"
     const topicsQuery =
       "WITH topic as (" +
       "SELECT t.id, t.topic_state_id, t.title, t.offset_mil_sec, toa.opened_at_mil_sec, tpa.paused_at_mil_sec " +
@@ -135,6 +137,14 @@ class RoomRepository implements IRoomRepository {
 
       const userIds = new Set<string>(users.map((u) => u.id))
 
+      const systemUser = new User(
+        room.system_user_id,
+        false,
+        true,
+        roomId,
+        User.SYSTEM_USER_ICON_ID,
+      )
+
       return new RoomClass(
         roomId,
         room.title,
@@ -150,6 +160,7 @@ class RoomRepository implements IRoomRepository {
         userIds,
         chatItems,
         stamps,
+        systemUser,
       )
     } catch (e) {
       RoomRepository.logError(e, "find()")
