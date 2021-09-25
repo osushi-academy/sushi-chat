@@ -11,11 +11,12 @@ class UserRepository implements IUserRepository {
     const queries = []
 
     const userQuery =
-      "INSERT INTO users (id, is_admin, room_id, icon_id) VALUES ($1, $2, $3, $4)"
+      "INSERT INTO users (id, is_admin, is_system, room_id, icon_id) VALUES ($1, $2, $3, $4, $5)"
     queries.push(() =>
       pgClient.query(userQuery, [
         user.id,
         user.isAdmin,
+        user.isSystem,
         user.roomId,
         user.iconId,
       ]),
@@ -43,7 +44,7 @@ class UserRepository implements IUserRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT u.is_admin, u.room_id, u.icon_id, ts.topic_id as speak_at FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE u.id = $1 AND u.has_left = false"
+      "SELECT u.is_admin, u.is_system, u.room_id, u.icon_id, ts.topic_id as speak_at FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE u.id = $1 AND u.has_left = false"
     try {
       const res = await pgClient.query(query, [userId])
       if (res.rowCount < 1) return null
@@ -52,6 +53,7 @@ class UserRepository implements IUserRepository {
       return new User(
         userId,
         row.is_admin,
+        row.is_system,
         row.room_id,
         row.icon_id,
         row.speak_at,
@@ -68,15 +70,23 @@ class UserRepository implements IUserRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT u.id, u.is_admin, u.room_id, u.icon_id, ts.topic_id FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE u.room_id = $1 AND u.has_left = false"
+      "SELECT u.id, u.is_admin, u.is_system, u.room_id, u.icon_id, ts.topic_id FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE u.room_id = $1 AND u.has_left = false"
     try {
       const res = await pgClient.query(query, [roomId])
       const users = res.rows.map((r) => {
-        return new User(r.id, r.is_admin, r.room_id, r.icon_id, r.topic_id)
+        return new User(
+          r.id,
+          r.is_admin,
+          r.is_system,
+          r.room_id,
+          r.icon_id,
+          r.topic_id,
+        )
       })
 
       return users
     } catch (e) {
+      console.log(e)
       UserRepository.logError(e, "selectByRoomId()")
       throw e
     } finally {

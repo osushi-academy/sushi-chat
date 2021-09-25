@@ -1,9 +1,9 @@
 <template>
   <div class="sushi-select">
     <section class="sushi-select__header">
-      <h1 class="sushi-select__header--title">技育ハッカソンvol7</h1>
+      <h1 class="sushi-select__header--title">{{ title }}</h1>
       <p class="sushi-select__header--content">
-        2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。
+        {{ description }}
       </p>
     </section>
 
@@ -19,7 +19,7 @@
             v-for="(icon, index) in userIcons"
             :key="index"
             :class="{
-              'icon-selected': myIconId - 1 == index,
+              'icon-selected': myIconId == index,
               'icon-shari': index === 10,
             }"
             class="icon-box"
@@ -65,8 +65,8 @@
         </div>
         <div class="sushi-select__section--start">
           <picture class="sushi-select__section--my-sushi">
-            <source :srcset="userIcons[myIconId - 1].webp" type="image/webp" />
-            <img :src="userIcons[myIconId - 1].png" alt="" />
+            <source :srcset="userIcons[myIconId].webp" type="image/webp" />
+            <img :src="userIcons[myIconId].png" alt="" />
           </picture>
           <div class="sushi-select__section--button">
             <button :disabled="myIconId < 1" type="button" @click="hideModal">
@@ -86,6 +86,16 @@ import { UserItemStore } from "~/store"
 
 export default Vue.extend({
   name: "SelectIconModal",
+  props: {
+    title: {
+      type: String,
+      default: "",
+    },
+    description: {
+      type: String,
+      default: "",
+    },
+  },
   computed: {
     myIconId() {
       return UserItemStore.userItems.myIconId

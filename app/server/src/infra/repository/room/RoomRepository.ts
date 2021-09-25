@@ -51,6 +51,8 @@ class RoomRepository implements IRoomRepository {
     }
     const insertRoomAdminQuery =
       "INSERT INTO rooms_admins (admin_id, room_id) VALUES ($1, $2)"
+    const insertSystemUserQuery =
+      "INSERT INTO users (id, room_id, icon_id, is_admin, is_system, has_left) VALUES ($1, $2, $3, $4, $5, $6)"
 
     try {
       // 依存先になるので先に作成
@@ -64,6 +66,14 @@ class RoomRepository implements IRoomRepository {
       await Promise.all([
         pgClient.query(insertTopicsQuery, insertedTopics.flat()),
         pgClient.query(insertRoomAdminQuery, [creatorAdminId, room.id]),
+        pgClient.query(insertSystemUserQuery, [
+          room.systemUser.id,
+          room.id,
+          room.systemUser.iconId,
+          room.systemUser.isAdmin,
+          room.systemUser.isSystem,
+          false,
+        ]),
       ])
     } catch (e) {
       RoomRepository.logError(e, "build()")

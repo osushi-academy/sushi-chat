@@ -33,7 +33,7 @@ export const restSetup = (
             ? ("question" as const)
             : ("answer" as const),
         createdAt: chatItem.createdAt.toISOString(),
-        iconId: chatItem.iconId as unknown as number,
+        iconId: chatItem.user.iconId as unknown as number,
       }))
 
       const stamps = room.stamps.map((stamp) => ({

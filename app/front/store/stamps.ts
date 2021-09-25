@@ -1,6 +1,7 @@
 import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
 import { Stamp } from "~/models/contents"
-import socket from "~/utils/socketIO"
+import buildSocket from "~/utils/socketIO"
+import { AuthStore } from "~/utils/store-accessor"
 
 @Module({
   name: "stamps",
@@ -21,6 +22,7 @@ export default class Stamps extends VuexModule {
 
   @Action({ rawError: true })
   public sendFavorite(topicId: string) {
+    const socket = buildSocket(AuthStore.idToken)
     this.add({userId: socket.id, topicId})
     socket.emit("POST_STAMP", { topicId })
   }

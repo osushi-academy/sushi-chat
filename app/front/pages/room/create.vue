@@ -29,7 +29,7 @@
             >
               <div
                 v-for="(list, idx) in sessionList"
-                :key="list.id"
+                :key="list.title"
                 class="home-create__room__sessions__list--element"
               >
                 <div class="home-create__room__sessions__list--element--input">
@@ -88,7 +88,7 @@ import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue
 Vue.use(VModal)
 type DataType = {
   roomName: string
-  sessionList: { title: string; id: number }[]
+  sessionList: { title: string }[]
   isDragging: boolean
   MAX_TOPIC_LENGTH: number
 }
@@ -103,7 +103,7 @@ export default Vue.extend({
   data(): DataType {
     return {
       roomName: "",
-      sessionList: [{ title: "", id: 0 }],
+      sessionList: [{ title: "" }],
       isDragging: false,
       MAX_TOPIC_LENGTH: 100,
     }
@@ -120,13 +120,13 @@ export default Vue.extend({
   },
   methods: {
     addSession() {
-      this.sessionList.push({ title: "", id: this.sessionList.length })
+      this.sessionList.push({ title: "" })
     },
     removeSession(idx: number) {
       this.sessionList.splice(idx, 1)
     },
     // textareaに入力された文字を改行で区切ってTopic追加
-    separateTopics(titles: string) {
+    separateTopics(titles: string[]) {
       // titleが空のsessionListを削除
       this.sessionList = this.sessionList.filter(({ title }) => title !== "")
 
@@ -146,10 +146,7 @@ export default Vue.extend({
           alert("セッション名は" + this.MAX_TOPIC_LENGTH + "文字までです。")
           return
         }
-        const t: { title: string; id: number } = {
-          title: topicTitle,
-          id: this.sessionList.length,
-        }
+        const t: { title: string } = { title: topicTitle }
         set.add(topicTitle)
         this.sessionList.push(t)
       }

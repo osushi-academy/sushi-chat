@@ -1,5 +1,4 @@
 import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
-import socket from "~/utils/socketIO"
 import { Answer, ChatItem, Message, Question } from "~/models/contents"
 import {
   PostChatItemAnswerParams,
@@ -8,7 +7,8 @@ import {
   PostChatItemReactionParams,
 } from "~/models/event"
 import getUUID from "~/utils/getUUID"
-import { UserItemStore } from "~/store"
+import { AuthStore, UserItemStore } from "~/store"
+import buildSocket from "~/utils/socketIO"
 
 @Module({
   name: "chatItems",
@@ -85,6 +85,7 @@ export default class ChatItems extends VuexModule {
       timestamp: 0, // TODO: 正しいタイムスタンプを設定する
     })
     // サーバーに送信する
+    const socket = buildSocket(AuthStore.idToken)
     socket.emit("POST_CHAT_ITEM", params)
     console.log("send message: ", text)
   }
@@ -115,6 +116,7 @@ export default class ChatItems extends VuexModule {
       target: message,
     })
     // サーバーに反映する
+    const socket = buildSocket(AuthStore.idToken)
     socket.emit("POST_CHAT_ITEM", params)
     console.log("send reaction: ", message.content)
   }
@@ -138,6 +140,7 @@ export default class ChatItems extends VuexModule {
       timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
     })
     // サーバーに反映する
+    const socket = buildSocket(AuthStore.idToken)
     socket.emit("POST_CHAT_ITEM", params)
     console.log("send question: ", text)
   }
@@ -160,6 +163,7 @@ export default class ChatItems extends VuexModule {
       content: text,
     }
     // サーバーに反映する
+    const socket = buildSocket(AuthStore.idToken)
     socket.emit("POST_CHAT_ITEM", params)
     // ローカルに反映する
     this.add({
