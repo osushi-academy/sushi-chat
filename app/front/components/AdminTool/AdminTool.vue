@@ -4,6 +4,8 @@
       <div class="drawer-menu__header">
         <div class="room-info">
           <div class="room-title">
+            <!-- {{ topics }}
+            {{ topicStateItems }} -->
             <p>管理者ツール - {{ title }}</p>
           </div>
           <div class="room-url">
@@ -22,6 +24,7 @@
           <span>ルームを開始する</span>
         </button>
       </div>
+      {{ isRoomOngoing }}
 
       <div class="drawer-menu__topic-list">
         <div
@@ -36,22 +39,22 @@
         >
           <div class="topic-number">{{ index }}</div>
           <div class="topic-name">
-            {{ topic.title
-            }}<span v-if="topicStateItems[topic.id] === 'ongoing'" class="label"
-              >進行中</span
-            >
-            <span v-if="topicStateItems[topic.id] === 'paused'" class="label"
-              >一時停止</span
-            >
+            {{ topic.title }}
+            <span v-if="topicStateItems[topic.id] === 'ongoing'" class="label">
+              進行中
+            </span>
+            <span v-if="topicStateItems[topic.id] === 'paused'" class="label">
+              一時停止
+            </span>
           </div>
           <div v-if="isRoomOngoing" class="buttons">
             <button
-              v-if="topicStateItems[topic.id] != 'finished'"
+              v-if="topicStateItems[topic.id] !== 'finished'"
               @click="clickPlayPauseButton(topic.id)"
             >
-              <span class="material-icons-outlined">{{
-                playOrPause(topicStateItems[topic.id])
-              }}</span>
+              <span class="material-icons-outlined">
+                {{ playOrPause(topicStateItems[topic.id]) }}
+              </span>
             </button>
             <button
               v-if="
@@ -104,7 +107,7 @@ export default Vue.extend({
     },
     title: {
       type: String,
-      required: true,
+      default: "",
     },
     roomState: {
       type: String,
@@ -164,7 +167,7 @@ export default Vue.extend({
     writeToClipboard(s: string) {
       navigator.clipboard.writeText(s)
     },
-    clickPlayPauseButton(topicId: string) {
+    clickPlayPauseButton(topicId: number) {
       if (this.topicStateItems[topicId] === "ongoing") {
         // ongoingならばpausedに
         this.$emit("change-topic-state", topicId, "paused")
@@ -176,12 +179,12 @@ export default Vue.extend({
         this.$emit("change-topic-state", topicId, "ongoing")
       }
     },
-    clickFinishButton(topicId: string) {
-      TopicStateItemStore.change({ key: topicId, state: "finished" })
-      this.$emit("change-topic-state", topicId, "closed")
+    clickFinishButton(topicId: number) {
+      TopicStateItemStore.change({ key: `${topicId}`, state: "finished" })
+      this.$emit("change-topic-state", topicId, "finished")
     },
-    clickRestartButton(topicId: string) {
-      TopicStateItemStore.change({ key: topicId, state: "finished" })
+    clickRestartButton(topicId: number) {
+      TopicStateItemStore.change({ key: `${topicId}`, state: "finished" })
       this.$emit("change-topic-state", topicId, "ongoing")
     },
   },

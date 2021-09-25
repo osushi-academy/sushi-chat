@@ -135,7 +135,7 @@ class UserService {
     isAdmin: boolean,
     speakAt?: number,
   ) {
-    const newUser = new User(userId, isAdmin, roomId, iconId, speakAt)
+    const newUser = new User(userId, isAdmin, false, roomId, iconId, speakAt)
 
     this.userDelivery.enterRoom(newUser, activeUserCount)
     await this.userRepository.create(newUser)

@@ -7,11 +7,13 @@ import ChatItem from "../../../domain/chatItem/ChatItem"
 import PGPool from "../PGPool"
 import { ChatItemSenderType, ChatItemType } from "sushi-chat-shared"
 import { formatDate } from "../../../utils/date"
+import User from "../../../domain/user/User"
 
 class ChatItemRepository implements IChatItemRepository {
   constructor(private readonly pgPool: PGPool) {}
 
   public async saveMessage(message: Message) {
+    console.log(message)
     const pgClient = await this.pgPool.client()
 
     const query =
@@ -20,9 +22,9 @@ class ChatItemRepository implements IChatItemRepository {
     try {
       await pgClient.query(query, [
         message.id,
-        message.roomId,
+        message.user.roomId,
         message.topicId,
-        message.iconId,
+        message.user.id,
         ChatItemRepository.chatItemTypeMap["message"],
         ChatItemRepository.senderTypeMap[message.senderType],
         message.quote ? message.quote.id : null,
@@ -47,9 +49,9 @@ class ChatItemRepository implements IChatItemRepository {
     try {
       await pgClient.query(query, [
         reaction.id,
-        reaction.roomId,
+        reaction.user.roomId,
         reaction.topicId,
-        reaction.iconId,
+        reaction.user.id,
         ChatItemRepository.chatItemTypeMap["reaction"],
         ChatItemRepository.senderTypeMap[reaction.senderType],
         reaction.quote.id,
@@ -73,9 +75,9 @@ class ChatItemRepository implements IChatItemRepository {
     try {
       await pgClient.query(query, [
         question.id,
-        question.roomId,
+        question.user.roomId,
         question.topicId,
-        question.iconId,
+        question.user.id,
         ChatItemRepository.chatItemTypeMap["question"],
         ChatItemRepository.senderTypeMap[question.senderType],
         question.content,
@@ -99,9 +101,9 @@ class ChatItemRepository implements IChatItemRepository {
     try {
       await pgClient.query(query, [
         answer.id,
-        answer.roomId,
+        answer.user.roomId,
         answer.topicId,
-        answer.iconId,
+        answer.user.id,
         ChatItemRepository.chatItemTypeMap["answer"],
         ChatItemRepository.senderTypeMap[answer.senderType],
         answer.quote.id,
@@ -122,7 +124,11 @@ class ChatItemRepository implements IChatItemRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT id, room_id, topic_id, user_id, chat_item_type_id, sender_type_id, quote_id, content, timestamp, created_at FROM chat_items WHERE id = $1"
+      "SELECT ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at, u.icon_id, u.is_admin, u.is_system, u.has_left " +
+      "FROM chat_items as ci " +
+      "LEFT OUTER JOIN users as u " +
+      "ON ci.user_id = u.id"
+
     try {
       const res = await pgClient.query(query, [chatItemId])
       if (res.rowCount < 1) return null
@@ -139,7 +145,11 @@ class ChatItemRepository implements IChatItemRepository {
   public async selectByRoomId(roomId: string): Promise<ChatItem[]> {
     const pgClient = await this.pgPool.client()
 
-    const query = "SELECT * FROM chat_items WHERE room_id = $1"
+    const query =
+      "SELECT ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at, u.icon_id, u.is_admin, u.is_system, u.has_left " +
+      "FROM chat_items ci " +
+      "LEFT OUTER JOIN users u " +
+      "ON ci.user_id = u.id AND ci.room_id = $1"
     try {
       const res = await pgClient.query(query, [roomId])
       return Promise.all(res.rows.map(this.buildChatItem))
@@ -158,7 +168,7 @@ class ChatItemRepository implements IChatItemRepository {
       "INSERT INTO topics_pinned_chat_items (room_id, topic_id, chat_item_id) VALUES ($1,$2, $3)"
     try {
       await pgClient.query(query, [
-        chatItem.roomId,
+        chatItem.user.roomId,
         chatItem.topicId,
         chatItem.id,
       ])
@@ -183,6 +193,11 @@ class ChatItemRepository implements IChatItemRepository {
     const senderType = ChatItemRepository.intToSenderType(row.sender_type_id)
     const timestamp = row.timestamp
     const createdAt = row.created_at
+    const iconId = row.icon_id
+    const isAdmin = row.isAdmin
+    const isSystem = row.isSystem
+
+    const systemUser = new User(userId, isAdmin, isSystem, roomId, iconId)
 
     // NOTE: 複数回クエリを発行するとパフォーマンスの低下につながるので、一回のクエリでとってこれるならそうしたい
     switch (chatItemType) {
@@ -195,9 +210,8 @@ class ChatItemRepository implements IChatItemRepository {
 
         return new Message(
           id,
-          roomId,
           topicId,
-          userId,
+          systemUser,
           senderType,
           row.content,
           quote,
@@ -213,9 +227,8 @@ class ChatItemRepository implements IChatItemRepository {
 
         return new Reaction(
           id,
-          roomId,
           topicId,
-          userId,
+          systemUser,
           senderType,
           quote,
           createdAt,
@@ -225,9 +238,8 @@ class ChatItemRepository implements IChatItemRepository {
       case "question": {
         return new Question(
           id,
-          roomId,
           topicId,
-          userId,
+          systemUser,
           senderType,
           row.content,
           createdAt,
@@ -239,9 +251,8 @@ class ChatItemRepository implements IChatItemRepository {
 
         return new Answer(
           id,
-          roomId,
           topicId,
-          userId,
+          systemUser,
           senderType,
           row.content,
           quote,
