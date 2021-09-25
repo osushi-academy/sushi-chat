@@ -80,11 +80,7 @@ export default Vue.extend({
   },
   computed: {
     stamps(): StampModel[] {
-      return StampStore.stamps.filter(
-        // 自分が押したものも通知されるため省く処理
-        (stamp) =>
-          stamp.topicId === this.topicId && stamp.id !== this.$socket().id,
-      )
+      return StampStore.stamps.filter((stamp) => stamp.topicId === this.topicId)
     },
   },
   watch: {
