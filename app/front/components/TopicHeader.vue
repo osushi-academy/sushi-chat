@@ -51,9 +51,7 @@
 </template>
 <script lang="ts">
 import Vue from "vue"
-import type { PropOptions } from "vue"
 // import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
-import { TopicState } from "sushi-chat-shared"
 import { UserItemStore } from "~/store"
 
 type DataType = {
@@ -71,10 +69,6 @@ export default Vue.extend({
       type: String,
       required: true,
     },
-    topicState: {
-      type: String,
-      required: true,
-    } as PropOptions<TopicState>,
     topicIndex: {
       type: Number,
       required: true,

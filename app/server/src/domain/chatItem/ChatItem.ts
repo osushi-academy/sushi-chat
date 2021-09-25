@@ -1,12 +1,11 @@
 import { ChatItemSenderType } from "sushi-chat-shared"
-import IconId from "../user/IconId"
+import User from "../user/User"
 
 abstract class ChatItem {
   protected constructor(
     public readonly id: string,
-    public readonly roomId: string,
     public readonly topicId: number,
-    public readonly iconId: IconId,
+    public readonly user: User,
     public readonly senderType: ChatItemSenderType,
     public readonly createdAt: Date,
     public readonly timestamp?: number,

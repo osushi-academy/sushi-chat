@@ -112,83 +112,13 @@ export default Vue.extend({
       UserItemStore.changeIsAdmin(true)
     }
   },
-  async mounted() {
+  mounted() {
     if (this.room.id !== "") {
       // TODO: this.room.idが存在しない→404
     }
-
-    // Topics取得
-    const response = await this.$apiClient.get(
-      {
-        pathname: "/room/:id",
-        params: {
-          id: this.room.id,
-        },
-      },
-      {},
-    )
-    if (response.result === "error") {
-      throw new Error("エラーが発生しました")
-    }
-    TopicStore.set(response.data.topics)
-
     // socket接続
     const socket = buildSocket(AuthStore.idToken)
     ;(this as any).socket = socket
-    if (this.isAdmin) {
-      // 管理者の入室
-      socket.emit(
-        "ADMIN_ENTER_ROOM",
-        {
-          roomId: this.room.id,
-        },
-        (res: any) => {
-          ChatItemStore.add(res.data.chatItems)
-          res.data.topicStates.forEach((topicState: any) => {
-            TopicStateItemStore.change({
-              key: `${topicState.topicId}`,
-              state: topicState.state,
-            })
-          })
-          this.activeUserCount = res.data.activeUserCount
-        },
-      )
-      this.isRoomEnter = true
-    } else {
-      // ユーザーの入室
-      this.$modal.show("sushi-modal")
-    }
-
-    // SocketIOのコールバックの登録
-    socket.on("PUB_CHAT_ITEM", (chatItem: ChatItem) => {
-      // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
-      ChatItemStore.addOrUpdate(chatItem)
-    })
-    // TopicStateの変更の配信
-    socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
-      if (res.type === "OPEN") {
-        // 現在ongoingなトピックがあればfinishedにし、setする
-        const t = Object.fromEntries(
-          Object.entries(this.topicStateItems).map(([topicId, topicState]) => [
-            topicId,
-            topicState === "ongoing" ? "finished" : topicState,
-          ]),
-        )
-        TopicStateItemStore.set(t)
-        // クリックしたTopicのStateを変える
-        TopicStateItemStore.change({ key: res.topicId, state: "ongoing" })
-      } else if (res.type === "PAUSE") {
-        TopicStateItemStore.change({ key: res.topicId, state: "paused" })
-      } else if (res.type === "CLOSE") {
-        TopicStateItemStore.change({ key: res.topicId, state: "finished" })
-      }
-    })
-    // スタンプ通知時の、SocketIOのコールバックの登録
-    socket.on("PUB_STAMP", (stamps: Stamp[]) => {
-      stamps.forEach((stamp) => {
-        StampStore.add(stamp)
-      })
-    })
 
     // statusに合わせた操作をする
     this.checkStatusAndAction()
@@ -214,9 +144,13 @@ export default Vue.extend({
       }
       this.room = res.data
       this.roomState = res.data.state
+      TopicStore.set(res.data.topics)
 
       // 未開始の時
       if (this.room.state === "not-started") {
+        if (this.isAdmin) {
+          this.adminEnterRoom()
+        }
         return
       }
       // 開催中の時
@@ -233,7 +167,7 @@ export default Vue.extend({
       }
       // NOTE: もしかして：archivedも返ってくる？
     },
-    // socket.ioのセットアップ
+    // socket.ioのセットアップ。配信を受け取る
     socketSetUp() {
       const socket = (this as any).socket
       // SocketIOのコールバックの登録
@@ -242,7 +176,7 @@ export default Vue.extend({
         ChatItemStore.addOrUpdate(chatItem)
       })
       socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
-        if (res.type === "OPEN") {
+        if (res.state === "ongoing") {
           // 現在ongoingなトピックがあればfinishedにする
           const t = Object.fromEntries(
             Object.entries(this.topicStateItems).map(
@@ -253,13 +187,9 @@ export default Vue.extend({
             ),
           )
           TopicStateItemStore.set(t)
-          // クリックしたTopicのStateを変える
-          TopicStateItemStore.change({ key: res.topicId, state: "ongoing" })
-        } else if (res.type === "PAUSE") {
-          TopicStateItemStore.change({ key: res.topicId, state: "paused" })
-        } else if (res.type === "CLOSE") {
-          TopicStateItemStore.change({ key: res.topicId, state: "finished" })
         }
+        // クリックしたTopicのStateを変える
+        TopicStateItemStore.change({ key: res.topicId, state: res.state })
       })
       // スタンプ通知時の、SocketIOのコールバックの登録
       socket.on("PUB_STAMP", (stamps: Stamp[]) => {
@@ -278,23 +208,27 @@ export default Vue.extend({
       }
     },
     changeTopicState(topicId: string, state: TopicState) {
+      // not-startedに変更はできない
       if (state === "not-started") {
         return
       }
       TopicStateItemStore.change({ key: topicId, state })
       const socket = (this as any).socket
-      socket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-        roomId: this.room.id,
-        type:
-          state === "ongoing" ? "OPEN" : state === "paused" ? "PAUSE" : "CLOSE",
-        topicId,
-      })
+      socket.emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
+        {
+          state,
+          topicId,
+        },
+        (res: any) => {
+          console.log(res)
+        },
+      )
     },
     // ユーザ関連
     // modalを消し、入室
     hide(): any {
       this.enterRoom(UserItemStore.userItems.myIconId)
-      this.isRoomEnter = true
     },
     // ルーム入室
     enterRoom(iconId: number) {
@@ -317,6 +251,7 @@ export default Vue.extend({
         },
       )
       this.socketSetUp()
+      this.isRoomEnter = true
     },
     // 管理者ルーム入室
     adminEnterRoom() {
@@ -328,11 +263,17 @@ export default Vue.extend({
         },
         (res: any) => {
           ChatItemStore.add(res.data.chatItems)
-          TopicStateItemStore.set(res.data.topicStates)
+          res.data.topicStates.forEach((topicState: any) => {
+            TopicStateItemStore.change({
+              key: `${topicState.topicId}`,
+              state: topicState.state,
+            })
+          })
           this.activeUserCount = res.data.activeUserCount
         },
       )
       this.socketSetUp()
+      this.isRoomEnter = true
     },
     // ルーム終了
     finishRoom() {
@@ -359,7 +300,10 @@ export default Vue.extend({
           this.adminEnterRoom()
           this.roomState = "ongoing"
         })
-        .catch(() => window.alert("ルームを開始できませんでした"))
+        .catch((e) => {
+          console.error(e)
+          window.alert("ルームを開始できませんでした")
+        })
     },
   },
 })

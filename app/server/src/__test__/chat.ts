@@ -1,3 +1,6 @@
+test("ダミー", () => {
+  expect(true).toBeTruthy()
+})
 // import { createServer } from "http"
 // import { Server } from "socket.io"
 // import { io as Client, Socket as ClientSocket } from "socket.io-client"

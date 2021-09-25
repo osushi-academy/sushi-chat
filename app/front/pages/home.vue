@@ -122,6 +122,7 @@ export default Vue.extend({
   middleware: "privateRoute",
   async asyncData({ app }): Promise<AsyncDataType> {
     const response = await app.$apiClient.get("/room", {})
+    console.log(response)
     if (response.result === "success") {
       const rooms = response.data
       const ongoingRooms = rooms.filter((room) => room.state === "ongoing")

@@ -3,20 +3,19 @@ import Question from "./Question"
 import Answer from "./Answer"
 import ChatItem from "./ChatItem"
 import { ChatItemSenderType } from "sushi-chat-shared"
-import IconId from "../user/IconId"
+import User from "../user/User"
 
 class Reaction extends ChatItem {
   constructor(
     id: string,
-    roomId: string,
     topicId: number,
-    iconId: IconId,
+    user: User,
     senderType: ChatItemSenderType,
     public readonly quote: Message | Question | Answer,
     createdAt: Date,
     timestamp?: number,
   ) {
-    super(id, roomId, topicId, iconId, senderType, createdAt, timestamp)
+    super(id, topicId, user, senderType, createdAt, timestamp)
   }
 }
 

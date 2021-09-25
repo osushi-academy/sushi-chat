@@ -22,6 +22,6 @@ export default class TopicStateItems extends VuexModule {
 
   @Mutation
   public change({ key, state }: { key: string; state: TopicState }) {
-    this._topicStateItems[key] = state
+    this._topicStateItems = { ...this._topicStateItems, [key]: state };
   }
 }

@@ -24,7 +24,7 @@ export type InviteRoomCommand = {
 
 export type checkAdminAndfindCommand = {
   id: string
-  adminId: string
+  adminId?: string
 }
 
 export type ArchiveRoomCommand = {

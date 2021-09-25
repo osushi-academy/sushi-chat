@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS users
   room_id    UUID      NOT NULL REFERENCES rooms (id),
   icon_id    INT       NOT NULL REFERENCES icons (id),
   is_admin   BOOLEAN   NOT NULL,
+  is_system   BOOLEAN   NOT NULL,
   has_left   BOOLEAN   NOT NULL DEFAULT FALSE,
   created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
 );
