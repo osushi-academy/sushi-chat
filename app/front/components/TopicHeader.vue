@@ -27,11 +27,10 @@
         :class="{ selected: isAllCommentShowed === false }"
         @click="clickNotShowAll()"
       >
-        質問と回答
+        質問と回答のみ
       </button>
       <div class="topic-header__details--description">
-        質問と回答：
-        質問と回答のみ表示されます（運営やスピーカーの投稿も表示されます）
+        表示する項目を絞り込むことができます
       </div>
       <div class="topic-header__details--line" />
       <div class="topic-header__details--download" @click="clickDownload">
@@ -39,11 +38,19 @@
         <span class="text">現在までのチャット履歴のダウンロード</span>
       </div>
     </div>
+    <div v-if="bookmarkContent !== ''" class="topic-header__bookmark">
+      <button class="chatitem__bookmark" @click="isBookMarked = !isBookMarked">
+        <span class="material-icons selected">push_pin</span>
+      </button>
+      <div class="topic-header__bookmark--text">{{ bookmarkContent }}</div>
+    </div>
   </div>
 </template>
 <script lang="ts">
 import Vue from "vue"
+import type { PropOptions } from "vue"
 // import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
+import { ChatItemPropType } from "~/models/contents"
 import { UserItemStore } from "~/store"
 
 type DataType = {
@@ -65,6 +72,10 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
+    bookmarkItem: {
+      type: Object,
+      required: true,
+    } as PropOptions<ChatItemPropType>,
   },
   data(): DataType {
     return {
@@ -75,6 +86,15 @@ export default Vue.extend({
   computed: {
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
+    },
+    bookmarkContent(): string {
+      if (
+        typeof this.bookmarkItem !== "undefined" &&
+        this.bookmarkItem.type !== "reaction"
+      ) {
+        return this.bookmarkItem.content
+      }
+      return ""
     },
   },
   methods: {

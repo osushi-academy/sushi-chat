@@ -26,7 +26,7 @@
   width: 100vw;
   @include sushi-select-layout(1);
 
-  & > &__bg{
+  & > &__bg {
     position: fixed;
     top: 0;
     left: 0;
@@ -61,7 +61,6 @@
       @include text-size("lg");
       color: $text-gray;
       margin-bottom: 0.5rem;
-      
     }
     &--help {
       position: relative;
