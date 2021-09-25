@@ -122,8 +122,7 @@ export default Vue.extend({
       // TODO: this.room.idが存在しない→404
     }
     // socket接続
-    const socket = buildSocket(AuthStore.idToken)
-    ;(this as any).socket = socket
+    this.$initSocket(UserItemStore.userItems.isAdmin)
 
     // statusに合わせた操作をする
     this.checkStatusAndAction()
@@ -174,14 +173,13 @@ export default Vue.extend({
     },
     // socket.ioのセットアップ。配信を受け取る
     socketSetUp() {
-      const socket: SocketIOType = (this as any).socket
       // SocketIOのコールバックの登録
-      socket.on("PUB_CHAT_ITEM", (chatItem: ChatItemModel) => {
+      this.$socket().on("PUB_CHAT_ITEM", (chatItem: ChatItemModel) => {
         console.log(chatItem)
         // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
         ChatItemStore.addOrUpdate(chatItem)
       })
-      socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
+      this.$socket().on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
         if (res.state === "ongoing") {
           // 現在ongoingなトピックがあればfinishedにする
           const t = Object.fromEntries(
@@ -219,8 +217,7 @@ export default Vue.extend({
         return
       }
       TopicStateItemStore.change({ key: topicId, state })
-      const socket: SocketIOType = (this as any).socket
-      socket.emit(
+      this.$socket().emit(
         "ADMIN_CHANGE_TOPIC_STATE",
         {
           state,
@@ -238,8 +235,7 @@ export default Vue.extend({
     },
     // ルーム入室
     enterRoom(iconId: number) {
-      const socket: SocketIOType = (this as any).socket
-      socket.emit(
+      this.$socket().emit(
         "ENTER_ROOM",
         {
           iconId,
@@ -261,8 +257,7 @@ export default Vue.extend({
     },
     // 管理者ルーム入室
     adminEnterRoom() {
-      const socket: SocketIOType = (this as any).socket
-      socket.emit(
+      this.$socket().emit(
         "ADMIN_ENTER_ROOM",
         {
           roomId: this.room.id,
@@ -283,8 +278,7 @@ export default Vue.extend({
     },
     // ルーム終了
     finishRoom() {
-      const socket: SocketIOType = (this as any).socket
-      socket.emit("ADMIN_FINISH_ROOM", {}, (res: any) => {
+      this.$socket().emit("ADMIN_FINISH_ROOM", {}, (res: any) => {
         console.log(res)
       })
       this.roomState = "finished"

@@ -81,11 +81,10 @@ export default Vue.extend({
   },
   computed: {
     stamps(): StampModel[] {
-      const socket = buildSocket(AuthStore.idToken)
       return StampStore.stamps.filter(
         // 自分が押したものも通知されるため省く処理
-        (stamp: any) =>
-          stamp.topicId === this.topicId && stamp.id !== socket.id,
+        (stamp) =>
+          stamp.topicId === this.topicId && stamp.id !== this.$socket().id,
       )
     },
   },
