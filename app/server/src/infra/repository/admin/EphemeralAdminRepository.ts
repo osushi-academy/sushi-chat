@@ -2,14 +2,14 @@ import IAdminRepository from "../../../domain/admin/IAdminRepository"
 import Admin from "../../../domain/admin/admin"
 
 class EphemeralAdminRepository implements IAdminRepository {
-  private readonly admins: Admin[] = []
+  public admins: Admin[] = []
 
   private get adminIds() {
     return this.admins.map((a) => a.id)
   }
 
   public createIfNotExist(admin: Admin) {
-    if (admin.id in this.adminIds) return
+    if (this.adminIds.includes(admin.id)) return
 
     this.admins.push(admin)
   }
