@@ -47,6 +47,11 @@
           {{ showTimestamp(message.timestamp) }}
         </div>
         <div class="badges">
+          <button class="chatitem__bookmark" @click="bookmark()">
+            <span class="material-icons" :class="{ selected: isBookMarked }"
+              >push_pin</span
+            >
+          </button>
           <button class="reply-icon" @click="clickReply">
             <span class="material-icons"> reply </span>
           </button>
@@ -98,7 +103,7 @@
     <!--article class="system_message" :id="messageId">
       <UrlToLink :text="message.content" />
     </article-->
-    <span
+    <!-- <button
       v-if="message.type != 'reaction'"
       class="chatitem__bookmark"
       @click="bookmark()"
@@ -106,7 +111,7 @@
       <span class="material-icons" :class="{ selected: isBookMarked }"
         >push_pin</span
       >
-    </span>
+    </button> -->
   </div>
 </template>
 <script lang="ts">
@@ -119,7 +124,7 @@ import { PinnedChatItemsStore } from "~/store"
 
 type DataType = {
   isLikedChatItem: boolean
-  isBookMarked: boolean
+  // isBookMarked: boolean
 }
 
 export default Vue.extend({
@@ -144,12 +149,19 @@ export default Vue.extend({
   data(): DataType {
     return {
       isLikedChatItem: false,
-      isBookMarked: false,
+      // isBookMarked: false,
     }
   },
   computed: {
     icon() {
       return ICONS[this.$props.message.iconId] ?? ICONS[0]
+    },
+    pinnedChatItems() {
+      return PinnedChatItemsStore.pinnedChatItems
+    },
+    isBookMarked(): boolean {
+      console.log(PinnedChatItemsStore.pinnedChatItems)
+      return this.pinnedChatItems.includes(this.message.id)
     },
   },
   methods: {
@@ -182,12 +194,13 @@ export default Vue.extend({
       }
     },
     bookmark() {
-      this.isBookMarked = !this.isBookMarked
-      if (this.isBookMarked === true) {
-        PinnedChatItemsStore.add(this.messageId)
-      } else {
-        PinnedChatItemsStore.delete(this.messageId)
-      }
+      // this.isBookMarked = !this.isBookMarked
+      // if (this.isBookMarked) {
+      //   PinnedChatItemsStore.delete(this.messageId)
+      // } else {
+      //   PinnedChatItemsStore.add(this.messageId)
+      // }
+      this.$emit("click-pin")
     },
   },
 })

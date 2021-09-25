@@ -6,21 +6,21 @@ import { Module, VuexModule, Mutation } from "vuex-module-decorators"
   namespaced: true,
 })
 export default class PinnedChatItems extends VuexModule {
-  private _pinnedChatItems:string[] = []
-  public get pinnedChatItems():string[]{
+  private _pinnedChatItems: string[] = []
+  public get pinnedChatItems(): string[] {
     return this._pinnedChatItems
   }
-  
+
   @Mutation
-  public add(id:string) {
+  public add(id: string) {
     this._pinnedChatItems.push(id)
   }
 
   @Mutation
-  public delete(id:string) {
-    const idx = this._pinnedChatItems.indexOf(id);
-    if(idx>=0){
-        this._pinnedChatItems.splice(idx,1)
+  public delete(id: string) {
+    const idx = this._pinnedChatItems.indexOf(id)
+    if (idx >= 0) {
+      this._pinnedChatItems.splice(idx, 1)
     }
   }
 }

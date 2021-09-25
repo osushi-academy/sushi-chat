@@ -32,6 +32,7 @@
               :message="message"
               @click-thumb-up="clickReaction"
               @click-reply="selectedChatItem = message"
+              @click-pin="pinChatItem(message.id)"
             />
           </div>
         </transition-group>
@@ -146,6 +147,7 @@ export default Vue.extend({
       const chatItems = ChatItemStore.chatItems.filter(
         ({ topicId }) => topicId === this.topicId,
       )
+      console.log(chatItems)
       const pinnedChatItems = PinnedChatItemsStore.pinnedChatItems
       return chatItems.find((chatItem) => pinnedChatItems.includes(chatItem.id))
     },
@@ -262,6 +264,16 @@ export default Vue.extend({
     },
     clickNotShowAll() {
       this.isAllCommentShowed = false
+    },
+    pinChatItem(chatItemId: string) {
+      if (this.pinnedChatItem == null) {
+        PinnedChatItemsStore.add(chatItemId)
+      } else if (this.pinnedChatItem.id === chatItemId) {
+        PinnedChatItemsStore.delete(chatItemId)
+      } else {
+        PinnedChatItemsStore.delete(this.pinnedChatItem.id)
+        PinnedChatItemsStore.add(chatItemId)
+      }
     },
   },
 })

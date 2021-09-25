@@ -27,11 +27,10 @@
         :class="{ selected: isAllCommentShowed === false }"
         @click="clickNotShowAll()"
       >
-        質問と回答
+        質問と回答のみ
       </button>
       <div class="topic-header__details--description">
-        質問と回答：
-        質問と回答のみ表示されます（運営やスピーカーの投稿も表示されます）
+        表示する項目を絞り込むことができます
       </div>
       <div class="topic-header__details--line" />
       <div class="topic-header__details--download" @click="clickDownload">
@@ -39,10 +38,10 @@
         <span class="text">現在までのチャット履歴のダウンロード</span>
       </div>
     </div>
-    <div class="topic-header__bookmark">
-      <span class="chatitem__bookmark" @click="isBookMarked = !isBookMarked">
+    <div v-if="bookmarkContent !== ''" class="topic-header__bookmark">
+      <button class="chatitem__bookmark" @click="isBookMarked = !isBookMarked">
         <span class="material-icons selected">push_pin</span>
-      </span>
+      </button>
       <div class="topic-header__bookmark--text">{{ bookmarkContent }}</div>
     </div>
   </div>
