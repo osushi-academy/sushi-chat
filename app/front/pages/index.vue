@@ -49,6 +49,7 @@ import {
   RoomState,
   StampModel,
   ChatItemModel,
+  PubUserCountParam,
 } from "sushi-chat-shared"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
@@ -199,6 +200,10 @@ export default Vue.extend({
         stamps.forEach((stamp) => {
           StampStore.add(stamp)
         })
+      })
+      // アクティブユーザー数のSocketIOのコールバックの登録
+      this.$socket().on("PUB_USER_COUNT", (res: PubUserCountParam) => {
+        this.activeUserCount = res.activeUserCount
       })
     },
     // 管理画面の開閉
