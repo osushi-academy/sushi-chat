@@ -66,7 +66,6 @@
         </div>
       </div>
     </article>
-
     <!--Reaction Message-->
     <article
       v-else-if="message.type == 'reaction'"
@@ -99,6 +98,15 @@
     <!--article class="system_message" :id="messageId">
       <UrlToLink :text="message.content" />
     </article-->
+    <span
+      v-if="message.type != 'reaction'"
+      class="chatitem__bookmark"
+      @click="isBookMarked = !isBookMarked"
+    >
+      <span class="material-icons" :class="{ selected: isBookMarked }"
+        >push_pin</span
+      >
+    </span>
   </div>
 </template>
 <script lang="ts">
@@ -110,6 +118,7 @@ import { ChatItemPropType } from "~/models/contents"
 
 type DataType = {
   isLikedChatItem: boolean
+  isBookMarked: boolean
 }
 
 export default Vue.extend({
@@ -134,6 +143,7 @@ export default Vue.extend({
   data(): DataType {
     return {
       isLikedChatItem: false,
+      isBookMarked: false,
     }
   },
   computed: {

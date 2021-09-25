@@ -134,6 +134,47 @@
       @include material-icons-in-text;
     }
   }
+
+  &__bookmark{
+    display: flex;
+    position: relative;
+    z-index: -1;
+    background-color: white;
+    padding: 10px 5px;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
+    &--text{
+      flex: 1;
+    }
+    &>.chatitem__bookmark{
+      margin-right: 10px;
+    }
+  }
+}
+
+.chatitem__bookmark{
+  align-self: flex-end;
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+  margin: 0 0 0.35em 0.4rem;
+  //background-color: red;
+  &>.material-icons{
+    font-size: 1.1rem;
+    padding: 0.3rem;
+    width: 1.7rem;
+    height: 1.7rem;
+    color: $text-gray;
+    border-radius: 100%;
+    transform: rotate(20deg);
+    &:hover,&:focus {
+      color: $text-gray;
+      background-color: $placeholder-gray;
+    }
+    &.selected{
+      color: white;
+      background-color: #FF542F;
+    }
+  }
 }
 
 .zap {
@@ -493,6 +534,7 @@
 .chatitem-wrapper {
   padding: 0.5em 0;
   scroll-snap-align: end;
+  display: flex;
   .sender-badge {
     display: inline-block;
     vertical-align: top;
@@ -525,6 +567,7 @@
   .reaction {
     position: relative;
     min-height: 5rem;
+    flex-grow: 1;
     flex-shrink: 0;
     padding: 0.75em 0.8em 0.35em;
     border: 1px solid $placeholder-gray;

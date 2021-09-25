@@ -39,6 +39,14 @@
         <span class="text">現在までのチャット履歴のダウンロード</span>
       </div>
     </div>
+    <div class="topic-header__bookmark">
+      <span class="chatitem__bookmark" @click="isBookMarked = !isBookMarked">
+        <span class="material-icons selected">push_pin</span>
+      </span>
+      <div class="topic-header__bookmark--text">
+        アイデア出しのフレームワークは案出しにおいてとても便利なので皆さん利用してみましょう
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
