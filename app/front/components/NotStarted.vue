@@ -1,7 +1,8 @@
 <template>
   <div class="sushi-select not-started">
+    <div class="sushi-select__bg" />
     <div class="not-started__title">suhi-chatへようこそ</div>
-    <div class="not-started__textbox">
+    <div v-if="title != '' || description != ''" class="not-started__textbox">
       <div class="not-started__textbox--title">{{ title }}</div>
       <div>
         {{ description }}
