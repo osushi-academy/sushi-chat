@@ -4,6 +4,8 @@
       :title="topic.title"
       :topic-index="topicIndex"
       @download="clickDownload"
+      @click-show-all="clickShowAll"
+      @click-not-show-all="clickNotShowAll"
     />
     <div class="chat-area">
       <div class="text-zone">
@@ -19,6 +21,11 @@
             class="list-complete-item"
           >
             <MessageComponent
+              v-if="
+                isAllCommentShowed ||
+                message.type == 'question' ||
+                message.type == 'answer'
+              "
               :message-id="message.id"
               :topic-id="topicId"
               :message="message"
@@ -89,6 +96,7 @@ type DataType = {
   isNotify: boolean
   selectedChatItem: ChatItemModel | null
   showGraph: boolean
+  isAllCommentShowed: boolean
 }
 
 export default Vue.extend({
@@ -121,6 +129,7 @@ export default Vue.extend({
       isNotify: false,
       selectedChatItem: null,
       showGraph: false,
+      isAllCommentShowed: true,
     }
   },
   computed: {
@@ -239,6 +248,12 @@ export default Vue.extend({
     // 選択したアイテム取り消し
     deselectChatItem() {
       this.selectedChatItem = null
+    },
+    clickShowAll() {
+      this.isAllCommentShowed = true
+    },
+    clickNotShowAll() {
+      this.isAllCommentShowed = false
     },
   },
 })
