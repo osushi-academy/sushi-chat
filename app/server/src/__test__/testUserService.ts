@@ -11,6 +11,8 @@ import IRoomRepository from "../domain/room/IRoomRepository"
 import IUserDelivery from "../domain/user/IUserDelivery"
 import IAdminAuth from "../domain/admin/IAdminAuth"
 import IconId, { NewIconId } from "../domain/user/IconId"
+import EphemeralAdminRepository from "../infra/repository/admin/EphemeralAdminRepository"
+import Admin from "../domain/admin/admin"
 
 describe("UserServiceのテスト", () => {
   let adminId: string
@@ -29,8 +31,9 @@ describe("UserServiceのテスト", () => {
     adminId = uuid()
     const adminName = "Admin"
 
+    const adminRepository = new EphemeralAdminRepository()
     userRepository = new EphemeralUserRepository()
-    roomRepository = new EphemeralRoomRepository()
+    roomRepository = new EphemeralRoomRepository(adminRepository)
     userDelivery = new EphemeralUserDelivery([])
     adminAuth = new MockAdminAuth({ id: adminId, name: adminName })
     userService = new UserService(
@@ -39,6 +42,8 @@ describe("UserServiceのテスト", () => {
       userDelivery,
       adminAuth,
     )
+
+    adminRepository.createIfNotExist(new Admin(adminId, adminName, []))
 
     roomId = uuid()
     userId = uuid()
