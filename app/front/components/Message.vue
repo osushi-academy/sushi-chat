@@ -188,6 +188,8 @@ export default Vue.extend({
       this.isBookMarked = !this.isBookMarked
       if (this.isBookMarked === true) {
         PinnedChatItemsStore.add(this.messageId)
+      } else {
+        PinnedChatItemsStore.delete(this.messageId)
       }
     },
   },

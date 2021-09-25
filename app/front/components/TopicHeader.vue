@@ -43,15 +43,15 @@
       <span class="chatitem__bookmark" @click="isBookMarked = !isBookMarked">
         <span class="material-icons selected">push_pin</span>
       </span>
-      <div class="topic-header__bookmark--text">
-        アイデア出しのフレームワークは案出しにおいてとても便利なので皆さん利用してみましょう
-      </div>
+      <div class="topic-header__bookmark--text">{{ bookmarkContent }}</div>
     </div>
   </div>
 </template>
 <script lang="ts">
 import Vue from "vue"
+import type { PropOptions } from "vue"
 // import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
+import { ChatItemPropType } from "~/models/contents"
 import { UserItemStore } from "~/store"
 
 type DataType = {
@@ -73,6 +73,10 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
+    bookmarkItem: {
+      type: Object,
+      required: true,
+    } as PropOptions<ChatItemPropType>,
   },
   data(): DataType {
     return {
@@ -83,6 +87,15 @@ export default Vue.extend({
   computed: {
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
+    },
+    bookmarkContent(): string {
+      if (
+        typeof this.bookmarkItem !== "undefined" &&
+        this.bookmarkItem.type !== "reaction"
+      ) {
+        return this.bookmarkItem.content
+      }
+      return ""
     },
   },
   methods: {

@@ -20,7 +20,7 @@ export default class PinnedChatItems extends VuexModule {
   public delete(id:string) {
     const idx = this._pinnedChatItems.indexOf(id);
     if(idx>=0){
-        this._pinnedChatItems = this._pinnedChatItems.slice(idx,1)
+        this._pinnedChatItems.splice(idx,1)
     }
   }
 }

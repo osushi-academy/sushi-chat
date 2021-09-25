@@ -3,6 +3,7 @@
     <TopicHeader
       :title="topic.title"
       :topic-index="topicIndex"
+      :bookmark-item="pinnedChatItem"
       @download="clickDownload"
     />
     <div class="chat-area">
