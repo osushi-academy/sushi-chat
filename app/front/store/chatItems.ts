@@ -92,13 +92,6 @@ export default class ChatItems extends VuexModule {
 
   @Action({ rawError: true })
   public postReaction({ message }: { message: ChatItemModel }) {
-    const selection = window.getSelection()
-    // 選択中の文字が存在する場合リアクションしない
-    if (
-      selection != null &&
-      selection.getRangeAt(0).endOffset > selection.getRangeAt(0).startOffset
-    )
-      return
     const params: PostChatItemRequest = {
       id: getUUID(),
       type: "reaction",

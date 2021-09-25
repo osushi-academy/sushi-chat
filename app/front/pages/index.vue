@@ -52,7 +52,6 @@ import {
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
-import buildSocket, { SocketIOType } from "~/utils/socketIO"
 import {
   ChatItemStore,
   DeviceStore,
@@ -294,7 +293,7 @@ export default Vue.extend({
     },
     // アイコン選択
     clickIcon(index: number) {
-      UserItemStore.changeMyIcon(index - 1)
+      UserItemStore.changeMyIcon(index)
     },
     // RESTでroomの開始
     startRoom() {

@@ -75,8 +75,8 @@
     >
       <div class="icon-wrapper">
         <picture>
-          <source :srcset="targetIcon.webp" type="image/webp" />
-          <img :src="targetIcon.png" alt="" />
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
         </picture>
         <div
           class="material-icons raction-badge"
@@ -139,9 +139,6 @@ export default Vue.extend({
   computed: {
     icon() {
       return ICONS[this.$props.message.iconId] ?? ICONS[0]
-    },
-    targetIcon() {
-      return ICONS[this.$props.message.target.iconId]
     },
   },
   methods: {
