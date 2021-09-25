@@ -1,5 +1,6 @@
 <template>
   <div class="sushi-select">
+    <div class="sushi-select__bg" />
     <section class="sushi-select__header">
       <h1 class="sushi-select__header--title">{{ title }}</h1>
       <p class="sushi-select__header--content">
