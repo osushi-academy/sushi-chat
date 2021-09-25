@@ -44,6 +44,7 @@
       align-items: center;
     }
     &__text{
+      text-align: center;
       &--catchcopy{
         font-size: 1.5rem;
         background-color: white;
@@ -55,7 +56,7 @@
       margin-top: 15px;
       @media screen and (min-width: $small+px) {
         width: 50%;
-        margin-top: 0;
+        text-align: left;
         &--catchcopy{
             font-size: 2rem;
         }
