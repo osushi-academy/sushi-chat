@@ -1,4 +1,6 @@
-// import getUUID from "sushi-chat-front/utils/getUUID"
+test("ダミー", () => {
+  expect(true).toBeTruthy()
+}) // import getUUID from "sushi-chat-front/utils/getUUID"
 // import ChatItem from "../domain/chatItem/ChatItem"
 // import ChatItemService from "../service/chatItem/ChatItemService"
 // import UserService from "../service/user/UserService"

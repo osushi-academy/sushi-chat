@@ -2,6 +2,7 @@ import IRoomDelivery from "../../../domain/room/IRoomDelivery"
 import Topic from "../../../domain/room/Topic"
 
 export type DeliveryType = "START" | "CLOSE" | "FINISH" | "CHANGE_TOPIC_STATE"
+export type ChangeTopicStateContent = { roomId: string; topic: Topic }
 
 class EphemeralRoomDelivery implements IRoomDelivery {
   constructor(
@@ -16,12 +17,12 @@ class EphemeralRoomDelivery implements IRoomDelivery {
   }
 
   public changeTopicState(roomId: string, topic: Topic) {
-    this._subscribers.forEach((s) =>
-      s.push({
+    const delivered: { type: DeliveryType; content: ChangeTopicStateContent } =
+      {
         type: "CHANGE_TOPIC_STATE",
         content: { roomId, topic },
-      }),
-    )
+      }
+    this._subscribers.forEach((s) => s.push(delivered))
   }
 }
 

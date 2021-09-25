@@ -1,4 +1,6 @@
-// import IStampRepository from "../domain/stamp/IStampRepository"
+test("ダミー", () => {
+  expect(true).toBeTruthy()
+}) // import IStampRepository from "../domain/stamp/IStampRepository"
 // import StampService from "../service/stamp/StampService"
 // import EphemeralStampRepository from "../infra/repository/stamp/EphemeralStampRepository"
 // import EphemeralRoomRepository from "../infra/repository/room/EphemeralRoomRepository"
