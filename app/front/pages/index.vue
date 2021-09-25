@@ -171,10 +171,10 @@ export default Vue.extend({
     socketSetUp() {
       const socket = (this as any).socket
       // SocketIOのコールバックの登録
-      socket.on("PUB_CHAT_ITEM", (chatItem: ChatItem) => {
-        // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
-        ChatItemStore.addOrUpdate(chatItem)
-      })
+      // socket.on("PUB_CHAT_ITEM", (chatItem: ChatItem) => {
+      //   // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
+      //   ChatItemStore.addOrUpdate(chatItem)
+      // })
       socket.on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
         if (res.state === "ongoing") {
           // 現在ongoingなトピックがあればfinishedにする
