@@ -149,13 +149,6 @@ export default Vue.extend({
       this.roomState = res.data.state
       TopicStore.set(res.data.topics)
 
-      // 未開始の時
-      if (this.room.state === "not-started") {
-        if (this.isAdmin) {
-          this.adminEnterRoom()
-        }
-        return
-      }
       // 開催中の時
       if (this.room.state === "ongoing") {
         if (this.isAdmin) {
