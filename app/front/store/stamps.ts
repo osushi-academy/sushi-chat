@@ -24,12 +24,13 @@ export default class Stamps extends VuexModule {
   @Action({ rawError: true })
   public sendFavorite(topicId: number) {
     const socket = buildSocket(AuthStore.idToken)
-    this.add({
-      id: getUUID(),
-      topicId,
-      timestamp: 1000, // TODO: 正しいタイムスタンプを設定する
-      createdAt: new Date().toISOString(),
-    })
+    // StampStoreは配信で追加する
+    // this.add({
+    //   id: getUUID(),
+    //   topicId,
+    //   timestamp: 1000, // TODO: 正しいタイムスタンプを設定する
+    //   createdAt: new Date().toISOString(),
+    // })
     socket.emit("POST_STAMP", { topicId }, (res: any) => {
       console.log(res)
     })
