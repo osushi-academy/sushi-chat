@@ -276,6 +276,7 @@ const handleError = (
 const logError = (context: string, error: unknown) => {
   const date = new Date().toISOString()
   console.error(`[${date}]${context}:${error ?? "Unknown error."}`)
+  console.error(error)
 }
 
 export default createSocketIOServer
