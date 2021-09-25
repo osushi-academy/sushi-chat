@@ -4,8 +4,6 @@
       <div class="drawer-menu__header">
         <div class="room-info">
           <div class="room-title">
-            {{ topics }}
-            {{ topicStateItems }}
             <p>管理者ツール - {{ title }}</p>
           </div>
           <div class="room-url">
