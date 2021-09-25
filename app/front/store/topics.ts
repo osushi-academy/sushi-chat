@@ -1,5 +1,5 @@
 import { Module, VuexModule, Mutation } from "vuex-module-decorators"
-import { Topic } from "~/models/contents"
+import { Topic } from "sushi-chat-shared"
 
 @Module({
   name: "topics",

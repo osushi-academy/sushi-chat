@@ -30,11 +30,7 @@ export default Vue.extend({
   methods: {
     async callSampleApi() {
       try {
-        const res = await this.$axios.$get("http://localhost:7000/auth-test", {
-          headers: {
-            Authorization: AuthStore.idToken,
-          },
-        })
+        const res = await this.$axios.$get("http://localhost:7000/auth-test")
         console.log(res)
       } catch (e) {
         console.log(e)

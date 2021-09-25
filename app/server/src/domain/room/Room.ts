@@ -6,8 +6,9 @@ import Topic, { TopicTimeData } from "./Topic"
 import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
 import { RoomState, TopicState } from "sushi-chat-shared"
-import User from "../user/User"
 import { PartiallyPartial } from "../../types/utils"
+import SystemUser from "../user/SystemUser"
+import UserFactory from "../../infra/factory/UserFactory"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -19,15 +20,18 @@ class RoomClass {
     public readonly adminInviteKey: string,
     public readonly description: string,
     topics: PartiallyPartial<Topic, "id" | "state" | "pinnedChatItemId">[],
-    public readonly adminIds = new Set<string>([]),
+    public readonly adminIds: Set<string>,
     private _state: RoomState = "not-started",
-    public _startAt: Date | null = null,
+    private _startAt: Date | null = null,
     topicTimeData: Record<number, TopicTimeData> = {},
-    public _finishAt: Date | null = null,
-    public _archivedAt: Date | null = null,
+    private _finishAt: Date | null = null,
+    private _archivedAt: Date | null = null,
     private userIds = new Set<string>([]),
     private _chatItems: ChatItem[] = [],
     private _stamps: Stamp[] = [],
+    public readonly systemUser: SystemUser = new UserFactory().createSystemUser(
+      id,
+    ),
   ) {
     this._topics = topics.map((topic, i) => ({
       ...topic,
@@ -338,9 +342,8 @@ class RoomClass {
   private postBotMessage = (topicId: number, content: string): Message => {
     const botMessage = new Message(
       uuid(),
-      this.id,
       topicId,
-      User.ADMIN_ICON_ID,
+      this.systemUser,
       "admin",
       content,
       null,

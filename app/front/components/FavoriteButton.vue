@@ -43,8 +43,8 @@ import Vue from "vue"
 import { Stamp } from "@/models/contents"
 import { randomWaitedLoop } from "@/utils/waitedLoop"
 import { HSLColor, getRandomColor } from "@/utils/color"
-import socket from "~/utils/socketIO"
-import { StampStore } from "~/store"
+import buildSocket from "~/utils/socketIO"
+import { StampStore, AuthStore } from "~/store"
 
 export type DataType = {
   count: {
@@ -81,6 +81,7 @@ export default Vue.extend({
   },
   computed: {
     stamps(): Stamp[] {
+      const socket = buildSocket(AuthStore.idToken)
       return StampStore.stamps.filter(
         // 自分が押したものも通知されるため省く処理
         (stamp: any) =>

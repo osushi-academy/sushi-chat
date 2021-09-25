@@ -51,6 +51,8 @@ class RoomRepository implements IRoomRepository {
     }
     const insertRoomAdminQuery =
       "INSERT INTO rooms_admins (admin_id, room_id) VALUES ($1, $2)"
+    const insertSystemUserQuery =
+      "INSERT INTO users (id, room_id, icon_id, is_admin, is_system, has_left) VALUES ($1, $2, $3, $4, $5, $6)"
 
     try {
       // 依存先になるので先に作成
@@ -64,6 +66,14 @@ class RoomRepository implements IRoomRepository {
       await Promise.all([
         pgClient.query(insertTopicsQuery, insertedTopics.flat()),
         pgClient.query(insertRoomAdminQuery, [creatorAdminId, room.id]),
+        pgClient.query(insertSystemUserQuery, [
+          room.systemUser.id,
+          room.id,
+          room.systemUser.iconId,
+          room.systemUser.isAdmin,
+          room.systemUser.isSystem,
+          false,
+        ]),
       ])
     } catch (e) {
       RoomRepository.logError(e, "build()")
@@ -165,6 +175,16 @@ class RoomRepository implements IRoomRepository {
       ])
     }
 
+    // 例: '($2 $1), ($3, $1), ($4, $1), ...'
+    const roomAdminValues = ArrayRange(room.adminIds.size)
+      .map((i) => `($${i + 2}, $1)`)
+      .join(", ")
+
+    const roomAdminsQuery = `INSERT INTO rooms_admins (admin_id, room_id) VALUES ${roomAdminValues} ON CONFLICT (admin_id, room_id) DO NOTHING`
+    const updateRoomAdmins = async () => {
+      await pgClient.query(roomAdminsQuery, [room.id, ...room.adminIds])
+    }
+
     const topicQuery =
       "UPDATE topics SET topic_state_id = $1, offset_mil_sec = $2, updated_at = $3 WHERE room_id = $4 AND id = $5"
     const updateTopic = async () => {
@@ -205,7 +225,12 @@ class RoomRepository implements IRoomRepository {
     try {
       // NOTE: 毎回全てのトピックのstateとtimeDataを更新しており、かつ複数クエリを発行しているので、
       //       パフォーマンスの問題が出てきたらここを疑う
-      await Promise.all([updateRoom(), updateTopic(), updateTopicTimeData()])
+      await Promise.all([
+        updateRoom(),
+        updateRoomAdmins(),
+        updateTopic(),
+        updateTopicTimeData(),
+      ])
     } catch (e) {
       RoomRepository.logError(e, "update()")
       throw e

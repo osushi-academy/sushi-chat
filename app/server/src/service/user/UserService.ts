@@ -54,6 +54,7 @@ class UserService {
     const activeUserCount = room.joinAdminUser(userId, adminId)
 
     // roomにjoinできたらuserも作成
+
     await this.createUser(
       activeUserCount,
       userId,
@@ -123,7 +124,7 @@ class UserService {
     const activeUserCount = room.leaveUser(user.id)
 
     this.userDelivery.leaveRoom(user, activeUserCount)
-    this.userRepository.leaveRoom(user)
+    await this.userRepository.leaveRoom(user)
   }
 
   private async createUser(
@@ -134,7 +135,7 @@ class UserService {
     isAdmin: boolean,
     speakAt?: number,
   ) {
-    const newUser = new User(userId, isAdmin, roomId, iconId, speakAt)
+    const newUser = new User(userId, isAdmin, false, roomId, iconId, speakAt)
 
     this.userDelivery.enterRoom(newUser, activeUserCount)
     await this.userRepository.create(newUser)

@@ -75,7 +75,7 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
-import { TopicPropType, ChatItemPropType } from "@/models/contents"
+import { ChatItemPropType } from "@/models/contents"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 import { UserItemStore } from "~/store"
 

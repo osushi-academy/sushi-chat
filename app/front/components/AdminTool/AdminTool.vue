@@ -4,6 +4,8 @@
       <div class="drawer-menu__header">
         <div class="room-info">
           <div class="room-title">
+            <!-- {{ topics }}
+            {{ topicStateItems }} -->
             <p>管理者ツール - {{ title }}</p>
           </div>
           <div class="room-url">
@@ -17,41 +19,46 @@
             </button>
           </div>
         </div>
-        <button v-if="!isRoomStarted" class="start-button" @click="startRoom">
+        <button v-if="isNotRoomStarted" class="start-button" @click="startRoom">
           <div class="material-icons-outlined">play_circle</div>
           <span>ルームを開始する</span>
         </button>
       </div>
+      {{ isRoomOngoing }}
 
       <div class="drawer-menu__topic-list">
         <div
           v-for="(topic, index) in topics"
           :key="topic.id"
           class="topic"
-          :class="topicStateItems[topic.id]"
+          :class="
+            topicStateItems[topic.id]
+              ? topicStateItems[topic.id]
+              : 'not-started'
+          "
         >
           <div class="topic-number">{{ index }}</div>
           <div class="topic-name">
-            {{ topic.title
-            }}<span v-if="topicStateItems[topic.id] === 'active'" class="label"
-              >進行中</span
-            >
-            <span v-if="topicStateItems[topic.id] === 'paused'" class="label"
-              >一時停止</span
-            >
+            {{ topic.title }}
+            <span v-if="topicStateItems[topic.id] === 'ongoing'" class="label">
+              進行中
+            </span>
+            <span v-if="topicStateItems[topic.id] === 'paused'" class="label">
+              一時停止
+            </span>
           </div>
-          <div v-if="isRoomStarted" class="buttons">
+          <div v-if="isRoomOngoing" class="buttons">
             <button
-              v-if="topicStateItems[topic.id] != 'finished'"
+              v-if="topicStateItems[topic.id] !== 'finished'"
               @click="clickPlayPauseButton(topic.id)"
             >
-              <span class="material-icons-outlined">{{
-                playOrPause(topicStateItems[topic.id])
-              }}</span>
+              <span class="material-icons-outlined">
+                {{ playOrPause(topicStateItems[topic.id]) }}
+              </span>
             </button>
             <button
               v-if="
-                topicStateItems[topic.id] === 'active' ||
+                topicStateItems[topic.id] === 'ongoing' ||
                 topicStateItems[topic.id] === 'paused'
               "
               @click="clickFinishButton(topic.id)"
@@ -64,10 +71,7 @@
             >
               <span class="material-icons">restart_alt</span>
             </button>
-            <div v-if="!isRoomStarted">
-              <div class="topic-info">
-                334<span class="text-mini">users</span>
-              </div>
+            <div v-if="isRoomOngoing || isRoomFinished" class="topic-infos">
               <div class="topic-info">
                 334<span class="text-mini">comments</span>
               </div>
@@ -79,7 +83,7 @@
         </div>
       </div>
       <div class="drawer-menu__footer">
-        <button v-if="isRoomStarted" class="end-button" @click="finishRoom">
+        <button v-if="isRoomOngoing" class="end-button" @click="finishRoom">
           <span>ルームを終了する</span>
           <div class="material-icons-outlined danger">info</div>
         </button>
@@ -90,15 +94,9 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { Topic } from "sushi-chat-shared"
 import ICONS from "@/utils/icons"
-import { Topic } from "@/models/contents"
-import socket from "~/utils/socketIO"
 import { UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
-
-// Data型
-type DataType = {
-  isRoomStarted: boolean
-}
 
 export default Vue.extend({
   name: "AdminTool",
@@ -109,15 +107,23 @@ export default Vue.extend({
     },
     title: {
       type: String,
+      default: "",
+    },
+    roomState: {
+      type: String,
       required: true,
     },
   },
-  data(): DataType {
-    return {
-      isRoomStarted: false,
-    }
-  },
   computed: {
+    isNotRoomStarted(): boolean {
+      return this.roomState === "not-started"
+    },
+    isRoomOngoing(): boolean {
+      return this.roomState === "ongoing"
+    },
+    isRoomFinished(): boolean {
+      return this.roomState === "finished"
+    },
     topics(): Topic[] {
       return TopicStore.topics
     },
@@ -137,7 +143,7 @@ export default Vue.extend({
     },
     playOrPause() {
       return function (topicState: string) {
-        if (topicState === "active") {
+        if (topicState === "ongoing") {
           return "pause_circle"
         } else if (topicState === "paused" || topicState === "not-started") {
           return "play_circle"
@@ -150,40 +156,36 @@ export default Vue.extend({
   methods: {
     // ルーム開始
     startRoom() {
-      // TODO: ルームの状態をindex、またはvuexでもつ
-      socket.emit("ADMIN_START_ROOM", { roomId: this.roomId })
-      this.isRoomStarted = true
+      this.$emit("start-room")
     },
     // ルーム終了
     finishRoom() {
       if (confirm("本当にこのルームを終了しますか？この操作は取り消せません")) {
         this.$emit("finish-room")
-        // TODO: ルームの状態をindex、またはvuexでもつ
-        this.isRoomStarted = false
       }
     },
     writeToClipboard(s: string) {
       navigator.clipboard.writeText(s)
     },
-    clickPlayPauseButton(topicId: string) {
-      if (this.topicStateItems[topicId] === "active") {
-        // activeならばpausedに
+    clickPlayPauseButton(topicId: number) {
+      if (this.topicStateItems[topicId] === "ongoing") {
+        // ongoingならばpausedに
         this.$emit("change-topic-state", topicId, "paused")
       } else if (
         this.topicStateItems[topicId] === "paused" ||
         this.topicStateItems[topicId] === "not-started"
       ) {
-        // paused, not-startedならばactiveに
-        this.$emit("change-topic-state", topicId, "active")
+        // paused, not-startedならばongoingに
+        this.$emit("change-topic-state", topicId, "ongoing")
       }
     },
-    clickFinishButton(topicId: string) {
-      TopicStateItemStore.change({ key: topicId, state: "finished" })
-      this.$emit("change-topic-state", topicId, "closed")
+    clickFinishButton(topicId: number) {
+      TopicStateItemStore.change({ key: `${topicId}`, state: "finished" })
+      this.$emit("change-topic-state", topicId, "finished")
     },
-    clickRestartButton(topicId: string) {
-      TopicStateItemStore.change({ key: topicId, state: "finished" })
-      this.$emit("change-topic-state", topicId, "active")
+    clickRestartButton(topicId: number) {
+      TopicStateItemStore.change({ key: `${topicId}`, state: "finished" })
+      this.$emit("change-topic-state", topicId, "ongoing")
     },
   },
 })

@@ -15,7 +15,6 @@ import IUserRepository from "../../domain/user/IUserRepository"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import { ChatItemSenderType } from "sushi-chat-shared"
 import UserService from "../user/UserService"
-import IconId from "../../domain/user/IconId"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import User from "../../domain/user/User"
 
@@ -45,12 +44,9 @@ class ChatItemService {
     content,
     userId,
   }: PostMessageCommand) {
-    const { roomId, iconId, senderType } = await this.fetchUserData(
-      userId,
-      topicId,
-    )
+    const { user, senderType } = await this.fetchUserData(userId, topicId)
     const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
+      user.roomId,
       this.roomRepository,
     )
     const quote = quoteId
@@ -59,9 +55,8 @@ class ChatItemService {
 
     const message = new Message(
       chatItemId,
-      roomId,
       topicId,
-      iconId,
+      user,
       senderType,
       content,
       quote,
@@ -73,7 +68,7 @@ class ChatItemService {
     console.log(`message: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postMessage(message)
-    this.chatItemRepository.saveMessage(message)
+    await this.chatItemRepository.saveMessage(message)
   }
 
   public async postReaction({
@@ -82,12 +77,9 @@ class ChatItemService {
     userId,
     quoteId,
   }: PostReactionCommand) {
-    const { roomId, iconId, senderType } = await this.fetchUserData(
-      userId,
-      topicId,
-    )
+    const { user, senderType } = await this.fetchUserData(userId, topicId)
     const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
+      user.roomId,
       this.roomRepository,
     )
     const quote = (await this.chatItemRepository.find(quoteId)) as
@@ -97,9 +89,8 @@ class ChatItemService {
 
     const reaction = new Reaction(
       chatItemId,
-      roomId,
       topicId,
-      iconId,
+      user,
       senderType,
       quote,
       new Date(),
@@ -110,7 +101,7 @@ class ChatItemService {
     console.log(`reaction to ${quoteId}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postReaction(reaction)
-    this.chatItemRepository.saveReaction(reaction)
+    await this.chatItemRepository.saveReaction(reaction)
   }
 
   public async postQuestion({
@@ -119,20 +110,16 @@ class ChatItemService {
     userId,
     content,
   }: PostQuestionCommand) {
-    const { roomId, iconId, senderType } = await this.fetchUserData(
-      userId,
-      topicId,
-    )
+    const { user, senderType } = await this.fetchUserData(userId, topicId)
     const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
+      user.roomId,
       this.roomRepository,
     )
 
     const question = new Question(
       chatItemId,
-      roomId,
       topicId,
-      iconId,
+      user,
       senderType,
       content,
       new Date(),
@@ -143,7 +130,7 @@ class ChatItemService {
     console.log(`question: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postQuestion(question)
-    this.chatItemRepository.saveQuestion(question)
+    await this.chatItemRepository.saveQuestion(question)
   }
 
   public async postAnswer({
@@ -153,21 +140,17 @@ class ChatItemService {
     topicId,
     content,
   }: PostAnswerCommand) {
-    const { roomId, iconId, senderType } = await this.fetchUserData(
-      userId,
-      topicId,
-    )
+    const { user, senderType } = await this.fetchUserData(userId, topicId)
     const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
+      user.roomId,
       this.roomRepository,
     )
     const quote = (await this.chatItemRepository.find(quoteId)) as Question
 
     const answer = new Answer(
       chatItemId,
-      roomId,
       topicId,
-      iconId,
+      user,
       senderType,
       content,
       quote,
@@ -179,7 +162,7 @@ class ChatItemService {
     console.log(`answer: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postAnswer(answer)
-    this.chatItemRepository.saveAnswer(answer)
+    await this.chatItemRepository.saveAnswer(answer)
   }
 
   public async pinChatItem({ chatItemId }: PinChatItemCommand) {
@@ -189,29 +172,28 @@ class ChatItemService {
     )
 
     this.chatItemDelivery.pinChatItem(pinnedChatItem)
-    this.chatItemRepository.pinChatItem(pinnedChatItem)
+    await this.chatItemRepository.pinChatItem(pinnedChatItem)
   }
 
   private fetchUserData = async (
     userId: string,
     topicId: number,
   ): Promise<{
-    roomId: string
+    user: User
     senderType: ChatItemSenderType
-    iconId: IconId
   }> => {
     const user = await UserService.findUserOrThrow(userId, this.userRepository)
     const isAdmin = user.isAdmin
 
-    const roomId = user.roomId
+    // const roomId = user.roomId
     const senderType = isAdmin
       ? "admin"
       : user.speakAt === topicId
       ? "speaker"
       : "general"
-    const iconId = isAdmin ? User.ADMIN_ICON_ID : user.iconId
+    // const iconId = isAdmin ? User.ADMIN_ICON_ID : user.iconId
 
-    return { roomId, senderType, iconId }
+    return { user, senderType }
   }
 }
 
