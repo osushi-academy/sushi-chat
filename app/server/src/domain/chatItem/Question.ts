@@ -11,8 +11,9 @@ class Question extends ChatItem {
     public readonly content: string,
     createdAt: Date,
     timestamp?: number,
+    isPinned = false,
   ) {
-    super(id, topicId, user, senderType, createdAt, timestamp)
+    super(id, topicId, user, senderType, createdAt, timestamp, isPinned)
   }
 }
 

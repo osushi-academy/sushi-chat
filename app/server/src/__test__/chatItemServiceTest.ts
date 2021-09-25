@@ -1,595 +1,287 @@
-test("ダミー", () => {
-  expect(true).toBeTruthy()
-}) // import getUUID from "sushi-chat-front/utils/getUUID"
-// import ChatItem from "../domain/chatItem/ChatItem"
-// import ChatItemService from "../service/chatItem/ChatItemService"
-// import UserService from "../service/user/UserService"
-// import RoomService from "../service/room/RoomService"
-// import IChatItemRepository from "../domain/chatItem/IChatItemRepository"
-// import EphemeralRoomRepository from "../infra/repository/room/EphemeralRoomRepository"
-// import EphemeralChatItemRepository from "../infra/repository/chatItem/EphemeralChatItemRepository"
-// import EphemeralUserRepository from "../infra/repository/User/EphemeralUserRepository"
-// import EphemeralChatItemDelivery from "../infra/delivery/chatItem/EphemeralChatItemDelivery"
-// import EphemeralRoomDelivery from "../infra/delivery/room/EphemeralRoomDelivery"
-// import EphemeralUserDelivery from "../infra/delivery/user/EphemeralUserDelivery"
-// import EphemeralStampDelivery from "../infra/delivery/stamp/EphemeralStampDelivery"
-// import Message from "../domain/chatItem/Message"
-// import Reaction from "../domain/chatItem/Reaction"
-// import Question from "../domain/chatItem/Question"
-// import Answer from "../domain/chatItem/Answer"
-//
-// describe("ChatItemServiceのテスト", () => {
-//   let adminId: string
-//   let userId: string
-//   let targetChatItemUserId: string
-//   let userIconId: string
-//   let targetChatItemUserIconId: string
-//
-//   let roomId: string
-//   let topicIdToBePosted: string
-//
-//   let targetId: string
-//   let targetContent: string
-//   let chatItemId: string
-//   let content: string
-//
-//   let chatItemRepository: IChatItemRepository
-//   let chatItemDeliverySubscribers: ChatItem[][]
-//   let chatItemService: ChatItemService
-//   let userService: UserService
-//   let roomService: RoomService
-//
-//   beforeEach(async () => {
-//     adminId = getUUID()
-//     userId = getUUID()
-//     userIconId = "1"
-//     targetChatItemUserId = getUUID()
-//     targetChatItemUserIconId = "2"
-//
-//     roomId = getUUID()
-//     topicIdToBePosted = "1"
-//
-//     targetId = getUUID()
-//     targetContent = "ターゲットChatItem"
-//     chatItemId = getUUID()
-//     content = "テストChatItem"
-//
-//     chatItemRepository = new EphemeralChatItemRepository()
-//     const roomRepository = new EphemeralRoomRepository()
-//     const userRepository = new EphemeralUserRepository()
-//
-//     chatItemDeliverySubscribers = [[]]
-//     const chatItemDelivery = new EphemeralChatItemDelivery(
-//       chatItemDeliverySubscribers,
-//     )
-//     const roomDelivery = new EphemeralRoomDelivery([])
-//     const userDelivery = new EphemeralUserDelivery([])
-//     const stampDelivery = new EphemeralStampDelivery([])
-//
-//     chatItemService = new ChatItemService(
-//       chatItemRepository,
-//       roomRepository,
-//       userRepository,
-//       chatItemDelivery,
-//     )
-//     userService = new UserService(userRepository, roomRepository, userDelivery)
-//     roomService = new RoomService(
-//       roomRepository,
-//       userRepository,
-//       chatItemRepository,
-//       roomDelivery,
-//       chatItemDelivery,
-//       stampDelivery,
-//     )
-//
-//     userService.createUser({ userId: adminId })
-//     roomService.build({
-//       id: roomId,
-//       title: "テストルーム",
-//       topics: [1, 2].map((i) => ({
-//         title: `テストトピック${i}`,
-//         description: `テスト用のトピック${i}です`,
-//         urls: {},
-//       })),
-//     })
-//     await userService.adminEnterRoom({ adminId, roomId })
-//     await roomService.start(adminId)
-//     await roomService.changeTopicState({
-//       userId: adminId,
-//       topicId: topicIdToBePosted,
-//       type: "OPEN",
-//     })
-//     // スタンプを投稿する一般ユーザーが入室
-//     userService.createUser({ userId })
-//     await userService.enterRoom({ userId, roomId, iconId: userIconId })
-//
-//     userService.createUser({ userId: targetChatItemUserId })
-//     await userService.enterRoom({
-//       userId: targetChatItemUserId,
-//       roomId: roomId,
-//       iconId: targetChatItemUserIconId,
-//     })
-//   })
-//
-//   afterEach(() => {
-//     roomService.changeTopicState({
-//       userId: adminId,
-//       topicId: topicIdToBePosted,
-//       type: "CLOSE",
-//     })
-//     roomService.finish(adminId)
-//   })
-//
-//   describe("postメソッドのテスト", () => {
-//     describe("Messageのpost", () => {
-//       test("正常系_Message(targetなし)をpostすると保存・配信される", async () => {
-//         // 管理者ボット等によるchatItemの投稿が既にあるのを考慮
-//         const deliveredChatItemCount = chatItemDeliverySubscribers[0].length
-//
-//         await chatItemService.postMessage({
-//           chatItemId,
-//           userId,
-//           topicId: topicIdToBePosted,
-//           content,
-//           quoteId: null,
-//         })
-//
-//         const validationValues: ChatItemValidationParams = {
-//           id: chatItemId,
-//           iconId: userIconId,
-//           topicId: topicIdToBePosted,
-//           content,
-//           isTargetNull: true,
-//         }
-//
-//         const savedChatItem = await chatItemRepository.find(chatItemId)
-//         expect(savedChatItem).toBeInstanceOf(Message)
-//         validateChatItem(savedChatItem, validationValues)
-//
-//         expect(chatItemDeliverySubscribers[0]).toHaveLength(
-//           deliveredChatItemCount + 1,
-//         )
-//         const deliveredChatItem =
-//           chatItemDeliverySubscribers[0][deliveredChatItemCount]
-//         expect(deliveredChatItem).toBeInstanceOf(Message)
-//         validateChatItem(deliveredChatItem, validationValues)
-//       })
-//
-//       test("正常系_Message(targetがMessage)をpostすると保存・配信される", async () => {
-//         // テストするChatItemのターゲットであるMessageを投稿
-//         await chatItemService.postMessage({
-//           chatItemId: targetId,
-//           userId: targetChatItemUserId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//           quoteId: null,
-//         })
-//         // 管理者ボットやターゲットとするchatItemの投稿が既にあるのを考慮
-//         const deliveredChatItemCount = chatItemDeliverySubscribers[0].length
-//
-//         await chatItemService.postMessage({
-//           chatItemId,
-//           userId,
-//           topicId: topicIdToBePosted,
-//           content,
-//           quoteId: targetId,
-//         })
-//
-//         const validationValues: ChatItemValidationParams = {
-//           id: chatItemId,
-//           iconId: userIconId,
-//           topicId: topicIdToBePosted,
-//           content,
-//           isTargetNull: false,
-//         }
-//         const targetValidationValues: ChatItemValidationParams = {
-//           id: targetId,
-//           iconId: targetChatItemUserIconId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//           isTargetNull: true,
-//         }
-//
-//         const savedChatItem = await chatItemRepository.find(chatItemId)
-//         expect(savedChatItem).toBeInstanceOf(Message)
-//         validateChatItem(savedChatItem, validationValues)
-//         const savedChatItemTarget = (savedChatItem as Message).target
-//         expect(savedChatItemTarget).toBeInstanceOf(Message)
-//         validateChatItem(savedChatItemTarget as Message, targetValidationValues)
-//
-//         expect(chatItemDeliverySubscribers[0]).toHaveLength(
-//           deliveredChatItemCount + 1,
-//         )
-//         const deliveredChatItem =
-//           chatItemDeliverySubscribers[0][deliveredChatItemCount]
-//         expect(deliveredChatItem).toBeInstanceOf(Message)
-//         validateChatItem(deliveredChatItem, validationValues)
-//         const deliveredChatItemTarget = (deliveredChatItem as Message).target
-//         expect(deliveredChatItemTarget).toBeInstanceOf(Message)
-//         validateChatItem(
-//           deliveredChatItemTarget as Message,
-//           targetValidationValues,
-//         )
-//       })
-//
-//       test("正常系_Message(targetがAnswer)をpostすると保存・配信される", async () => {
-//         // テストするChatItemのtargetのtargetを投稿
-//         const targetOfTargetId = getUUID()
-//         await chatItemService.postMessage({
-//           chatItemId: targetOfTargetId,
-//           userId,
-//           topicId: topicIdToBePosted,
-//           content: "ターゲットのターゲット",
-//           quoteId: null,
-//         })
-//         // テストするChatItemのtargetであるAnswerを投稿
-//         await chatItemService.postAnswer({
-//           chatItemId: targetId,
-//           userId: targetChatItemUserId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//           quoteId: targetOfTargetId,
-//         })
-//
-//         // 管理者ボットやターゲットとするchatItemの投稿が既にあるのを考慮
-//         const deliveredChatItemCount = chatItemDeliverySubscribers[0].length
-//
-//         await chatItemService.postMessage({
-//           chatItemId,
-//           userId,
-//           topicId: topicIdToBePosted,
-//           content,
-//           quoteId: targetId,
-//         })
-//
-//         const validationValues: ChatItemValidationParams = {
-//           id: chatItemId,
-//           iconId: userIconId,
-//           topicId: topicIdToBePosted,
-//           content,
-//           isTargetNull: false,
-//         }
-//         const targetValidationValues: ChatItemValidationParams = {
-//           id: targetId,
-//           iconId: targetChatItemUserIconId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//           isTargetNull: true,
-//         }
-//
-//         const savedChatItem = await chatItemRepository.find(chatItemId)
-//         expect(savedChatItem).toBeInstanceOf(Message)
-//         validateChatItem(savedChatItem, validationValues)
-//         const savedChatItemTarget = (savedChatItem as Message).target
-//         expect(savedChatItemTarget).toBeInstanceOf(Answer)
-//         validateChatItem(savedChatItemTarget as Answer, targetValidationValues)
-//
-//         expect(chatItemDeliverySubscribers[0]).toHaveLength(
-//           deliveredChatItemCount + 1,
-//         )
-//         const deliveredChatItem =
-//           chatItemDeliverySubscribers[0][deliveredChatItemCount]
-//         expect(deliveredChatItem).toBeInstanceOf(Message)
-//         validateChatItem(deliveredChatItem, validationValues)
-//         const deliveredChatItemTarget = (deliveredChatItem as Message).target
-//         expect(deliveredChatItemTarget).toBeInstanceOf(Answer)
-//         validateChatItem(
-//           deliveredChatItemTarget as Answer,
-//           targetValidationValues,
-//         )
-//       })
-//     })
-//
-//     describe("Reactionのpost", () => {
-//       test("正常系_Reaction(targetがMessage)をpostすると保存・配信される", async () => {
-//         // テストするChatItemのターゲットであるMessageを投稿
-//         await chatItemService.postMessage({
-//           chatItemId: targetId,
-//           userId: targetChatItemUserId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//           quoteId: null,
-//         })
-//         // 管理者ボット等によるchatItemの投稿が既にあるのを考慮
-//         const deliveredChatItemCount = chatItemDeliverySubscribers[0].length
-//
-//         await chatItemService.postReaction({
-//           chatItemId,
-//           userId,
-//           topicId: topicIdToBePosted,
-//           quoteId: targetId,
-//         })
-//
-//         const validationValues: ChatItemValidationParams = {
-//           id: chatItemId,
-//           iconId: userIconId,
-//           topicId: topicIdToBePosted,
-//         }
-//         const targetValidationValues: ChatItemValidationParams = {
-//           id: targetId,
-//           iconId: targetChatItemUserIconId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//           isTargetNull: true,
-//         }
-//
-//         const savedChatItem = await chatItemRepository.find(chatItemId)
-//         expect(savedChatItem).toBeInstanceOf(Reaction)
-//         validateChatItem(savedChatItem, validationValues)
-//         const savedChatItemTarget = (savedChatItem as Reaction).target
-//         expect(savedChatItemTarget).toBeInstanceOf(Message)
-//         validateChatItem(savedChatItemTarget, targetValidationValues)
-//
-//         expect(chatItemDeliverySubscribers[0]).toHaveLength(
-//           deliveredChatItemCount + 1,
-//         )
-//         const deliveredChatItem =
-//           chatItemDeliverySubscribers[0][deliveredChatItemCount]
-//         expect(deliveredChatItem).toBeInstanceOf(Reaction)
-//         validateChatItem(deliveredChatItem, validationValues)
-//         const deliveredChatItemTarget = (deliveredChatItem as Reaction).target
-//         expect(deliveredChatItemTarget).toBeInstanceOf(Message)
-//         validateChatItem(deliveredChatItemTarget, targetValidationValues)
-//       })
-//
-//       test("正常系_Reaction(targetがQuestion)をpostすると保存・配信される", async () => {
-//         // テストするChatItemのターゲットであるQuestionを投稿
-//         await chatItemService.postQuestion({
-//           chatItemId: targetId,
-//           userId: targetChatItemUserId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//         })
-//         // 管理者ボット等によるchatItemの投稿が既にあるのを考慮
-//         const deliveredChatItemCount = chatItemDeliverySubscribers[0].length
-//
-//         await chatItemService.postReaction({
-//           chatItemId,
-//           userId,
-//           topicId: topicIdToBePosted,
-//           quoteId: targetId,
-//         })
-//
-//         const validationValues: ChatItemValidationParams = {
-//           id: chatItemId,
-//           iconId: userIconId,
-//           topicId: topicIdToBePosted,
-//         }
-//         const targetValidationValues: ChatItemValidationParams = {
-//           id: targetId,
-//           iconId: targetChatItemUserIconId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//           isTargetNull: true,
-//         }
-//
-//         const savedChatItem = await chatItemRepository.find(chatItemId)
-//         expect(savedChatItem).toBeInstanceOf(Reaction)
-//         validateChatItem(savedChatItem, validationValues)
-//         const savedChatItemTarget = (savedChatItem as Reaction).target
-//         expect(savedChatItemTarget).toBeInstanceOf(Question)
-//         validateChatItem(savedChatItemTarget, targetValidationValues)
-//
-//         expect(chatItemDeliverySubscribers[0]).toHaveLength(
-//           deliveredChatItemCount + 1,
-//         )
-//         const deliveredChatItem =
-//           chatItemDeliverySubscribers[0][deliveredChatItemCount]
-//         expect(deliveredChatItem).toBeInstanceOf(Reaction)
-//         validateChatItem(deliveredChatItem, validationValues)
-//         const deliveredChatItemTarget = (deliveredChatItem as Reaction).target
-//         expect(deliveredChatItemTarget).toBeInstanceOf(Question)
-//         validateChatItem(deliveredChatItemTarget, targetValidationValues)
-//       })
-//
-//       test("正常系_Reaction(targetがAnswer)をpostすると保存・配信される", async () => {
-//         // テストするChatItemのtargetのtargetを投稿
-//         const targetOfTargetId = getUUID()
-//         await chatItemService.postQuestion({
-//           chatItemId: targetOfTargetId,
-//           userId,
-//           topicId: topicIdToBePosted,
-//           content: "ターゲットのターゲット",
-//         })
-//         // テストするChatItemのターゲットであるQuestionを投稿
-//         await chatItemService.postAnswer({
-//           chatItemId: targetId,
-//           userId: targetChatItemUserId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//           quoteId: targetOfTargetId,
-//         })
-//         // 管理者ボット等によるchatItemの投稿が既にあるのを考慮
-//         const deliveredChatItemCount = chatItemDeliverySubscribers[0].length
-//
-//         await chatItemService.postReaction({
-//           chatItemId,
-//           userId,
-//           topicId: topicIdToBePosted,
-//           quoteId: targetId,
-//         })
-//
-//         const validationValues: ChatItemValidationParams = {
-//           id: chatItemId,
-//           iconId: userIconId,
-//           topicId: topicIdToBePosted,
-//         }
-//         const targetValidationValues: ChatItemValidationParams = {
-//           id: targetId,
-//           iconId: targetChatItemUserIconId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//           isTargetNull: true,
-//         }
-//
-//         const savedChatItem = await chatItemRepository.find(chatItemId)
-//         expect(savedChatItem).toBeInstanceOf(Reaction)
-//         validateChatItem(savedChatItem, validationValues)
-//         const savedChatItemTarget = (savedChatItem as Reaction).target
-//         expect(savedChatItemTarget).toBeInstanceOf(Answer)
-//         validateChatItem(savedChatItemTarget, targetValidationValues)
-//
-//         expect(chatItemDeliverySubscribers[0]).toHaveLength(
-//           deliveredChatItemCount + 1,
-//         )
-//         const deliveredChatItem =
-//           chatItemDeliverySubscribers[0][deliveredChatItemCount]
-//         expect(deliveredChatItem).toBeInstanceOf(Reaction)
-//         validateChatItem(deliveredChatItem, validationValues)
-//         const deliveredChatItemTarget = (deliveredChatItem as Reaction).target
-//         expect(deliveredChatItemTarget).toBeInstanceOf(Answer)
-//         validateChatItem(deliveredChatItemTarget, targetValidationValues)
-//       })
-//     })
-//
-//     describe("Questionのpost", () => {
-//       test("正常系_Questionをpostすると保存・配信される", async () => {
-//         // 管理者ボット等によるchatItemの投稿が既にあるのを考慮
-//         const deliveredChatItemCount = chatItemDeliverySubscribers[0].length
-//
-//         await chatItemService.postQuestion({
-//           chatItemId,
-//           userId,
-//           topicId: topicIdToBePosted,
-//           content,
-//         })
-//
-//         const validationValues: ChatItemValidationParams = {
-//           id: chatItemId,
-//           iconId: userIconId,
-//           topicId: topicIdToBePosted,
-//           content,
-//           isTargetNull: true,
-//         }
-//
-//         const savedChatItem = await chatItemRepository.find(chatItemId)
-//         expect(savedChatItem).toBeInstanceOf(Question)
-//         validateChatItem(savedChatItem, validationValues)
-//
-//         expect(chatItemDeliverySubscribers[0]).toHaveLength(
-//           deliveredChatItemCount + 1,
-//         )
-//         const deliveredChatItem =
-//           chatItemDeliverySubscribers[0][deliveredChatItemCount]
-//         expect(deliveredChatItem).toBeInstanceOf(Question)
-//         validateChatItem(deliveredChatItem, validationValues)
-//       })
-//     })
-//
-//     describe("Answerのpost", () => {
-//       test("正常系_Answerをpostすると保存・配信される", async () => {
-//         // テストするChatItemのターゲットであるQuestionを投稿
-//         await chatItemService.postQuestion({
-//           chatItemId: targetId,
-//           userId: targetChatItemUserId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//         })
-//         // 管理者ボット等によるchatItemの投稿が既にあるのを考慮
-//         const deliveredChatItemCount = chatItemDeliverySubscribers[0].length
-//
-//         await chatItemService.postAnswer({
-//           chatItemId,
-//           userId,
-//           topicId: topicIdToBePosted,
-//           content,
-//           quoteId: targetId,
-//         })
-//
-//         const validationValues: ChatItemValidationParams = {
-//           id: chatItemId,
-//           iconId: userIconId,
-//           topicId: topicIdToBePosted,
-//           content,
-//         }
-//         const targetValidationValues: ChatItemValidationParams = {
-//           id: targetId,
-//           iconId: targetChatItemUserIconId,
-//           topicId: topicIdToBePosted,
-//           content: targetContent,
-//           isTargetNull: true,
-//         }
-//
-//         const savedChatItem = await chatItemRepository.find(chatItemId)
-//         expect(savedChatItem).toBeInstanceOf(Answer)
-//         validateChatItem(savedChatItem, validationValues)
-//         const savedChatItemTarget = (savedChatItem as Answer).target
-//         expect(savedChatItemTarget).toBeInstanceOf(Question)
-//         validateChatItem(savedChatItemTarget, targetValidationValues)
-//
-//         expect(chatItemDeliverySubscribers[0]).toHaveLength(
-//           deliveredChatItemCount + 1,
-//         )
-//         const deliveredChatItem =
-//           chatItemDeliverySubscribers[0][deliveredChatItemCount]
-//         expect(deliveredChatItem).toBeInstanceOf(Answer)
-//         validateChatItem(deliveredChatItem, validationValues)
-//         const deliveredChatItemTarget = (deliveredChatItem as Answer).target
-//         expect(deliveredChatItemTarget).toBeInstanceOf(Question)
-//         validateChatItem(deliveredChatItemTarget, targetValidationValues)
-//       })
-//     })
-//
-//     describe("異常系のテスト", () => {
-//       test("異常系_Roomに参加していないユーザーはChatItemをpostできない", async () => {
-//         const notJoiningUserid = getUUID()
-//
-//         // 参考: https://github.com/facebook/jest/issues/1377
-//         await expect(
-//           chatItemService.postMessage({
-//             chatItemId,
-//             userId: notJoiningUserid,
-//             topicId: topicIdToBePosted,
-//             content,
-//             quoteId: null,
-//           }),
-//         ).rejects.toThrowError()
-//       })
-//
-//       // TODO: ChatItem投稿時のトピック状態の確認とハンドリングがまだされていないので、このテストは落ちます。
-//       //    実装を修正する必要があります。
-//       test("異常系_activeでないTopicにはChatItemをpostできない", async () => {
-//         const notActiveTopicId = "2"
-//         await expect(
-//           chatItemService.postMessage({
-//             chatItemId,
-//             userId,
-//             topicId: notActiveTopicId,
-//             content,
-//             quoteId: null,
-//           }),
-//         ).rejects.toThrowError()
-//       })
-//     })
-//   })
-//
-//   type ChatItemValidationParams = {
-//     id: string
-//     iconId: string
-//     topicId: string
-//     content?: string
-//     isTargetNull?: boolean
-//   }
-//
-//   const validateChatItem = (
-//     chatItem: ChatItem,
-//     values: ChatItemValidationParams,
-//   ): void => {
-//     expect(chatItem.id).toBe(values.id)
-//     expect(chatItem.userIconId).toBe(values.iconId)
-//     expect(chatItem.topicId).toBe(values.topicId)
-//     if (chatItem instanceof Message) {
-//       const message = chatItem as Message
-//       expect(message.content).toBe(values.content)
-//       if (values.isTargetNull ?? true) expect(message.target).toBeNull()
-//     } else if (chatItem instanceof Reaction) {
-//       expect((chatItem as Reaction).target).not.toBeNull()
-//     } else if (chatItem instanceof Question) {
-//       expect((chatItem as Question).content).toBe(values.content)
-//     } else if (chatItem instanceof Answer) {
-//       const answer = chatItem as Answer
-//       expect(answer.content).toBe(values.content)
-//       expect(answer.target).not.toBeNull()
-//     }
-//   }
-// })
+import { v4 as uuid } from "uuid"
+import ChatItem from "../domain/chatItem/ChatItem"
+import ChatItemService from "../service/chatItem/ChatItemService"
+import IChatItemRepository from "../domain/chatItem/IChatItemRepository"
+import EphemeralRoomRepository from "../infra/repository/room/EphemeralRoomRepository"
+import EphemeralChatItemRepository from "../infra/repository/chatItem/EphemeralChatItemRepository"
+import EphemeralUserRepository from "../infra/repository/User/EphemeralUserRepository"
+import EphemeralChatItemDelivery from "../infra/delivery/chatItem/EphemeralChatItemDelivery"
+import EphemeralAdminRepository from "../infra/repository/admin/EphemeralAdminRepository"
+import RoomClass from "../domain/room/Room"
+import Admin from "../domain/admin/admin"
+import User from "../domain/user/User"
+import { NewIconId } from "../domain/user/IconId"
+import { ChatItemSenderType } from "sushi-chat-shared"
+import Message from "../domain/chatItem/Message"
+import Reaction from "../domain/chatItem/Reaction"
+import Question from "../domain/chatItem/Question"
+import Answer from "../domain/chatItem/Answer"
+
+// TODO: 各chatItemのinstance typeごとに、全chatItemのinstance typeをtargetにしたテストをする
+describe("ChatItemServiceのテスト", () => {
+  let userId: string
+  let roomId: string
+  let target: Message
+
+  let chatItemRepository: IChatItemRepository
+  let chatItemDeliverySubscriber: {
+    type: "post" | "pin"
+    chatItem: ChatItem
+  }[]
+  let chatItemService: ChatItemService
+
+  beforeEach(async () => {
+    const adminRepository = new EphemeralAdminRepository()
+    const roomRepository = new EphemeralRoomRepository(adminRepository)
+    const userRepository = new EphemeralUserRepository()
+    chatItemRepository = new EphemeralChatItemRepository()
+
+    chatItemDeliverySubscriber = []
+    const chatItemDelivery = new EphemeralChatItemDelivery([
+      chatItemDeliverySubscriber,
+    ])
+    chatItemService = new ChatItemService(
+      chatItemRepository,
+      roomRepository,
+      userRepository,
+      chatItemDelivery,
+    )
+
+    const admin = new Admin(uuid(), "Admin", [])
+    adminRepository.createIfNotExist(admin)
+
+    roomId = uuid()
+    userId = uuid()
+    const user = new User(userId, false, false, roomId, NewIconId(1))
+    userRepository.create(user)
+
+    const targetUser = new User(uuid(), false, false, roomId, NewIconId(2))
+    userRepository.create(targetUser)
+
+    // chatItemを投稿するroomを作成しておく
+    roomRepository.build(
+      new RoomClass(
+        roomId,
+        "test room",
+        uuid(),
+        "This is test room.",
+        [{ title: "test topic" }],
+        new Set([admin.id]),
+        "ongoing",
+        new Date(),
+        { 1: { openedDate: Date.now(), pausedDate: null, offsetTime: 0 } },
+        null,
+        null,
+        new Set([userId, targetUser.id]),
+      ),
+    )
+
+    target = new Message(
+      uuid(),
+      1,
+      targetUser,
+      "general",
+      "ターゲットメッセージ",
+      null,
+      new Date(),
+      0,
+    )
+    chatItemRepository.saveMessage(target)
+  })
+
+  describe("postMessageのテスト", () => {
+    test("正常系_quoteがないmessageを投稿", async () => {
+      const messageId = uuid()
+      await chatItemService.postMessage({
+        chatItemId: messageId,
+        userId,
+        topicId: 1,
+        content: "テストメッセージ",
+        quoteId: null,
+      })
+
+      const message = (await chatItemRepository.find(messageId)) as Message
+      if (!message) {
+        throw new Error(`ChatItem(${messageId}) was not found.`)
+      }
+
+      expect(message.id).toBe(messageId)
+      expect(message.topicId).toBe(1)
+      expect(message.user.id).toBe(userId)
+      expect(message.senderType).toBe<ChatItemSenderType>("general")
+      expect(message.timestamp).not.toBeNull()
+      expect(message.isPinned).toBeFalsy()
+      expect(message.content).toBe("テストメッセージ")
+      expect(message.quote).toBeNull()
+
+      const delivered = chatItemDeliverySubscriber[0]
+      expect(delivered.type).toBe("post")
+      const deliveredMessage = delivered.chatItem as Message
+      expect(deliveredMessage.id).toBe(messageId)
+      expect(deliveredMessage.topicId).toBe(1)
+      expect(deliveredMessage.user.id).toBe(userId)
+      expect(deliveredMessage.senderType).toBe<ChatItemSenderType>("general")
+      expect(deliveredMessage.timestamp).not.toBeNull()
+      expect(deliveredMessage.isPinned).toBeFalsy()
+      expect(deliveredMessage.content).toBe("テストメッセージ")
+      expect(deliveredMessage.quote).toBeNull()
+    })
+
+    test("正常系_quoteがあるmessageを投稿", async () => {
+      const messageId = uuid()
+      await chatItemService.postMessage({
+        chatItemId: messageId,
+        userId,
+        topicId: 1,
+        content: "テストメッセージ",
+        quoteId: target.id,
+      })
+
+      const message = (await chatItemRepository.find(messageId)) as Message
+      if (!message) {
+        throw new Error(`ChatItem(${messageId}) was not found.`)
+      }
+
+      expect(message.id).toBe(messageId)
+      expect(message.topicId).toBe(1)
+      expect(message.user.id).toBe(userId)
+      expect(message.senderType).toBe<ChatItemSenderType>("general")
+      expect(message.timestamp).not.toBeNull()
+      expect(message.isPinned).toBeFalsy()
+      expect(message.content).toBe("テストメッセージ")
+      expect(message.quote?.id).toBe(target.id)
+
+      const delivered = chatItemDeliverySubscriber[0]
+      expect(delivered.type).toBe("post")
+      const deliveredMessage = delivered.chatItem as Message
+      expect(deliveredMessage.id).toBe(messageId)
+      expect(deliveredMessage.topicId).toBe(1)
+      expect(deliveredMessage.user.id).toBe(userId)
+      expect(deliveredMessage.senderType).toBe<ChatItemSenderType>("general")
+      expect(deliveredMessage.timestamp).not.toBeNull()
+      expect(deliveredMessage.isPinned).toBeFalsy()
+      expect(deliveredMessage.content).toBe("テストメッセージ")
+      expect(deliveredMessage.quote?.id).toBe(target.id)
+    })
+  })
+
+  describe("postReactionのテスト", () => {
+    test("正常系_reactionを投稿", async () => {
+      const reactionId = uuid()
+      await chatItemService.postReaction({
+        chatItemId: reactionId,
+        userId,
+        topicId: 1,
+        quoteId: target.id,
+      })
+
+      const reaction = (await chatItemRepository.find(reactionId)) as Reaction
+      if (!reaction) {
+        throw new Error(`Reaction(${reactionId}) was not found.`)
+      }
+
+      expect(reaction.id).toBe(reactionId)
+      expect(reaction.topicId).toBe(1)
+      expect(reaction.user.id).toBe(userId)
+      expect(reaction.senderType).toBe<ChatItemSenderType>("general")
+      expect(reaction.timestamp).not.toBeNull()
+      expect(reaction.isPinned).toBeFalsy()
+      expect(reaction.quote?.id).toBe(target.id)
+
+      const delivered = chatItemDeliverySubscriber[0]
+      expect(delivered.type).toBe("post")
+      const deliveredReaction = delivered.chatItem as Reaction
+      expect(deliveredReaction.id).toBe(reactionId)
+      expect(deliveredReaction.topicId).toBe(1)
+      expect(deliveredReaction.user.id).toBe(userId)
+      expect(deliveredReaction.senderType).toBe<ChatItemSenderType>("general")
+      expect(deliveredReaction.timestamp).not.toBeNull()
+      expect(deliveredReaction.isPinned).toBeFalsy()
+      expect(deliveredReaction.quote?.id).toBe(target.id)
+    })
+  })
+
+  describe("postQuestionのテスト", () => {
+    test("正常系_questionを投稿", async () => {
+      const questionId = uuid()
+      await chatItemService.postQuestion({
+        chatItemId: questionId,
+        content: "テストクエスチョン",
+        userId,
+        topicId: 1,
+      })
+
+      const question = (await chatItemRepository.find(questionId)) as Question
+      if (!question) {
+        throw new Error(`Question(${questionId}) was not found.`)
+      }
+
+      expect(question.id).toBe(questionId)
+      expect(question.topicId).toBe(1)
+      expect(question.user.id).toBe(userId)
+      expect(question.senderType).toBe<ChatItemSenderType>("general")
+      expect(question.timestamp).not.toBeNull()
+      expect(question.isPinned).toBeFalsy()
+      expect(question.content).toBe("テストクエスチョン")
+
+      const delivered = chatItemDeliverySubscriber[0]
+      expect(delivered.type).toBe("post")
+      const deliveredQuestion = delivered.chatItem as Question
+      expect(deliveredQuestion.id).toBe(questionId)
+      expect(deliveredQuestion.topicId).toBe(1)
+      expect(deliveredQuestion.user.id).toBe(userId)
+      expect(deliveredQuestion.senderType).toBe<ChatItemSenderType>("general")
+      expect(deliveredQuestion.timestamp).not.toBeNull()
+      expect(deliveredQuestion.isPinned).toBeFalsy()
+      expect(deliveredQuestion.content).toBe("テストクエスチョン")
+    })
+  })
+
+  describe("postAnswerのテスト", () => {
+    test("正常系_anserが投稿される", async () => {
+      const answerId = uuid()
+      await chatItemService.postMessage({
+        chatItemId: answerId,
+        userId,
+        topicId: 1,
+        content: "テストアンサー",
+        quoteId: target.id,
+      })
+
+      const answer = (await chatItemRepository.find(answerId)) as Answer
+      if (!answer) {
+        throw new Error(`ChatItem(${answerId}) was not found.`)
+      }
+
+      expect(answer.id).toBe(answerId)
+      expect(answer.topicId).toBe(1)
+      expect(answer.user.id).toBe(userId)
+      expect(answer.senderType).toBe<ChatItemSenderType>("general")
+      expect(answer.timestamp).not.toBeNull()
+      expect(answer.isPinned).toBeFalsy()
+      expect(answer.content).toBe("テストアンサー")
+      expect(answer.quote.id).toBe(target.id)
+
+      const delivered = chatItemDeliverySubscriber[0]
+      expect(delivered.type).toBe("post")
+      const deliveredAnswer = delivered.chatItem as Answer
+      expect(deliveredAnswer.id).toBe(answerId)
+      expect(deliveredAnswer.topicId).toBe(1)
+      expect(deliveredAnswer.user.id).toBe(userId)
+      expect(deliveredAnswer.senderType).toBe<ChatItemSenderType>("general")
+      expect(deliveredAnswer.timestamp).not.toBeNull()
+      expect(deliveredAnswer.isPinned).toBeFalsy()
+      expect(deliveredAnswer.content).toBe("テストアンサー")
+      expect(deliveredAnswer.quote.id).toBe(target.id)
+    })
+  })
+
+  describe("pinChatItemのテスト", () => {
+    test("正常系_chatItemをピン留めする", async () => {
+      await chatItemService.pinChatItem({ chatItemId: target.id })
+
+      const pinned = await chatItemRepository.find(target.id)
+      expect(pinned?.isPinned).toBeTruthy()
+    })
+  })
+})
