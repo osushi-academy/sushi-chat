@@ -82,7 +82,12 @@ import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
-import { ChatItemStore, TopicStore, TopicStateItemStore } from "~/store"
+import {
+  ChatItemStore,
+  TopicStore,
+  TopicStateItemStore,
+  PinnedChatItemsStore,
+} from "~/store"
 
 // Data型
 type DataType = {
@@ -131,6 +136,13 @@ export default Vue.extend({
     },
     topic() {
       return TopicStore.topics.find(({ id }) => `${id}` === this.topicId)
+    },
+    pinnedChatItem() {
+      const chatItems = ChatItemStore.chatItems.filter(
+        ({ topicId }) => topicId === this.topicId,
+      )
+      const pinnedChatItems = PinnedChatItemsStore.pinnedChatItems
+      return chatItems.find((chatItem) => pinnedChatItems.includes(chatItem.id))
     },
   },
   watch: {

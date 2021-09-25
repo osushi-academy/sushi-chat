@@ -101,7 +101,7 @@
     <span
       v-if="message.type != 'reaction'"
       class="chatitem__bookmark"
-      @click="isBookMarked = !isBookMarked"
+      @click="bookmark()"
     >
       <span class="material-icons" :class="{ selected: isBookMarked }"
         >push_pin</span
@@ -115,6 +115,7 @@ import type { PropOptions } from "vue"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
 import { ChatItemPropType } from "~/models/contents"
+import { PinnedChatItemsStore } from "~/store"
 
 type DataType = {
   isLikedChatItem: boolean
@@ -181,6 +182,12 @@ export default Vue.extend({
         return `${min}` + ":0" + `${sec}`
       } else {
         return `${min}` + ":" + `${sec}`
+      }
+    },
+    bookmark() {
+      this.isBookMarked = !this.isBookMarked
+      if (this.isBookMarked === true) {
+        PinnedChatItemsStore.add(this.messageId)
       }
     },
   },
