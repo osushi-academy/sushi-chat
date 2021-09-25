@@ -5,6 +5,8 @@
       :topic-index="topicIndex"
       :bookmark-item="pinnedChatItem"
       @download="clickDownload"
+      @click-show-all="clickShowAll"
+      @click-not-show-all="clickNotShowAll"
     />
     <div class="chat-area">
       <div class="text-zone">
@@ -20,6 +22,11 @@
             class="list-complete-item"
           >
             <MessageComponent
+              v-if="
+                isAllCommentShowed ||
+                message.type == 'question' ||
+                message.type == 'answer'
+              "
               :message-id="message.id"
               :topic-id="topicId"
               :message="message"
@@ -76,9 +83,8 @@ import Vue from "vue"
 import type { PropOptions } from "vue"
 import throttle from "lodash.throttle"
 import { XIcon, ChevronUpIcon } from "vue-feather-icons"
-import { TopicState } from "sushi-chat-shared"
+import { ChatItemModel, TopicState } from "sushi-chat-shared"
 import AnalysisGraph from "./AnalysisGraph.vue"
-import { Message, Question, Answer } from "@/models/contents"
 import TopicHeader from "@/components/TopicHeader.vue"
 import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
@@ -89,8 +95,9 @@ import { ChatItemStore, TopicStore, PinnedChatItemsStore } from "~/store"
 // Data型
 type DataType = {
   isNotify: boolean
-  selectedChatItem: Message | Question | Answer | null
+  selectedChatItem: ChatItemModel | null
   showGraph: boolean
+  isAllCommentShowed: boolean
 }
 
 export default Vue.extend({
@@ -106,7 +113,7 @@ export default Vue.extend({
   },
   props: {
     topicId: {
-      type: String,
+      type: Number,
       required: true,
     },
     topicIndex: {
@@ -123,6 +130,7 @@ export default Vue.extend({
       isNotify: false,
       selectedChatItem: null,
       showGraph: false,
+      isAllCommentShowed: true,
     }
   },
   computed: {
@@ -132,7 +140,7 @@ export default Vue.extend({
       )
     },
     topic() {
-      return TopicStore.topics.find(({ id }) => `${id}` === this.topicId)
+      return TopicStore.topics.find(({ id }) => id === this.topicId)
     },
     pinnedChatItem() {
       const chatItems = ChatItemStore.chatItems.filter(
@@ -189,7 +197,7 @@ export default Vue.extend({
       this.selectedChatItem = null
     },
     // リアクションボタン
-    clickReaction(message: Message) {
+    clickReaction(message: ChatItemModel) {
       ChatItemStore.postReaction({ message })
     },
     // スクロール
@@ -232,10 +240,10 @@ export default Vue.extend({
     clickDownload() {
       const messages = ChatItemStore.chatItems
         .filter(({ type }) => type === "message")
-        .filter(({ iconId }) => iconId !== "0")
+        .filter(({ iconId }) => iconId !== 0)
         .map(
           (message) =>
-            "🍣: " + (message as Message).content.replaceAll("\n", "\n") + "\n",
+            "🍣: " + (message.content as string).replaceAll("\n", "\n") + "\n",
         )
       // this.topicがnullになることは基本的にない
       if (this.topic) {
@@ -248,6 +256,12 @@ export default Vue.extend({
     // 選択したアイテム取り消し
     deselectChatItem() {
       this.selectedChatItem = null
+    },
+    clickShowAll() {
+      this.isAllCommentShowed = true
+    },
+    clickNotShowAll() {
+      this.isAllCommentShowed = false
     },
   },
 })

@@ -1,4 +1,3 @@
-import Answer from "./domain/chatItem/Answer"
 import Message from "./domain/chatItem/Message"
 import Question from "./domain/chatItem/Question"
 import Reaction from "./domain/chatItem/Reaction"
@@ -52,13 +51,7 @@ export const restSetup = (
         },
       })
     } catch (e) {
-      res.status(400).send({
-        result: "error",
-        error: {
-          code: "ERROR_CODE",
-          message: `${e ?? "Unknown error."} (USER_ROOM_HISTORY)`,
-        },
-      })
+      handleError(e, req.route, res)
     }
   })
 
@@ -87,13 +80,7 @@ export const restSetup = (
         data: room,
       })
     } catch (e) {
-      res.status(400).send({
-        result: "error",
-        error: {
-          code: "ERROR_CODE",
-          message: `${e.message ?? "Unknown error."} (USER_FIND_ROOM)`,
-        },
-      })
+      handleError(e, req.route, res)
     }
   })
 
@@ -108,15 +95,12 @@ export const restSetup = (
   adminRouter.use(async (req, res, next) => {
     const token = extractToken(req.headers.authorization)
     if (!token) {
-      res.status(401).send({
-        result: "error",
-        error: {
-          code: 404,
-          message:
-            "Must specify authorization ID token; e.g. Authorization: Bearer <id token>",
-        },
-      })
-
+      handleError(
+        new Error("Token is missing; e.g. Authorization: Bearer <id token>"),
+        req.route,
+        res,
+        401,
+      )
       return
     }
 
@@ -154,13 +138,7 @@ export const restSetup = (
         }),
       })
     } catch (e) {
-      res.status(400).send({
-        result: "error",
-        error: {
-          code: "ERROR_CODE",
-          message: `${e ?? "Unknown error."} (ADMIN_GET_ROOMS)`,
-        },
-      })
+      handleError(e, req.route, res)
     }
   })
 
@@ -171,7 +149,8 @@ export const restSetup = (
         title: req.body.title,
         topics: req.body.topics,
         description: req.body.description,
-        // @ts-ignore adminIdは型定義で指定されていないため
+        // TODO: adminIdがrequestの型定義にないので静的解析エラーになる。adminIdを適切な場所に入れるようにする
+        // @ts-ignore
         adminId: req.body.adminId,
       })
       res.send({
@@ -187,13 +166,7 @@ export const restSetup = (
         },
       })
     } catch (e) {
-      res.status(400).send({
-        result: "error",
-        error: {
-          code: "ERROR_CODE",
-          message: `${e ?? "Unknown error."} (ADMIN_BUILD_ROOM)`,
-        },
-      })
+      handleError(e, req.route, res)
     }
   })
 
@@ -206,75 +179,51 @@ export const restSetup = (
       })
       res.send({ result: "success", data: undefined })
     } catch (e) {
-      res.status(400).send({
-        result: "error",
-        error: {
-          code: "ERROR_CODE",
-          message: `${e.message ?? "Unknown error."} (ADMIN_START_ROOM)`,
-        },
-      })
+      handleError(e, req.route, res)
     }
   })
 
   // ルームを公開停止にする
-  adminRouter.put("/room/:id/archive", (req, res) => {
-    roomService
-      .archive({
+  adminRouter.put("/room/:id/archive", async (req, res) => {
+    try {
+      await roomService.archive({
         id: req.params.id,
         adminId: req.body.adminId,
       })
-      .then(() => res.send({ result: "success", data: undefined }))
-      .catch((e) => {
-        res.status(400).send({
-          result: "error",
-          error: {
-            code: "ERROR_CODE",
-            message: `${e ?? "Unknown error."} (ADMIN_ARCHIVE_ROOM)`,
-          },
-        })
-      })
+      res.send({ result: "success", data: undefined })
+    } catch (e) {
+      handleError(e, req.route, res)
+    }
   })
 
   // ルームと新しい管理者を紐付ける
-  adminRouter.post("/room/:id/invited", (req, res) => {
+  adminRouter.post("/room/:id/invited", async (req, res) => {
     const adminInviteKey = req.query["admin_invite_key"]
     if (!adminInviteKey) {
-      res.status(400).send({
-        result: "error",
-        error: {
-          code: "ERROR_CODE",
-          message: `invite admin needs admin_invite_key. (ADMIN_INVITE_ROOM)`,
-        },
-      })
+      handleError(
+        new Error("invite admin needs admin_invite_key."),
+        req.route,
+        res,
+        400,
+      )
+
       return
     }
     if (typeof adminInviteKey !== "string") {
-      res.status(400).send({
-        result: "error",
-        error: {
-          code: "ERROR_CODE",
-          message: `invaild parameter. (ADMIN_INVITE_ROOM)`,
-        },
-      })
+      handleError(new Error("invalid parameter."), req.route, res, 400)
       return
     }
-    roomService
-      .inviteAdmin({
+
+    try {
+      await roomService.inviteAdmin({
         id: req.params.id,
         adminInviteKey: adminInviteKey,
-        // @ts-ignore adminIdは型定義で指定されていないため
         adminId: req.body.adminId,
       })
-      .then(() => res.send({ result: "success", data: undefined }))
-      .catch((e) => {
-        res.status(400).send({
-          result: "error",
-          error: {
-            code: "ERROR_CODE",
-            message: `${e ?? "Unknown error."} (ADMIN_INVITE_ROOM)`,
-          },
-        })
-      })
+      res.send({ result: "success", data: undefined })
+    } catch (e) {
+      handleError(e, req.route, res)
+    }
   })
 
   const extractToken = (authHeader?: string): string | null => {
@@ -284,7 +233,7 @@ export const restSetup = (
   }
 
   const handleError = (
-    error: unknown,
+    error: Error,
     route: string,
     res: Response,
     code = 500,
@@ -292,12 +241,15 @@ export const restSetup = (
     logError(route, error)
     res.status(code).send({
       result: "error",
-      error: { code, message: `${error ?? "Unknown error."}(${route})` },
+      error: {
+        code: `${code}`,
+        message: error.message ?? "Unknown error.",
+      },
     })
   }
 
-  const logError = (context: string, error: unknown) => {
+  const logError = (context: string, error: Error) => {
     const date = new Date().toISOString()
-    console.error(`[${date}]${context}:${error ?? "Unknown error."}`)
+    console.error(`[${date}] ${context}`, error ?? "Unknown error")
   }
 }

@@ -34,7 +34,7 @@ export default Vue.extend({
       required: true,
     },
     topicId: {
-      type: String,
+      type: Number,
       required: true,
     },
   },
@@ -99,9 +99,9 @@ export default Vue.extend({
     // 運営を弾いたコメント数といいね数のデータを埋める
     fillData() {
       const commentStamp: Array<number> = ChatItemStore.chatItems
-        .filter(({ iconId }) => iconId !== "0")
+        .filter(({ iconId }) => iconId !== 0)
         .filter(({ topicId }) => topicId === this.topicId)
-        .map((message) => Math.floor(message.timestamp / 10000))
+        .map((message) => Math.floor((message.timestamp as number) / 10000))
       const maxStamp: number = Math.max(...commentStamp)
       const commentNum: { [key: number]: number } = this.toCountStamp(
         commentStamp,

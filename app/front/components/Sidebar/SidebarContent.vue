@@ -195,8 +195,8 @@ export default Vue.extend({
     }
   },
   computed: {
-    selectedTopic() {
-      const selectedTopicId = (this as any).selectedTopicId as number
+    selectedTopic(): { id: number; title: string } | undefined {
+      const selectedTopicId = this.selectedTopicId
       return this.topics.find(({ id }) => id === selectedTopicId)
     },
   },

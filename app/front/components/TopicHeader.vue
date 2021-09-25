@@ -18,14 +18,14 @@
       <button
         class="topic-header__details--filter-btn"
         :class="{ selected: isAllCommentShowed === true }"
-        @click="isAllCommentShowed = true"
+        @click="clickShowAll()"
       >
         すべて
       </button>
       <button
         class="topic-header__details--filter-btn"
         :class="{ selected: isAllCommentShowed === false }"
-        @click="isAllCommentShowed = false"
+        @click="clickNotShowAll()"
       >
         質問と回答
       </button>
@@ -101,6 +101,14 @@ export default Vue.extend({
   methods: {
     clickDownload() {
       this.$emit("download")
+    },
+    clickShowAll() {
+      this.isAllCommentShowed = true
+      this.$emit("click-show-all")
+    },
+    clickNotShowAll() {
+      this.isAllCommentShowed = false
+      this.$emit("click-not-show-all")
     },
   },
 })
