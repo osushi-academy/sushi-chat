@@ -64,13 +64,14 @@ class RestRoomService {
     command: checkAdminAndfindCommand,
   ): Promise<RoomModel> {
     const room = await this.find(command.id)
-    const isAdmin = room.isAdmin(command.adminId)
+    const isAdmin = command.adminId ? room.isAdmin(command.adminId) : false
     const roomDefault: RoomModel = {
       id: room.id,
       title: room.title,
       topics: room.topics.map((topic) => ({
-        ...topic,
+        id: topic.id,
         order: topic.id,
+        title: topic.title,
       })),
       state: room.state,
       description: room.description,

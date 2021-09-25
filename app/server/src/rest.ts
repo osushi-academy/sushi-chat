@@ -16,6 +16,7 @@ export const restSetup = (
   // For health check
   app.get("/", (req, res) => res.send("ok"))
 
+  // TODO: controllerに処理を書きすぎてるので修正する
   // チャット履歴・スタンプ履歴を取得する
   app.get("/room/:id/history", async (req, res) => {
     try {
@@ -63,10 +64,22 @@ export const restSetup = (
 
   // ルーム情報を取得する
   app.get("/room/:id", async (req, res) => {
+    const token = extractToken(req.headers.authorization)
+
+    let adminId = undefined
+    if (token) {
+      try {
+        adminId = await adminService.verifyToken(token)
+      } catch (e) {
+        handleError(e, req.route, res)
+        return
+      }
+    }
+
     try {
       const room = await roomService.checkAdminAndfind({
         id: req.params.id,
-        adminId: req.body.adminId,
+        adminId,
       })
 
       res.send({
@@ -93,8 +106,8 @@ export const restSetup = (
 
   // AuthorizationヘッダからidTokenをextractし、検証結果をbodyに入れる
   adminRouter.use(async (req, res, next) => {
-    const authHeader = req.headers.authorization
-    if (!authHeader || !authHeader.startsWith("Bearer")) {
+    const token = extractToken(req.headers.authorization)
+    if (!token) {
       res.status(401).send({
         result: "error",
         error: {
@@ -107,10 +120,9 @@ export const restSetup = (
       return
     }
 
-    // TODO:bodyがanyで入れるの簡単だったので入れてるが、本当は専用のフィールドに入れたい
-    const token = authHeader.substring("Bearer ".length, authHeader.length)
     try {
       const adminId = await adminService.verifyToken(token)
+      // TODO:bodyがanyで入れるの簡単だったので入れてるが、本当は専用のフィールドに入れたい
       req.body.adminId = adminId
     } catch (e) {
       handleError(e, req.route, res)
@@ -223,32 +235,6 @@ export const restSetup = (
       })
   })
 
-  // ルーム情報を取得する
-  app.get("/room/:id", async (req, res) => {
-    try {
-      const roomId = req.params.id
-      const adminId = "hoge" /* 本当はヘッダーから。 */
-
-      const room = await roomService.checkAdminAndfind({
-        id: roomId,
-        adminId: adminId,
-      })
-
-      res.send({
-        result: "success",
-        data: room,
-      })
-    } catch (e) {
-      res.status(400).send({
-        result: "error",
-        error: {
-          code: "ERROR_CODE",
-          message: `${e.message ?? "Unknown error."} (USER_FIND_ROOM)`,
-        },
-      })
-    }
-  })
-
   // ルームと新しい管理者を紐付ける
   adminRouter.post("/room/:id/invited", (req, res) => {
     const adminInviteKey = req.query["admin_invite_key"]
@@ -290,6 +276,12 @@ export const restSetup = (
         })
       })
   })
+
+  const extractToken = (authHeader?: string): string | null => {
+    if (!authHeader || !authHeader.startsWith("Bearer")) return null
+
+    return authHeader.substring("Bearer ".length, authHeader.length)
+  }
 
   const handleError = (
     error: unknown,
