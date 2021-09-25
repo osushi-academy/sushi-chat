@@ -17,14 +17,19 @@ class ChatItemModelBuilder {
     })
   }
 
-  public static buildMessage(message: Message): ChatItemModel {
+  // NOTE: フロントに渡すchatItemは、rootのchatItemのquoteまで作ればよい。それより深いquoteは見られない
+  public static buildMessage(
+    message: Message,
+    recursive = true,
+  ): ChatItemModel {
     const quote = message.quote
-    const quoteModel =
-      quote instanceof Message
-        ? this.buildMessage(quote)
-        : quote instanceof Answer
-        ? this.buildAnswer(quote)
-        : undefined
+    const quoteModel = !recursive
+      ? undefined
+      : quote instanceof Message
+      ? this.buildMessage(quote, false)
+      : quote instanceof Answer
+      ? this.buildAnswer(quote, false)
+      : undefined
 
     return {
       id: message.id,
@@ -39,14 +44,19 @@ class ChatItemModelBuilder {
     }
   }
 
-  public static buildReaction(reaction: Reaction): ChatItemModel {
+  // NOTE: フロントに渡すchatItemは、rootのchatItemのquoteまで作ればよい。それより深いquoteは見られない
+  public static buildReaction(
+    reaction: Reaction,
+    recursive = true,
+  ): ChatItemModel {
     const quote = reaction.quote
-    const quoteModel =
-      quote instanceof Message
-        ? this.buildMessage(quote)
-        : quote instanceof Question
-        ? this.buildQuestion(quote)
-        : this.buildAnswer(quote)
+    const quoteModel = !recursive
+      ? undefined
+      : quote instanceof Message
+      ? this.buildMessage(quote, false)
+      : quote instanceof Question
+      ? this.buildQuestion(quote)
+      : this.buildAnswer(quote, false)
 
     return {
       id: reaction.id,
@@ -73,7 +83,8 @@ class ChatItemModelBuilder {
     }
   }
 
-  public static buildAnswer(answer: Answer): ChatItemModel {
+  // NOTE: フロントに渡すchatItemは、rootのchatItemのquoteまで作ればよい。それより深いquoteは見られない
+  public static buildAnswer(answer: Answer, recursive = true): ChatItemModel {
     return {
       id: answer.id,
       topicId: answer.topicId,
@@ -82,7 +93,7 @@ class ChatItemModelBuilder {
       senderType: answer.senderType,
       iconId: answer.user.iconId.valueOf(),
       content: answer.content,
-      quote: this.buildQuestion(answer.quote),
+      quote: !recursive ? undefined : this.buildQuestion(answer.quote),
       timestamp: answer.timestamp,
     }
   }
