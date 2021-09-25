@@ -164,7 +164,7 @@ export default Vue.extend({
     },
     // タイムスタンプを分、秒単位に変換
     showTimestamp(timeStamp?: number): string {
-      let sec: number = Math.floor(timeStamp / 1000)
+      let sec: number = Math.floor((timeStamp as number) / 1000)
       const min: number = Math.floor(sec / 60)
       sec %= 60
       if (sec < 10) {

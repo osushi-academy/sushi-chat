@@ -49,11 +49,10 @@ import {
   RoomState,
   ChatItemModel,
 } from "sushi-chat-shared"
-import { Stamp } from "@/models/contents"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
-import buildSocket from "~/utils/socketIO"
+import buildSocket, { SocketIOType } from "~/utils/socketIO"
 import {
   ChatItemStore,
   DeviceStore,
@@ -175,7 +174,7 @@ export default Vue.extend({
     },
     // socket.ioのセットアップ。配信を受け取る
     socketSetUp() {
-      const socket = (this as any).socket
+      const socket: SocketIOType = (this as any).socket
       // SocketIOのコールバックの登録
       socket.on("PUB_CHAT_ITEM", (chatItem: ChatItemModel) => {
         console.log(chatItem)
@@ -220,12 +219,12 @@ export default Vue.extend({
         return
       }
       TopicStateItemStore.change({ key: topicId, state })
-      const socket = (this as any).socket
+      const socket: SocketIOType = (this as any).socket
       socket.emit(
         "ADMIN_CHANGE_TOPIC_STATE",
         {
           state,
-          topicId,
+          topicId: parseInt(topicId),
         },
         (res: any) => {
           console.log(res)
@@ -239,13 +238,13 @@ export default Vue.extend({
     },
     // ルーム入室
     enterRoom(iconId: number) {
-      const socket = (this as any).socket
+      const socket: SocketIOType = (this as any).socket
       socket.emit(
         "ENTER_ROOM",
         {
           iconId,
           roomId: this.room.id,
-          speakerTopicId: null, // TODO: speakerTopicIdを渡す
+          speakerTopicId: 0, // TODO: speakerTopicIdを渡す
         },
         (res: any) => {
           res.data.topicStates.forEach((topicState: any) => {
@@ -262,7 +261,7 @@ export default Vue.extend({
     },
     // 管理者ルーム入室
     adminEnterRoom() {
-      const socket = (this as any).socket
+      const socket: SocketIOType = (this as any).socket
       socket.emit(
         "ADMIN_ENTER_ROOM",
         {
@@ -284,8 +283,10 @@ export default Vue.extend({
     },
     // ルーム終了
     finishRoom() {
-      const socket = (this as any).socket
-      socket.emit("ADMIN_FINISH_ROOM")
+      const socket: SocketIOType = (this as any).socket
+      socket.emit("ADMIN_FINISH_ROOM", {}, (res: any) => {
+        console.log(res)
+      })
       this.roomState = "finished"
     },
     // アイコン選択

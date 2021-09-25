@@ -226,9 +226,7 @@ export default Vue.extend({
         .filter(({ iconId }) => iconId !== 0)
         .map(
           (message) =>
-            "🍣: " +
-            (message as ChatItemModel).content.replaceAll("\n", "\n") +
-            "\n",
+            "🍣: " + (message.content as string).replaceAll("\n", "\n") + "\n",
         )
       // this.topicがnullになることは基本的にない
       if (this.topic) {
