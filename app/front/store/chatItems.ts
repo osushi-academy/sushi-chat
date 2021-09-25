@@ -88,6 +88,7 @@ export default class ChatItems extends VuexModule {
         console.log(res)
       },
     )
+    console.log("send reaction: ", text)
   }
 
   @Action({ rawError: true })

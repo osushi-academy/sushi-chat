@@ -43,8 +43,7 @@ import Vue from "vue"
 import { StampModel } from "sushi-chat-shared"
 import { randomWaitedLoop } from "@/utils/waitedLoop"
 import { HSLColor, getRandomColor } from "@/utils/color"
-import buildSocket from "~/utils/socketIO"
-import { StampStore, AuthStore } from "~/store"
+import { StampStore } from "~/store"
 
 export type DataType = {
   count: {
