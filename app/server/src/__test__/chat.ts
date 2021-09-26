@@ -19,16 +19,21 @@ import RoomFactory from "../infra/factory/RoomFactory"
 import AdminService from "../service/admin/AdminService"
 import {
   AdminEnterRoomResponse,
+  ErrorResponse,
+  PubChangeTopicStateParam,
   RoomModel,
   ServerListenEventsMap,
   ServerPubEventsMap,
   SuccessResponse,
 } from "sushi-chat-shared"
+import delay from "../utils/delay"
 
 describe("機能テスト", () => {
   const MATCHING = {
     UUID: expect.stringMatching(/(\w|-)+/),
     DATE: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
+    CODE: expect.stringMatching(/[0-9]{3}/),
+    TEXT: expect.stringMatching(/.+/),
   }
 
   // RESTクライアント
@@ -103,19 +108,19 @@ describe("機能テスト", () => {
   })
 
   describe("ヘルスチェック", () => {
-    test("[GET] /", async () => {
+    test("正常系 ヘルスチェックが成功", async () => {
       const res = await client.get("/")
 
       expect(res.statusCode).toBe(200)
     })
   })
 
-  describe("管理者が初めてアクセスし、roomを作成する", () => {
+  describe("room作成", () => {
     const title = "テストルーム"
-    const topics = [1, 2].map((i) => ({ title: `テストトピック-${i}` }))
+    const topics = [1, 2, 3].map((i) => ({ title: `テストトピック-${i}` }))
     const description = "これはテスト用のルームです。"
 
-    test("[POST] /room", async () => {
+    test("正常系_管理者がroomを作成", async () => {
       const res = await client
         .post("/room")
         .send({
@@ -147,8 +152,8 @@ describe("機能テスト", () => {
     })
   })
 
-  describe("管理者がroom一覧を取得する", () => {
-    test("[GET] /room", async () => {
+  describe("room一覧取得", () => {
+    test("正常系_管理者がroom一覧を取得", async () => {
       const res = await client.get("/room").set("Authorization", "Bearer token")
 
       expect(res.statusCode).toBe(200)
@@ -160,7 +165,7 @@ describe("機能テスト", () => {
   })
 
   describe("新たな管理者をroomに招待する", () => {
-    test("[POST] /room/:id/invited", async () => {
+    test("正常系_正しいinviteKeyを持った管理者が登録される", async () => {
       const res = await client
         .post(`/room/${roomData.id}/invited`)
         .query({ admin_invite_key: roomData.adminInviteKey })
@@ -171,8 +176,8 @@ describe("機能テスト", () => {
     })
   })
 
-  describe("管理者がroomをstartする", () => {
-    test("[PUT] /room/:id/start", async () => {
+  describe("roomをstartする", () => {
+    test("正常系_管理者がroomをstartする", async () => {
       const res = await client
         .put(`/room/${roomData.id}/start`)
         .set("Authorization", "Bearer token")
@@ -182,10 +187,11 @@ describe("機能テスト", () => {
     })
   })
 
-  describe("一般ユーザーがroom情報を取得する", () => {
-    test("[GET] /room/:id", async () => {
+  describe("room情報を取得", () => {
+    test("正常系_一般ユーザーがroom情報を取得", async () => {
       const res = await client.get(`/room/${roomData.id}`)
 
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { adminInviteKey, ...otherThanInviteKey } = roomData
       expect(res.statusCode).toBe(200)
       expect(res.body).toStrictEqual<SuccessResponse<RoomModel>>({
@@ -199,166 +205,208 @@ describe("機能テスト", () => {
     })
   })
 
-  // const messageId = uuid()
-  // const reactionId = uuid()
-  // const questionId = uuid()
-  // const answerId = uuid()
-  //
-  // describe("ユーザーがルームに入る", () => {
-  //   afterAll(() => {
-  //     clientSockets[0].off("PUB_ENTER_ROOM")
-  //   })
-  //
-  //   test("管理者がルームに入る", async (resolve) => {
-  //     adminSocket.emit("ADMIN_ENTER_ROOM", { roomId: roomData.id }, (res) => {
-  //       expect(res).toStrictEqual<AdminEnterRoomResponse>({
-  //         result: "success",
-  //         data: {
-  //           chatItems: [],
-  //           stamps: [],
-  //           activeUserCount: 1,
-  //           pinnedChatItemIds: [],
-  //           topicStates: [],
-  //         },
-  //       })
-  //       resolve()
-  //     })
-  //   })
-  //   test("ユーザーがルームに入る", async (resolve) => {
-  //     clientSockets[0].emit(
-  //       "ENTER_ROOM",
-  //       { roomId, iconId: "1" },
-  //       (res: any) => {
-  //         expect(res).toStrictEqual({
-  //           chatItems: [],
-  //           topics: expectedTopics,
-  //           activeUserCount: 2,
-  //         })
-  //         resolve()
-  //       },
-  //     )
-  //   })
-  //   test("ユーザーの入室が配信される", async (resolve) => {
-  //     clientSockets[0].on("PUB_ENTER_ROOM", (res) => {
-  //       expect(res).toStrictEqual({
-  //         iconId: "2",
-  //         activeUserCount: 3,
-  //       })
-  //       resolve()
-  //     })
-  //     clientSockets[1].emit(
-  //       "ENTER_ROOM",
-  //       { roomId, iconId: "2" },
-  //       (res: any) => {},
-  //     )
-  //   })
-  //   test.skip("存在しない部屋には入れない", async (resolve) => {
-  //     // TODO: サーバー側でエラー発生時にクライアントにメッセージを返さないようになっているので、テストがタイムアウトに
-  //     //  なってfailしてしまう。実装を直す必要あり。
-  //     clientSockets[2].on("error", (res: any) => {
-  //       // TODO: エラーレスポンスのフォーマットを決め、エラーチェックをする
-  //       resolve()
-  //     })
-  //     clientSockets[2].emit(
-  //       "ENTER_ROOM",
-  //       { roomId: "dasldksamk", iconId: "2" },
-  //       () => {},
-  //     )
-  //   })
-  // })
-  //
-  // describe("ルームの開始・トピックの遷移", () => {
-  //   // NOTE: DBのトピック状態更新処理にタイムラグがあり、少し遅延させないとデータの不整合が起きる場合がある。
-  //   //  実際の使用時にはトピックの状態の更新がミリ秒単位で行われることはないと考え、許容できるという判断
-  //   beforeEach(async () => await delay(100))
-  //
-  //   afterEach(() => {
-  //     clientSockets[0].off("PUB_CHANGE_TOPIC_STATE")
-  //   })
-  //
-  //   test("ルームの開始", (resolve) => {
-  //     clientSockets[0].on("PUB_START_ROOM", (res) => {
-  //       expect(res).toStrictEqual({})
-  //       resolve()
-  //     })
-  //     adminSocket.emit("ADMIN_START_ROOM", {})
-  //   })
-  //
-  //   test("0番目のトピックのオープン", (resolve) => {
-  //     clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
-  //       expect(res).toStrictEqual({
-  //         type: "OPEN",
-  //         topicId: topics[0].id,
-  //       })
-  //       resolve()
-  //     })
-  //     adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-  //       roomId,
-  //       type: "OPEN",
-  //       topicId: topics[0].id,
-  //     })
-  //   })
-  //
-  //   test("1番目のトピックをオープン", (resolve) => {
-  //     clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
-  //       expect(res).toStrictEqual({
-  //         type: "OPEN",
-  //         topicId: topics[1].id,
-  //       })
-  //       resolve()
-  //     })
-  //     adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-  //       roomId,
-  //       type: "OPEN",
-  //       topicId: topics[1].id,
-  //     })
-  //   })
-  //
-  //   test("2番目のトピックをオープン", (resolve) => {
-  //     clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
-  //       expect(res).toStrictEqual({
-  //         type: "OPEN",
-  //         topicId: topics[2].id,
-  //       })
-  //       resolve()
-  //     })
-  //     adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-  //       roomId,
-  //       type: "OPEN",
-  //       topicId: topics[2].id,
-  //     })
-  //   })
-  //
-  //   test("2番目のトピックを一時停止", (resolve) => {
-  //     clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
-  //       expect(res).toStrictEqual({
-  //         type: "PAUSE",
-  //         topicId: topics[2].id,
-  //       })
-  //       resolve()
-  //     })
-  //     adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-  //       roomId,
-  //       type: "PAUSE",
-  //       topicId: topics[2].id,
-  //     })
-  //   })
-  //
-  //   test("0番目のトピックをオープン", (resolve) => {
-  //     clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
-  //       expect(res).toStrictEqual({
-  //         type: "OPEN",
-  //         topicId: topics[0].id,
-  //       })
-  //       resolve()
-  //     })
-  //     adminSocket.emit("ADMIN_CHANGE_TOPIC_STATE", {
-  //       roomId,
-  //       type: "OPEN",
-  //       topicId: topics[0].id,
-  //     })
-  //   })
-  // })
+  describe("ユーザーがルームに入る", () => {
+    afterAll(() => {
+      clientSockets[0].off("PUB_USER_COUNT")
+    })
+
+    test("正常系_管理者がルームに入る", async (resolve) => {
+      adminSocket.emit("ADMIN_ENTER_ROOM", { roomId: roomData.id }, (res) => {
+        expect(res).toStrictEqual<AdminEnterRoomResponse>({
+          result: "success",
+          data: {
+            chatItems: [],
+            stamps: [],
+            // NOTE: system userが作成されるので2になる。以後同様に実際より1多い数値になる
+            activeUserCount: 2,
+            pinnedChatItemIds: roomData.topics.map(() => null),
+            topicStates: roomData.topics.map((t) => ({
+              topicId: t.id,
+              state: "not-started",
+            })),
+          },
+        })
+        resolve()
+      })
+    })
+
+    test("正常系_一般ユーザーがルームに入る", async (resolve) => {
+      clientSockets[0].emit(
+        "ENTER_ROOM",
+        { roomId: roomData.id, iconId: 1, speakerTopicId: 1 },
+        (res) => {
+          expect(res).toStrictEqual<AdminEnterRoomResponse>({
+            result: "success",
+            data: {
+              chatItems: [],
+              stamps: [],
+              // NOTE: system userが作成されるので2になる。以後同様に実際より1多い数値になる
+              activeUserCount: 3,
+              pinnedChatItemIds: roomData.topics.map(() => null),
+              topicStates: roomData.topics.map((t) => ({
+                topicId: t.id,
+                state: "not-started",
+              })),
+            },
+          })
+          resolve()
+        },
+      )
+    })
+
+    test("異常系_存在しないroomには入れない", async (resolve) => {
+      clientSockets[2].emit(
+        "ENTER_ROOM",
+        { roomId: uuid(), iconId: 3, speakerTopicId: 1 },
+        (res) => {
+          expect(res).toStrictEqual<ErrorResponse>({
+            result: "error",
+            error: { code: MATCHING.CODE, message: MATCHING.TEXT },
+          })
+          resolve()
+        },
+      )
+    })
+
+    test("正常系_他のユーザーの入室が配信される", async (resolve) => {
+      clientSockets[0].on("PUB_USER_COUNT", (res) => {
+        expect(res).toStrictEqual({
+          activeUserCount: 4,
+        })
+        resolve()
+      })
+      clientSockets[1].emit(
+        "ENTER_ROOM",
+        { roomId: roomData.id, iconId: 2, speakerTopicId: 1 },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        () => {},
+      )
+    })
+  })
+
+  describe("トピックの状態遷移", () => {
+    afterEach(async () => {
+      clientSockets[0].off("PUB_CHANGE_TOPIC_STATE")
+      await delay(100)
+    })
+
+    test("正常系_1番目のトピックを開始", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual<PubChangeTopicStateParam>({
+          topicId: roomData.topics[0].id,
+          state: "ongoing",
+        })
+        resolve()
+      })
+      adminSocket.emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
+        {
+          topicId: roomData.topics[0].id,
+          state: "ongoing",
+        },
+        (res) => {
+          expect(res).toStrictEqual({ result: "success" })
+        },
+      )
+    })
+
+    test("正常系_2番目のトピックを開始", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual<PubChangeTopicStateParam>({
+          topicId: roomData.topics[1].id,
+          state: "ongoing",
+        })
+        resolve()
+      })
+      adminSocket.emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
+        {
+          topicId: roomData.topics[1].id,
+          state: "ongoing",
+        },
+        (res) => {
+          expect(res).toStrictEqual({ result: "success" })
+        },
+      )
+    })
+
+    test("正常系_2番目のトピックを停止", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual<PubChangeTopicStateParam>({
+          topicId: roomData.topics[1].id,
+          state: "finished",
+        })
+        resolve()
+      })
+      adminSocket.emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
+        { topicId: roomData.topics[1].id, state: "finished" },
+        (res) => {
+          expect(res).toStrictEqual({ result: "success" })
+        },
+      )
+    })
+
+    test("正常系_3番目のトピックを開始", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual<PubChangeTopicStateParam>({
+          topicId: roomData.topics[2].id,
+          state: "ongoing",
+        })
+        resolve()
+      })
+      adminSocket.emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
+        {
+          topicId: roomData.topics[2].id,
+          state: "ongoing",
+        },
+        (res) => {
+          expect(res).toStrictEqual({ result: "success" })
+        },
+      )
+    })
+
+    test("正常系_3番目のトピックを一時停止", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual({
+          topicId: roomData.topics[2].id,
+          state: "paused",
+        })
+        resolve()
+      })
+      adminSocket.emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
+        {
+          topicId: roomData.topics[2].id,
+          state: "paused",
+        },
+        (res) => {
+          expect(res).toStrictEqual({ result: "success" })
+        },
+      )
+    })
+
+    test("正常系_3番目のトピックを再開始", (resolve) => {
+      clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
+        expect(res).toStrictEqual<PubChangeTopicStateParam>({
+          topicId: roomData.topics[2].id,
+          state: "ongoing",
+        })
+        resolve()
+      })
+      adminSocket.emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
+        {
+          topicId: roomData.topics[2].id,
+          state: "ongoing",
+        },
+        (res) => {
+          expect(res).toStrictEqual({ result: "success" })
+        },
+      )
+    })
+  })
   //
   // describe("コメントを投稿する", () => {
   //   beforeAll(() => {
