@@ -3,6 +3,7 @@
     <TopicHeader
       :title="topic.title"
       :topic-index="topicIndex"
+      :bookmark-item="pinnedChatItem"
       @download="clickDownload"
       @click-show-all="clickShowAll"
       @click-not-show-all="clickNotShowAll"
@@ -31,6 +32,7 @@
               :message="message"
               @click-thumb-up="clickReaction"
               @click-reply="selectedChatItem = message"
+              @click-pin="pinChatItem(message.id)"
             />
           </div>
         </transition-group>
@@ -89,7 +91,7 @@ import MessageComponent from "@/components/Message.vue"
 import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
-import { ChatItemStore, TopicStore } from "~/store"
+import { ChatItemStore, TopicStore, PinnedChatItemsStore } from "~/store"
 
 // Data型
 type DataType = {
@@ -140,6 +142,14 @@ export default Vue.extend({
     },
     topic() {
       return TopicStore.topics.find(({ id }) => id === this.topicId)
+    },
+    pinnedChatItem() {
+      const chatItems = ChatItemStore.chatItems.filter(
+        ({ topicId }) => topicId === this.topicId,
+      )
+      console.log(chatItems)
+      const pinnedChatItems = PinnedChatItemsStore.pinnedChatItems
+      return chatItems.find((chatItem) => pinnedChatItems.includes(chatItem.id))
     },
   },
   watch: {
@@ -254,6 +264,16 @@ export default Vue.extend({
     },
     clickNotShowAll() {
       this.isAllCommentShowed = false
+    },
+    pinChatItem(chatItemId: string) {
+      if (this.pinnedChatItem == null) {
+        PinnedChatItemsStore.add(chatItemId)
+      } else if (this.pinnedChatItem.id === chatItemId) {
+        PinnedChatItemsStore.delete(chatItemId)
+      } else {
+        PinnedChatItemsStore.delete(this.pinnedChatItem.id)
+        PinnedChatItemsStore.add(chatItemId)
+      }
     },
   },
 })
