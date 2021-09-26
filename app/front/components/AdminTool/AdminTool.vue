@@ -123,6 +123,10 @@ export default Vue.extend({
       type: String,
       required: true,
     },
+    adminInviteKey: {
+      type: String,
+      required: true,
+    },
   },
   data(): DataType {
     return {
@@ -150,9 +154,9 @@ export default Vue.extend({
       return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
     },
     adminUrl(): string {
-      return `${location.origin}?user=admin&roomId=${encodeURIComponent(
+      return `${location.origin}/invited/?roomId=${encodeURIComponent(
         this.roomId,
-      )}`
+      )}&admin_invite_key=${encodeURIComponent(this.adminInviteKey)}`
     },
     shareUrl(): string {
       return `${location.origin}?roomId=${encodeURIComponent(this.roomId)}`
