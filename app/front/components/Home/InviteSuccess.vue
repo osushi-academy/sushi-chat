@@ -132,7 +132,7 @@ export default Vue.extend({
       return `${location.origin}/?roomId=${this.roomId}`
     },
     adminUrl(): string {
-      return `${location.origin}/?user=admin&roomId=${this.roomId}`
+      return `${location.origin}/invited/?roomId=${this.roomId}&admin_invite_key=${this.adminInviteKey}`
     },
   },
   methods: {

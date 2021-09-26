@@ -8,7 +8,7 @@
     <template #title>イベントが作成されました</template>
     <template #content>
       <section class="home-creation-completed-modal__event-name">
-        イベント名：<b>技育CAMPハッカソン</b>
+        イベント名：<b>{{ title }}</b>
       </section>
       <section class="home-creation-completed-modal__event-detail">
         <div class="home-creation-completed-modal__event-detail--description">
@@ -105,6 +105,7 @@ import Modal from "@/components/Home/Modal.vue"
 type DataType = {
   adminInviteKey: string | null
   roomId: string | null
+  title: string | null
   copyCompleted: boolean
   copyAdminCompleted: boolean
 }
@@ -119,6 +120,7 @@ export default Vue.extend({
     return {
       adminInviteKey: null,
       roomId: null,
+      title: null,
       copyCompleted: false,
       copyAdminCompleted: false,
     }
@@ -128,12 +130,14 @@ export default Vue.extend({
       return `${location.origin}/?roomId=${this.roomId}`
     },
     adminUrl(): string {
-      return `${location.origin}/?user=admin&roomId=${this.roomId}`
+      return `${location.origin}/invited/?roomId=${this.roomId}&admin_invite_key=${this.adminInviteKey}`
     },
   },
   methods: {
     beforeOpen(event: any) {
       this.roomId = event.params.id
+      this.title = event.params.title
+      this.adminInviteKey = event.params.adminInviteKey
     },
     copy(s: string, idx: number) {
       navigator.clipboard.writeText(s)
