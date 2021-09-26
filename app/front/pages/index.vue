@@ -252,7 +252,7 @@ export default Vue.extend({
         {
           iconId,
           roomId: this.room.id,
-          speakerTopicId: 0, // TODO: speakerTopicIdを渡す
+          speakerTopicId: UserItemStore.userItems.speakerId,
         },
         (res) => {
           if (res.result === "error") {
