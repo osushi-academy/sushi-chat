@@ -7,6 +7,16 @@ resource "aws_codedeploy_deployment_group" "deploy-group" {
   deployment_group_name = "${var.project}-deploy-group"
   service_role_arn      = aws_iam_role.deploy-service-role.arn
   autoscaling_groups    = [aws_autoscaling_group.main.name]
+
+  deployment_style {
+    deployment_option = "WITH_TRAFFIC_CONTROL"
+  }
+
+  load_balancer_info {
+    target_group_info {
+      name = aws_lb_target_group.main.name
+    }
+  }
 }
 
 resource "aws_iam_role" "deploy-service-role" {
