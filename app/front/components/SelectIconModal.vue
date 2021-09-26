@@ -1,5 +1,6 @@
 <template>
   <div class="sushi-select">
+    <div class="sushi-select__bg" />
     <section class="sushi-select__header">
       <h1 class="sushi-select__header--title">{{ title }}</h1>
       <p class="sushi-select__header--content">
@@ -19,7 +20,7 @@
             v-for="(icon, index) in userIcons"
             :key="index"
             :class="{
-              'icon-selected': myIconId == index,
+              'icon-selected': myIconId - 1 == index,
               'icon-shari': index === 10,
             }"
             class="icon-box"
@@ -50,8 +51,7 @@
         </div>
         <select name="speaker" class="sushi-select__section--speaker">
           <option>未選択</option>
-          <option>大乱闘池奥ブラザーズ</option>
-          <option>寿司処池奥</option>
+          <option>おすしアカデミー</option>
         </select>
       </article>
     </section>
@@ -65,8 +65,8 @@
         </div>
         <div class="sushi-select__section--start">
           <picture class="sushi-select__section--my-sushi">
-            <source :srcset="userIcons[myIconId].webp" type="image/webp" />
-            <img :src="userIcons[myIconId].png" alt="" />
+            <source :srcset="userIcons[myIconId - 1].webp" type="image/webp" />
+            <img :src="userIcons[myIconId - 1].png" alt="" />
           </picture>
           <div class="sushi-select__section--button">
             <button :disabled="myIconId < 1" type="button" @click="hideModal">

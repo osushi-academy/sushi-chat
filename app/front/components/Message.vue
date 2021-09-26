@@ -6,7 +6,7 @@
       :id="messageId"
       class="comment"
       :class="{
-        admin: message.iconId == '0',
+        admin: message.iconId == 0,
         question: message.type == 'question',
         answer: message.type == 'answer',
       }"
@@ -22,7 +22,7 @@
           <div v-if="message.type == 'answer'" class="answer-badge">A</div>
         </div>
         <div
-          v-if="message.type == 'question' || message.target == null"
+          v-if="message.type == 'question' || message.quote == null"
           class="text"
         >
           <UrlToLink :text="message.content" />
@@ -35,9 +35,9 @@
           >
             <UrlToLink
               v-if="message.type != 'answer'"
-              :text="`> ` + message.target.content"
+              :text="`> ` + message.quote.content"
             />
-            <UrlToLink v-else :text="`Q. ` + message.target.content" />
+            <UrlToLink v-else :text="`Q. ` + message.quote.content" />
           </span>
           <UrlToLink :text="message.content" />
         </div>
@@ -47,6 +47,15 @@
           {{ showTimestamp(message.timestamp) }}
         </div>
         <div class="badges">
+          <button
+            v-if="isAdminorSpeaker"
+            class="chatitem__bookmark"
+            @click="bookmark()"
+          >
+            <span class="material-icons" :class="{ selected: isBookMarked }"
+              >push_pin</span
+            >
+          </button>
           <button class="reply-icon" @click="clickReply">
             <span class="material-icons"> reply </span>
           </button>
@@ -66,7 +75,6 @@
         </div>
       </div>
     </article>
-
     <!--Reaction Message-->
     <article
       v-else-if="message.type == 'reaction'"
@@ -75,8 +83,8 @@
     >
       <div class="icon-wrapper">
         <picture>
-          <source :srcset="targetIcon.webp" type="image/webp" />
-          <img :src="targetIcon.png" alt="" />
+          <source :srcset="icon.webp" type="image/webp" />
+          <img :src="icon.png" alt="" />
         </picture>
         <div
           class="material-icons raction-badge"
@@ -88,10 +96,10 @@
         </div>
       </div>
       <div class="long-text">
-        {{ message.target.content }}
+        {{ message.quote.content }}
       </div>
-      <!-- targetのmessageにスクロール -->
-      <span class="material-icons" @click="scrolltoMessage(message.target.id)">
+      <!-- quoteのmessageにスクロール -->
+      <span class="material-icons" @click="scrolltoMessage(message.quote.id)">
         north_west
       </span>
     </article>
@@ -99,17 +107,28 @@
     <!--article class="system_message" :id="messageId">
       <UrlToLink :text="message.content" />
     </article-->
+    <!-- <button
+      v-if="message.type != 'reaction'"
+      class="chatitem__bookmark"
+      @click="bookmark()"
+    >
+      <span class="material-icons" :class="{ selected: isBookMarked }"
+        >push_pin</span
+      >
+    </button> -->
   </div>
 </template>
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
+import { ChatItemModel } from "sushi-chat-shared"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
-import { ChatItemPropType } from "~/models/contents"
+import { PinnedChatItemsStore, UserItemStore } from "~/store"
 
 type DataType = {
   isLikedChatItem: boolean
+  // isBookMarked: boolean
 }
 
 export default Vue.extend({
@@ -121,27 +140,35 @@ export default Vue.extend({
     message: {
       type: Object,
       required: true,
-    } as PropOptions<ChatItemPropType>,
+    } as PropOptions<ChatItemModel>,
     messageId: {
       type: String,
       required: true,
     },
     topicId: {
-      type: String,
+      type: Number,
       required: true,
     },
   },
   data(): DataType {
     return {
       isLikedChatItem: false,
+      // isBookMarked: false,
     }
   },
   computed: {
     icon() {
       return ICONS[this.$props.message.iconId] ?? ICONS[0]
     },
-    targetIcon() {
-      return ICONS[this.$props.message.target.iconId]
+    pinnedChatItems() {
+      return PinnedChatItemsStore.pinnedChatItems
+    },
+    isBookMarked(): boolean {
+      console.log(PinnedChatItemsStore.pinnedChatItems)
+      return this.pinnedChatItems.includes(this.message.id)
+    },
+    isAdminorSpeaker(): boolean {
+      return UserItemStore.userItems.isAdmin
     },
   },
   methods: {
@@ -163,8 +190,8 @@ export default Vue.extend({
       }
     },
     // タイムスタンプを分、秒単位に変換
-    showTimestamp(timeStamp: number): string {
-      let sec: number = Math.floor(timeStamp / 1000)
+    showTimestamp(timeStamp?: number): string {
+      let sec: number = Math.floor((timeStamp as number) / 1000)
       const min: number = Math.floor(sec / 60)
       sec %= 60
       if (sec < 10) {
@@ -172,6 +199,9 @@ export default Vue.extend({
       } else {
         return `${min}` + ":" + `${sec}`
       }
+    },
+    bookmark() {
+      this.$emit("click-pin")
     },
   },
 })

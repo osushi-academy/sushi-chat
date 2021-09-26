@@ -168,7 +168,7 @@ const createSocketIOServer = async (
     })
 
     //messageで送られてきたときの処理
-    socket.on("POST_CHAT_ITEM", (received, callback) => {
+    socket.on("POST_CHAT_ITEM", async (received, callback) => {
       try {
         const commandBase: PostChatItemCommand = {
           userId,
@@ -178,7 +178,7 @@ const createSocketIOServer = async (
         const chatItemType = received.type
         switch (received.type) {
           case "message":
-            chatItemService.postMessage({
+            await chatItemService.postMessage({
               ...commandBase,
               content: received.content as string,
               quoteId: received.quoteId as string,
@@ -186,21 +186,21 @@ const createSocketIOServer = async (
             break
 
           case "reaction":
-            chatItemService.postReaction({
+            await chatItemService.postReaction({
               ...commandBase,
               quoteId: received.quoteId as string,
             })
             break
 
           case "question":
-            chatItemService.postQuestion({
+            await chatItemService.postQuestion({
               ...commandBase,
               content: received.content as string,
             })
             break
 
           case "answer":
-            chatItemService.postAnswer({
+            await chatItemService.postAnswer({
               ...commandBase,
               content: received.content as string,
               quoteId: received.quoteId as string,
@@ -208,7 +208,13 @@ const createSocketIOServer = async (
             break
 
           default:
-            throw new Error(`Invalid received.type: ${chatItemType}`)
+            handleError(
+              callback,
+              "POST_CHAT_ITEM",
+              new Error(`Invalid received.type: ${chatItemType}`),
+              400,
+            )
+            return
         }
         callback({ result: "success", data: undefined })
       } catch (e) {
@@ -252,9 +258,7 @@ const createSocketIOServer = async (
     //接続解除時に行う処理
     socket.on("disconnect", () => {
       try {
-        userService.leaveRoom({
-          userId,
-        })
+        userService.leaveRoom({ userId })
       } catch (e) {
         logError("disconnect", e)
       }
@@ -267,15 +271,20 @@ const createSocketIOServer = async (
 const handleError = (
   callback: (response: ErrorResponse) => void,
   event: ServerListenEventName,
-  error: unknown,
+  error: Error,
+  code = 500,
 ) => {
   logError(event, error)
-  callback({ result: "error", error: { code: "500", message: `${error}` } })
+  callback({
+    result: "error",
+    error: { code: `${code}`, message: error.message ?? "Unknown error" },
+  })
 }
 
-const logError = (context: string, error: unknown) => {
+const logError = (context: string, error: Error) => {
   const date = new Date().toISOString()
   console.error(`[${date}]${context}:${error ?? "Unknown error."}`)
+  console.error(error)
 }
 
 export default createSocketIOServer
