@@ -47,7 +47,11 @@
           {{ showTimestamp(message.timestamp) }}
         </div>
         <div class="badges">
-          <button class="chatitem__bookmark" @click="bookmark()">
+          <button
+            v-if="isAdminorSpeaker"
+            class="chatitem__bookmark"
+            @click="bookmark()"
+          >
             <span class="material-icons" :class="{ selected: isBookMarked }"
               >push_pin</span
             >
@@ -120,7 +124,7 @@ import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
-import { PinnedChatItemsStore } from "~/store"
+import { PinnedChatItemsStore, UserItemStore } from "~/store"
 
 type DataType = {
   isLikedChatItem: boolean
@@ -163,6 +167,9 @@ export default Vue.extend({
       console.log(PinnedChatItemsStore.pinnedChatItems)
       return this.pinnedChatItems.includes(this.message.id)
     },
+    isAdminorSpeaker(): boolean {
+      return UserItemStore.userItems.isAdmin
+    },
   },
   methods: {
     clickThumbUp() {
@@ -194,12 +201,6 @@ export default Vue.extend({
       }
     },
     bookmark() {
-      // this.isBookMarked = !this.isBookMarked
-      // if (this.isBookMarked) {
-      //   PinnedChatItemsStore.delete(this.messageId)
-      // } else {
-      //   PinnedChatItemsStore.add(this.messageId)
-      // }
       this.$emit("click-pin")
     },
   },
