@@ -266,13 +266,29 @@ export default Vue.extend({
       this.isAllCommentShowed = false
     },
     pinChatItem(chatItemId: string) {
-      if (this.pinnedChatItem == null) {
-        PinnedChatItemsStore.add(chatItemId)
+      console.log(chatItemId)
+      if (!this.pinnedChatItem) {
+        // 新規でピン留め
+        PinnedChatItemsStore.send({
+          topicId: this.topicId,
+          chatItemId,
+        })
       } else if (this.pinnedChatItem.id === chatItemId) {
-        PinnedChatItemsStore.delete(chatItemId)
+        // this.pinnedChatItemを外す
+        PinnedChatItemsStore.send({
+          topicId: this.topicId,
+          chatItemId,
+        })
       } else {
-        PinnedChatItemsStore.delete(this.pinnedChatItem.id)
-        PinnedChatItemsStore.add(chatItemId)
+        // this.pinnedChatItemを外して、ピン留め
+        PinnedChatItemsStore.send({
+          topicId: this.topicId,
+          chatItemId: this.pinnedChatItem.id,
+        })
+        PinnedChatItemsStore.send({
+          topicId: this.topicId,
+          chatItemId,
+        })
       }
     },
   },

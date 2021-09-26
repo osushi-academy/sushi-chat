@@ -1,4 +1,6 @@
-import { Module, VuexModule, Mutation } from "vuex-module-decorators"
+import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
+import { AuthStore } from "~/store"
+import buildSocket from "~/utils/socketIO"
 
 @Module({
   name: "pinnedChatItems",
@@ -22,5 +24,26 @@ export default class PinnedChatItems extends VuexModule {
     if (idx >= 0) {
       this._pinnedChatItems.splice(idx, 1)
     }
+  }
+
+  @Action({ rawError: true })
+  public send({
+    topicId, 
+    chatItemId, 
+  }: {
+    topicId: number,
+    chatItemId: string, 
+  }) {
+    const socket = buildSocket(AuthStore.idToken)
+    socket.emit(
+      "POST_PINNED_MESSAGE",
+      {
+        topicId,
+        chatItemId,
+      },
+      (res: any) => {
+        console.log(res)
+      },
+    )
   }
 }

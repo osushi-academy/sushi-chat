@@ -50,6 +50,7 @@ import {
   StampModel,
   ChatItemModel,
   PubUserCountParam,
+  PubPinnedMessageParam,
 } from "sushi-chat-shared"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
@@ -61,6 +62,7 @@ import {
   StampStore,
   TopicStore,
   TopicStateItemStore,
+  PinnedChatItemsStore,
 } from "~/store"
 
 // Data型
@@ -199,6 +201,18 @@ export default Vue.extend({
       this.$socket().on("PUB_USER_COUNT", (res: PubUserCountParam) => {
         this.activeUserCount = res.activeUserCount
       })
+      // ピン留めアイテムのSocketIOのコールバックの登録
+      this.$socket().on("PUB_PINNED_MESSAGE", (res: PubPinnedMessageParam) => {
+        if (
+          PinnedChatItemsStore.pinnedChatItems.find(
+            (id) => id === res.chatItemId,
+          )
+        ) {
+          PinnedChatItemsStore.delete(res.chatItemId)
+        } else {
+          PinnedChatItemsStore.add(res.chatItemId)
+        }
+      })
     },
     // 管理画面の開閉
     clickDrawerMenu() {
@@ -251,7 +265,11 @@ export default Vue.extend({
               state: topicState.state,
             })
           })
-          console.log(res)
+          res.data.pinnedChatItemIds.forEach((pinnedChatItem) => {
+            if (pinnedChatItem) {
+              PinnedChatItemsStore.add(pinnedChatItem)
+            }
+          })
           ChatItemStore.setChatItems(res.data.chatItems)
         },
       )
