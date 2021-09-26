@@ -2,7 +2,7 @@
   <article v-if="topic" class="topic-block">
     <TopicHeader
       :title="topic.title"
-      :topic-index="topicIndex"
+      :topic-index="topicId"
       :bookmark-item="pinnedChatItem"
       @download="clickDownload"
       @click-show-all="clickShowAll"
