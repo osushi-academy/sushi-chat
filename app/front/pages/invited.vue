@@ -1,11 +1,20 @@
 <template>
   <div class="container page">
     <main>
-      {{ room.title }}
-      {{ room.description }}
-      {{ room.state }}
-      <p>管理者に招待されています</p>
-      <button @click="regiaterAdmin">登録する</button>
+      <div class="sushi-select not-started">
+        <div class="not-started__title">管理者に招待されています</div>
+        <div class="not-started__textbox">
+          <div class="not-started__textbox--title">{{ room.title }}</div>
+          <div>
+            {{ room.description }}
+          </div>
+          {{ room.state === "ongoing" ? "ルーム開催中" : "ルーム開始前" }}
+        </div>
+        <div class="not-started__button">
+          <button @click="regiaterAdmin">登録する</button>
+        </div>
+      </div>
+      <InviteSuccess />
     </main>
   </div>
 </template>
@@ -14,6 +23,7 @@
 import Vue from "vue"
 import VModal from "vue-js-modal"
 import { RoomModel } from "~/../shared/dist"
+import InviteSuccess from "@/components/Home/InviteSuccess.vue"
 
 // Data型
 type DataType = {
@@ -25,6 +35,9 @@ type DataType = {
 Vue.use(VModal)
 export default Vue.extend({
   name: "Invited",
+  components: {
+    InviteSuccess,
+  },
   async asyncData({ app, query }) {
     const res = await app.$apiClient.get(
       {
@@ -45,7 +58,7 @@ export default Vue.extend({
     // roomId取得
     this.roomId = this.$route.query.roomId as string
     // adminInviteKey取得
-    this.adminInviteKey = this.$route.query.adminInviteKey as string
+    this.adminInviteKey = this.$route.query.admin_invite_key as string
   },
   mounted(): any {
     // roomId取得
@@ -57,19 +70,23 @@ export default Vue.extend({
   methods: {
     async regiaterAdmin() {
       const res = await this.$apiClient.post(
-        {
-          pathname: "/room/:id/invited?admin_invite_key=:adminInviteKey",
-          params: {
-            id: this.roomId as string,
-            adminInviteKey: this.adminInviteKey,
-          },
-        },
+        // @ts-ignore
+        `/room/${this.roomId}/invited?admin_invite_key=${this.adminInviteKey}`,
         {},
       )
       if (res.result === "error") {
-        throw new Error("ルーム情報なし")
+        throw new Error("管理者招待失敗")
       }
-      return { room: res.data }
+      console.log({
+        title: this.room.title,
+        id: this.room.id,
+        adminInviteKey: this.room.adminInviteKey,
+      })
+      this.$modal.show("home-invite-success-modal", {
+        title: this.room.title,
+        id: this.room.id,
+        adminInviteKey: this.room.adminInviteKey,
+      })
     },
   },
 })
