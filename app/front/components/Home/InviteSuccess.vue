@@ -1,11 +1,11 @@
 <template>
   <Modal
-    name="home-creation-completed-modal"
-    class="home-creation-completed-modal"
+    name="home-invite-success-modal"
+    class="home-invite-success-modal"
     :click-to-close="false"
     @before-open="beforeOpen"
   >
-    <template #title>イベントが作成されました</template>
+    <template #title>管理者登録が完了しました</template>
     <template #content>
       <section class="home-creation-completed-modal__event-name">
         イベント名：<b>{{ title }}</b>
@@ -105,13 +105,14 @@ import Modal from "@/components/Home/Modal.vue"
 type DataType = {
   adminInviteKey: string | null
   roomId: string | null
+  description: string | null
   title: string | null
   copyCompleted: boolean
   copyAdminCompleted: boolean
 }
 
 export default Vue.extend({
-  name: "HomeCreationCompletedModal",
+  name: "InviteSuccess",
   components: {
     Modal,
   },
@@ -120,6 +121,7 @@ export default Vue.extend({
     return {
       adminInviteKey: null,
       roomId: null,
+      description: null,
       title: null,
       copyCompleted: false,
       copyAdminCompleted: false,
@@ -135,9 +137,10 @@ export default Vue.extend({
   },
   methods: {
     beforeOpen(event: any) {
-      this.roomId = event.params.id
-      this.title = event.params.title
       this.adminInviteKey = event.params.adminInviteKey
+      this.roomId = event.params.id
+      this.description = event.params.description
+      this.title = event.params.title
     },
     copy(s: string, idx: number) {
       navigator.clipboard.writeText(s)

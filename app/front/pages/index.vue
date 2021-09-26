@@ -22,6 +22,7 @@
         :room-id="room.id"
         :title="room.title"
         :room-state="roomState"
+        :admin-invite-key="room.adminInviteKey"
         @start-room="startRoom"
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
