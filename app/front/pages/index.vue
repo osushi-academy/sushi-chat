@@ -118,8 +118,9 @@ export default Vue.extend({
     }
   },
   mounted() {
-    if (this.room.id !== "") {
-      // TODO: this.room.idが存在しない→404
+    if (typeof this.room.id === "undefined") {
+      // TODO: this.room.idが存在しない場合、/loginにリダイレクト
+      this.$router.push("/login")
     }
     // socket接続
     this.$initSocket(UserItemStore.userItems.isAdmin)
