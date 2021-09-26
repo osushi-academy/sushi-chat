@@ -29,7 +29,7 @@
       v-model="text"
       :disabled="disabled"
       class="textarea"
-      :class="{ nomaltext: isAdmin === false && isSpeaker === false }"
+      :class="{ normaltext: isAdmin === false && isSpeaker === false }"
       contenteditable
       :placeholder="placeholder"
     />
