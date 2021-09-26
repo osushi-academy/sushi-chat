@@ -22,6 +22,7 @@
         :room-id="room.id"
         :title="room.title"
         :room-state="roomState"
+        :admin-invite-key="room.adminInviteKey"
         @start-room="startRoom"
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
@@ -300,6 +301,7 @@ export default Vue.extend({
       )
       this.socketSetUp()
       this.isRoomEnter = true
+      UserItemStore.changeMyIcon(0)
     },
     // ルーム終了
     finishRoom() {

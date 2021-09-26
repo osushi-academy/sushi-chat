@@ -9,6 +9,8 @@
         admin: message.iconId == 0,
         question: message.type == 'question',
         answer: message.type == 'answer',
+        badgecomment:
+          message.senderType === 'admin' || message.senderType === 'speaker',
       }"
     >
       <!-- バッジ -->
