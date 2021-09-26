@@ -371,7 +371,7 @@
     display: flex;
     padding: 0.5em 1em;
   }
-  .presenter {
+  .speaker {
     background-color: $primary;
   }
   .admin {
@@ -551,6 +551,11 @@
     border-top-left-radius: 4px;
     border-bottom-right-radius: 5px;
     min-width: 7rem;
+  }
+  .sender-non-badge {
+    display: inline-block;
+    background-color: white;
+    color: white;
   }
 
   .admin {

@@ -49,9 +49,15 @@
             </div>
           </span>
         </div>
-        <select name="speaker" class="sushi-select__section--speaker">
-          <option>未選択</option>
-          <option>おすしアカデミー</option>
+        <select
+          v-model="speakerId"
+          name="speaker"
+          class="sushi-select__section--speaker"
+        >
+          <option :value="0">未選択</option>
+          <option v-for="topic in topics" :key="topic.id" :value="topic.id">
+            {{ topic.title }}
+          </option>
         </select>
       </article>
     </section>
@@ -82,7 +88,7 @@
 <script lang="ts">
 import Vue from "vue"
 import ICONS from "@/utils/icons"
-import { UserItemStore } from "~/store"
+import { TopicStore, UserItemStore } from "~/store"
 
 export default Vue.extend({
   name: "SelectIconModal",
@@ -96,6 +102,11 @@ export default Vue.extend({
       default: "",
     },
   },
+  data() {
+    return {
+      speakerId: 0,
+    }
+  },
   computed: {
     myIconId() {
       return UserItemStore.userItems.myIconId
@@ -103,12 +114,16 @@ export default Vue.extend({
     userIcons() {
       return ICONS.slice(1)
     },
+    topics() {
+      return TopicStore.topics
+    },
   },
   methods: {
     selectIcon(index: number) {
       this.$emit("click-icon", index + 1)
     },
     hideModal() {
+      UserItemStore.setSpeakerId(this.speakerId)
       this.$emit("hide-modal")
     },
   },

@@ -13,16 +13,10 @@
       </div>
       <div class="material-icons" @click="deselectChatItem">close</div>
     </div>
-    <div class="sender-badge-wrapper">
-      <span
-        v-if="selectedChatItem === null"
-        class="sender-badge"
-        :class="{
-          admin: isAdmin === true,
-          presenter: isAdmin === false,
-        }"
-      >
-        from おすしアカデミー
+    <div v-if="selectedChatItem === null" class="sender-badge-wrapper">
+      <span v-if="isAdmin" class="sender-badge admin"> from 運営 </span>
+      <span v-if="isSpeaker" class="sender-badge speaker">
+        from スピーカー
       </span>
     </div>
     <!--div class="input-area__fixed-phrases">
@@ -122,6 +116,9 @@ export default Vue.extend({
     },
     isAdmin() {
       return UserItemStore.userItems.isAdmin
+    },
+    isSpeaker(): boolean {
+      return UserItemStore.userItems.speakerId === this.topicId
     },
   },
   methods: {
