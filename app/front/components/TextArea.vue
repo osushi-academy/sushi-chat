@@ -18,7 +18,7 @@
       <span v-else-if="isSpeaker" class="sender-badge speaker">
         from スピーカー
       </span>
-      <span v-else class="sender-badge none"></span>
+      <!--span v-else class="sender-badge none"></span-->
     </div>
     <!--div class="input-area__fixed-phrases">
       <fixed-phrase text="8888888888" />
@@ -29,6 +29,7 @@
       v-model="text"
       :disabled="disabled"
       class="textarea"
+      :class="{ nomaltext: isAdmin === false && isSpeaker === false }"
       contenteditable
       :placeholder="placeholder"
     />

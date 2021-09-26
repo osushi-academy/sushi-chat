@@ -359,6 +359,7 @@
     width: 100%;
     margin-top: 0.3em;
     & > .sender-badge {
+      min-height: 20px;
       font-size: 75%;
       color: white;
       padding: 0.15em 0.5em;
@@ -379,6 +380,9 @@
   }
   .none {
     background-color: white;
+  }
+  .nomaltext{
+    min-height: 80px !important;
   }
   & > .textarea {
     padding: 0.5em 1em;
