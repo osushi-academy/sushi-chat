@@ -168,7 +168,10 @@ export default Vue.extend({
       return this.pinnedChatItems.includes(this.message.id)
     },
     isAdminorSpeaker(): boolean {
-      return UserItemStore.userItems.isAdmin
+      return (
+        UserItemStore.userItems.isAdmin ||
+        UserItemStore.userItems.speakerId === this.topicId
+      )
     },
   },
   methods: {
