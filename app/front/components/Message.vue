@@ -2,8 +2,8 @@
   <div class="chatitem-wrapper">
     <!-- Message -->
     <article
-      v-if="message.type != 'reaction'"
-      :id="messageId"
+      v-if="message.type != 'reaction' && message.senderType !== 'system'"
+      :id="message.id"
       class="comment"
       :class="{
         admin: message.iconId == 0,
@@ -11,7 +11,14 @@
         answer: message.type == 'answer',
       }"
     >
-      <div class="sender-badge">from おすしアカデミー</div>
+      <!-- バッジ -->
+      <div v-if="message.senderType === 'admin'" class="sender-badge">
+        from 運営
+      </div>
+      <div v-else-if="message.senderType === 'speaker'" class="sender-badge">
+        from スピーカー
+      </div>
+      <div v-else class="sender-non-badge"></div>
       <div class="main-contents">
         <div class="icon-wrapper">
           <picture>
@@ -47,7 +54,11 @@
           {{ showTimestamp(message.timestamp) }}
         </div>
         <div class="badges">
-          <button class="chatitem__bookmark" @click="bookmark()">
+          <button
+            v-if="isAdminorSpeaker"
+            class="chatitem__bookmark"
+            @click="bookmark()"
+          >
             <span class="material-icons" :class="{ selected: isBookMarked }"
               >push_pin</span
             >
@@ -74,7 +85,7 @@
     <!--Reaction Message-->
     <article
       v-else-if="message.type == 'reaction'"
-      :id="messageId"
+      :id="message.id"
       class="reaction"
     >
       <div class="icon-wrapper">
@@ -100,18 +111,13 @@
       </span>
     </article>
     <!--System Message-->
-    <!--article class="system_message" :id="messageId">
-      <UrlToLink :text="message.content" />
-    </article-->
-    <!-- <button
-      v-if="message.type != 'reaction'"
-      class="chatitem__bookmark"
-      @click="bookmark()"
+    <article
+      v-if="message.senderType === 'system'"
+      :id="message.id"
+      class="system_message"
     >
-      <span class="material-icons" :class="{ selected: isBookMarked }"
-        >push_pin</span
-      >
-    </button> -->
+      <UrlToLink :text="message.content" />
+    </article>
   </div>
 </template>
 <script lang="ts">
@@ -120,7 +126,7 @@ import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
-import { PinnedChatItemsStore } from "~/store"
+import { PinnedChatItemsStore, UserItemStore } from "~/store"
 
 type DataType = {
   isLikedChatItem: boolean
@@ -137,10 +143,6 @@ export default Vue.extend({
       type: Object,
       required: true,
     } as PropOptions<ChatItemModel>,
-    messageId: {
-      type: String,
-      required: true,
-    },
     topicId: {
       type: Number,
       required: true,
@@ -162,6 +164,12 @@ export default Vue.extend({
     isBookMarked(): boolean {
       console.log(PinnedChatItemsStore.pinnedChatItems)
       return this.pinnedChatItems.includes(this.message.id)
+    },
+    isAdminorSpeaker(): boolean {
+      return (
+        UserItemStore.userItems.isAdmin ||
+        UserItemStore.userItems.speakerId === this.topicId
+      )
     },
   },
   methods: {
@@ -194,12 +202,6 @@ export default Vue.extend({
       }
     },
     bookmark() {
-      // this.isBookMarked = !this.isBookMarked
-      // if (this.isBookMarked) {
-      //   PinnedChatItemsStore.delete(this.messageId)
-      // } else {
-      //   PinnedChatItemsStore.add(this.messageId)
-      // }
       this.$emit("click-pin")
     },
   },
