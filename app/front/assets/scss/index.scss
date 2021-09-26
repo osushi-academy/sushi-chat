@@ -552,6 +552,11 @@
     border-bottom-right-radius: 5px;
     min-width: 7rem;
   }
+  .sender-non-badge {
+    display: inline-block;
+    background-color: white;
+    color: white;
+  }
 
   .admin {
     & > .sender-badge {

@@ -27,7 +27,6 @@
                 message.type == 'question' ||
                 message.type == 'answer'
               "
-              :message-id="message.id"
               :topic-id="topicId"
               :message="message"
               @click-thumb-up="clickReaction"
