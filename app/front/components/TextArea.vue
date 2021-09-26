@@ -1,5 +1,5 @@
 <template>
-  <section class="input-area" role="form">
+  <section class="input-area" role="form" @keydown.enter="enterSendMessage">
     <div class="textarea-header">#{{ topicId }} {{ topicTitle }}</div>
     <div v-if="selectedChatItem" class="reply-bar">
       <span class="reply-type">
@@ -36,7 +36,6 @@
       class="textarea"
       contenteditable
       :placeholder="placeholder"
-      @keydown.enter="enterSendMessage"
     />
     <div class="error-message">
       <span
