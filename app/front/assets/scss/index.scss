@@ -377,6 +377,9 @@
   .admin {
     background-color: $text-gray;
   }
+  .none {
+    background-color: white;
+  }
   & > .textarea {
     padding: 0.5em 1em;
     border: none;

@@ -15,9 +15,10 @@
     </div>
     <div v-if="selectedChatItem === null" class="sender-badge-wrapper">
       <span v-if="isAdmin" class="sender-badge admin"> from 運営 </span>
-      <span v-if="isSpeaker" class="sender-badge speaker">
+      <span v-else-if="isSpeaker" class="sender-badge speaker">
         from スピーカー
       </span>
+      <span v-else class="sender-badge none"></span>
     </div>
     <!--div class="input-area__fixed-phrases">
       <fixed-phrase text="8888888888" />
