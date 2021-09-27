@@ -9,24 +9,45 @@
             <p>管理者ツール - {{ title }}</p>
           </div>
           <div class="room-url">
-            <button @click="writeToClipboard(shareUrl, 0)">
-              <div class="room-text">参加者用<br />招待URLのコピー</div>
-              <div v-if="copyCompleted" class="material-icons copy-button">
-                done
+            <button :title="shareUrl" @click="writeToClipboard(shareUrl, 0)">
+              <div id="url-copy-label" class="room-text">
+                <span class="bold">参加者</span>用<br />招待URLのコピー
               </div>
-              <div v-else class="material-icons copy-button">content_copy</div>
+              <CheckIcon
+                v-if="copyCompleted"
+                class="copy-button check-icon"
+              ></CheckIcon>
+              <CopyIcon
+                v-else
+                aria-labelledby="url-copy-label"
+                class="copy-button"
+              ></CopyIcon>
             </button>
-            <button @click="writeToClipboard(adminUrl, 1)">
-              <div class="room-text">管理者用<br />招待URLのコピー</div>
-              <div v-if="copyAdminCompleted" class="material-icons copy-button">
-                done
+            <button
+              id="admin-url-copy-label"
+              :title="adminUrl"
+              @click="writeToClipboard(adminUrl, 1)"
+            >
+              <div class="room-text">
+                <span class="bold">管理者</span>用<br />招待URLのコピー
               </div>
-              <div v-else class="material-icons copy-button">content_copy</div>
+              <CheckIcon
+                v-if="copyAdminCompleted"
+                class="copy-button check-icon"
+              ></CheckIcon>
+              <CopyIcon
+                v-else
+                class="copy-button"
+                aria-labelledby="admin-url-copy-label"
+              ></CopyIcon>
             </button>
           </div>
         </div>
         <button v-if="isNotRoomStarted" class="start-button" @click="startRoom">
-          <div class="material-icons-outlined">play_circle</div>
+          <PlayCircleIcon
+            aria-hidden="true"
+            class="start-button__label"
+          ></PlayCircleIcon>
           <span>ルームを開始する</span>
         </button>
       </div>
@@ -42,7 +63,7 @@
               : 'not-started'
           "
         >
-          <div class="topic-number">{{ index }}</div>
+          <div class="topic-number">#{{ index }}</div>
           <div class="topic-name">
             {{ topic.title }}
             <span v-if="topicStateItems[topic.id] === 'ongoing'" class="label">
@@ -53,28 +74,45 @@
             </span>
           </div>
           <div v-if="isRoomOngoing" class="buttons">
-            <button
-              v-if="topicStateItems[topic.id] !== 'finished'"
-              @click="clickPlayPauseButton(topic.id)"
-            >
-              <span class="material-icons-outlined">
-                {{ playOrPause(topicStateItems[topic.id]) }}
-              </span>
-            </button>
+            <!-- not-started / paused -->
             <button
               v-if="
-                topicStateItems[topic.id] === 'ongoing' ||
+                topicStateItems[topic.id] === 'not-started' ||
                 topicStateItems[topic.id] === 'paused'
               "
-              @click="clickFinishButton(topic.id)"
+              aria-label="トピックを開始する"
+              title="トピックを開始する"
+              @click="clickPlayPauseButton(topic.id)"
             >
-              <span class="material-icons-outlined danger">stop_circle</span>
+              <PlayCircleIcon aria-hidden="true"></PlayCircleIcon>
             </button>
+            <!-- ongoing -->
+            <template v-else-if="topicStateItems[topic.id] === 'ongoing'">
+              <button
+                class="pause"
+                title="トピックを一時停止する"
+                aria-label="トピックを一時停止する"
+                @click="clickPlayPauseButton(topic.id)"
+              >
+                <PauseCircleIcon aria-hidden="true"></PauseCircleIcon>
+              </button>
+              <button
+                class="danger"
+                aria-label="トピックを終了する"
+                title="トピックを終了する"
+                @click="clickFinishButton(topic.id)"
+              >
+                <StopCircleIcon aria-hidden="true"></StopCircleIcon>
+              </button>
+            </template>
+            <!-- finished -->
             <button
-              v-if="topicStateItems[topic.id] === 'finished'"
+              v-else-if="topicStateItems[topic.id] === 'finished'"
+              aria-label="トピックを再度開始する"
+              title="トピックを再度開始する"
               @click="clickRestartButton(topic.id)"
             >
-              <span class="material-icons">restart_alt</span>
+              <RotateCcwIcon aria-hidden="true"></RotateCcwIcon>
             </button>
             <div v-if="isRoomOngoing || isRoomFinished" class="topic-infos">
               <div class="topic-info">
@@ -89,8 +127,12 @@
       </div>
       <div class="drawer-menu__footer">
         <button v-if="isRoomOngoing" class="end-button" @click="finishRoom">
-          <span>ルームを終了する</span>
-          <div class="material-icons-outlined danger">info</div>
+          <span class="end-button__label">ルームを終了する</span>
+          <AlertCircleIcon
+            size="1.5x"
+            class="end-button__icon"
+            aria-hidden="true"
+          ></AlertCircleIcon>
         </button>
       </div>
     </div>
@@ -100,6 +142,15 @@
 <script lang="ts">
 import Vue from "vue"
 import { Topic } from "sushi-chat-shared"
+import {
+  PlayCircleIcon,
+  PauseCircleIcon,
+  StopCircleIcon,
+  RotateCcwIcon,
+  CopyIcon,
+  CheckIcon,
+  AlertCircleIcon,
+} from "vue-feather-icons"
 import ICONS from "@/utils/icons"
 import { UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
 
@@ -110,6 +161,15 @@ type DataType = {
 
 export default Vue.extend({
   name: "AdminTool",
+  components: {
+    PlayCircleIcon,
+    PauseCircleIcon,
+    StopCircleIcon,
+    RotateCcwIcon,
+    CopyIcon,
+    CheckIcon,
+    AlertCircleIcon,
+  },
   props: {
     roomId: {
       type: String,
@@ -161,17 +221,17 @@ export default Vue.extend({
     shareUrl(): string {
       return `${location.origin}?roomId=${encodeURIComponent(this.roomId)}`
     },
-    playOrPause() {
-      return function (topicState: string) {
-        if (topicState === "ongoing") {
-          return "pause_circle"
-        } else if (topicState === "paused" || topicState === "not-started") {
-          return "play_circle"
-        } else {
-          return null
-        }
-      }
-    },
+    // playOrPause() {
+    //   return function (topicState: string) {
+    //     if (topicState === "ongoing") {
+    //       return "pause_circle"
+    //     } else if (topicState === "paused" || topicState === "not-started") {
+    //       return "play_circle"
+    //     } else {
+    //       return null
+    //     }
+    //   }
+    // },
   },
   methods: {
     // ルーム開始
