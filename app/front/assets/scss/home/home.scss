@@ -159,6 +159,10 @@
               $color: #f07b7b,
               $border: "solid"
             );
+
+            &:disabled {
+              visibility: hidden;
+            }
           }
           &--sort {
             cursor: grab !important;
