@@ -33,21 +33,41 @@
             >
               <div
                 v-for="(list, idx) in sessionList"
-                :key="idx"
+                :key="list.id"
                 class="home-create__room__sessions__list--element"
               >
-                <div class="home-create__room__sessions__list--element--input">
+                <form
+                  class="home-create__room__sessions__list--element--input"
+                  @submit="onClickEnterInSessionInput($event, idx)"
+                >
                   <input
+                    ref="sessionInputs"
                     v-model="list.title"
                     placeholder="セッション名を入力"
+                    @keydown.up="moveFocus(idx, 'up')"
+                    @keydown.down="moveFocus(idx, 'down')"
+                    @keydown.esc="
+                      removeSessionAndMoveFocus(
+                        $event,
+                        idx,
+                        idx === sessionList.length - 1 ? 'up' : 'down',
+                      )
+                    "
+                    @keydown.delete="
+                      if (sessionList[idx].title.length === 0) {
+                        removeSessionAndMoveFocus($event, idx, 'up')
+                      }
+                    "
                   />
                   <button
+                    type="button"
                     class="home-create__room__sessions__list--element--remove"
+                    :disabled="!canDeleteSessionInput"
                     @click="removeSession(idx)"
                   >
                     <span class="material-icons"> remove </span>
                   </button>
-                </div>
+                </form>
                 <button
                   class="home-create__room__sessions__list--element--sort"
                   :class="{
@@ -63,7 +83,10 @@
         </div>
       </div>
       <div class="home-create__room__add">
-        <button class="home-create__room__add--button" @click="addSession">
+        <button
+          class="home-create__room__add--button"
+          @click="() => addSession()"
+        >
           <span class="material-icons"> add </span>セッションを追加
         </button>
         <button
@@ -92,10 +115,13 @@ import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue
 Vue.use(VModal)
 type DataType = {
   roomName: string
-  sessionList: { title: string }[]
+  sessionList: { title: string; id: number }[]
   isDragging: boolean
   MAX_TOPIC_LENGTH: number
 }
+
+let sessionId = 0
+
 export default Vue.extend({
   name: "HomeEventCreate",
   components: {
@@ -107,7 +133,7 @@ export default Vue.extend({
   data(): DataType {
     return {
       roomName: "",
-      sessionList: [{ title: "" }],
+      sessionList: [{ title: "", id: sessionId++ }],
       isDragging: false,
       MAX_TOPIC_LENGTH: 100,
     }
@@ -121,13 +147,37 @@ export default Vue.extend({
         ghostClass: "ghost",
       }
     },
+    canDeleteSessionInput(): boolean {
+      return this.sessionList.length > 1
+    },
   },
   methods: {
-    addSession() {
-      this.sessionList.push({ title: "" })
+    // idx番目に新しいセッションInputを追加する
+    addSession(idx?: number) {
+      const newIndex = idx ?? this.sessionList.length
+      this.sessionList.splice(newIndex, 0, {
+        title: "",
+        id: sessionId++,
+      })
+
+      // 新しく追加したセッションInputにフォーカスを当てる
+      Vue.nextTick(() => {
+        // @ts-ignore
+        this.getRefElementWithIdx(this.$refs.sessionInputs.length - 1)?.focus()
+      })
     },
     removeSession(idx: number) {
+      if (!this.canDeleteSessionInput) return
       this.sessionList.splice(idx, 1)
+    },
+    removeSessionAndMoveFocus(e: Event, idx: number, direction: "up" | "down") {
+      e.preventDefault()
+      this.moveFocus(idx, direction)
+      this.removeSession(idx)
+    },
+    // 矢印の上下キーで、上下のセッションInputに移動する
+    moveFocus(idx: number, direction: "up" | "down") {
+      this.getRefElementWithIdx(idx + (direction === "up" ? -1 : 1))?.focus()
     },
     // textareaに入力された文字を改行で区切ってTopic追加
     separateTopics(titles: string[]) {
@@ -150,11 +200,23 @@ export default Vue.extend({
           alert("セッション名は" + this.MAX_TOPIC_LENGTH + "文字までです。")
           return
         }
-        const t: { title: string } = { title: topicTitle }
+        const t = {
+          title: topicTitle,
+          id: sessionId++,
+        }
         set.add(topicTitle)
         this.sessionList.push(t)
       }
       this.$modal.hide("home-add-sessions-modal")
+    },
+    // 入力末尾でEnterを押したら、自動で次のinputを追加する
+    onClickEnterInSessionInput(e: Event, idx: number) {
+      e.preventDefault()
+      const inputElement = this.getRefElementWithIdx(idx)
+      // 現在キャレットが末尾にあるか判定する
+      if (inputElement.selectionEnd === this.sessionList[idx].title.length) {
+        this.addSession(idx + 1)
+      }
     },
     // ルーム作成
     async createRoom() {
@@ -189,6 +251,22 @@ export default Vue.extend({
         console.error(e)
         window.alert(e.message ?? "不明なエラーが発生しました")
       }
+    },
+    /**
+     * this.sessionListのidxの要素に対応するinput要素をthis.$refsから取得する関数
+     * @params idx idx
+     * @return 対応するinput要素
+     */
+    getRefElementWithIdx(idx: number) {
+      const nextId = this.sessionList[idx]?.id
+      if (nextId == null) return
+      const sortedIds = this.sessionList
+        .map(({ id }) => id)
+        .sort((a, b) => (a > b ? 1 : a === b ? 0 : -1))
+      const targetId = sortedIds.findIndex((id) => id === nextId)
+      if (targetId < 0) return null
+      // @ts-ignore
+      return this.$refs.sessionInputs[targetId]
     },
   },
 })
