@@ -12,7 +12,7 @@ export default {
   head: {
     title: "sushi-chat",
     htmlAttrs: {
-      lang: "en",
+      lang: "ja",
     },
     meta: [
       { charset: "utf-8" },
@@ -74,7 +74,14 @@ export default {
         ignoreNotFoundWarnings: true,
       },
     ],
-    "@nuxtjs/pwa",
+    [
+      "@nuxtjs/pwa",
+      {
+        manifest: {
+          lang: 'ja',
+        },
+      }
+    ],
   ],
   loaders: {
     ts: {
