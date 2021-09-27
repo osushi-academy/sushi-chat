@@ -33,7 +33,7 @@
             >
               <div
                 v-for="(list, idx) in sessionList"
-                :key="list.title"
+                :key="idx"
                 class="home-create__room__sessions__list--element"
               >
                 <div class="home-create__room__sessions__list--element--input">
