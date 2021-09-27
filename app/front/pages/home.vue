@@ -75,30 +75,28 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          Twitter
+          TwitterのDM
         </a>
-        のDM
+        からお願いいたします
       </div>
     </section>
     <section class="home-top__account">
       <div class="home-top__account--title">アカウント</div>
       <div class="home-top__account--content">
-        <div class="home-top__account--name">
-          <div class="home-top__account--name--description">
-            ログイン中のアカウント：
-          </div>
-          <div class="home-top__account--name--mail">
-            {{ email }}
-          </div>
+        <div class="home-top__account--name--description">
+          ログイン中のアカウント：
         </div>
-        <button class="home-top__account--logout-button" @click="logout()">
-          ログアウト
-        </button>
+        <div class="home-top__account--name--mail">
+          {{ email }}
+        </div>
       </div>
+      <button class="home-top__account--logout-button" @click="logout()">
+        ログアウト
+      </button>
     </section>
     <section class="home-top__other">
       <div class="home-top__other--title">その他</div>
-      <div class="home-top__other--delete-button">アカウント削除</div>
+      <button class="home-top__other--delete-button">アカウント削除</button>
     </section>
   </div>
 </template>

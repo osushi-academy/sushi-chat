@@ -41,14 +41,14 @@
                     v-model="list.title"
                     placeholder="セッション名を入力"
                   />
-                  <div
+                  <button
                     class="home-create__room__sessions__list--element--remove"
                     @click="removeSession(idx)"
                   >
                     <span class="material-icons"> remove </span>
-                  </div>
+                  </button>
                 </div>
-                <span
+                <button
                   class="home-create__room__sessions__list--element--sort"
                   :class="{
                     'home-create__room__sessions__list--element--sort--dragging':
@@ -56,22 +56,22 @@
                   }"
                 >
                   <span class="material-icons">menu</span>
-                </span>
+                </button>
               </div>
             </transition-group>
           </draggable>
         </div>
       </div>
       <div class="home-create__room__add">
-        <div class="home-create__room__add--button" @click="addSession">
+        <button class="home-create__room__add--button" @click="addSession">
           <span class="material-icons"> add </span>セッションを追加
-        </div>
-        <div
+        </button>
+        <button
           class="home-create__room__add--collective-button"
           @click="$modal.show('home-add-sessions-modal')"
         >
           <span class="material-icons"> add </span>まとめて追加
-        </div>
+        </button>
       </div>
     </section>
     <button class="home-create__create-new-event-button" @click="createRoom">

@@ -13,6 +13,8 @@ body {
 
 button {
   cursor: pointer;
+  background: transparent;
+  border: none;
 
   &:focus {
     outline: none;
