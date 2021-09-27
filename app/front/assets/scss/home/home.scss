@@ -22,6 +22,9 @@
   }
   &__new-event {
     margin: 0 0 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     &--input {
       width: 100%;
       margin: 0 0 1rem 0;
@@ -30,6 +33,7 @@
     &--button {
       margin: 0 auto;
       @include home-button-text;
+      display: inline-flex;
     }
   }
   &__event {

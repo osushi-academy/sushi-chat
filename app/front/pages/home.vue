@@ -2,11 +2,9 @@
   <div class="home-top">
     <header class="home-top__header">マイページ</header>
     <section class="home-top__new-event">
-      <button class="home-top__new-event--button">
-        <NuxtLink to="/room/create">
-          <span class="material-icons"> add </span>新しいイベントを作成
-        </NuxtLink>
-      </button>
+      <NuxtLink to="/room/create" class="home-top__new-event--button">
+        <span class="material-icons"> add </span>新しいイベントを作成
+      </NuxtLink>
     </section>
     <section v-if="ongoingRooms.length > 0" class="home-top__event">
       <div class="home-top__event--title">開催中のイベント</div>
