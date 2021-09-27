@@ -2,11 +2,15 @@
   <div class="home-create">
     <header class="home-create__header">イベントの作成</header>
     <section class="home-create__event-name">
-      <div class="home-create__event-name--title">1.イベント名の入力</div>
-      <input v-model="roomName" class="home-create__event-name--input" />
+      <div class="home-create__event-name--title">1. イベント名の入力</div>
+      <input
+        v-model="roomName"
+        class="home-create__event-name--input"
+        placeholder="イベント名"
+      />
     </section>
     <section class="home-create__room">
-      <div class="home-create__room--title">2.ルームの登録</div>
+      <div class="home-create__room--title">2. セッションの登録</div>
       <div class="home-create__room__sessions">
         <div class="home-create__room__sessions__index">
           <div v-for="num in sessionList.length" :key="num">
