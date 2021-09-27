@@ -17,7 +17,7 @@
         @hide-modal="hide"
       />
       <AdminTool
-        v-if="isAdmin"
+        v-if="isAdmin && room.adminInviteKey != null"
         :room="room"
         :room-id="room.id"
         :title="room.title"
@@ -236,14 +236,14 @@ export default Vue.extend({
           state,
           topicId: parseInt(topicId),
         },
-        (res: any) => {
+        (res) => {
           console.log(res)
         },
       )
     },
     // ユーザ関連
     // modalを消し、入室
-    hide(): any {
+    hide() {
       this.enterRoom(UserItemStore.userItems.myIconId)
     },
     // ルーム入室

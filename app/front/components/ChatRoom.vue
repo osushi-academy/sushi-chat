@@ -144,9 +144,9 @@ export default Vue.extend({
     },
     pinnedChatItem() {
       const chatItems = ChatItemStore.chatItems.filter(
-        ({ topicId }) => topicId === this.topicId,
+        (chatItemModel): chatItemModel is ChatItemModel =>
+          chatItemModel.topicId === this.topicId,
       )
-      console.log(chatItems)
       const pinnedChatItems = PinnedChatItemsStore.pinnedChatItems
       return chatItems.find((chatItem) => pinnedChatItems.includes(chatItem.id))
     },
