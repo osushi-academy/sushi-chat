@@ -78,6 +78,9 @@
   &:focus {
     outline: none;
   }
+  &::placeholder {
+    color: $text-placeholder;
+  }
 }
 
 @mixin material-icon-button(
