@@ -15,7 +15,9 @@
         >
           <div class="home-top__event__list">
             <div class="home-top__event__list--name">{{ room.title }}</div>
-            <div class="home-top__event__list--date">{{ room.startDate }}</div>
+            <div class="home-top__event__list--date">
+              {{ formatDate(room.startDate) }}
+            </div>
             <div class="home-top__event__list--role">管理者</div>
           </div>
         </NuxtLink>
@@ -45,7 +47,9 @@
         >
           <div class="home-top__event__list">
             <div class="home-top__event__list--name">{{ room.title }}</div>
-            <div class="home-top__event__list--date">{{ room.startDate }}</div>
+            <div class="home-top__event__list--date">
+              {{ formatDate(room.startDate) }}
+            </div>
             <div class="home-top__event__list--role">管理者</div>
             <div class="home-top__event__list--status">
               <button
@@ -105,6 +109,7 @@
 import Vue from "vue"
 import { RoomModel } from "sushi-chat-shared"
 import { DeviceStore, AuthStore } from "~/store"
+import { formatDate } from "~/utils/formatDate"
 
 type AsyncDataType = {
   ongoingRooms: RoomModel[]
@@ -183,6 +188,12 @@ export default Vue.extend({
       } catch (e) {
         window.alert("ルームの公開停止に失敗しました")
       }
+    },
+    formatDate(date: string | undefined) {
+      if (date == null) {
+        return ""
+      }
+      return formatDate(new Date(date))
     },
   },
 })
