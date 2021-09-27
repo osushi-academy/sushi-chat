@@ -2,11 +2,9 @@
   <div class="home-top">
     <header class="home-top__header">マイページ</header>
     <section class="home-top__new-event">
-      <button class="home-top__new-event--button">
-        <NuxtLink to="/room/create">
-          <span class="material-icons"> add </span>新しいイベントを作成
-        </NuxtLink>
-      </button>
+      <NuxtLink to="/room/create" class="home-top__new-event--button">
+        <span class="material-icons"> add </span>新しいイベントを作成
+      </NuxtLink>
     </section>
     <section v-if="ongoingRooms.length > 0" class="home-top__event">
       <div class="home-top__event--title">開催中のイベント</div>
@@ -17,7 +15,9 @@
         >
           <div class="home-top__event__list">
             <div class="home-top__event__list--name">{{ room.title }}</div>
-            <div class="home-top__event__list--date">{{ room.startDate }}</div>
+            <div class="home-top__event__list--date">
+              {{ formatDate(room.startDate) }}
+            </div>
             <div class="home-top__event__list--role">管理者</div>
           </div>
         </NuxtLink>
@@ -47,7 +47,9 @@
         >
           <div class="home-top__event__list">
             <div class="home-top__event__list--name">{{ room.title }}</div>
-            <div class="home-top__event__list--date">{{ room.startDate }}</div>
+            <div class="home-top__event__list--date">
+              {{ formatDate(room.startDate) }}
+            </div>
             <div class="home-top__event__list--role">管理者</div>
             <div class="home-top__event__list--status">
               <button
@@ -77,30 +79,28 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          Twitter
+          TwitterのDM
         </a>
-        のDM
+        からお願いいたします
       </div>
     </section>
     <section class="home-top__account">
       <div class="home-top__account--title">アカウント</div>
       <div class="home-top__account--content">
-        <div class="home-top__account--name">
-          <div class="home-top__account--name--description">
-            ログイン中のアカウント：
-          </div>
-          <div class="home-top__account--name--mail">
-            {{ email }}
-          </div>
+        <div class="home-top__account--name--description">
+          ログイン中のアカウント：
         </div>
-        <button class="home-top__account--logout-button" @click="logout()">
-          ログアウト
-        </button>
+        <div class="home-top__account--name--mail">
+          {{ email }}
+        </div>
       </div>
+      <button class="home-top__account--logout-button" @click="logout()">
+        ログアウト
+      </button>
     </section>
     <section class="home-top__other">
       <div class="home-top__other--title">その他</div>
-      <div class="home-top__other--delete-button">アカウント削除</div>
+      <button class="home-top__other--delete-button">アカウント削除</button>
     </section>
   </div>
 </template>
@@ -109,6 +109,7 @@
 import Vue from "vue"
 import { RoomModel } from "sushi-chat-shared"
 import { DeviceStore, AuthStore } from "~/store"
+import { formatDate } from "~/utils/formatDate"
 
 type AsyncDataType = {
   ongoingRooms: RoomModel[]
@@ -187,6 +188,12 @@ export default Vue.extend({
       } catch (e) {
         window.alert("ルームの公開停止に失敗しました")
       }
+    },
+    formatDate(date: string | undefined) {
+      if (date == null) {
+        return ""
+      }
+      return formatDate(new Date(date))
     },
   },
 })

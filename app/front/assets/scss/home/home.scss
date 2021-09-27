@@ -22,6 +22,9 @@
   }
   &__new-event {
     margin: 0 0 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     &--input {
       width: 100%;
       margin: 0 0 1rem 0;
@@ -30,6 +33,7 @@
     &--button {
       margin: 0 auto;
       @include home-button-text;
+      display: inline-flex;
     }
   }
   &__event {
@@ -74,16 +78,8 @@
         align-items: center;
       }
     }
-    &--name {
-      margin: 0 1rem 1rem 0;
-      @media screen and (min-width: $small+px) {
-        display: flex;
-        align-items: center;
-        margin: 0 1rem 0 0;
-      }
-    }
     &--logout-button {
-      display: inline !important;
+      margin-top: 0.5rem;
       @include home-button-text;
     }
   }
@@ -129,7 +125,7 @@
         grid-column: 1;
         margin: 0 0.5rem 0 0;
         &--element {
-          margin: 0 0 0.5rem 0;
+          margin: 0.2rem 0 0.9em 0;
           padding: 0.5rem 0;
         }
       }
@@ -157,11 +153,16 @@
             }
           }
           &--remove {
+            margin: 0.2rem;
             @include material-icon-button(
               $size: "sm",
               $color: #f07b7b,
               $border: "solid"
             );
+
+            &:disabled {
+              visibility: hidden;
+            }
           }
           &--sort {
             cursor: grab !important;
@@ -177,12 +178,8 @@
       display: flex;
       &--button,
       &--collective-button {
-        display: flex;
-        align-items: center;
-        color: $admin-primary;
-        cursor: pointer;
-        margin: 0 1rem 0 0;
-        white-space: nowrap;
+        @include home-button-text($admin-primary, false);
+        margin-right: 0.5rem;
         .material-icons {
           font-size: 0.9rem;
         }
