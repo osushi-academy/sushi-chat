@@ -238,7 +238,11 @@ export const restSetup = (
     res: Response,
     code = 500,
   ) => {
-    logError(route, error)
+    // サーバーエラーの時のみエラーログに書き込む
+    if (code >= 500) {
+      logError(route, error)
+    }
+
     res.status(code).send({
       result: "error",
       error: {
