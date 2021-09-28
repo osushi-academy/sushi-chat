@@ -65,7 +65,7 @@
                     :disabled="!canDeleteSessionInput"
                     @click="removeSession(idx)"
                   >
-                    <span class="material-icons"> remove </span>
+                    <MinusCircleIcon size="1.2x"></MinusCircleIcon>
                   </button>
                 </form>
                 <button
@@ -75,7 +75,7 @@
                       isDragging === true,
                   }"
                 >
-                  <span class="material-icons">menu</span>
+                  <MenuIcon size="1.2x"></MenuIcon>
                 </button>
               </div>
             </transition-group>
@@ -87,13 +87,15 @@
           class="home-create__room__add--button"
           @click="() => addSession()"
         >
-          <span class="material-icons"> add </span>セッションを追加
+          <PlusIcon class="icon" size="20px"></PlusIcon>
+          セッションを追加
         </button>
         <button
           class="home-create__room__add--collective-button"
           @click="$modal.show('home-add-sessions-modal')"
         >
-          <span class="material-icons"> add </span>まとめて追加
+          <PlusIcon class="icon" size="20px"></PlusIcon>
+          まとめて追加
         </button>
       </div>
     </section>
@@ -109,6 +111,8 @@
 import Vue from "vue"
 import VModal from "vue-js-modal"
 import draggable from "vuedraggable"
+import PlusIcon from "vue-material-design-icons/Plus.vue"
+import { MenuIcon, MinusCircleIcon } from "vue-feather-icons"
 import AddSessionsModal from "@/components/Home/AddSessionsModal.vue"
 import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue"
 
@@ -128,6 +132,9 @@ export default Vue.extend({
     AddSessionsModal,
     CreationCompletedModal,
     draggable,
+    PlusIcon,
+    MenuIcon,
+    MinusCircleIcon,
   },
   layout: "home",
   data(): DataType {

@@ -159,6 +159,7 @@
               $color: #f07b7b,
               $border: "solid"
             );
+            color: #f07b7b;
 
             &:disabled {
               visibility: hidden;
@@ -179,11 +180,12 @@
       &--button,
       &--collective-button {
         @include home-button-text($admin-primary, false);
-        margin-right: 0.5rem;
-        .material-icons {
-          font-size: 0.9rem;
-        }
         @include text-size("normal");
+        margin-right: 0.5rem;
+
+        & > .icon {
+          margin-right: 0.25rem;
+        }
       }
     }
   }

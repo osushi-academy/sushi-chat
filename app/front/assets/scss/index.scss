@@ -317,6 +317,10 @@
       transition: all 0.2s;
       outline-color: rgb(207, 13, 13);
 
+      & > .icon {
+        display: flex;
+      }
+
       &:hover:not(:disabled),
       &:active:not(:disabled) {
         background: white;
