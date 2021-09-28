@@ -11,7 +11,7 @@
       </div>
       <div class="title">{{ title }}</div>
       <button class="more-button" @click="isOpenDetails = !isOpenDetails">
-        <span class="material-icons"> more_vert </span>
+        <MoreVerticalIcon></MoreVerticalIcon>
       </button>
     </div>
     <div v-if="isOpenDetails" class="topic-header__details">
@@ -34,13 +34,13 @@
       </div>
       <div class="topic-header__details--line" />
       <div class="topic-header__details--download" @click="clickDownload">
-        <span class="material-icons"> file_download </span>
+        <DownloadIcon size="1.2x"></DownloadIcon>
         <span class="text">現在までのチャット履歴のダウンロード</span>
       </div>
     </div>
     <div v-if="bookmarkContent != null" class="topic-header__bookmark">
       <div class="chatitem__bookmark">
-        <span class="material-icons selected">push_pin</span>
+        <PinIcon class="icon selected"></PinIcon>
       </div>
       <div class="topic-header__bookmark--text">{{ bookmarkContent }}</div>
       <button
@@ -59,7 +59,8 @@ import Vue from "vue"
 import type { PropOptions } from "vue"
 // import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
 import { ChatItemModel } from "sushi-chat-shared"
-import { XCircleIcon } from "vue-feather-icons"
+import { DownloadIcon, MoreVerticalIcon, XCircleIcon } from "vue-feather-icons"
+import PinIcon from "vue-material-design-icons/Pin.vue"
 import { PinnedChatItemsStore, UserItemStore } from "~/store"
 
 type DataType = {
@@ -72,6 +73,9 @@ export default Vue.extend({
   components: {
     // SidebarDrawer,
     XCircleIcon,
+    PinIcon,
+    MoreVerticalIcon,
+    DownloadIcon,
   },
   props: {
     title: {

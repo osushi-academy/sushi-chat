@@ -54,20 +54,26 @@
           {{ showTimestamp(message.timestamp) }}
         </div>
         <div class="badges">
-          <button
-            v-if="isAdminorSpeaker"
-            class="chatitem__bookmark"
-            @click="bookmark()"
-          >
-            <span class="material-icons" :class="{ selected: isBookMarked }"
-              >push_pin</span
-            >
+          <button v-if="isAdminorSpeaker" class="pin-icon" @click="bookmark()">
+            <PinIcon
+              :size="18"
+              :class="{ selected: isBookMarked }"
+              class="icon"
+            ></PinIcon>
           </button>
           <button class="reply-icon" @click="clickReply">
-            <span class="material-icons"> reply </span>
+            <ReplyIcon :size="20" class="icon"></ReplyIcon>
           </button>
-          <button class="bg-good-icon">
-            <span
+          <button
+            class="bg-good-icon"
+            :style="{
+              backgroundColor: isLikedChatItem ? icon.colorCode : undefined,
+              color: isLikedChatItem ? 'white' : undefined,
+              transform: isLikedChatItem ? 'rotate(-20deg)' : undefined,
+            }"
+          >
+            <ThumbUpIcon :size="19" class="icon"></ThumbUpIcon>
+            <!-- <span
               :style="{
                 backgroundColor: isLikedChatItem ? icon.colorCode : '',
                 color: isLikedChatItem ? 'white' : '',
@@ -77,7 +83,7 @@
               @click="clickThumbUp"
             >
               thumb_up
-            </span>
+            </span> -->
           </button>
         </div>
       </div>
@@ -94,12 +100,12 @@
           <img :src="icon.png" alt="" />
         </picture>
         <div
-          class="material-icons raction-badge"
+          class="reaction-badge"
           :style="{
             backgroundColor: icon.colorCode,
           }"
         >
-          thumb_up
+          <ThumbUpIcon class="icon" :size="13"></ThumbUpIcon>
         </div>
       </div>
       <button
@@ -130,6 +136,9 @@ import Vue from "vue"
 import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
 import { ArrowUpLeftIcon } from "vue-feather-icons"
+import PinIcon from "vue-material-design-icons/Pin.vue"
+import ReplyIcon from "vue-material-design-icons/Reply.vue"
+import ThumbUpIcon from "vue-material-design-icons/ThumbUp.vue"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
 import { PinnedChatItemsStore, UserItemStore } from "~/store"
@@ -144,6 +153,9 @@ export default Vue.extend({
   components: {
     UrlToLink,
     ArrowUpLeftIcon,
+    PinIcon,
+    ReplyIcon,
+    ThumbUpIcon,
   },
   props: {
     message: {

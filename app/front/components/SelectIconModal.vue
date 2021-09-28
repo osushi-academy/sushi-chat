@@ -43,7 +43,7 @@
         <div class="sushi-select__section--title">
           2. スピーカーの方は、セッション名をえらんでね
           <span class="sushi-select__section--help">
-            <span class="material-icons"> help_outline</span>
+            <HelpCircleIcon class="icon" size="1x"></HelpCircleIcon>
             <div class="sushi-select__section--help--message">
               自分のセッション内では、コメントが強調されます。また、メッセージのピン留めなどの機能が利用できます。
             </div>
@@ -87,11 +87,15 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { HelpCircleIcon } from "vue-feather-icons"
 import ICONS from "@/utils/icons"
 import { TopicStore, UserItemStore } from "~/store"
 
 export default Vue.extend({
   name: "SelectIconModal",
+  components: {
+    HelpCircleIcon,
+  },
   props: {
     title: {
       type: String,
