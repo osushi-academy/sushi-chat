@@ -34,6 +34,10 @@
       margin: 0 auto;
       @include home-button-text;
       display: inline-flex;
+
+      & > .icon {
+        margin-right: 0.25rem;
+      }
     }
   }
   &__event {

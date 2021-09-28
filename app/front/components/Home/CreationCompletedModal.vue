@@ -10,19 +10,6 @@
       >」が作成されました</template
     >
     <template #content>
-      <!-- <section class="home-creation-completed-modal__event-name">
-        イベント名：
-      </section> -->
-      <!-- <section class="home-creation-completed-modal__event-detail">
-        <div class="home-creation-completed-modal__event-detail--description">
-          <NuxtLink :to="'/?user=admin&roomId=' + roomId"
-            >イベントページをみる→</NuxtLink
-          >
-        </div>
-        <div class="home-creation-completed-modal__event-detail--additional">
-          （イベントページはマイページからも確認できます）
-        </div>
-      </section> -->
       <section
         class="home-creation-completed-modal__invitation"
         style="margin-bottom: 1rem"
@@ -31,31 +18,20 @@
           🍣 参加者URL
         </div>
         <div class="home-creation-completed-modal__invitation__content">
-          <!-- <div
-            class="home-creation-completed-modal__invitation__content--title"
-          >
-            招待リンク
-          </div> -->
           <div
             class="home-creation-completed-modal__invitation__content__detail"
           >
             <div
-              class="
-                home-creation-completed-modal__invitation__content__detail--url
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--url"
             >
               {{ url }}
             </div>
             <button
-              class="
-                home-creation-completed-modal__invitation__content__detail--button
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--button"
               @click="copy(url, 0)"
             >
               <CheckIcon v-if="copyCompleted" class="check-icon"></CheckIcon>
               <CopyIcon v-else></CopyIcon>
-              <!-- <span v-if="copyCompleted" class="material-icons"> done </span> -->
-              <!-- <span v-else class="material-icons"> content_copy </span> -->
             </button>
           </div>
         </div>
@@ -65,25 +41,16 @@
           🍣 共同管理者の招待URL
         </div>
         <div class="home-creation-completed-modal__invitation__content">
-          <!-- <div
-            class="home-creation-completed-modal__invitation__content--title"
-          >
-            招待リンク
-          </div> -->
           <div
             class="home-creation-completed-modal__invitation__content__detail"
           >
             <div
-              class="
-                home-creation-completed-modal__invitation__content__detail--url
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--url"
             >
               {{ adminUrl }}
             </div>
             <button
-              class="
-                home-creation-completed-modal__invitation__content__detail--button
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--button"
               @click="copy(adminUrl, 1)"
             >
               <CheckIcon

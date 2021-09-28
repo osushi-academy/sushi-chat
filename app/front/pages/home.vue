@@ -3,7 +3,7 @@
     <header class="home-top__header">マイページ</header>
     <section class="home-top__new-event">
       <NuxtLink to="/room/create" class="home-top__new-event--button">
-        <span class="material-icons"> add </span>新しいイベントを作成
+        <PlusIcon class="icon"></PlusIcon>新しいイベントを作成
       </NuxtLink>
     </section>
     <section v-if="ongoingRooms.length > 0" class="home-top__event">
@@ -108,6 +108,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { RoomModel } from "sushi-chat-shared"
+import { PlusIcon } from "vue-feather-icons"
 import { DeviceStore, AuthStore } from "~/store"
 import { formatDate } from "~/utils/formatDate"
 
@@ -119,6 +120,9 @@ type AsyncDataType = {
 
 export default Vue.extend({
   name: "Home",
+  components: {
+    PlusIcon,
+  },
   layout: "home",
   middleware: "privateRoute",
   async asyncData({ app }): Promise<AsyncDataType> {
