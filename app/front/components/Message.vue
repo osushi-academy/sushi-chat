@@ -37,17 +37,16 @@
           <UrlToLink :text="message.content" />
         </div>
         <div v-else class="text">
-          <span
+          <p
             class="long-text"
             :style="{ color: 'gray', fontSize: '80%' }"
             @click.stop
           >
-            <UrlToLink
-              v-if="message.type != 'answer'"
-              :text="`> ` + message.quote.content"
-            />
-            <UrlToLink v-else :text="`Q. ` + message.quote.content" />
-          </span>
+            <template v-if="message.type != 'answer'">
+              > {{ message.quote.content }}
+            </template>
+            <template v-else> Q. {{ message.quote.content }} </template>
+          </p>
           <UrlToLink :text="message.content" />
         </div>
       </div>
@@ -104,13 +103,12 @@
           thumb_up
         </div>
       </div>
-      <div class="long-text">
-        {{ message.quote.content }}
-      </div>
-      <!-- quoteのmessageにスクロール -->
-      <span class="material-icons" @click="scrolltoMessage(message.quote.id)">
-        north_west
-      </span>
+      <button class="reaction-link" @click="scrolltoMessage(message.quote.id)">
+        <div class="long-text">
+          {{ message.quote.content }}
+        </div>
+        <ArrowUpLeftIcon class="icon" size="1.2x"></ArrowUpLeftIcon>
+      </button>
     </article>
     <!--System Message-->
     <article
@@ -126,6 +124,7 @@
 import Vue from "vue"
 import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
+import { ArrowUpLeftIcon } from "vue-feather-icons"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
 import { PinnedChatItemsStore, UserItemStore } from "~/store"
@@ -139,6 +138,7 @@ export default Vue.extend({
   name: "Message",
   components: {
     UrlToLink,
+    ArrowUpLeftIcon,
   },
   props: {
     message: {

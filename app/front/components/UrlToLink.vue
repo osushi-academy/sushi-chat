@@ -9,7 +9,14 @@
           <br v-else />
         </span>
       </span>
-      <a v-else :href="content" target="_blank" @click.stop>
+      <a
+        v-else
+        :href="content"
+        target="_blank"
+        class="url-to-link__link"
+        :title="content"
+        @click.stop
+      >
         {{ content }}
       </a>
     </span>

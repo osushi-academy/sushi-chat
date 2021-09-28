@@ -552,12 +552,11 @@
     font-size: 8px;
     background-color: $primary;
     color: white;
-    padding: 0.25em 0.5em;
+    padding: 0.2em 0.8rem;
     margin-top: -1.5em;
     margin-left: -1.6em;
     border-top-left-radius: 4px;
     border-bottom-right-radius: 5px;
-    min-width: 7rem;
   }
   .sender-non-badge {
     display: inline-block;
@@ -581,6 +580,10 @@
 
   .badgecomment {
     padding: 0.75em 0.8em 0.35em !important;
+  }
+
+  .url-to-link__link {
+    color: rgb(47, 82, 199);
   }
   & > .comment,
   .reaction {
@@ -615,7 +618,6 @@
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;
         overflow: hidden;
-        margin-left: 0.6rem;
         &:hover {
           text-decoration: underline;
           cursor: pointer;
@@ -698,27 +700,37 @@
         align-self: center; // NOTE: for safari (yuta-ike)
       }
 
-      & > .long-text {
-        flex: 1;
-        display: -webkit-box;
-        color: $text-gray;
-        font-style: oblique;
-        word-break: break-all;
-        overflow-wrap: anywhere;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 1;
-        overflow: hidden;
-        margin-left: 0.6rem;
-        &:hover {
-          text-decoration: underline;
-          cursor: pointer;
+      & > .reaction-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+
+        & > .icon {
+          color: $text-gray;
         }
-      }
-      & > .material-icons {
-        margin-left: 1em;
-        color: $text-gray;
-        font-size: 1rem;
-        cursor: pointer;
+
+        & > .long-text {
+          flex: 1;
+          display: -webkit-box;
+          color: $text-gray;
+          font-style: oblique;
+          word-break: break-all;
+          overflow-wrap: anywhere;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 1;
+          overflow: hidden;
+          margin-left: 0.6rem;
+          text-align: left;
+          line-height: 1;
+        }
+
+        &:hover {
+          & > .long-text {
+            text-decoration: underline;
+            cursor: pointer;
+          }
+        }
       }
     }
     .icon-wrapper {
