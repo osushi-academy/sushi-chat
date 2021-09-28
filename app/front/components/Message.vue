@@ -85,7 +85,7 @@
     </article>
     <!--Reaction Message-->
     <article
-      v-else-if="message.type == 'reaction'"
+      v-else-if="message.type == 'reaction' && message.quote != null"
       :id="message.id"
       class="reaction"
     >
@@ -103,7 +103,10 @@
           thumb_up
         </div>
       </div>
-      <button class="reaction-link" @click="scrolltoMessage(message.quote.id)">
+      <button
+        class="reaction-link"
+        @click="if (message.quote != null) scrolltoMessage(message.quote.id)"
+      >
         <div class="long-text">
           {{ message.quote.content }}
         </div>
@@ -164,7 +167,6 @@ export default Vue.extend({
       return PinnedChatItemsStore.pinnedChatItems
     },
     isBookMarked(): boolean {
-      console.log(PinnedChatItemsStore.pinnedChatItems)
       return this.pinnedChatItems.includes(this.message.id)
     },
     isAdminorSpeaker(): boolean {

@@ -32,6 +32,7 @@
   display: flex;
   flex-direction: column;
   width: 100vw;
+  padding-bottom: 0.75rem;
 }
 
 @media screen and (min-width: 440px) {
@@ -135,15 +136,31 @@
   }
 
   &__bookmark {
-    display: flex;
     position: relative;
-    z-index: -1;
+    display: flex;
+    align-items: center;
     background-color: white;
     padding: 10px 5px;
-    // box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
     border-bottom: 1px solid rgb(239, 239, 239);
     &--text {
       flex: 1;
+    }
+    &--close-icon {
+      flex-shrink: 0;
+      align-self: flex-start;
+      margin-left: 10px;
+      color: $text-gray;
+      border-radius: 100%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s;
+
+      &:hover {
+        background: rgba($black, 0.08);
+      }
     }
     & > .chatitem__bookmark {
       margin-right: 10px;
@@ -202,6 +219,7 @@
       scroll-snap-type: y mandatory;
       overflow-y: scroll;
       padding: 1em 1rem;
+      @include scrollbar-hidden;
     }
 
     .list-complete {
@@ -723,6 +741,7 @@
           margin-left: 0.6rem;
           text-align: left;
           line-height: 1;
+          font-size: 13px;
         }
 
         &:hover {

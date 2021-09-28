@@ -38,11 +38,19 @@
         <span class="text">現在までのチャット履歴のダウンロード</span>
       </div>
     </div>
-    <div v-if="bookmarkContent !== ''" class="topic-header__bookmark">
-      <button class="chatitem__bookmark" @click="isBookMarked = !isBookMarked">
+    <div v-if="bookmarkContent != null" class="topic-header__bookmark">
+      <div class="chatitem__bookmark">
         <span class="material-icons selected">push_pin</span>
-      </button>
+      </div>
       <div class="topic-header__bookmark--text">{{ bookmarkContent }}</div>
+      <button
+        class="topic-header__bookmark--close-icon"
+        aria-label="ピン留めから外す"
+        title="ピン留めから外す"
+        @click="removeBookmark()"
+      >
+        <XCircleIcon size="1.2x" aria-hidden="true"></XCircleIcon>
+      </button>
     </div>
   </div>
 </template>
@@ -50,8 +58,9 @@
 import Vue from "vue"
 import type { PropOptions } from "vue"
 // import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
-import { ChatItemPropType } from "~/models/contents"
-import { UserItemStore } from "~/store"
+import { ChatItemModel } from "sushi-chat-shared"
+import { XCircleIcon } from "vue-feather-icons"
+import { PinnedChatItemsStore, UserItemStore } from "~/store"
 
 type DataType = {
   isAllCommentShowed: boolean
@@ -62,6 +71,7 @@ export default Vue.extend({
   name: "TopicHeader",
   components: {
     // SidebarDrawer,
+    XCircleIcon,
   },
   props: {
     title: {
@@ -74,8 +84,8 @@ export default Vue.extend({
     },
     bookmarkItem: {
       type: Object,
-      required: true,
-    } as PropOptions<ChatItemPropType>,
+      default: undefined,
+    } as PropOptions<ChatItemModel | undefined>,
   },
   data(): DataType {
     return {
@@ -87,14 +97,11 @@ export default Vue.extend({
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
     },
-    bookmarkContent(): string {
-      if (
-        typeof this.bookmarkItem !== "undefined" &&
-        this.bookmarkItem.type !== "reaction"
-      ) {
-        return this.bookmarkItem.content
+    bookmarkContent(): string | undefined {
+      if (this.bookmarkItem?.type === "reaction") {
+        return
       }
-      return ""
+      return this.bookmarkItem?.content
     },
   },
   methods: {
@@ -108,6 +115,12 @@ export default Vue.extend({
     clickNotShowAll() {
       this.isAllCommentShowed = false
       this.$emit("click-not-show-all")
+    },
+    removeBookmark() {
+      console.log("removeBookmark")
+      if (this.bookmarkItem != null) {
+        PinnedChatItemsStore.delete(this.bookmarkItem?.id)
+      }
     },
   },
 })

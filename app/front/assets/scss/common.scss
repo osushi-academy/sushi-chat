@@ -120,3 +120,13 @@ span.key-span {
     overflow-x: scroll;
   }
 }
+
+@mixin scrollbar-hidden {
+  overflow-y: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

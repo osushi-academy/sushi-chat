@@ -28,11 +28,11 @@ export default class PinnedChatItems extends VuexModule {
 
   @Action({ rawError: true })
   public send({
-    topicId, 
-    chatItemId, 
+    topicId,
+    chatItemId,
   }: {
-    topicId: number,
-    chatItemId: string, 
+    topicId: number
+    chatItemId: string
   }) {
     const socket = buildSocket(AuthStore.idToken)
     socket.emit(
@@ -41,7 +41,7 @@ export default class PinnedChatItems extends VuexModule {
         topicId,
         chatItemId,
       },
-      (res: any) => {
+      (res) => {
         console.log(res)
       },
     )
