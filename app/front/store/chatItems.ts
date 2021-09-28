@@ -73,7 +73,7 @@ export default class ChatItems extends VuexModule {
       topicId,
       type: "message",
       senderType: "general", // TODO: senderType取得
-      iconId: UserItemStore.userItems.myIconId + 1,
+      iconId: UserItemStore.userItems.myIconId,
       content: text,
       createdAt: new Date().toISOString(),
       quote: target,
@@ -105,7 +105,7 @@ export default class ChatItems extends VuexModule {
       topicId: message.topicId,
       type: "reaction",
       senderType: "general", // TODO: senderType取得
-      iconId: UserItemStore.userItems.myIconId + 1,
+      iconId: UserItemStore.userItems.myIconId,
       timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
       createdAt: new Date().toISOString(),
       quote: message,
@@ -136,7 +136,7 @@ export default class ChatItems extends VuexModule {
       topicId,
       type: "question",
       senderType: "general", // TODO: senderType取得
-      iconId: UserItemStore.userItems.myIconId + 1,
+      iconId: UserItemStore.userItems.myIconId,
       content: text,
       createdAt: new Date().toISOString(),
       timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
@@ -183,7 +183,7 @@ export default class ChatItems extends VuexModule {
       topicId,
       type: "answer",
       senderType: "general", // TODO: senderType取得
-      iconId: UserItemStore.userItems.myIconId + 1,
+      iconId: UserItemStore.userItems.myIconId,
       timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
       createdAt: new Date().toISOString(),
       quote: target || null,

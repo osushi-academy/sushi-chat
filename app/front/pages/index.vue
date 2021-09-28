@@ -301,6 +301,7 @@ export default Vue.extend({
       )
       this.socketSetUp()
       this.isRoomEnter = true
+      UserItemStore.changeMyIcon(0)
     },
     // ルーム終了
     finishRoom() {
