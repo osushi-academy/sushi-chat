@@ -59,13 +59,8 @@
           :topic-id="topicId"
         />
       </div>
-      <button
-        class="message-badge"
-        :style="{ transform: `translate(-50%, ${isNotify ? 0 : 150}%)` }"
-        @click="clickScroll"
-      >
-        最新のコメント
-        <div class="material-icons">arrow_downward</div>
+      <button class="message-badge" :class="{ isNotify }" @click="clickScroll">
+        <ArrowDownIcon size="1.2x"></ArrowDownIcon>
       </button>
     </div>
     <TextArea
@@ -82,7 +77,7 @@
 import Vue from "vue"
 import type { PropOptions } from "vue"
 import throttle from "lodash.throttle"
-import { XIcon, ChevronUpIcon } from "vue-feather-icons"
+import { XIcon, ChevronUpIcon, ArrowDownIcon } from "vue-feather-icons"
 import { ChatItemModel, TopicState } from "sushi-chat-shared"
 import AnalysisGraph from "./AnalysisGraph.vue"
 import TopicHeader from "@/components/TopicHeader.vue"
@@ -109,6 +104,7 @@ export default Vue.extend({
     FavoriteButton,
     AnalysisGraph,
     XIcon,
+    ArrowDownIcon,
     ChevronUpIcon,
   },
   props: {
