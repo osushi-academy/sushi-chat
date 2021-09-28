@@ -209,9 +209,6 @@
   &__footer {
     align-self: flex-end;
   }
-  &__hide-button {
-    @include home-button-text;
-  }
 }
 .vm--overlay {
   background-color: rgba(10, 10, 10, 0.5) !important;
@@ -251,22 +248,6 @@
 }
 
 .home-creation-completed-modal {
-  &__event-name {
-    margin: 0 0 1rem 0;
-    b {
-      margin-left: 0.5rem;
-      @include text-size("mdi");
-    }
-  }
-  &__event-detail {
-    margin: 0 0 1rem 0;
-    &--description {
-      a {
-        text-decoration: underline !important;
-      }
-      @include invalidated-a-style;
-    }
-  }
   &__invitation {
     &--title {
       margin: 0 0 0.5rem 0;
@@ -274,13 +255,6 @@
     &__content {
       @media screen and (min-width: $small+px) {
         display: flex;
-      }
-      &--title {
-        margin: 0 0 5px 0;
-        @include text-size("normal");
-        @media screen and (min-width: $small+px) {
-          margin: 10px 5px 0 0;
-        }
       }
       &__detail {
         @include text-size("normal");
@@ -303,11 +277,25 @@
           color: $admin-primary;
           padding: 0;
           margin-left: 5px;
-          .material-icons {
-            font-size: 18px;
+
+          & > .check-icon {
+            color: #3ba73b;
           }
         }
       }
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+
+    & > .hide-button {
+      @include home-button-text($color: $admin-primary, $show-border: false);
+      margin-right: 1rem;
+    }
+    & > .room-access-button {
+      @include home-button-text;
     }
   }
 }
