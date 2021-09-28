@@ -30,23 +30,22 @@
           <div v-if="message.type == 'question'" class="question-badge">Q</div>
           <div v-if="message.type == 'answer'" class="answer-badge">A</div>
         </div>
-        <div
-          v-if="message.type == 'question' || message.quote == null"
-          class="text"
-        >
+        <div v-if="message.quote == null" class="text">
           <UrlToLink :text="message.content" />
         </div>
         <div v-else class="text">
-          <p
+          <button
             class="long-text"
-            :style="{ color: 'gray', fontSize: '80%' }"
-            @click.stop
+            @click.stop="
+              // NOTE: 型推論のためにifを追加
+              if (message.quote != null) scrolltoMessage(message.quote.id)
+            "
           >
             <template v-if="message.type != 'answer'">
               > {{ message.quote.content }}
             </template>
             <template v-else> Q. {{ message.quote.content }} </template>
-          </p>
+          </button>
           <UrlToLink :text="message.content" />
         </div>
       </div>
@@ -105,7 +104,10 @@
       </div>
       <button
         class="reaction-link"
-        @click="if (message.quote != null) scrolltoMessage(message.quote.id)"
+        @click="
+          // NOTE: 型推論のためにifを追加
+          if (message.quote != null) scrolltoMessage(message.quote.id)
+        "
       >
         <div class="long-text">
           {{ message.quote.content }}
@@ -192,6 +194,11 @@ export default Vue.extend({
           behavior: "smooth",
           block: "nearest",
         })
+        console.log(id)
+        element.classList.add("highlight")
+        setTimeout(() => {
+          element.classList.remove("highlight")
+        }, 0)
       }
     },
     // タイムスタンプを分、秒単位に変換
