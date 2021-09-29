@@ -1,12 +1,11 @@
-import { v4 as uuid } from "uuid"
 import ChatItem from "../chatItem/ChatItem"
 import Stamp from "../stamp/Stamp"
-import Message from "../chatItem/Message"
 import Topic, { TopicTimeData } from "./Topic"
 import { RoomState, TopicState } from "sushi-chat-shared"
 import { PartiallyPartial } from "../../types/utils"
 import SystemUser from "../user/SystemUser"
 import UserFactory from "../../infra/factory/UserFactory"
+import Reaction from "../chatItem/Reaction"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -324,23 +323,27 @@ class RoomClass {
     this.assertRoomIsOngoing()
     this.assertUserExists(userId)
 
+    console.log(this.chatItems)
+
+    if (
+      chatItem instanceof Reaction &&
+      this.chatItems
+        .filter(
+          (chatItem): chatItem is Reaction => chatItem instanceof Reaction,
+        )
+        .find(
+          ({ topicId, user, quote }) =>
+            topicId === chatItem.topicId &&
+            user.id === chatItem.user.id &&
+            quote.id === chatItem.quote.id,
+        ) != null
+    ) {
+      throw new Error(
+        `Reaction(topicId: ${chatItem.topicId}, user.id: ${chatItem.user.id}, quote.id: ${chatItem.quote.id}) has already exists.`,
+      )
+    }
+
     this._chatItems.push(chatItem)
-  }
-
-  private postBotMessage = (topicId: number, content: string): Message => {
-    const botMessage = new Message(
-      uuid(),
-      topicId,
-      this.systemUser,
-      "admin",
-      content,
-      null,
-      new Date(),
-      this.calcTimestamp(topicId),
-    )
-    this._chatItems.push(botMessage)
-
-    return botMessage
   }
 
   private get activeTopic(): Topic | null {
