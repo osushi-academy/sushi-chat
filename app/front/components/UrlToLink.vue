@@ -13,6 +13,7 @@
         v-else
         :href="content"
         target="_blank"
+        rel="noopener noreferrer"
         class="url-to-link__link"
         :title="content"
         @click.stop

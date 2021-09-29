@@ -71,6 +71,7 @@
               color: isLikedChatItem ? 'white' : undefined,
               transform: isLikedChatItem ? 'rotate(-20deg)' : undefined,
             }"
+            @click="clickThumbUp"
           >
             <ThumbUpIcon :size="19" class="icon"></ThumbUpIcon>
             <!-- <span
