@@ -178,12 +178,15 @@ export default Vue.extend({
       })
       this.$socket().on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
         if (res.state === "ongoing") {
-          // 現在ongoingなトピックがあればfinishedにする
+          // 現在ongoingまたはpausedなトピックがあればfinishedにする
           const t = Object.fromEntries(
             Object.entries(this.topicStateItems).map(
               ([topicId, topicState]) => [
                 topicId,
-                topicState === "ongoing" ? "finished" : topicState,
+                (topicState =
+                  topicState === "ongoing" || topicState === "paused"
+                    ? "finished"
+                    : topicState),
               ],
             ),
           )
