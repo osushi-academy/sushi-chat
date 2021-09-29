@@ -1,7 +1,7 @@
 import { Module, VuexModule, Mutation } from "vuex-module-decorators"
 import { TopicState } from "sushi-chat-shared"
 
-type TopicStateItem = { [key: string]: TopicState }
+type TopicStateItem = { [key: number]: TopicState }
 
 @Module({
   name: "topicStateItems",
@@ -21,7 +21,7 @@ export default class TopicStateItems extends VuexModule {
   }
 
   @Mutation
-  public change({ key, state }: { key: string; state: TopicState }) {
-    this._topicStateItems = { ...this._topicStateItems, [key]: state };
+  public change({ key, state }: { key: number; state: TopicState }) {
+    this._topicStateItems = { ...this._topicStateItems, [key]: state }
   }
 }

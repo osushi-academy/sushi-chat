@@ -66,11 +66,12 @@
           </button>
           <button
             class="bg-good-icon"
+            :class="{ 'is-liked': isLikedChatItem }"
             :style="{
               backgroundColor: isLikedChatItem ? icon.colorCode : undefined,
-              color: isLikedChatItem ? 'white' : undefined,
-              transform: isLikedChatItem ? 'rotate(-20deg)' : undefined,
             }"
+            :disabled="isLikedChatItem"
+            :aria-pressed="isLikedChatItem"
             @click="clickThumbUp"
           >
             <ThumbUpIcon :size="19" class="icon"></ThumbUpIcon>

@@ -54,13 +54,13 @@ export default Vue.extend({
   data(): DataType {
     return { room: {} as RoomModel, roomId: "", adminInviteKey: "" }
   },
-  created(): any {
+  created() {
     // roomId取得
     this.roomId = this.$route.query.roomId as string
     // adminInviteKey取得
     this.adminInviteKey = this.$route.query.admin_invite_key as string
   },
-  mounted(): any {
+  mounted() {
     // roomId取得
     this.roomId = this.$route.query.roomId as string
     if (this.roomId !== "") {
