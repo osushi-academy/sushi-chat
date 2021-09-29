@@ -16,7 +16,7 @@ class StampService {
     private readonly stampFactory: IStampFactory,
   ) {}
 
-  public async post({ userId, topicId }: PostStampCommand) {
+  public async post({ id, userId, topicId }: PostStampCommand) {
     const user = await UserService.findUserOrThrow(userId, this.userRepository)
     const roomId = user.roomId
 
@@ -26,7 +26,13 @@ class StampService {
     )
     const timestamp = room.calcTimestamp(topicId)
 
-    const stamp = this.stampFactory.create(userId, roomId, topicId, timestamp)
+    const stamp = this.stampFactory.create(
+      id,
+      userId,
+      roomId,
+      topicId,
+      timestamp,
+    )
     room.postStamp(stamp)
 
     this.stampDelivery.pushStamp(stamp)

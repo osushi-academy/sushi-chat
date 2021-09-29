@@ -226,6 +226,7 @@ const createSocketIOServer = async (
     socket.on("POST_STAMP", (received, callback) => {
       try {
         stampService.post({
+          id: received.id,
           userId,
           topicId: received.topicId,
         })
