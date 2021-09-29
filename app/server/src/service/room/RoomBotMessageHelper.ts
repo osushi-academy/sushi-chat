@@ -58,7 +58,7 @@ class RoomBotMessageHelper {
       uuid(),
       topicId,
       room.systemUser,
-      "admin",
+      "system",
       message,
       null,
       new Date(),
