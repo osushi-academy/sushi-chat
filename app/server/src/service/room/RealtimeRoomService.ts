@@ -5,11 +5,7 @@ import IRoomDelivery from "../../domain/room/IRoomDelivery"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
 import UserService from "../user/UserService"
 import IUserRepository from "../../domain/user/IUserRepository"
-import ChatItem from "../../domain/chatItem/ChatItem"
-import Message from "../../domain/chatItem/Message"
-import { v4 as uuid } from "uuid"
-import User from "../../domain/user/User"
-import RoomBotMessageHelper from "./RoomBotMessageHelper"
+import RoomSystemMessageHelper from "./RoomSystemMessageHelper"
 
 class RealtimeRoomService {
   constructor(
@@ -85,7 +81,7 @@ class RealtimeRoomService {
 
     // Botメッセージを作成
     const chatItems = changedTopics.map(({ id, newState, oldState }) =>
-      RoomBotMessageHelper.buildTopicStateChangeMessage(
+      RoomSystemMessageHelper.buildTopicStateChangeSystemMessage(
         room,
         id,
         oldState,

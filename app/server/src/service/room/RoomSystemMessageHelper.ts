@@ -1,13 +1,12 @@
 import Message from "../../domain/chatItem/Message"
 import { v4 as uuid } from "uuid"
 import RoomClass from "../../domain/room/Room"
-import Topic from "../../domain/room/Topic"
 import Question from "../../domain/chatItem/Question"
 import Answer from "../../domain/chatItem/Answer"
 import { TopicState } from "sushi-chat-shared"
 
-class RoomBotMessageHelper {
-  public static buildTopicStateChangeMessage(
+class RoomSystemMessageHelper {
+  public static buildTopicStateChangeSystemMessage(
     room: Readonly<RoomClass>,
     topicId: number,
     oldState: TopicState,
@@ -68,4 +67,4 @@ class RoomBotMessageHelper {
   }
 }
 
-export default RoomBotMessageHelper
+export default RoomSystemMessageHelper
