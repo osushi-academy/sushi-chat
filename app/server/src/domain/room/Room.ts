@@ -197,37 +197,70 @@ class RoomClass {
    * トピックの状態を変更する
    * @param topicId 状態が更新されるトピックのID
    * @param state 変更後のトピックの状態
+   * @returns 変更があったトピックのidと変更前後のstate
    */
-  public changeTopicState = (topicId: number, state: TopicState): Message[] => {
+  public changeTopicState = (
+    topicId: number,
+    state: TopicState,
+  ): { id: number; oldState: TopicState; newState: TopicState }[] => {
     this.assertRoomIsOngoing()
 
     const targetTopic = this.findTopicOrThrow(topicId)
+    const targetTopicOldState = targetTopic.state
 
     switch (state) {
       case "ongoing": {
-        const messages: Message[] = []
+        const changedTopics: {
+          id: number
+          oldState: TopicState
+          newState: TopicState
+        }[] = []
 
         // 現在のactiveトピックをfinishedにする
         const currentActiveTopic = this.activeTopic
         if (currentActiveTopic !== null) {
-          const message = this.finishTopic(currentActiveTopic)
-          messages.push(message)
+          // const message = this.finishTopic(currentActiveTopic)
+          this.finishTopic(currentActiveTopic)
+          changedTopics.push({
+            id: currentActiveTopic.id,
+            oldState: targetTopicOldState,
+            newState: "finished",
+          })
         }
 
-        const message = this.startTopic(targetTopic)
-        messages.push(message)
+        // const message = this.startTopic(targetTopic)
+        this.startTopic(targetTopic)
+        changedTopics.push({
+          id: targetTopic.id,
+          oldState: targetTopicOldState,
+          newState: "ongoing",
+        })
 
-        return messages
+        return changedTopics
       }
 
       case "paused": {
-        const botMessage = this.pauseTopic(targetTopic)
-        return [botMessage]
+        // const botMessage = this.pauseTopic(targetTopic)
+        this.pauseTopic(targetTopic)
+        return [
+          {
+            id: targetTopic.id,
+            oldState: targetTopicOldState,
+            newState: "paused",
+          },
+        ]
       }
 
       case "finished": {
-        const botMessage = this.finishTopic(targetTopic)
-        return [botMessage]
+        // const botMessage = this.finishTopic(targetTopic)
+        const newTopic = this.finishTopic(targetTopic)
+        return [
+          {
+            id: targetTopic.id,
+            oldState: targetTopicOldState,
+            newState: "finished",
+          },
+        ]
       }
 
       default: {
@@ -239,11 +272,9 @@ class RoomClass {
   /**
    * トピックを開始する
    * @param topic 開始されるトピック
-   * @returns MessageClass 運営botメッセージ
    */
-  private startTopic(topic: Topic): Message {
+  private startTopic(topic: Topic) {
     topic.state = "ongoing"
-
     const timeData = this._topicTimeData[topic.id]
     const isFirstOpen = timeData.openedDate === null
 
@@ -256,64 +287,23 @@ class RoomClass {
     if (pausedDate !== null) {
       timeData.offsetTime += new Date().getTime() - pausedDate
     }
-
-    const message =
-      "【運営Bot】\n " +
-      (isFirstOpen
-        ? "発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n"
-        : "発表が再開されました")
-
-    return this.postBotMessage(topic.id, message)
   }
 
   /**
    * トピックを中断する
    * @param topic 中断されるトピック
-   * @returns MessageClass 運営botメッセージ
    */
-  private pauseTopic(topic: Topic): Message {
+  private pauseTopic(topic: Topic) {
     topic.state = "paused"
-
     this._topicTimeData[topic.id].pausedDate = new Date().getTime()
-
-    return this.postBotMessage(topic.id, "【運営Bot】\n 発表が中断されました")
   }
 
   /**
    * トピック終了時の処理を行う
    * @param topic 終了させるトピック
-   * @returns MessageClass 運営botメッセージ
    */
-  private finishTopic = (topic: Topic): Message => {
+  private finishTopic = (topic: Topic) => {
     topic.state = "finished"
-
-    // 質問の集計
-    const questions = this._chatItems.filter<Question>(
-      (c): c is Question => c instanceof Question && c.topicId === topic.id,
-    )
-    // 回答済みの質問の集計
-    const answeredIds = this._chatItems
-      .filter<Answer>(
-        (c): c is Answer => c instanceof Answer && c.topicId === topic.id,
-      )
-      .map(({ id }) => id)
-
-    const questionMessages = questions.map(
-      ({ id, content }) =>
-        `Q. ${content}` + (answeredIds.includes(id) ? " [回答済]" : ""),
-    )
-
-    // トピック終了のBotメッセージ
-    return this.postBotMessage(
-      topic.id,
-      [
-        "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
-        questionMessages.length > 0 ? "" : null,
-        ...questionMessages,
-      ]
-        .filter(Boolean)
-        .join("\n"),
-    )
   }
 
   /**
