@@ -177,21 +177,6 @@ export default Vue.extend({
         ChatItemStore.addOrUpdate(chatItem)
       })
       this.$socket().on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
-        if (res.state === "ongoing") {
-          // 現在ongoingまたはpausedなトピックがあればfinishedにする
-          const t = Object.fromEntries(
-            Object.entries(this.topicStateItems).map(
-              ([topicId, topicState]) => [
-                topicId,
-                (topicState =
-                  topicState === "ongoing" || topicState === "paused"
-                    ? "finished"
-                    : topicState),
-              ],
-            ),
-          )
-          TopicStateItemStore.set(t)
-        }
         // クリックしたTopicのStateを変える
         TopicStateItemStore.change({ key: res.topicId, state: res.state })
       })
