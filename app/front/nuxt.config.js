@@ -132,7 +132,8 @@ export default {
   // WebFontLoader
   webfontloader: {
     google: {
-      families: ["M PLUS 1p:100,400,700", "Material Icons", "Material Icons Outlined"],
+      // FIXME: デグレが起きて旧バージョンを見たいケースのためにコメントアウトにしておく。不要になったら消す。
+      families: ["M PLUS 1p:100,400,700", /* "Material Icons", "Material Icons Outlined" */],
     },
   },
 

@@ -2,7 +2,7 @@
   <div class="heart-button-wraper">
     <div v-for="c of count" :key="c.id">
       <span
-        class="heart-button material-icons"
+        class="heart-button"
         :class="{
           'heart-button-animation': stampAnimationFinished[c.id] === false,
         }"
@@ -12,10 +12,10 @@
           left: `${c.x}%`,
         }"
       >
-        favorite
+        <HeartIcon></HeartIcon>
       </span>
       <span
-        class="heart-button material-icons"
+        class="heart-button"
         :class="{
           'heart-button-animation': stampAnimationFinished[c.id] === false,
         }"
@@ -25,22 +25,24 @@
           left: `${c.x + 10}%`,
         }"
       >
-        favorite
+        <HeartIcon></HeartIcon>
       </span>
     </div>
 
     <button
       class="stamp-submit-button"
       :disabled="disabled"
+      aira-label="ハート"
       @click="clickFavorite"
     >
-      <span class="material-icons"> favorite </span>
+      <HeartIcon :size="24" decorative class="icon"></HeartIcon>
     </button>
   </div>
 </template>
 <script lang="ts">
 import Vue from "vue"
 import { StampModel } from "sushi-chat-shared"
+import HeartIcon from "vue-material-design-icons/Heart.vue"
 import { randomWaitedLoop } from "@/utils/waitedLoop"
 import { HSLColor, getRandomColor } from "@/utils/color"
 import { StampStore } from "~/store"
@@ -60,6 +62,9 @@ export type DataType = {
 
 export default Vue.extend({
   name: "FavoriteButton",
+  components: {
+    HeartIcon,
+  },
   props: {
     disabled: {
       type: Boolean,

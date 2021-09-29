@@ -34,6 +34,10 @@
       margin: 0 auto;
       @include home-button-text;
       display: inline-flex;
+
+      & > .icon {
+        margin-right: 0.25rem;
+      }
     }
   }
   &__event {
@@ -159,6 +163,7 @@
               $color: #f07b7b,
               $border: "solid"
             );
+            color: #f07b7b;
 
             &:disabled {
               visibility: hidden;
@@ -179,11 +184,12 @@
       &--button,
       &--collective-button {
         @include home-button-text($admin-primary, false);
-        margin-right: 0.5rem;
-        .material-icons {
-          font-size: 0.9rem;
-        }
         @include text-size("normal");
+        margin-right: 0.5rem;
+
+        & > .icon {
+          margin-right: 0.25rem;
+        }
       }
     }
   }
@@ -206,9 +212,6 @@
   }
   &__footer {
     align-self: flex-end;
-  }
-  &__hide-button {
-    @include home-button-text;
   }
 }
 .vm--overlay {
@@ -249,22 +252,6 @@
 }
 
 .home-creation-completed-modal {
-  &__event-name {
-    margin: 0 0 1rem 0;
-    b {
-      margin-left: 0.5rem;
-      @include text-size("mdi");
-    }
-  }
-  &__event-detail {
-    margin: 0 0 1rem 0;
-    &--description {
-      a {
-        text-decoration: underline !important;
-      }
-      @include invalidated-a-style;
-    }
-  }
   &__invitation {
     &--title {
       margin: 0 0 0.5rem 0;
@@ -272,13 +259,6 @@
     &__content {
       @media screen and (min-width: $small+px) {
         display: flex;
-      }
-      &--title {
-        margin: 0 0 5px 0;
-        @include text-size("normal");
-        @media screen and (min-width: $small+px) {
-          margin: 10px 5px 0 0;
-        }
       }
       &__detail {
         @include text-size("normal");
@@ -301,11 +281,25 @@
           color: $admin-primary;
           padding: 0;
           margin-left: 5px;
-          .material-icons {
-            font-size: 18px;
+
+          & > .check-icon {
+            color: #3ba73b;
           }
         }
       }
+    }
+  }
+
+  &__footer {
+    display: flex;
+    justify-content: flex-end;
+
+    & > .hide-button {
+      @include home-button-text($color: $admin-primary, $show-border: false);
+      margin-right: 1rem;
+    }
+    & > .room-access-button {
+      @include home-button-text;
     }
   }
 }

@@ -2,9 +2,10 @@
   color: $color;
   border: 2px solid;
   background-color: white;
-  padding: 0px 20px;
+  padding: 4px 20px;
   border-radius: 99px;
   white-space: nowrap;
+  line-height: 1;
   &:hover {
     @if $color == $primary {
       background-color: rgba(242, 141, 47, 0.2);
@@ -32,6 +33,7 @@
   display: flex;
   flex-direction: column;
   width: 100vw;
+  padding-bottom: 0.75rem;
 }
 
 @media screen and (min-width: 440px) {
@@ -50,7 +52,7 @@
     display: flex;
     position: relative;
     align-items: center;
-    padding: 0.2em 0.3em 0;
+    padding: 0 1rem;
     background-color: $primary;
     color: white;
     min-height: 3em;
@@ -78,24 +80,20 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.3s;
+      transition: all 0.1s;
 
       &:hover {
-        background: $hover-button-background;
+        background: rgba(0, 0, 0, 0.08);
       }
 
       &:active {
-        background: $active-button-background;
+        background: rgba(0, 0, 0, 0.08);
       }
 
       &:disabled {
         color: rgba(204, 204, 204, 0.5);
         background: transparent;
         cursor: default;
-      }
-
-      & > .material-icons {
-        font-size: 1.5em;
       }
     }
   }
@@ -123,27 +121,51 @@
     &--download {
       color: $admin-primary;
       cursor: pointer;
-      & > .material-icons {
-        font-size: 1rem;
-      }
+      display: flex;
+      align-items: center;
+      @include text-size($size: "sm");
+
       & > .text {
         text-decoration: underline;
+        margin-left: 0.3rem;
       }
-      @include text-size($size: "sm");
-      @include material-icons-in-text;
+
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 
   &__bookmark {
-    display: flex;
     position: relative;
-    z-index: -1;
+    display: flex;
+    align-items: center;
     background-color: white;
     padding: 10px 5px;
-    // box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
     border-bottom: 1px solid rgb(239, 239, 239);
+    & > .icon {
+      transform: rotate(20deg);
+    }
     &--text {
       flex: 1;
+      font-size: 14px;
+    }
+    &--close-icon {
+      flex-shrink: 0;
+      align-self: flex-start;
+      margin-left: 10px;
+      color: $text-gray;
+      border-radius: 100%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s;
+
+      &:hover {
+        background: rgba($black, 0.08);
+      }
     }
     & > .chatitem__bookmark {
       margin-right: 10px;
@@ -156,12 +178,12 @@
   width: 1.7rem;
   height: 1.7rem;
   padding: 0;
-  // margin: 0 0 0.35em 0.4rem;
   margin-right: 0.6rem;
   background: transparent;
   border: none;
-  //background-color: red;
-  & > .material-icons {
+
+  & > .icon {
+    display: flex;
     font-size: 1.1rem;
     padding: 0.3rem;
     width: 1.7rem;
@@ -169,6 +191,7 @@
     color: $text-gray;
     border-radius: 100%;
     transform: rotate(20deg);
+
     &:hover,
     &:focus {
       color: $text-gray;
@@ -202,6 +225,7 @@
       scroll-snap-type: y mandatory;
       overflow-y: scroll;
       padding: 1em 1rem;
+      @include scrollbar-hidden;
     }
 
     .list-complete {
@@ -299,6 +323,10 @@
       transition: all 0.2s;
       outline-color: rgb(207, 13, 13);
 
+      & > .icon {
+        display: flex;
+      }
+
       &:hover:not(:disabled),
       &:active:not(:disabled) {
         background: white;
@@ -315,25 +343,21 @@
 
   & > .message-badge {
     position: absolute;
-    width: 100%;
-    max-width: 200px;
-    bottom: 1em;
+    bottom: 0.5em;
     left: 50%;
-    transform: translateX(-50%);
-    background: white;
-    padding: 0.5em 2em;
-    border-radius: 999px;
-    border: 2px solid rgb(56, 137, 230);
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    border: 1px solid rgb(212, 212, 212);
-    display: grid;
-    align-items: center;
+    transform: translate(-50%, 150%);
+    background: rgba($black, 0.5);
+    padding: 0.5em;
     z-index: 30;
-    transition: all 0.2s;
+    width: 32px;
+    height: 32px;
+    border-radius: 100%;
+    transition: all 0.1s;
+    color: white;
+    stroke-width: 4px;
 
-    &:hover {
-      background: rgb(250, 250, 250);
-      transform: translateX(-50%) scale(1.05);
+    &.isNotify {
+      transform: translate(-50%, 0%);
     }
   }
 }
@@ -408,24 +432,25 @@
   }
   & > .textarea-footer {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     padding: 0em 1em 0.5em;
     justify-content: flex-end;
     & > .submit-button {
       position: relative;
       flex-shrink: 0;
-      width: 2.4em;
-      height: 2.4em;
+      width: 24px;
+      height: 24px;
       vertical-align: middle;
       text-align: center;
       border: none;
       background: transparent;
-      border-radius: 10px;
       display: grid;
       align-items: end;
+      padding: 0;
       color: $primary;
       &:disabled {
         color: rgb(172, 172, 172);
+        cursor: default;
       }
 
       & > .question-badge {
@@ -434,13 +459,18 @@
         height: 0.75rem;
         line-height: 0.75rem;
         border-radius: 100%;
-        font-size: 0.5rem;
+        font-size: 0.4rem;
         font-weight: bold;
         text-align: center;
         background: rgb(48, 135, 248);
         color: white;
-        bottom: -0.15rem;
-        right: 0.4rem;
+        bottom: 0;
+        right: -0.3rem;
+      }
+      &:disabled {
+        & > .question-badge {
+          background: $disabled-gray;
+        }
       }
     }
     .admin {
@@ -486,20 +516,20 @@
     width: 100%;
     display: flex;
     margin-right: -4px;
-    padding: 0.5em 1em;
+    padding: 0.3em 14px;
     align-items: center;
     font-size: 80%;
 
     & > .reply-type {
       color: white;
     }
-    .reply {
+    & .reply {
       background-color: $syoyu;
       border-radius: 5px;
       padding: 0.15em 0.5em;
     }
 
-    .answer {
+    & .answer {
       background-color: $answer-label;
       border-radius: 5px;
       padding: 0.15em 0.5em;
@@ -516,15 +546,17 @@
       flex: 1;
       margin: 0 0.5rem;
     }
-    & > .material-icons {
-      display: inline;
-      font-size: 16px;
-      color: $text-gray;
+
+    & > .reply-close-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 100%;
+      padding: 0;
       &:hover {
-        color: $black;
-      }
-      &:active {
-        color: $black;
+        background: rgba($black, 0.08);
       }
     }
   }
@@ -552,12 +584,11 @@
     font-size: 8px;
     background-color: $primary;
     color: white;
-    padding: 0.25em 0.5em;
+    padding: 0.2em 0.8rem;
     margin-top: -1.5em;
     margin-left: -1.6em;
     border-top-left-radius: 4px;
     border-bottom-right-radius: 5px;
-    min-width: 7rem;
   }
   .sender-non-badge {
     display: inline-block;
@@ -582,6 +613,10 @@
   .badgecomment {
     padding: 0.75em 0.8em 0.35em !important;
   }
+
+  .url-to-link__link {
+    color: rgb(47, 82, 199);
+  }
   & > .comment,
   .reaction {
     position: relative;
@@ -595,6 +630,14 @@
     border-radius: 5px;
     box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
     overflow: visible;
+    transition: border 3s ease-out, box-shadow 3s ease-out;
+
+    // スクロール時のハイライトで利用するCSS / highlightクラスはjsで動的に追加される
+    &.highlight {
+      transition: none;
+      border: 1px solid $primary;
+      box-shadow: 0px 1px 10px rgba($primary, 0.9);
+    }
 
     .main-contents {
       display: flex;
@@ -605,20 +648,22 @@
         word-break: break-all;
         overflow-wrap: anywhere;
         margin-left: 0.5em;
-      }
-      .long-text {
-        flex: 1;
-        display: -webkit-box;
-        color: $text-gray;
-        word-break: break-all;
-        overflow-wrap: anywhere;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        overflow: hidden;
-        margin-left: 0.6rem;
-        &:hover {
-          text-decoration: underline;
-          cursor: pointer;
+        & > .long-text {
+          flex: 1;
+          display: -webkit-box;
+          color: $text-gray;
+          font-size: 80%;
+          text-align: left;
+          word-break: break-all;
+          overflow-wrap: anywhere;
+          margin-bottom: 0.3rem;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
+          &:hover {
+            text-decoration: underline;
+            cursor: pointer;
+          }
         }
       }
     }
@@ -636,27 +681,44 @@
       .badges {
         display: flex;
         align-items: flex-end;
-        .reply-icon,
-        .bg-good-icon {
+
+        & > .pin-icon,
+        & > .reply-icon,
+        & > .bg-good-icon {
           border: none;
           background: transparent;
-          padding: 0;
           width: 1.7rem;
           height: 1.7rem;
+          border-radius: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-left: 0.5rem;
+          color: $text-gray;
 
-          & > .material-icons {
-            font-size: 1.3rem;
-            padding: 0.2rem;
+          &:hover {
+            color: $text-gray;
+            background-color: $placeholder-gray;
+          }
+
+          & > .icon {
             width: 1.7rem;
             height: 1.7rem;
-            color: $text-gray;
-            border-radius: 100%;
-            &:hover,
-            &:focus {
-              color: $text-gray;
-              background-color: $placeholder-gray;
+            display: flex;
+            align-items: center;
+            justify-items: center;
+          }
+
+          &.pin-icon {
+            & > .icon {
+              transform: rotate(20deg);
+
+              &.selected {
+                color: #ff542f;
+              }
             }
           }
+
           & > .answer-reply {
             &:hover {
               color: $answer-label;
@@ -665,13 +727,7 @@
               color: $answer-label;
             }
           }
-        }
-        .bg-good-icon {
-          margin-left: 0.5rem;
-          & > .material-icons {
-            font-size: 1.1rem;
-            padding: 0.3rem;
-          }
+
           .selected {
             transform: rotate(-20deg);
           }
@@ -696,29 +752,61 @@
         margin: 0;
         margin-right: 0.5em;
         align-self: center; // NOTE: for safari (yuta-ike)
-      }
 
-      & > .long-text {
-        flex: 1;
-        display: -webkit-box;
-        color: $text-gray;
-        font-style: oblique;
-        word-break: break-all;
-        overflow-wrap: anywhere;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 1;
-        overflow: hidden;
-        margin-left: 0.6rem;
-        &:hover {
-          text-decoration: underline;
-          cursor: pointer;
+        & > .reaction-badge {
+          width: 1.3rem;
+          height: 1.3rem;
+          line-height: 1.1rem;
+          border-radius: 100%;
+          text-align: center;
+          color: #fff;
+          position: absolute;
+          bottom: -0.1rem;
+          right: -0.9rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          & > .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
         }
       }
-      & > .material-icons {
-        margin-left: 1em;
-        color: $text-gray;
-        font-size: 1rem;
-        cursor: pointer;
+
+      & > .reaction-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+
+        & > .icon {
+          color: $text-gray;
+        }
+
+        & > .long-text {
+          flex: 1;
+          display: -webkit-box;
+          color: $text-gray;
+          font-style: oblique;
+          word-break: break-all;
+          overflow-wrap: anywhere;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 1;
+          overflow: hidden;
+          margin-left: 0.6rem;
+          text-align: left;
+          line-height: 1;
+          font-size: 13px;
+        }
+
+        &:hover {
+          & > .long-text {
+            text-decoration: underline;
+            cursor: pointer;
+          }
+        }
       }
     }
     .icon-wrapper {
@@ -794,7 +882,6 @@
         padding: 0.25rem;
         width: 1.1rem;
         height: 1.1rem;
-        transform: rotate(-15deg);
       }
     }
   }
