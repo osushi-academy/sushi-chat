@@ -19,6 +19,7 @@
   white-space: nowrap;
   border: 2px solid $color;
   border-radius: 4px;
+  line-height: 1;
   @if not $show-border {
     border-color: transparent;
   }

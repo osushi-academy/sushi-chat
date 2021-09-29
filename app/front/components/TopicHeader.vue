@@ -10,8 +10,12 @@
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>
       <div class="title">{{ title }}</div>
-      <button class="more-button" @click="isOpenDetails = !isOpenDetails">
-        <span class="material-icons"> more_vert </span>
+      <button
+        class="more-button"
+        aria-label="メニューを開閉する"
+        @click="isOpenDetails = !isOpenDetails"
+      >
+        <MoreVerticalIcon aria-hidden="true"></MoreVerticalIcon>
       </button>
     </div>
     <div v-if="isOpenDetails" class="topic-header__details">
@@ -34,15 +38,27 @@
       </div>
       <div class="topic-header__details--line" />
       <div class="topic-header__details--download" @click="clickDownload">
-        <span class="material-icons"> file_download </span>
+        <DownloadIcon size="1.2x" aria-hidden="true"></DownloadIcon>
         <span class="text">現在までのチャット履歴のダウンロード</span>
       </div>
     </div>
-    <div v-if="bookmarkContent !== ''" class="topic-header__bookmark">
-      <button class="chatitem__bookmark" @click="isBookMarked = !isBookMarked">
-        <span class="material-icons selected">push_pin</span>
-      </button>
+    <div v-if="bookmarkContent != null" class="topic-header__bookmark">
+      <div class="chatitem__bookmark">
+        <PinIcon
+          class="icon selected"
+          aria-label="ピン留め"
+          title="ピン留め"
+        ></PinIcon>
+      </div>
       <div class="topic-header__bookmark--text">{{ bookmarkContent }}</div>
+      <button
+        class="topic-header__bookmark--close-icon"
+        aria-label="ピン留め解除"
+        title="ピン留め解除"
+        @click="removeBookmark()"
+      >
+        <XCircleIcon size="1.2x" aria-hidden="true"></XCircleIcon>
+      </button>
     </div>
   </div>
 </template>
@@ -50,8 +66,10 @@
 import Vue from "vue"
 import type { PropOptions } from "vue"
 // import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
-import { ChatItemPropType } from "~/models/contents"
-import { UserItemStore } from "~/store"
+import { ChatItemModel } from "sushi-chat-shared"
+import { DownloadIcon, MoreVerticalIcon, XCircleIcon } from "vue-feather-icons"
+import PinIcon from "vue-material-design-icons/Pin.vue"
+import { PinnedChatItemsStore, UserItemStore } from "~/store"
 
 type DataType = {
   isAllCommentShowed: boolean
@@ -62,6 +80,10 @@ export default Vue.extend({
   name: "TopicHeader",
   components: {
     // SidebarDrawer,
+    XCircleIcon,
+    PinIcon,
+    MoreVerticalIcon,
+    DownloadIcon,
   },
   props: {
     title: {
@@ -74,8 +96,8 @@ export default Vue.extend({
     },
     bookmarkItem: {
       type: Object,
-      required: true,
-    } as PropOptions<ChatItemPropType>,
+      default: undefined,
+    } as PropOptions<ChatItemModel | undefined>,
   },
   data(): DataType {
     return {
@@ -87,14 +109,11 @@ export default Vue.extend({
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
     },
-    bookmarkContent(): string {
-      if (
-        typeof this.bookmarkItem !== "undefined" &&
-        this.bookmarkItem.type !== "reaction"
-      ) {
-        return this.bookmarkItem.content
+    bookmarkContent(): string | undefined {
+      if (this.bookmarkItem?.type === "reaction") {
+        return
       }
-      return ""
+      return this.bookmarkItem?.content
     },
   },
   methods: {
@@ -108,6 +127,12 @@ export default Vue.extend({
     clickNotShowAll() {
       this.isAllCommentShowed = false
       this.$emit("click-not-show-all")
+    },
+    removeBookmark() {
+      console.log("removeBookmark")
+      if (this.bookmarkItem != null) {
+        PinnedChatItemsStore.delete(this.bookmarkItem?.id)
+      }
     },
   },
 })

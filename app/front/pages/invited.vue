@@ -11,7 +11,7 @@
           {{ room.state === "ongoing" ? "ルーム開催中" : "ルーム開始前" }}
         </div>
         <div class="not-started__button">
-          <button @click="regiaterAdmin">登録する</button>
+          <button @click="regiaterAdmin">招待を受ける</button>
         </div>
       </div>
       <InviteSuccess />
@@ -75,6 +75,7 @@ export default Vue.extend({
         {},
       )
       if (res.result === "error") {
+        window.alert("処理に失敗しました")
         throw new Error("管理者招待失敗")
       }
       console.log({

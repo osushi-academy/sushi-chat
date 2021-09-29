@@ -30,24 +30,22 @@
           <div v-if="message.type == 'question'" class="question-badge">Q</div>
           <div v-if="message.type == 'answer'" class="answer-badge">A</div>
         </div>
-        <div
-          v-if="message.type == 'question' || message.quote == null"
-          class="text"
-        >
+        <div v-if="message.quote == null" class="text">
           <UrlToLink :text="message.content" />
         </div>
         <div v-else class="text">
-          <span
+          <button
             class="long-text"
-            :style="{ color: 'gray', fontSize: '80%' }"
-            @click.stop
+            @click.stop="
+              // NOTE: 型推論のためにifを追加
+              if (message.quote != null) scrolltoMessage(message.quote.id)
+            "
           >
-            <UrlToLink
-              v-if="message.type != 'answer'"
-              :text="`> ` + message.quote.content"
-            />
-            <UrlToLink v-else :text="`Q. ` + message.quote.content" />
-          </span>
+            <template v-if="message.type != 'answer'">
+              > {{ message.quote.content }}
+            </template>
+            <template v-else> Q. {{ message.quote.content }} </template>
+          </button>
           <UrlToLink :text="message.content" />
         </div>
       </div>
@@ -56,20 +54,27 @@
           {{ showTimestamp(message.timestamp) }}
         </div>
         <div class="badges">
-          <button
-            v-if="isAdminorSpeaker"
-            class="chatitem__bookmark"
-            @click="bookmark()"
-          >
-            <span class="material-icons" :class="{ selected: isBookMarked }"
-              >push_pin</span
-            >
+          <button v-if="isAdminorSpeaker" class="pin-icon" @click="bookmark()">
+            <PinIcon
+              :size="18"
+              :class="{ selected: isBookMarked }"
+              class="icon"
+            ></PinIcon>
           </button>
           <button class="reply-icon" @click="clickReply">
-            <span class="material-icons"> reply </span>
+            <ReplyIcon :size="20" class="icon"></ReplyIcon>
           </button>
-          <button class="bg-good-icon">
-            <span
+          <button
+            class="bg-good-icon"
+            :style="{
+              backgroundColor: isLikedChatItem ? icon.colorCode : undefined,
+              color: isLikedChatItem ? 'white' : undefined,
+              transform: isLikedChatItem ? 'rotate(-20deg)' : undefined,
+            }"
+            @click="clickThumbUp"
+          >
+            <ThumbUpIcon :size="19" class="icon"></ThumbUpIcon>
+            <!-- <span
               :style="{
                 backgroundColor: isLikedChatItem ? icon.colorCode : '',
                 color: isLikedChatItem ? 'white' : '',
@@ -79,14 +84,14 @@
               @click="clickThumbUp"
             >
               thumb_up
-            </span>
+            </span> -->
           </button>
         </div>
       </div>
     </article>
     <!--Reaction Message-->
     <article
-      v-else-if="message.type == 'reaction'"
+      v-else-if="message.type == 'reaction' && message.quote != null"
       :id="message.id"
       class="reaction"
     >
@@ -96,21 +101,26 @@
           <img :src="icon.png" alt="" />
         </picture>
         <div
-          class="material-icons raction-badge"
+          class="reaction-badge"
           :style="{
             backgroundColor: icon.colorCode,
           }"
         >
-          thumb_up
+          <ThumbUpIcon class="icon" :size="13"></ThumbUpIcon>
         </div>
       </div>
-      <div class="long-text">
-        {{ message.quote.content }}
-      </div>
-      <!-- quoteのmessageにスクロール -->
-      <span class="material-icons" @click="scrolltoMessage(message.quote.id)">
-        north_west
-      </span>
+      <button
+        class="reaction-link"
+        @click="
+          // NOTE: 型推論のためにifを追加
+          if (message.quote != null) scrolltoMessage(message.quote.id)
+        "
+      >
+        <div class="long-text">
+          {{ message.quote.content }}
+        </div>
+        <ArrowUpLeftIcon class="icon" size="1.2x"></ArrowUpLeftIcon>
+      </button>
     </article>
     <!--System Message-->
     <article
@@ -126,6 +136,10 @@
 import Vue from "vue"
 import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
+import { ArrowUpLeftIcon } from "vue-feather-icons"
+import PinIcon from "vue-material-design-icons/Pin.vue"
+import ReplyIcon from "vue-material-design-icons/Reply.vue"
+import ThumbUpIcon from "vue-material-design-icons/ThumbUp.vue"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
 import { PinnedChatItemsStore, UserItemStore } from "~/store"
@@ -139,6 +153,10 @@ export default Vue.extend({
   name: "Message",
   components: {
     UrlToLink,
+    ArrowUpLeftIcon,
+    PinIcon,
+    ReplyIcon,
+    ThumbUpIcon,
   },
   props: {
     message: {
@@ -164,7 +182,6 @@ export default Vue.extend({
       return PinnedChatItemsStore.pinnedChatItems
     },
     isBookMarked(): boolean {
-      console.log(PinnedChatItemsStore.pinnedChatItems)
       return this.pinnedChatItems.includes(this.message.id)
     },
     isAdminorSpeaker(): boolean {
@@ -190,6 +207,11 @@ export default Vue.extend({
           behavior: "smooth",
           block: "nearest",
         })
+        console.log(id)
+        element.classList.add("highlight")
+        setTimeout(() => {
+          element.classList.remove("highlight")
+        }, 0)
       }
     },
     // タイムスタンプを分、秒単位に変換

@@ -11,7 +11,9 @@
       <div v-if="selectedChatItem.type !== 'reaction'" class="reply-content">
         {{ selectedChatItem.content }}
       </div>
-      <div class="material-icons" @click="deselectChatItem">close</div>
+      <button class="reply-close-button" @click="deselectChatItem">
+        <XIcon size="1.2x"></XIcon>
+      </button>
     </div>
     <div v-if="selectedChatItem === null" class="sender-badge-wrapper">
       <span v-if="isAdmin" class="sender-badge admin"> from 運営 </span>
@@ -51,7 +53,6 @@
         >
       </label>
       <button
-        type="submit"
         class="submit-button"
         :disabled="
           disabled || maxMessageLength < text.length || text.length == 0
@@ -61,8 +62,10 @@
         }"
         @click="sendMessage"
       >
-        <span class="material-icons"> send </span>
-        <div v-show="isQuestion" class="question-badge">Q</div>
+        <SendIcon></SendIcon>
+        <div v-show="isQuestion" class="question-badge" aria-hidden="true">
+          Q
+        </div>
       </button>
     </div>
   </section>
@@ -71,6 +74,7 @@
 import Vue from "vue"
 import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
+import { XIcon, SendIcon } from "vue-feather-icons"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 import { UserItemStore } from "~/store"
 
@@ -84,6 +88,8 @@ export default Vue.extend({
   name: "TextArea",
   components: {
     KeyInstruction,
+    XIcon,
+    SendIcon,
   },
   props: {
     topicTitle: {

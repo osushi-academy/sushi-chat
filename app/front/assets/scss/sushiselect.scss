@@ -65,9 +65,8 @@
     &--help {
       position: relative;
       @include material-icons-in-text;
-      .material-icons {
+      & > .icon {
         margin-left: 0.5rem;
-        font-size: 1rem;
         &:hover {
           cursor: pointer;
           color: $primary;
@@ -76,7 +75,7 @@
       &--message {
         display: none;
         position: absolute;
-        left: 10px;
+        right: 0;
         width: 150px;
         background-color: white;
         padding: 5px 10px;
@@ -84,7 +83,7 @@
         border-radius: 4px;
         @include text-size("sm");
       }
-      .material-icons:hover + &--message {
+      & > .icon:hover + &--message {
         display: block;
       }
     }
