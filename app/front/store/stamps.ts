@@ -31,7 +31,7 @@ export default class Stamps extends VuexModule {
     //   timestamp: 1000, // TODO: 正しいタイムスタンプを設定する
     //   createdAt: new Date().toISOString(),
     // })
-    socket.emit("POST_STAMP", { topicId }, (res: any) => {
+    socket.emit("POST_STAMP", { topicId }, (res) => {
       console.log(res)
     })
   }

@@ -81,13 +81,9 @@ export default class ChatItems extends VuexModule {
     })
     // サーバーに送信する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit(
-      "POST_CHAT_ITEM", 
-      params, 
-      (res: any) => {
-        console.log(res)
-      },
-    )
+    socket.emit("POST_CHAT_ITEM", params, (res) => {
+      console.log(res)
+    })
     console.log("send reaction: ", text)
   }
 
@@ -112,13 +108,9 @@ export default class ChatItems extends VuexModule {
     })
     // サーバーに反映する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit(
-      "POST_CHAT_ITEM", 
-      params, 
-      (res: any) => {
-        console.log(res)
-      },
-    )
+    socket.emit("POST_CHAT_ITEM", params, (res) => {
+      console.log(res)
+    })
     console.log("send reaction: ", message.content)
   }
 
@@ -143,12 +135,9 @@ export default class ChatItems extends VuexModule {
     })
     // サーバーに反映する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit("POST_CHAT_ITEM", 
-      params, 
-      (res: any) => {
-        console.log(res)
-      },
-    )
+    socket.emit("POST_CHAT_ITEM", params, (res) => {
+      console.log(res)
+    })
     console.log("send question: ", text)
   }
 
@@ -171,12 +160,9 @@ export default class ChatItems extends VuexModule {
     }
     // サーバーに反映する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit("POST_CHAT_ITEM", 
-      params, 
-      (res: any) => {
-        console.log(res)
-      },
-    )
+    socket.emit("POST_CHAT_ITEM", params, (res) => {
+      console.log(res)
+    })
     // ローカルに反映する
     this.add({
       id: params.id,
