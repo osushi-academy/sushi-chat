@@ -1,6 +1,6 @@
 # Follow Changes of Forked/Upstream Repository.
 #
-# This workflow rebase-marge changes from upstream's main to origin's main and from upstream's develop to origin's develop. 
+# This workflow rebase-marge changes from upstream's main to origin's main. 
 # - Ref:
 #   - https://stackoverflow.com/a/61574295/12102603 by N1ngu @ StackOverflow (EN)
 #   - https://qiita.com/KEINOS/items/3bcaa6cea853f6b63475 by KEINOS @ Qiita (JA)
@@ -37,7 +37,7 @@ jobs:
           git config --global user.email ${EMAIL}
           # Pass the --rebase-merges option to git rebase by default
           git config --global pull.rebase merges
-          # "git checkout master" is unnecessary, already here by default
+          # "git checkout main" is unnecessary, already here by default
           git pull --unshallow  # this option is very important, you would get
                                 # complains about unrelated histories without it.
                                 # (but actions/checkout@v2 can also be instructed
@@ -47,11 +47,6 @@ jobs:
           # Fetch the upstream branches to local
           git fetch upstream
           # Merge changes
-          # develop
-          git checkout develop
-          git merge --no-edit upstream/develop
-          git push origin develop
-          # main
           git checkout main
           git merge --no-edit upstream/main
           git push origin main
