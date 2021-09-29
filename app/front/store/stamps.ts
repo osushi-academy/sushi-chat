@@ -21,17 +21,32 @@ export default class Stamps extends VuexModule {
     this._stamps.push(s)
   }
 
+  @Mutation
+  public update(s: StampModel) {
+    this._stamps = this._stamps.map((item) => (item.id === s.id ? s : item))
+  }
+
+  @Action({ rawError: true })
+  public addOrUpdate(s: StampModel) {
+    if (this._stamps.find(({ id }) => id === s.id)) {
+      this.update(s)
+    } else {
+      this.add(s)
+    }
+  }
+
   @Action({ rawError: true })
   public sendFavorite(topicId: number) {
     const socket = buildSocket(AuthStore.idToken)
+    const id = getUUID()
     // StampStoreは配信で追加する
-    // this.add({
-    //   id: getUUID(),
-    //   topicId,
-    //   timestamp: 1000, // TODO: 正しいタイムスタンプを設定する
-    //   createdAt: new Date().toISOString(),
-    // })
-    socket.emit("POST_STAMP", { topicId }, (res) => {
+    this.add({
+      id,
+      topicId,
+      timestamp: 1000, // TODO: 正しいタイムスタンプを設定する
+      createdAt: new Date().toISOString(),
+    })
+    socket.emit("POST_STAMP", { topicId, id }, (res) => {
       console.log(res)
     })
   }
