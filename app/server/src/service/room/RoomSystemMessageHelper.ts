@@ -6,6 +6,14 @@ import Answer from "../../domain/chatItem/Answer"
 import { TopicState } from "sushi-chat-shared"
 
 class RoomSystemMessageHelper {
+  /**
+   * トピック変更にともなうシステムメッセージを組み立てる
+   * @param room ルームモデル
+   * @param topicId 変更されたトピックID
+   * @param oldState トピックの変更前のstate
+   * @param newState トピックの変更後state
+   * @returns システムメッセージ
+   */
   public static buildTopicStateChangeSystemMessage(
     room: Readonly<RoomClass>,
     topicId: number,
