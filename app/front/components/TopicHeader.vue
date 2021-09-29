@@ -10,8 +10,12 @@
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>
       <div class="title">{{ title }}</div>
-      <button class="more-button" @click="isOpenDetails = !isOpenDetails">
-        <MoreVerticalIcon></MoreVerticalIcon>
+      <button
+        class="more-button"
+        aria-label="メニューを開閉する"
+        @click="isOpenDetails = !isOpenDetails"
+      >
+        <MoreVerticalIcon aria-hidden="true"></MoreVerticalIcon>
       </button>
     </div>
     <div v-if="isOpenDetails" class="topic-header__details">
@@ -34,19 +38,23 @@
       </div>
       <div class="topic-header__details--line" />
       <div class="topic-header__details--download" @click="clickDownload">
-        <DownloadIcon size="1.2x"></DownloadIcon>
+        <DownloadIcon size="1.2x" aria-hidden="true"></DownloadIcon>
         <span class="text">現在までのチャット履歴のダウンロード</span>
       </div>
     </div>
     <div v-if="bookmarkContent != null" class="topic-header__bookmark">
       <div class="chatitem__bookmark">
-        <PinIcon class="icon selected"></PinIcon>
+        <PinIcon
+          class="icon selected"
+          aria-label="ピン留め"
+          title="ピン留め"
+        ></PinIcon>
       </div>
       <div class="topic-header__bookmark--text">{{ bookmarkContent }}</div>
       <button
         class="topic-header__bookmark--close-icon"
-        aria-label="ピン留めから外す"
-        title="ピン留めから外す"
+        aria-label="ピン留め解除"
+        title="ピン留め解除"
         @click="removeBookmark()"
       >
         <XCircleIcon size="1.2x" aria-hidden="true"></XCircleIcon>
