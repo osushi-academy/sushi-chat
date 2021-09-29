@@ -27,6 +27,7 @@ import IAdminRepository from "./domain/admin/IAdminRepository"
 import { DefaultEventsMap } from "socket.io/dist/typed-events"
 import IStampFactory from "./domain/stamp/IStampFactory"
 import IAdminAuth from "./domain/admin/IAdminAuth"
+import AdminAuth from "./infra/auth/AdminAuth"
 
 export class GlobalSocket extends Server<
   DefaultEventsMap,
@@ -117,6 +118,21 @@ const createSocketIOServer = async (
       new UserDelivery(socket, io),
       adminAuth,
     )
+
+    // デバッグ用
+    if (process.env.NODE_ENV !== "production") {
+      socket.use(async (e, next) => {
+        if (socket.handshake.auth.token != null) {
+          const { adminId } = await new AdminAuth().verifyIdToken(
+            socket.handshake.auth.token,
+          )
+          console.log(e[0], adminId, e[1])
+        } else {
+          console.log(e[0], e[1])
+        }
+        next()
+      })
+    }
     // socketのidは一意なので、それを匿名ユーザーのidとして用いる
     const userId = socket.id
 
