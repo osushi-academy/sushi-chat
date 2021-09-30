@@ -1,6 +1,6 @@
 # Follow Changes of Forked/Upstream Repository.
 #
-# This workflow rebase-marge changes from upstream's main to origin's main. 
+# This workflow rebase-marge changes from upstream's main to origin's main and from upstream's develop to origin's develop. 
 # - Ref:
 #   - https://stackoverflow.com/a/61574295/12102603 by N1ngu @ StackOverflow (EN)
 #   - https://qiita.com/KEINOS/items/3bcaa6cea853f6b63475 by KEINOS @ Qiita (JA)
@@ -47,9 +47,14 @@ jobs:
           # Fetch the upstream branches to local
           git fetch upstream
           # Merge changes
+          # main
           git checkout -b main origin/main
           git merge --no-edit upstream/main
           git push origin main
+          # develop
+          git checkout -b develop origin/develop
+          git merge --no-edit upstream/develop
+          git push origin develop
         env:
           NAME: KoukiNAGATA
           EMAIL: koukinagata.academic02@gmail.com
