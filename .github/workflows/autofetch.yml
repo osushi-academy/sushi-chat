@@ -47,7 +47,7 @@ jobs:
           # Fetch the upstream branches to local
           git fetch upstream
           # Merge changes
-          git checkout main
+          git checkout -b main origin/main
           git merge --no-edit upstream/main
           git push origin main
         env:
