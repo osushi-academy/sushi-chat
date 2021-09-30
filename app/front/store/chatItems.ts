@@ -81,13 +81,9 @@ export default class ChatItems extends VuexModule {
     })
     // サーバーに送信する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit(
-      "POST_CHAT_ITEM", 
-      params, 
-      (res: any) => {
-        console.log(res)
-      },
-    )
+    socket.emit("POST_CHAT_ITEM", params, (res: any) => {
+      console.log(res)
+    })
     console.log("send reaction: ", text)
   }
 
@@ -112,23 +108,28 @@ export default class ChatItems extends VuexModule {
     })
     // サーバーに反映する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit(
-      "POST_CHAT_ITEM", 
-      params, 
-      (res: any) => {
-        console.log(res)
-      },
-    )
+    socket.emit("POST_CHAT_ITEM", params, (res: any) => {
+      console.log(res)
+    })
     console.log("send reaction: ", message.content)
   }
 
   @Action({ rawError: true })
-  public postQuestion({ text, topicId }: { text: string; topicId: number }) {
+  public postQuestion({
+    text,
+    topicId,
+    target,
+  }: {
+    text: string
+    topicId: number
+    target?: ChatItemModel
+  }) {
     const params: PostChatItemRequest = {
       id: getUUID(),
       type: "question",
       topicId,
       content: text,
+      quoteId: target?.id,
     }
     // ローカルに反映する
     this.add({
@@ -140,15 +141,13 @@ export default class ChatItems extends VuexModule {
       content: text,
       createdAt: new Date().toISOString(),
       timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
+      quote: target,
     })
     // サーバーに反映する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit("POST_CHAT_ITEM", 
-      params, 
-      (res: any) => {
-        console.log(res)
-      },
-    )
+    socket.emit("POST_CHAT_ITEM", params, (res: any) => {
+      console.log(res)
+    })
     console.log("send question: ", text)
   }
 
@@ -171,12 +170,9 @@ export default class ChatItems extends VuexModule {
     }
     // サーバーに反映する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit("POST_CHAT_ITEM", 
-      params, 
-      (res: any) => {
-        console.log(res)
-      },
-    )
+    socket.emit("POST_CHAT_ITEM", params, (res: any) => {
+      console.log(res)
+    })
     // ローカルに反映する
     this.add({
       id: params.id,

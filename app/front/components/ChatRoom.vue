@@ -173,19 +173,21 @@ export default Vue.extend({
   methods: {
     // 送信ボタン
     clickSubmit(text: string, isQuestion: boolean) {
-      const target = this.selectedChatItem
+      const target = this.selectedChatItem ?? undefined
       const topicId = this.topicId
-      if (target == null) {
+      if (target == null || target.type !== "question") {
+        // リプライ
         if (isQuestion) {
           // 質問
-          ChatItemStore.postQuestion({ text, topicId })
+          ChatItemStore.postQuestion({ text, topicId, target })
         } else {
           // 通常メッセージ
-          ChatItemStore.postMessage({ text, topicId })
+          ChatItemStore.postMessage({
+            text,
+            topicId,
+            target,
+          })
         }
-      } else if (target.type === "message" || target.type === "answer") {
-        // リプライ
-        ChatItemStore.postMessage({ text, topicId, target })
       } else if (target.type === "question") {
         // 回答
         ChatItemStore.postAnswer({ text, topicId, target })
