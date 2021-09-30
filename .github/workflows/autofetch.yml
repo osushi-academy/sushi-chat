@@ -24,7 +24,7 @@ on:
     #         │ │ │ │ │
     #         │ │ │ │ │
     #         * * * * *
-    - cron:  '10 */3 * * *'
+    - cron:  '10 */6 * * *'
 
 jobs:
   merge:
@@ -50,7 +50,6 @@ jobs:
           git checkout main
           git merge --no-edit upstream/main
           git push origin main
-        # Change the below to your settings
         env:
           NAME: KoukiNAGATA
           EMAIL: koukinagata.academic02@gmail.com
