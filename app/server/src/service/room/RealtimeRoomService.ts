@@ -76,7 +76,8 @@ class RealtimeRoomService {
 
     // トピックの変更を配信
     changedTopics.forEach(({ id }) => {
-      this.roomDelivery.changeTopicState(room.id, room.topics[id])
+      // TODO: `room.topics[id - 1]`の部分、RoomClass::getTopicsByTopicIdみたいなメソッドが欲しい
+      this.roomDelivery.changeTopicState(room.id, room.topics[id - 1])
     })
 
     // Botメッセージを作成
