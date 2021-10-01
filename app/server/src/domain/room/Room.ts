@@ -218,11 +218,11 @@ class RoomClass {
         // 現在のactiveトピックをfinishedにする
         const currentActiveTopic = this.activeTopic
         if (currentActiveTopic !== null) {
-          // const message = this.finishTopic(currentActiveTopic)
+          const oldState = currentActiveTopic.state
           this.finishTopic(currentActiveTopic)
           changedTopics.push({
             id: currentActiveTopic.id,
-            oldState: targetTopicOldState,
+            oldState,
             newState: "finished",
           })
         }
