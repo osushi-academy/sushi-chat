@@ -7,7 +7,8 @@
     "start": "node --require dotenv/config ./dist/src/app.js",
     "build": "tsc -p .",
     "dev": "ts-node-dev --require dotenv/config --transpile-only --rs ./src/app.ts",
-    "test": "jest",
+    "test": "jest --setupFiles dotenv/config",
+    "test:watch": "jest --watch --setupFiles dotenv/config",
     "lint": "eslint ./src",
     "fix": "prettier --write \"**/*.{js,ts}\" --ignore-path .gitignore .",
     "fix:dry-run": "prettier --check \"**/*.{js,ts}\" --ignore-path .gitignore ."
@@ -39,8 +40,10 @@
     "@types/node-uuid": "^0.0.28",
     "@types/pg": "^7.14.11",
     "@types/redis": "^2.8.31",
+    "@types/supertest": "^2.0.11",
     "@types/uuid": "^8.3.0",
     "jest": "^26.5.0",
+    "supertest": "^6.1.6",
     "ts-jest": "^26.5.5",
     "ts-node-dev": "^1.1.6",
     "typescript": "^4.2.4"
