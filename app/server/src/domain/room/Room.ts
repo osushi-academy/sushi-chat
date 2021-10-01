@@ -44,6 +44,7 @@ class RoomClass {
         offsetTime: 0,
       }
     })
+    userIds.add(systemUser.id)
   }
 
   public get topics(): Topic[] {
@@ -325,22 +326,6 @@ class RoomClass {
     this.assertUserExists(userId)
 
     this._chatItems.push(chatItem)
-  }
-
-  private postBotMessage = (topicId: number, content: string): Message => {
-    const botMessage = new Message(
-      uuid(),
-      topicId,
-      this.systemUser,
-      "admin",
-      content,
-      null,
-      new Date(),
-      this.calcTimestamp(topicId),
-    )
-    this._chatItems.push(botMessage)
-
-    return botMessage
   }
 
   private get activeTopic(): Topic | null {
