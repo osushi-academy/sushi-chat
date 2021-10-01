@@ -114,10 +114,30 @@ describe("RealtimeRoomServiceのテスト", () => {
       expect(roomDeliverySubscribers[0]).toHaveLength(
         deliveredRoomContentsCount + 2,
       )
-      const deliveredContent =
+      const deliveredFinishContent =
         roomDeliverySubscribers[0][deliveredRoomContentsCount]
-      expect(deliveredContent.type).toBe<RoomDeliveryType>("CHANGE_TOPIC_STATE")
-      expect(deliveredContent.content).toStrictEqual<ChangeTopicStateContent>({
+      expect(deliveredFinishContent.type).toBe<RoomDeliveryType>(
+        "CHANGE_TOPIC_STATE",
+      )
+      expect(
+        deliveredFinishContent.content,
+      ).toStrictEqual<ChangeTopicStateContent>({
+        roomId: adminUser.roomId,
+        topic: {
+          ...topics[0],
+          id: 1,
+          state: "finished",
+          pinnedChatItemId: undefined,
+        },
+      })
+      const deliveredOngoingContent =
+        roomDeliverySubscribers[0][deliveredRoomContentsCount + 1]
+      expect(deliveredOngoingContent.type).toBe<RoomDeliveryType>(
+        "CHANGE_TOPIC_STATE",
+      )
+      expect(
+        deliveredOngoingContent.content,
+      ).toStrictEqual<ChangeTopicStateContent>({
         roomId: adminUser.roomId,
         topic: {
           ...topics[1],
