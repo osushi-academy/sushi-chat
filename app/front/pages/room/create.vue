@@ -239,7 +239,7 @@ export default Vue.extend({
 
         const res = await this.$apiClient.post("/room", {
           title: this.roomName,
-          topics: sessions,
+          topics: sessions.map(({ title }) => ({ title })), // titleのみの配列に変換
           description: "hello, world",
         })
 
