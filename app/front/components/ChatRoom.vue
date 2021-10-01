@@ -30,7 +30,7 @@
               :topic-id="topicId"
               :message="message"
               @click-thumb-up="clickReaction"
-              @click-reply="selectedChatItem = message"
+              @click-reply="selectChatItem(message)"
               @click-pin="pinChatItem(message.id)"
             />
           </div>
@@ -196,6 +196,14 @@ export default Vue.extend({
     // リアクションボタン
     clickReaction(message: ChatItemModel) {
       ChatItemStore.postReaction({ message })
+    },
+    // リプライ先のChatItemを選択し、textareaにフォーカス
+    selectChatItem(message: ChatItemModel) {
+      this.selectedChatItem = message
+      const e = document.getElementById("textarea-" + this.topicId)
+      if (e) {
+        e.focus()
+      }
     },
     // スクロール
     handleScroll: throttle(function (this: any, e: Event) {
