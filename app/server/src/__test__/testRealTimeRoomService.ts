@@ -112,7 +112,7 @@ describe("RealtimeRoomServiceのテスト", () => {
       expect(room.topics[1].state).toBe<TopicState>("ongoing")
 
       expect(roomDeliverySubscribers[0]).toHaveLength(
-        deliveredRoomContentsCount + 1,
+        deliveredRoomContentsCount + 2,
       )
       const deliveredContent =
         roomDeliverySubscribers[0][deliveredRoomContentsCount]
@@ -170,7 +170,7 @@ describe("RealtimeRoomServiceのテスト", () => {
       )
     })
 
-    test("正常系_進行中のtopicが停止する", async () => {
+    test("正常系_進行中のtopicが一時停止する", async () => {
       const currentTopicId = 1
       await roomService.changeTopicState({
         userId: adminUser.id,
