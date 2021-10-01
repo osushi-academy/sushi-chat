@@ -271,11 +271,11 @@ export default Vue.extend({
       }
     },
     clickFinishButton(topicId: number) {
-      TopicStateItemStore.change({ key: `${topicId}`, state: "finished" })
+      TopicStateItemStore.change({ key: topicId, state: "finished" })
       this.$emit("change-topic-state", topicId, "finished")
     },
     clickRestartButton(topicId: number) {
-      TopicStateItemStore.change({ key: `${topicId}`, state: "finished" })
+      TopicStateItemStore.change({ key: topicId, state: "finished" })
       this.$emit("change-topic-state", topicId, "ongoing")
     },
   },
