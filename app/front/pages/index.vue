@@ -113,7 +113,7 @@ export default Vue.extend({
       return TopicStateItemStore.topicStateItems
     },
   },
-  created(): any {
+  created() {
     // roomId取得
     this.room.id = this.$route.query.roomId as string
     if (this.$route.query.user === "admin") {
@@ -179,7 +179,7 @@ export default Vue.extend({
         // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
         ChatItemStore.addOrUpdate(chatItem)
       })
-      this.$socket().on("PUB_CHANGE_TOPIC_STATE", (res: any) => {
+      this.$socket().on("PUB_CHANGE_TOPIC_STATE", (res) => {
         // クリックしたTopicのStateを変える
         TopicStateItemStore.change({ key: res.topicId, state: res.state })
       })
@@ -215,17 +215,13 @@ export default Vue.extend({
         this.hamburgerMenu = "menu"
       }
     },
-    changeTopicState(topicId: string, state: TopicState) {
-      // not-startedに変更はできない
-      if (state === "not-started") {
-        return
-      }
+    changeTopicState(topicId: number, state: TopicState) {
       TopicStateItemStore.change({ key: topicId, state })
       this.$socket().emit(
         "ADMIN_CHANGE_TOPIC_STATE",
         {
           state,
-          topicId: parseInt(topicId),
+          topicId,
         },
         (res) => {
           console.log(res)
@@ -254,7 +250,7 @@ export default Vue.extend({
           }
           res.data.topicStates.forEach((topicState) => {
             TopicStateItemStore.change({
-              key: `${topicState.topicId}`,
+              key: topicState.topicId,
               state: topicState.state,
             })
           })
@@ -284,7 +280,7 @@ export default Vue.extend({
           ChatItemStore.setChatItems(res.data.chatItems)
           res.data.topicStates.forEach((topicState) => {
             TopicStateItemStore.change({
-              key: `${topicState.topicId}`,
+              key: topicState.topicId,
               state: topicState.state,
             })
           })
@@ -296,7 +292,7 @@ export default Vue.extend({
     },
     // ルーム終了
     finishRoom() {
-      this.$socket().emit("ADMIN_FINISH_ROOM", {}, (res: any) => {
+      this.$socket().emit("ADMIN_FINISH_ROOM", {}, (res) => {
         console.log(res)
       })
       this.roomState = "finished"

@@ -733,6 +733,11 @@
           .selected {
             transform: rotate(-20deg);
           }
+
+          &.is-liked {
+            color: white;
+            transform: rotate(-20deg);
+          }
         }
       }
     }
