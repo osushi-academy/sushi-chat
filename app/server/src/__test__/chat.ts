@@ -311,12 +311,23 @@ describe("機能テスト", () => {
     })
 
     test("正常系_2番目のトピックを開始", (resolve) => {
+      let times = 0
       clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
-        expect(res).toStrictEqual<PubChangeTopicStateParam>({
-          topicId: roomData.topics[1].id,
-          state: "ongoing",
-        })
-        resolve()
+        if (times === 0) {
+          // 終了
+          expect(res).toStrictEqual<PubChangeTopicStateParam>({
+            topicId: roomData.topics[0].id,
+            state: "finished",
+          })
+          times += 1
+        } else {
+          // 開始
+          expect(res).toStrictEqual<PubChangeTopicStateParam>({
+            topicId: roomData.topics[1].id,
+            state: "ongoing",
+          })
+          resolve()
+        }
       })
       adminSocket.emit(
         "ADMIN_CHANGE_TOPIC_STATE",
