@@ -207,6 +207,8 @@ describe("機能テスト", () => {
 
   describe("ユーザーがルームに入る", () => {
     afterAll(() => {
+      // このステップで定義したlistenerが残っていると以降のテストに支障が出るため解除する。
+      // 以降のテストでも同様にlistenerの解除を行なっている。
       clientSockets[0].off("PUB_USER_COUNT")
     })
 
@@ -286,7 +288,9 @@ describe("機能テスト", () => {
 
   describe("トピックの状態遷移", () => {
     afterEach(async () => {
+      // listenerの解除
       clientSockets[0].off("PUB_CHANGE_TOPIC_STATE")
+      // DBの処理に若干時間がかかるため、少し待つようにする
       await delay(100)
     })
 
