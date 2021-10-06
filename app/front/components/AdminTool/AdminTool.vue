@@ -219,7 +219,7 @@ export default Vue.extend({
       )}&admin_invite_key=${encodeURIComponent(this.adminInviteKey)}`
     },
     shareUrl(): string {
-      return `${location.origin}?roomId=${encodeURIComponent(this.roomId)}`
+      return `${location.origin}/room/${encodeURIComponent(this.roomId)}`
     },
     // playOrPause() {
     //   return function (topicState: string) {
