@@ -19,14 +19,17 @@ import RoomFactory from "../infra/factory/RoomFactory"
 import AdminService from "../service/admin/AdminService"
 import {
   AdminEnterRoomResponse,
+  ChatItemModel,
   ErrorResponse,
   PubChangeTopicStateParam,
+  PubChatItemParam,
   RoomModel,
   ServerListenEventsMap,
   ServerPubEventsMap,
   SuccessResponse,
 } from "sushi-chat-shared"
 import delay from "../utils/delay"
+import ChatItem from "../domain/chatItem/ChatItem"
 
 describe("機能テスト", () => {
   const MATCHING = {
@@ -47,6 +50,14 @@ describe("機能テスト", () => {
   let pgPool: PGPool
 
   let roomData: RoomModel
+  let messageId: string
+  let reactionId: string
+  let questionId: string
+  let answerId: string
+  let message: ChatItemModel
+  let reaction: ChatItemModel
+  let question: ChatItemModel
+  let answer: ChatItemModel
 
   // テストのセットアップ
   beforeAll(async (done) => {
@@ -75,6 +86,11 @@ describe("機能テスト", () => {
       roomRepository,
       adminAuth,
     )
+
+    messageId = uuid()
+    reactionId = uuid()
+    questionId = uuid()
+    answerId = uuid()
 
     const app = express()
     const httpServer = createServer(app)
@@ -279,7 +295,7 @@ describe("機能テスト", () => {
       })
       clientSockets[1].emit(
         "ENTER_ROOM",
-        { roomId: roomData.id, iconId: 2, speakerTopicId: 1 },
+        { roomId: roomData.id, iconId: 2, speakerTopicId: 3 },
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       )
@@ -411,139 +427,134 @@ describe("機能テスト", () => {
       )
     })
   })
-  //
-  // describe("コメントを投稿する", () => {
-  //   beforeAll(() => {
-  //     clientSockets[2].emit(
-  //       "ENTER_ROOM",
-  //       { roomId, iconId: "3" },
-  //       (res: any) => {},
-  //     )
-  //   })
-  //
-  //   afterEach(() => {
-  //     clientSockets[0].off("PUB_CHAT_ITEM")
-  //   })
-  //
-  //   beforeEach(async () => await delay(100))
-  //
-  //   test("Messageの投稿", (resolve) => {
-  //     clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
-  //       expect(res).toStrictEqual({
-  //         id: messageId,
-  //         topicId: topics[0].id,
-  //         type: "message",
-  //         iconId: "2",
-  //         timestamp: expect.any(Number),
-  //         createdAt: expect.stringMatching(
-  //           /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //         ),
-  //         content: "コメント",
-  //         target: null,
-  //       })
-  //       resolve()
-  //     })
-  //     clientSockets[1].emit("POST_CHAT_ITEM", {
-  //       id: messageId,
-  //       topicId: topics[0].id,
-  //       type: "message",
-  //       content: "コメント",
-  //     })
-  //   })
-  //
-  //   test("Reactionの投稿", (resolve) => {
-  //     clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
-  //       expect(res).toStrictEqual({
-  //         id: reactionId,
-  //         topicId: topics[0].id,
-  //         type: "reaction",
-  //         iconId: "3",
-  //         timestamp: expect.any(Number),
-  //         createdAt: expect.stringMatching(
-  //           /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //         ),
-  //         target: {
-  //           id: messageId,
-  //           topicId: topics[0].id,
-  //           type: "message",
-  //           iconId: "2",
-  //           timestamp: expect.any(Number),
-  //           createdAt: expect.stringMatching(
-  //             /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //           ),
-  //           content: "コメント",
-  //           target: null,
-  //         },
-  //       })
-  //       resolve()
-  //     })
-  //     clientSockets[2].emit("POST_CHAT_ITEM", {
-  //       id: reactionId,
-  //       topicId: topics[0].id,
-  //       type: "reaction",
-  //       reactionToId: messageId,
-  //     })
-  //   })
-  //
-  //   test("Questionの投稿", (resolve) => {
-  //     clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
-  //       expect(res).toStrictEqual({
-  //         id: questionId,
-  //         topicId: topics[0].id,
-  //         type: "question",
-  //         iconId: "2",
-  //         timestamp: expect.any(Number),
-  //         createdAt: expect.stringMatching(
-  //           /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //         ),
-  //         content: "質問",
-  //       })
-  //       resolve()
-  //     })
-  //     clientSockets[1].emit("POST_CHAT_ITEM", {
-  //       id: questionId,
-  //       topicId: topics[0].id,
-  //       type: "question",
-  //       content: "質問",
-  //     })
-  //   })
-  //
-  //   test("Answerの投稿", (resolve) => {
-  //     clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
-  //       expect(res).toStrictEqual({
-  //         id: answerId,
-  //         topicId: topics[0].id,
-  //         type: "answer",
-  //         iconId: "3",
-  //         timestamp: expect.any(Number),
-  //         createdAt: expect.stringMatching(
-  //           /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //         ),
-  //         content: "回答",
-  //         target: {
-  //           id: questionId,
-  //           topicId: topics[0].id,
-  //           type: "question",
-  //           iconId: "2",
-  //           timestamp: expect.any(Number),
-  //           createdAt: expect.stringMatching(
-  //             /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //           ),
-  //           content: "質問",
-  //         },
-  //       })
-  //       resolve()
-  //     })
-  //     clientSockets[2].emit("POST_CHAT_ITEM", {
-  //       id: answerId,
-  //       topicId: topics[0].id,
-  //       type: "answer",
-  //       content: "回答",
-  //       target: questionId,
-  //     })
-  //   })
-  // })
-  //
+
+  describe("コメントを投稿する", () => {
+    beforeAll(() => {
+      clientSockets[2].emit(
+        "ENTER_ROOM",
+        { roomId: roomData.id, iconId: 3, speakerTopicId: 0 },
+        () => {},
+      )
+    })
+
+    afterEach(() => {
+      // listenerを解除
+      clientSockets[0].off("PUB_CHAT_ITEM")
+
+      // beforeEach(async () => await delay(100))
+    })
+
+    test("正常系_Messageの投稿", (resolve) => {
+      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
+        expect(res).toStrictEqual<PubChatItemParam>({
+          id: messageId,
+          topicId: roomData.topics[2].id,
+          createdAt: MATCHING.DATE,
+          type: "message",
+          senderType: "speaker",
+          iconId: 2,
+          content: "コメント",
+          timestamp: expect.any(Number),
+        })
+        message = res
+        resolve()
+      })
+      clientSockets[1].emit(
+        "POST_CHAT_ITEM",
+        {
+          id: messageId,
+          topicId: roomData.topics[2].id,
+          type: "message",
+          content: "コメント",
+        },
+        () => {},
+      )
+    })
+
+    test("正常系_Reactionの投稿", (resolve) => {
+      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
+        expect(res).toStrictEqual<PubChatItemParam>({
+          id: reactionId,
+          topicId: roomData.topics[2].id,
+          createdAt: MATCHING.DATE,
+          type: "reaction",
+          senderType: "general",
+          iconId: 3,
+          quote: message,
+          timestamp: expect.any(Number),
+        })
+        reaction = res
+        resolve()
+      })
+      clientSockets[2].emit(
+        "POST_CHAT_ITEM",
+        {
+          id: reactionId,
+          topicId: roomData.topics[2].id,
+          type: "reaction",
+          quoteId: messageId,
+        },
+        () => {},
+      )
+    })
+
+    test("正常系_Questionの投稿", (resolve) => {
+      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
+        expect(res).toStrictEqual<PubChatItemParam>({
+          id: questionId,
+          topicId: roomData.topics[2].id,
+          createdAt: MATCHING.DATE,
+          type: "question",
+          senderType: "speaker",
+          iconId: 2,
+          content: "質問",
+          timestamp: expect.any(Number),
+        })
+        question = res
+        resolve()
+      })
+      clientSockets[1].emit(
+        "POST_CHAT_ITEM",
+        {
+          id: questionId,
+          topicId: roomData.topics[2].id,
+          type: "question",
+          content: "質問",
+        },
+        () => {},
+      )
+    })
+
+    test("正常系_Answerの投稿", (resolve) => {
+      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
+        expect(res).toStrictEqual<PubChatItemParam>({
+          id: answerId,
+          topicId: roomData.topics[2].id,
+          createdAt: MATCHING.DATE,
+          type: "answer",
+          senderType: "general",
+          iconId: 3,
+          content: "回答",
+          quote: question,
+          timestamp: expect.any(Number),
+        })
+        answer = res
+        resolve()
+      })
+      clientSockets[2].emit(
+        "POST_CHAT_ITEM",
+        {
+          id: answerId,
+          topicId: roomData.topics[2].id,
+          type: "answer",
+          content: "回答",
+          quoteId: questionId,
+        },
+        () => {},
+      )
+    })
+  })
+
   // describe("スタンプの投稿", () => {
   //   test("スタンプを投稿する", (resolve) => {
   //     clientSockets[0].on("PUB_STAMP", (res) => {
