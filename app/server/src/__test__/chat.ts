@@ -555,7 +555,29 @@ describe("機能テスト", () => {
       )
     })
 
-    test("異常系_存在しないtopicには投稿できない", () => {
+    test.skip("異常系_進行中でないtopicには投稿できない", (resolve) => {
+      clientSockets[1].emit(
+        "POST_CHAT_ITEM",
+        {
+          id: uuid(),
+          topicId: roomData.topics[0].id,
+          type: "message",
+          content: "ongoingでないトピックへの投稿",
+        },
+        (res) => {
+          expect(res).toStrictEqual<ErrorResponse>({
+            result: "error",
+            error: {
+              code: MATCHING.CODE,
+              message: MATCHING.TEXT,
+            },
+          })
+          resolve()
+        },
+      )
+    })
+
+    test("異常系_存在しないtopicには投稿できない", (resolve) => {
       const notExistTopicId = 10
 
       clientSockets[1].emit(
@@ -574,6 +596,7 @@ describe("機能テスト", () => {
               message: MATCHING.TEXT,
             },
           })
+          resolve()
         },
       )
     })
@@ -590,7 +613,7 @@ describe("機能テスト", () => {
         expect(res).toStrictEqual<PubStampParam>([
           {
             id: MATCHING.UUID,
-            topicId: roomData.topics[0].id,
+            topicId: roomData.topics[2].id,
             timestamp: expect.any(Number),
             createdAt: MATCHING.DATE,
           },
@@ -598,17 +621,31 @@ describe("機能テスト", () => {
         stamps = res
         resolve()
       })
-      clientSockets[2].emit(
+      clientSockets[1].emit(
         "POST_STAMP",
-        { topicId: roomData.topics[0].id },
+        { topicId: roomData.topics[2].id },
         () => {},
       )
     })
 
-    test("異常系_存在しないトピックにはスタンプを投稿できない", () => {
+    test.skip("異常系_進行中でないトピックにはスタンプを投稿できない", (resolve) => {
+      clientSockets[1].emit(
+        "POST_STAMP",
+        { topicId: roomData.topics[0].id },
+        (res) => {
+          expect(res).toStrictEqual<ErrorResponse>({
+            result: "error",
+            error: { code: MATCHING.CODE, message: MATCHING.TEXT },
+          })
+          resolve()
+        },
+      )
+    })
+
+    test.skip("異常系_存在しないトピックにはスタンプを投稿できない", (resolve) => {
       const notExistTopicId = 10
 
-      clientSockets[2].emit(
+      clientSockets[1].emit(
         "POST_STAMP",
         { topicId: notExistTopicId },
         (res) => {
@@ -616,6 +653,7 @@ describe("機能テスト", () => {
             result: "error",
             error: { code: MATCHING.CODE, message: MATCHING.TEXT },
           })
+          resolve()
         },
       )
     })
