@@ -440,8 +440,6 @@ describe("機能テスト", () => {
     afterEach(() => {
       // listenerを解除
       clientSockets[0].off("PUB_CHAT_ITEM")
-
-      // beforeEach(async () => await delay(100))
     })
 
     test("正常系_Messageの投稿", (resolve) => {
@@ -551,6 +549,29 @@ describe("機能テスト", () => {
           quoteId: questionId,
         },
         () => {},
+      )
+    })
+
+    test("異常系_存在しないtopicには投稿できない", () => {
+      const notExistTopicId = 10
+
+      clientSockets[1].emit(
+        "POST_CHAT_ITEM",
+        {
+          id: uuid(),
+          topicId: notExistTopicId,
+          type: "message",
+          content: "存在しないトピックへの投稿",
+        },
+        (res) => {
+          expect(res).toStrictEqual<ErrorResponse>({
+            result: "error",
+            error: {
+              code: MATCHING.CODE,
+              message: MATCHING.TEXT,
+            },
+          })
+        },
       )
     })
   })
