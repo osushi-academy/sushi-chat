@@ -23,9 +23,11 @@ import {
   ErrorResponse,
   PubChangeTopicStateParam,
   PubChatItemParam,
+  PubStampParam,
   RoomModel,
   ServerListenEventsMap,
   ServerPubEventsMap,
+  StampModel,
   SuccessResponse,
 } from "sushi-chat-shared"
 import delay from "../utils/delay"
@@ -58,6 +60,7 @@ describe("機能テスト", () => {
   let reaction: ChatItemModel
   let question: ChatItemModel
   let answer: ChatItemModel
+  let stamps: StampModel[]
 
   // テストのセットアップ
   beforeAll(async (done) => {
@@ -576,22 +579,48 @@ describe("機能テスト", () => {
     })
   })
 
-  // describe("スタンプの投稿", () => {
-  //   test("スタンプを投稿する", (resolve) => {
-  //     clientSockets[0].on("PUB_STAMP", (res) => {
-  //       expect(res).toStrictEqual([
-  //         {
-  //           userId: clientSockets[2].id,
-  //           timestamp: expect.any(Number),
-  //           topicId: topics[0].id,
-  //         },
-  //       ])
-  //       resolve()
-  //     })
-  //     clientSockets[2].emit("POST_STAMP", { topicId: topics[0].id })
-  //   })
-  // })
-  //
+  describe("スタンプの投稿", () => {
+    afterAll(() => {
+      // listenerを解除
+      clientSockets[0].off("PUB_STAMP")
+    })
+
+    test("正常系_スタンプを投稿する", (resolve) => {
+      clientSockets[0].on("PUB_STAMP", (res) => {
+        expect(res).toStrictEqual<PubStampParam>([
+          {
+            id: MATCHING.UUID,
+            topicId: roomData.topics[0].id,
+            timestamp: expect.any(Number),
+            createdAt: MATCHING.DATE,
+          },
+        ])
+        stamps = res
+        resolve()
+      })
+      clientSockets[2].emit(
+        "POST_STAMP",
+        { topicId: roomData.topics[0].id },
+        () => {},
+      )
+    })
+
+    test("異常系_存在しないトピックにはスタンプを投稿できない", () => {
+      const notExistTopicId = 10
+
+      clientSockets[2].emit(
+        "POST_STAMP",
+        { topicId: notExistTopicId },
+        (res) => {
+          expect(res).toStrictEqual<ErrorResponse>({
+            result: "error",
+            error: { code: MATCHING.CODE, message: MATCHING.TEXT },
+          })
+        },
+      )
+    })
+  })
+
   // describe("途中から入室した場合", () => {
   //   beforeAll(async () => await delay(100))
   //
