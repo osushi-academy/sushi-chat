@@ -10,7 +10,7 @@
       <div class="home-top__event--title">開催中のイベント</div>
       <div v-for="(room, id) in ongoingRooms" :key="id">
         <NuxtLink
-          :to="'room/' + room.id + '/?user=admin'"
+          :to="'/room/' + room.id + '/?user=admin'"
           class="home-top__event--item"
         >
           <div class="home-top__event__list">
@@ -27,7 +27,7 @@
       <div class="home-top__event--title">未開始のイベント</div>
       <div v-for="(room, id) in notStartedRooms" :key="id">
         <NuxtLink
-          :to="'room/' + room.id + '/?user=admin'"
+          :to="'/room/' + room.id + '/?user=admin'"
           class="home-top__event--item"
         >
           <div class="home-top__event__list">
@@ -42,7 +42,7 @@
       <div class="home-top__event--title">終了済みのイベント</div>
       <div v-for="(room, id) in finishedRooms" :key="id">
         <NuxtLink
-          :to="'room/' + room.id + '/?user=admin'"
+          :to="'/room/' + room.id + '/?user=admin'"
           class="home-top__event--item"
         >
           <div class="home-top__event__list">
