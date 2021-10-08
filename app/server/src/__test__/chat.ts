@@ -31,7 +31,6 @@ import {
   SuccessResponse,
 } from "sushi-chat-shared"
 import delay from "../utils/delay"
-import ChatItem from "../domain/chatItem/ChatItem"
 
 describe("機能テスト", () => {
   const MATCHING = {
@@ -436,6 +435,7 @@ describe("機能テスト", () => {
       clientSockets[2].emit(
         "ENTER_ROOM",
         { roomId: roomData.id, iconId: 3, speakerTopicId: 0 },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       )
     })
@@ -468,6 +468,7 @@ describe("機能テスト", () => {
           type: "message",
           content: "コメント",
         },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       )
     })
@@ -495,6 +496,7 @@ describe("機能テスト", () => {
           type: "reaction",
           quoteId: messageId,
         },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       )
     })
@@ -522,6 +524,7 @@ describe("機能テスト", () => {
           type: "question",
           content: "質問",
         },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       )
     })
@@ -551,10 +554,12 @@ describe("機能テスト", () => {
           content: "回答",
           quoteId: questionId,
         },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       )
     })
 
+    // FIXME: アプリケーションの方が未対応
     test.skip("異常系_進行中でないtopicには投稿できない", (resolve) => {
       clientSockets[1].emit(
         "POST_CHAT_ITEM",
@@ -628,6 +633,7 @@ describe("機能テスト", () => {
       )
     })
 
+    // FIXME: アプリケーションの方が未対応
     test.skip("異常系_進行中でないトピックにはスタンプを投稿できない", (resolve) => {
       clientSockets[1].emit(
         "POST_STAMP",
