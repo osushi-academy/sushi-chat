@@ -22,16 +22,12 @@
             class="home-creation-completed-modal__invitation__content__detail"
           >
             <div
-              class="
-                home-creation-completed-modal__invitation__content__detail--url
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--url"
             >
               {{ url }}
             </div>
             <button
-              class="
-                home-creation-completed-modal__invitation__content__detail--button
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--button"
               @click="copy(url, 0)"
             >
               <CheckIcon v-if="copyCompleted" class="check-icon"></CheckIcon>
@@ -49,16 +45,12 @@
             class="home-creation-completed-modal__invitation__content__detail"
           >
             <div
-              class="
-                home-creation-completed-modal__invitation__content__detail--url
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--url"
             >
               {{ inviteUrl }}
             </div>
             <button
-              class="
-                home-creation-completed-modal__invitation__content__detail--button
-              "
+              class=" home-creation-completed-modal__invitation__content__detail--button"
               @click="copy(inviteUrl, 1)"
             >
               <CheckIcon
@@ -74,9 +66,7 @@
     <template #hide-button>
       <div class="home-creation-completed-modal__footer">
         <NuxtLink to="/home" class="hide-button"> マイページに戻る </NuxtLink>
-        <NuxtLink
-          :to="'/room/' + roomId + '/?user=admin'"
-          class="room-access-button"
+        <NuxtLink :to="adminUrl" class="room-access-button"
           >ルームを見る</NuxtLink
         >
       </div>
@@ -119,7 +109,7 @@ export default Vue.extend({
       return `${location.origin}/room/${this.roomId}`
     },
     adminUrl(): string {
-      return `${location.origin}/room/${this.roomId}&user=admin`
+      return `${location.origin}/room/${this.roomId}?user=admin`
     },
     inviteUrl(): string {
       return `${location.origin}/invited/?roomId=${this.roomId}&admin_invite_key=${this.adminInviteKey}`
