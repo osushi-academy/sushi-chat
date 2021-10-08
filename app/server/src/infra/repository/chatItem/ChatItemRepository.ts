@@ -6,7 +6,6 @@ import Answer from "../../../domain/chatItem/Answer"
 import ChatItem from "../../../domain/chatItem/ChatItem"
 import PGPool from "../PGPool"
 import { ChatItemSenderType, ChatItemType } from "sushi-chat-shared"
-import { formatDate } from "../../../utils/date"
 import User from "../../../domain/user/User"
 
 class ChatItemRepository implements IChatItemRepository {
@@ -29,7 +28,7 @@ class ChatItemRepository implements IChatItemRepository {
         message.quote ? message.quote.id : null,
         message.content,
         message.timestamp,
-        formatDate(message.createdAt),
+        message.createdAt,
       ])
     } catch (e) {
       ChatItemRepository.logError(e, "saveMessage()")
@@ -55,7 +54,7 @@ class ChatItemRepository implements IChatItemRepository {
         ChatItemRepository.senderTypeMap[reaction.senderType],
         reaction.quote.id,
         reaction.timestamp,
-        formatDate(reaction.createdAt),
+        reaction.createdAt,
       ])
     } catch (e) {
       ChatItemRepository.logError(e, "saveReaction()")
@@ -81,7 +80,7 @@ class ChatItemRepository implements IChatItemRepository {
         ChatItemRepository.senderTypeMap[question.senderType],
         question.content,
         question.timestamp,
-        formatDate(question.createdAt),
+        question.createdAt,
       ])
     } catch (e) {
       ChatItemRepository.logError(e, "saveQuestion()")
@@ -108,7 +107,7 @@ class ChatItemRepository implements IChatItemRepository {
         answer.quote.id,
         answer.content,
         answer.timestamp,
-        formatDate(answer.createdAt),
+        answer.createdAt,
       ])
     } catch (e) {
       ChatItemRepository.logError(e, "saveAnswer()")
@@ -192,8 +191,8 @@ class ChatItemRepository implements IChatItemRepository {
     const timestamp = row.timestamp
     const createdAt = row.created_at
     const iconId = row.icon_id
-    const isAdmin = row.isAdmin
-    const isSystem = row.isSystem
+    const isAdmin = row.is_admin
+    const isSystem = row.is_system
 
     const systemUser = new User(userId, isAdmin, isSystem, roomId, iconId)
 
