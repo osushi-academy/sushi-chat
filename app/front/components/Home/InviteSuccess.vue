@@ -75,7 +75,7 @@
       <div class="home-creation-completed-modal__footer">
         <NuxtLink to="/home" class="hide-button"> マイページに戻る </NuxtLink>
         <NuxtLink
-          :to="'room/' + roomId + '/?user=admin'"
+          :to="'/room/' + roomId + '/?user=admin'"
           class="room-access-button"
           >ルームを見る</NuxtLink
         >
