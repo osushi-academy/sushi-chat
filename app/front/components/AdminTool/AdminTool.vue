@@ -25,8 +25,8 @@
             </button>
             <button
               id="admin-url-copy-label"
-              :title="adminUrl"
-              @click="writeToClipboard(adminUrl, 1)"
+              :title="inviteUrl"
+              @click="writeToClipboard(inviteUrl, 1)"
             >
               <div class="room-text">
                 <span class="bold">管理者</span>用<br />招待URLのコピー
@@ -213,7 +213,7 @@ export default Vue.extend({
     icon() {
       return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
     },
-    adminUrl(): string {
+    inviteUrl(): string {
       return `${location.origin}/invited/?roomId=${encodeURIComponent(
         this.roomId,
       )}&admin_invite_key=${encodeURIComponent(this.adminInviteKey)}`
