@@ -121,14 +121,14 @@ const createSocketIOServer = async (
 
     // デバッグ用
     if (process.env.NODE_ENV !== "production") {
-      socket.use(async (e, next) => {
+      socket.use(async ([eventName, data], next) => {
         if (socket.handshake.auth.token != null) {
           const { adminId } = await new AdminAuth().verifyIdToken(
             socket.handshake.auth.token,
           )
-          console.log(e[0], adminId, e[1])
+          console.log(eventName, adminId, data)
         } else {
-          console.log(e[0], e[1])
+          console.log(eventName, data)
         }
         next()
       })
