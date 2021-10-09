@@ -23,6 +23,7 @@ import {
   ErrorResponse,
   PubChangeTopicStateParam,
   PubChatItemParam,
+  PubPinnedMessageParam,
   PubStampParam,
   RoomModel,
   ServerListenEventsMap,
@@ -430,7 +431,7 @@ describe("機能テスト", () => {
     })
   })
 
-  describe("コメントを投稿する", () => {
+  describe("ChatItemの投稿", () => {
     beforeAll(() => {
       clientSockets[2].emit(
         "ENTER_ROOM",
@@ -607,7 +608,41 @@ describe("機能テスト", () => {
     })
   })
 
-  describe("スタンプの投稿", () => {
+  describe("ChatItemをピン留め", () => {
+    test("正常系_speakerがChatItemをピン留めする", (resolve) => {
+      clientSockets[0].on("PUB_PINNED_MESSAGE", (res) => {
+        expect(res).toStrictEqual<PubPinnedMessageParam>({
+          topicId: roomData.topics[2].id,
+          chatItemId: messageId,
+        })
+        resolve()
+      })
+      clientSockets[1].emit(
+        "POST_PINNED_MESSAGE",
+        { topicId: roomData.topics[2].id, chatItemId: messageId },
+        (res) => {
+          expect(res).toStrictEqual({ result: "success" })
+        },
+      )
+    })
+
+    // TODO: アプリケーション側が未対応
+    test.skip("異常系_speaker以外はピン留めできない", (resolve) => {
+      clientSockets[2].emit(
+        "POST_PINNED_MESSAGE",
+        { topicId: roomData.topics[2].id, chatItemId: messageId },
+        (res) => {
+          expect(res).toStrictEqual<ErrorResponse>({
+            result: "error",
+            error: { code: MATCHING.CODE, message: MATCHING.TEXT },
+          })
+          resolve()
+        },
+      )
+    })
+  })
+
+  describe("Stampの投稿", () => {
     afterAll(() => {
       // listenerを解除
       clientSockets[0].off("PUB_STAMP")
