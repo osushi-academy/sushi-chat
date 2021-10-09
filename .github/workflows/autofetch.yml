@@ -52,7 +52,7 @@ jobs:
           git merge --no-edit upstream/main
           git push origin main
           # develop
-          git checkout -b develop origin/develop
+          git checkout develop
           git merge --no-edit upstream/develop
           git push origin develop
         env:
