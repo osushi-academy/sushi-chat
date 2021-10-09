@@ -87,14 +87,14 @@
           class="home-create__room__add--button"
           @click="() => addSession()"
         >
-          <PlusIcon class="icon" size="20px"></PlusIcon>
+          <PlusIcon class="icon" :size="20"></PlusIcon>
           セッションを追加
         </button>
         <button
           class="home-create__room__add--collective-button"
           @click="$modal.show('home-add-sessions-modal')"
         >
-          <PlusIcon class="icon" size="20px"></PlusIcon>
+          <PlusIcon class="icon" :size="20"></PlusIcon>
           まとめて追加
         </button>
       </div>
@@ -239,7 +239,7 @@ export default Vue.extend({
 
         const res = await this.$apiClient.post("/room", {
           title: this.roomName,
-          topics: sessions,
+          topics: sessions.map(({ title }) => ({ title })), // titleのみの配列に変換
           description: "hello, world",
         })
 
