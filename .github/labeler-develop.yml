@@ -1,2 +1,18 @@
 develop:
   - "**"
+
+front:
+  - "app/front/**/*"
+
+server:
+  - "app/server/**/*"
+
+shared:
+  - "app/shared/**/*"
+
+infra:
+  - "terraform/**/*"
+
+documentation:
+  - "doc/**/*"
+  - "README.md"

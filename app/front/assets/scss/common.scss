@@ -13,6 +13,8 @@ body {
 
 button {
   cursor: pointer;
+  background: transparent;
+  border: none;
 
   &:focus {
     outline: none;
@@ -116,5 +118,15 @@ span.key-span {
     display: flex;
     flex: 1;
     overflow-x: scroll;
+  }
+}
+
+@mixin scrollbar-hidden {
+  overflow-y: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

@@ -30,7 +30,7 @@
               :topic-id="topicId"
               :message="message"
               @click-thumb-up="clickReaction"
-              @click-reply="selectedChatItem = message"
+              @click-reply="selectChatItem(message)"
               @click-pin="pinChatItem(message.id)"
             />
           </div>
@@ -59,13 +59,8 @@
           :topic-id="topicId"
         />
       </div>
-      <button
-        class="message-badge"
-        :style="{ transform: `translate(-50%, ${isNotify ? 0 : 150}%)` }"
-        @click="clickScroll"
-      >
-        最新のコメント
-        <div class="material-icons">arrow_downward</div>
+      <button class="message-badge" :class="{ isNotify }" @click="clickScroll">
+        <ArrowDownIcon size="1.2x"></ArrowDownIcon>
       </button>
     </div>
     <TextArea
@@ -82,7 +77,7 @@
 import Vue from "vue"
 import type { PropOptions } from "vue"
 import throttle from "lodash.throttle"
-import { XIcon, ChevronUpIcon } from "vue-feather-icons"
+import { XIcon, ChevronUpIcon, ArrowDownIcon } from "vue-feather-icons"
 import { ChatItemModel, TopicState } from "sushi-chat-shared"
 import AnalysisGraph from "./AnalysisGraph.vue"
 import TopicHeader from "@/components/TopicHeader.vue"
@@ -109,6 +104,7 @@ export default Vue.extend({
     FavoriteButton,
     AnalysisGraph,
     XIcon,
+    ArrowDownIcon,
     ChevronUpIcon,
   },
   props: {
@@ -144,9 +140,9 @@ export default Vue.extend({
     },
     pinnedChatItem() {
       const chatItems = ChatItemStore.chatItems.filter(
-        ({ topicId }) => topicId === this.topicId,
+        (chatItemModel): chatItemModel is ChatItemModel =>
+          chatItemModel.topicId === this.topicId,
       )
-      console.log(chatItems)
       const pinnedChatItems = PinnedChatItemsStore.pinnedChatItems
       return chatItems.find((chatItem) => pinnedChatItems.includes(chatItem.id))
     },
@@ -177,19 +173,21 @@ export default Vue.extend({
   methods: {
     // 送信ボタン
     clickSubmit(text: string, isQuestion: boolean) {
-      const target = this.selectedChatItem
+      const target = this.selectedChatItem ?? undefined
       const topicId = this.topicId
-      if (target == null) {
+      if (target == null || target.type !== "question") {
+        // リプライ
         if (isQuestion) {
           // 質問
-          ChatItemStore.postQuestion({ text, topicId })
+          ChatItemStore.postQuestion({ text, topicId, target })
         } else {
           // 通常メッセージ
-          ChatItemStore.postMessage({ text, topicId })
+          ChatItemStore.postMessage({
+            text,
+            topicId,
+            target,
+          })
         }
-      } else if (target.type === "message" || target.type === "answer") {
-        // リプライ
-        ChatItemStore.postMessage({ text, topicId, target })
       } else if (target.type === "question") {
         // 回答
         ChatItemStore.postAnswer({ text, topicId, target })
@@ -200,6 +198,14 @@ export default Vue.extend({
     // リアクションボタン
     clickReaction(message: ChatItemModel) {
       ChatItemStore.postReaction({ message })
+    },
+    // リプライ先のChatItemを選択し、textareaにフォーカス
+    selectChatItem(message: ChatItemModel) {
+      this.selectedChatItem = message
+      const e = document.getElementById("textarea-" + this.topicId)
+      if (e) {
+        e.focus()
+      }
     },
     // スクロール
     handleScroll: throttle(function (this: any, e: Event) {
