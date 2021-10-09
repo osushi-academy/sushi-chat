@@ -56,10 +56,12 @@ describe("機能テスト", () => {
   let reactionId: string
   let questionId: string
   let answerId: string
+  let pinnedMessageId: string
   let message: ChatItemModel
   let reaction: ChatItemModel
   let question: ChatItemModel
   let answer: ChatItemModel
+  let pinnedMessage: ChatItemModel
   let stamps: StampModel[]
 
   // テストのセットアップ
@@ -94,6 +96,7 @@ describe("機能テスト", () => {
     reactionId = uuid()
     questionId = uuid()
     answerId = uuid()
+    pinnedMessageId = uuid()
 
     const app = express()
     const httpServer = createServer(app)
@@ -254,7 +257,11 @@ describe("機能テスト", () => {
     test("正常系_一般ユーザーがルームに入る", async (resolve) => {
       clientSockets[0].emit(
         "ENTER_ROOM",
-        { roomId: roomData.id, iconId: 1, speakerTopicId: 1 },
+        {
+          roomId: roomData.id,
+          iconId: 1,
+          speakerTopicId: roomData.topics[0].id,
+        },
         (res) => {
           expect(res).toStrictEqual<AdminEnterRoomResponse>({
             result: "success",
@@ -298,7 +305,11 @@ describe("機能テスト", () => {
       })
       clientSockets[1].emit(
         "ENTER_ROOM",
-        { roomId: roomData.id, iconId: 2, speakerTopicId: 3 },
+        {
+          roomId: roomData.id,
+          iconId: 2,
+          speakerTopicId: roomData.topics[2].id,
+        },
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       )
@@ -435,7 +446,11 @@ describe("機能テスト", () => {
     beforeAll(() => {
       clientSockets[2].emit(
         "ENTER_ROOM",
-        { roomId: roomData.id, iconId: 3, speakerTopicId: 0 },
+        {
+          roomId: roomData.id,
+          iconId: 3,
+          speakerTopicId: roomData.topics[0].id,
+        },
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       )
@@ -609,7 +624,49 @@ describe("機能テスト", () => {
   })
 
   describe("ChatItemをピン留め", () => {
-    test("正常系_speakerがChatItemをピン留めする", (resolve) => {
+    // 進行中でないTopicへのピン留めテストのためにChatItemを一つ投稿しておく
+    beforeAll((resolve) => {
+      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
+        pinnedMessage = res
+
+        // listenerを解除
+        clientSockets[0].off("PUB_CHAT_ITEM")
+        resolve()
+      })
+
+      adminSocket.emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
+        { topicId: roomData.topics[0].id, state: "ongoing" },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        () => {},
+      )
+
+      clientSockets[2].emit(
+        "POST_CHAT_ITEM",
+        {
+          id: pinnedMessageId,
+          topicId: roomData.topics[0].id,
+          type: "message",
+          content: "ピン留めされるメッセージ",
+          quoteId: undefined,
+        },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        () => {},
+      )
+
+      adminSocket.emit(
+        "ADMIN_CHANGE_TOPIC_STATE",
+        { topicId: roomData.topics[2].id, state: "ongoing" },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        () => {},
+      )
+    })
+
+    afterEach(() => {
+      clientSockets[0].off("PUB_PINNED_MESSAGE")
+    })
+
+    test("正常系_speakerが進行中のTopicにChatItemをピン留めする", (resolve) => {
       clientSockets[0].on("PUB_PINNED_MESSAGE", (res) => {
         expect(res).toStrictEqual<PubPinnedMessageParam>({
           topicId: roomData.topics[2].id,
@@ -620,6 +677,23 @@ describe("機能テスト", () => {
       clientSockets[1].emit(
         "POST_PINNED_MESSAGE",
         { topicId: roomData.topics[2].id, chatItemId: messageId },
+        (res) => {
+          expect(res).toStrictEqual({ result: "success" })
+        },
+      )
+    })
+
+    test("正常系_speakerが進行中でないTopicにChatItemをピン留めする", (resolve) => {
+      clientSockets[0].on("PUB_PINNED_MESSAGE", (res) => {
+        expect(res).toStrictEqual<PubPinnedMessageParam>({
+          topicId: roomData.topics[0].id,
+          chatItemId: pinnedMessageId,
+        })
+        resolve()
+      })
+      clientSockets[2].emit(
+        "POST_PINNED_MESSAGE",
+        { topicId: roomData.topics[0].id, chatItemId: pinnedMessageId },
         (res) => {
           expect(res).toStrictEqual({ result: "success" })
         },
