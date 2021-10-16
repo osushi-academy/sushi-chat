@@ -109,6 +109,7 @@ class ChatItemService {
     chatItemId,
     userId,
     content,
+    quoteId,
   }: PostQuestionCommand) {
     const { user, senderType } = await this.fetchUserData(userId, topicId)
     const room = await RealtimeRoomService.findRoomOrThrow(
@@ -116,12 +117,18 @@ class ChatItemService {
       this.roomRepository,
     )
 
+    const quote =
+      quoteId == null
+        ? null
+        : ((await this.chatItemRepository.find(quoteId)) as Message | Answer)
+
     const question = new Question(
       chatItemId,
       topicId,
       user,
       senderType,
       content,
+      quote,
       new Date(),
       room.calcTimestamp(topicId),
     )

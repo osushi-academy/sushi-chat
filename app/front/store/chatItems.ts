@@ -115,12 +115,21 @@ export default class ChatItems extends VuexModule {
   }
 
   @Action({ rawError: true })
-  public postQuestion({ text, topicId }: { text: string; topicId: number }) {
+  public postQuestion({
+    text,
+    topicId,
+    target,
+  }: {
+    text: string
+    topicId: number
+    target?: ChatItemModel
+  }) {
     const params: PostChatItemRequest = {
       id: getUUID(),
       type: "question",
       topicId,
       content: text,
+      quoteId: target?.id,
     }
     // ローカルに反映する
     this.add({
@@ -132,6 +141,7 @@ export default class ChatItems extends VuexModule {
       content: text,
       createdAt: new Date().toISOString(),
       timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
+      quote: target,
     })
     // サーバーに反映する
     const socket = buildSocket(AuthStore.idToken)

@@ -8,6 +8,7 @@ import Topic from "../domain/room/Topic"
  */
 export const covertToNewTopicArray = (topics: Topic[]) =>
   topics.map((topic) => ({
-    ...topic,
+    id: topic.id,
     order: topic.id,
+    title: topic.title,
   }))

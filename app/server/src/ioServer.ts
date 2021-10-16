@@ -181,7 +181,7 @@ const createSocketIOServer = async (
             await chatItemService.postMessage({
               ...commandBase,
               content: received.content as string,
-              quoteId: received.quoteId as string,
+              quoteId: received.quoteId ?? null,
             })
             break
 
@@ -196,6 +196,7 @@ const createSocketIOServer = async (
             await chatItemService.postQuestion({
               ...commandBase,
               content: received.content as string,
+              quoteId: received.quoteId ?? null,
             })
             break
 

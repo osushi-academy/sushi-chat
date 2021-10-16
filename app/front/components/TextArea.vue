@@ -28,6 +28,7 @@
       <fixed-phrase text="🔥🔥🔥" />
     </div-->
     <textarea
+      :id="'textarea-' + topicId"
       v-model="text"
       :disabled="disabled"
       class="textarea"
