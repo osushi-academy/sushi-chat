@@ -1,14 +1,14 @@
-import { v4 as uuid } from "uuid"
+import IStampFactory from "../../domain/stamp/IStampFactory"
 import Stamp from "../../domain/stamp/Stamp"
 
-class StampFactory {
+class StampFactory implements IStampFactory {
   public create(
+    id: string,
     userId: string,
     roomId: string,
     topicId: number,
     timestamp: number,
   ): Stamp {
-    const id = uuid()
     const createdAt = new Date()
 
     return new Stamp(id, userId, roomId, topicId, createdAt, timestamp)

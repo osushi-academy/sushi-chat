@@ -91,18 +91,18 @@ export default Vue.extend({
   watch: {
     stamps(newValue, oldValue) {
       newValue = newValue.slice(oldValue.length)
-      if (newValue.length) {
+      if (newValue.length > 1) {
         randomWaitedLoop(2000 / newValue.length, 500, newValue.length, () => {
           this.emitHeart()
         })
+      } else if (newValue.length === 1) {
+        this.emitHeart()
       }
     },
   },
   methods: {
     clickFavorite() {
       if (this.disabled) return
-      // スタンプのアニメーション
-      this.emitHeart()
       // Storeに追加し、サーバーに反映
       StampStore.sendFavorite(this.topicId)
     },
