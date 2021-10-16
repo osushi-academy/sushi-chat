@@ -195,7 +195,7 @@ export default Vue.extend({
       // スタンプ通知時の、SocketIOのコールバックの登録
       this.$socket().on("PUB_STAMP", (stamps: StampModel[]) => {
         stamps.forEach((stamp) => {
-          StampStore.add(stamp)
+          StampStore.addOrUpdate(stamp)
         })
       })
       // アクティブユーザー数のSocketIOのコールバックの登録
