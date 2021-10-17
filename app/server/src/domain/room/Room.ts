@@ -344,7 +344,7 @@ class RoomClass {
       uuid(),
       topicId,
       this.systemUser,
-      "admin",
+      "system",
       content,
       null,
       new Date(),
