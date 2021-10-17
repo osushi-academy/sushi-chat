@@ -337,9 +337,7 @@ class RoomClass {
   public postChatItem = (userId: string, chatItem: ChatItem) => {
     this.assertRoomIsOngoing()
     this.assertUserExists(userId)
-
-    console.log(this.chatItems)
-
+    // NOTE: 同じユーザーが、同じchatItemに対し、複数回リアクションすることはできない
     if (
       chatItem instanceof Reaction &&
       this.chatItems
