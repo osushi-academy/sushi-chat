@@ -568,8 +568,14 @@ paths:
           schema:
             type: object
             properties:
+              id:
+                type: string
+                format: uuid
               topicId:
                 type: number
+            required:
+              - id
+              - topicId
           description: ""
       tags:
         - SocketIO

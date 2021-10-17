@@ -71,6 +71,7 @@ class EphemeralChatItemRepository implements IChatItemRepository {
         chatItem.user,
         chatItem.senderType,
         chatItem.content,
+        chatItem.quote,
         chatItem.createdAt,
         chatItem.timestamp,
         true,

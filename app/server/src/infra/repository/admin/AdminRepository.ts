@@ -25,7 +25,8 @@ class AdminRepository implements IAdminRepository {
     const pgClient = await this.pgPool.client()
 
     const adminQuery = "SELECT name FROM admins WHERE id = $1"
-    const roomsQuery = "SELECT room_id FROM rooms_admins WHERE admin_id = $1"
+    const roomsQuery =
+      "SELECT room_id FROM rooms_admins WHERE admin_id = $1 ORDER BY created_at DESC"
 
     try {
       const [adminRes, roomsRes] = await Promise.all([

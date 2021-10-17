@@ -209,6 +209,7 @@ describe("ChatItemServiceのテスト", () => {
         content: "テストクエスチョン",
         userId,
         topicId: 1,
+        quoteId: null,
       })
 
       const question = (await chatItemRepository.find(questionId)) as Question
