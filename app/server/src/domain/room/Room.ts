@@ -3,12 +3,12 @@ import ChatItem from "../chatItem/ChatItem"
 import Stamp from "../stamp/Stamp"
 import Message from "../chatItem/Message"
 import Topic, { TopicTimeData } from "./Topic"
-import Question from "../chatItem/Question"
-import Answer from "../chatItem/Answer"
 import { RoomState, TopicState } from "sushi-chat-shared"
 import { PartiallyPartial } from "../../types/utils"
 import SystemUser from "../user/SystemUser"
 import UserFactory from "../../infra/factory/UserFactory"
+import Question from "../chatItem/Question"
+import Answer from "../chatItem/Answer"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -46,6 +46,7 @@ class RoomClass {
         offsetTime: 0,
       }
     })
+    userIds.add(systemUser.id)
   }
 
   public get topics(): Topic[] {
