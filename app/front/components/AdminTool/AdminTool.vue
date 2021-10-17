@@ -236,7 +236,8 @@ export default Vue.extend({
           id,
           {
             commentCount: ChatItemStore.chatItems.filter(
-              ({ topicId }) => topicId === id,
+              ({ topicId, senderType }) =>
+                topicId === id && senderType !== "system",
             ).length,
             stampCount: StampStore.stamps.filter(
               ({ topicId }) => topicId === id,
