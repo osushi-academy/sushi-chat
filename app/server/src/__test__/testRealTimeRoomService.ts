@@ -112,12 +112,32 @@ describe("RealtimeRoomServiceのテスト", () => {
       expect(room.topics[1].state).toBe<TopicState>("ongoing")
 
       expect(roomDeliverySubscribers[0]).toHaveLength(
-        deliveredRoomContentsCount + 1,
+        deliveredRoomContentsCount + 2,
       )
-      const deliveredContent =
+      const deliveredFinishContent =
         roomDeliverySubscribers[0][deliveredRoomContentsCount]
-      expect(deliveredContent.type).toBe<RoomDeliveryType>("CHANGE_TOPIC_STATE")
-      expect(deliveredContent.content).toStrictEqual<ChangeTopicStateContent>({
+      expect(deliveredFinishContent.type).toBe<RoomDeliveryType>(
+        "CHANGE_TOPIC_STATE",
+      )
+      expect(
+        deliveredFinishContent.content,
+      ).toStrictEqual<ChangeTopicStateContent>({
+        roomId: adminUser.roomId,
+        topic: {
+          ...topics[0],
+          id: 1,
+          state: "finished",
+          pinnedChatItemId: undefined,
+        },
+      })
+      const deliveredOngoingContent =
+        roomDeliverySubscribers[0][deliveredRoomContentsCount + 1]
+      expect(deliveredOngoingContent.type).toBe<RoomDeliveryType>(
+        "CHANGE_TOPIC_STATE",
+      )
+      expect(
+        deliveredOngoingContent.content,
+      ).toStrictEqual<ChangeTopicStateContent>({
         roomId: adminUser.roomId,
         topic: {
           ...topics[1],
@@ -170,7 +190,7 @@ describe("RealtimeRoomServiceのテスト", () => {
       )
     })
 
-    test("正常系_進行中のtopicが停止する", async () => {
+    test("正常系_進行中のtopicが一時停止する", async () => {
       const currentTopicId = 1
       await roomService.changeTopicState({
         userId: adminUser.id,

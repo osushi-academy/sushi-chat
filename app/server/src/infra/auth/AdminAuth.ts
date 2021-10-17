@@ -14,7 +14,9 @@ class AdminAuth implements IAdminAuth {
   }
 
   constructor() {
-    admin.initializeApp({ credential: admin.credential.cert(AdminAuth.cert) })
+    if (admin.apps.length === 0) {
+      admin.initializeApp({ credential: admin.credential.cert(AdminAuth.cert) })
+    }
   }
 
   public async verifyIdToken(token: string): Promise<VerifyResult> {
