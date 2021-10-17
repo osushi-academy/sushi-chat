@@ -56,12 +56,12 @@ describe("機能テスト", () => {
   let reactionId: string
   let questionId: string
   let answerId: string
-  let pinnedMessageId: string
+  let notOnGoingTopicMessageId: string
   let message: ChatItemModel
   let reaction: ChatItemModel
   let question: ChatItemModel
   let answer: ChatItemModel
-  let pinnedMessage: ChatItemModel
+  let notOnGoingTopicMessage: ChatItemModel
   let stamps: StampModel[]
 
   // テストのセットアップ
@@ -91,12 +91,6 @@ describe("機能テスト", () => {
       roomRepository,
       adminAuth,
     )
-
-    messageId = uuid()
-    reactionId = uuid()
-    questionId = uuid()
-    answerId = uuid()
-    pinnedMessageId = uuid()
 
     const app = express()
     const httpServer = createServer(app)
@@ -442,6 +436,7 @@ describe("機能テスト", () => {
     })
   })
 
+  // NOTE: roomData.topics[2]のトピックが進行中になっている前提
   describe("ChatItemの投稿", () => {
     beforeAll(() => {
       clientSockets[2].emit(
@@ -462,6 +457,8 @@ describe("機能テスト", () => {
     })
 
     test("正常系_Messageの投稿", (resolve) => {
+      messageId = uuid()
+
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
         expect(res).toStrictEqual<PubChatItemParam>({
           id: messageId,
@@ -490,6 +487,8 @@ describe("機能テスト", () => {
     })
 
     test("正常系_Reactionの投稿", (resolve) => {
+      reactionId = uuid()
+
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
         expect(res).toStrictEqual<PubChatItemParam>({
           id: reactionId,
@@ -518,6 +517,8 @@ describe("機能テスト", () => {
     })
 
     test("正常系_Questionの投稿", (resolve) => {
+      questionId = uuid()
+
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
         expect(res).toStrictEqual<PubChatItemParam>({
           id: questionId,
@@ -546,6 +547,8 @@ describe("機能テスト", () => {
     })
 
     test("正常系_Answerの投稿", (resolve) => {
+      answerId = uuid()
+
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
         expect(res).toStrictEqual<PubChatItemParam>({
           id: answerId,
@@ -575,25 +578,36 @@ describe("機能テスト", () => {
       )
     })
 
-    // FIXME: アプリケーションの方が未対応
-    test.skip("異常系_進行中でないtopicには投稿できない", (resolve) => {
-      clientSockets[1].emit(
+    test("正常系_進行中でないtopicにも投稿できる", (resolve) => {
+      notOnGoingTopicMessageId = uuid()
+
+      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
+        expect(res).toStrictEqual<PubChatItemParam>({
+          id: notOnGoingTopicMessageId,
+          topicId: roomData.topics[0].id,
+          createdAt: MATCHING.DATE,
+          type: "message",
+          senderType: "speaker",
+          iconId: 3,
+          content: "ongoingでないトピックへの投稿",
+          timestamp: expect.any(Number),
+        })
+        notOnGoingTopicMessage = res
+        resolve()
+      })
+
+      clientSockets[2].emit(
         "POST_CHAT_ITEM",
         {
-          id: uuid(),
+          id: notOnGoingTopicMessageId,
           topicId: roomData.topics[0].id,
           type: "message",
           content: "ongoingでないトピックへの投稿",
         },
         (res) => {
-          expect(res).toStrictEqual<ErrorResponse>({
-            result: "error",
-            error: {
-              code: MATCHING.CODE,
-              message: MATCHING.TEXT,
-            },
+          expect(res).toStrictEqual({
+            result: "success",
           })
-          resolve()
         },
       )
     })
@@ -624,44 +638,6 @@ describe("機能テスト", () => {
   })
 
   describe("ChatItemをピン留め", () => {
-    // 進行中でないTopicへのピン留めテストのためにChatItemを一つ投稿しておく
-    beforeAll((resolve) => {
-      clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
-        pinnedMessage = res
-
-        // listenerを解除
-        clientSockets[0].off("PUB_CHAT_ITEM")
-        resolve()
-      })
-
-      adminSocket.emit(
-        "ADMIN_CHANGE_TOPIC_STATE",
-        { topicId: roomData.topics[0].id, state: "ongoing" },
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        () => {},
-      )
-
-      clientSockets[2].emit(
-        "POST_CHAT_ITEM",
-        {
-          id: pinnedMessageId,
-          topicId: roomData.topics[0].id,
-          type: "message",
-          content: "ピン留めされるメッセージ",
-          quoteId: undefined,
-        },
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        () => {},
-      )
-
-      adminSocket.emit(
-        "ADMIN_CHANGE_TOPIC_STATE",
-        { topicId: roomData.topics[2].id, state: "ongoing" },
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        () => {},
-      )
-    })
-
     afterEach(() => {
       clientSockets[0].off("PUB_PINNED_MESSAGE")
     })
@@ -687,13 +663,16 @@ describe("機能テスト", () => {
       clientSockets[0].on("PUB_PINNED_MESSAGE", (res) => {
         expect(res).toStrictEqual<PubPinnedMessageParam>({
           topicId: roomData.topics[0].id,
-          chatItemId: pinnedMessageId,
+          chatItemId: notOnGoingTopicMessageId,
         })
         resolve()
       })
       clientSockets[2].emit(
         "POST_PINNED_MESSAGE",
-        { topicId: roomData.topics[0].id, chatItemId: pinnedMessageId },
+        {
+          topicId: roomData.topics[0].id,
+          chatItemId: notOnGoingTopicMessageId,
+        },
         (res) => {
           expect(res).toStrictEqual({ result: "success" })
         },
