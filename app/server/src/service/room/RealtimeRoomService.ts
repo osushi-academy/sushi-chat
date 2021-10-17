@@ -5,7 +5,6 @@ import IRoomDelivery from "../../domain/room/IRoomDelivery"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
 import UserService from "../user/UserService"
 import IUserRepository from "../../domain/user/IUserRepository"
-import RoomSystemMessageHelper from "./RoomSystemMessageHelper"
 
 class RealtimeRoomService {
   constructor(
@@ -67,39 +66,23 @@ class RealtimeRoomService {
     if (!user.isAdmin) {
       throw new Error(`User(id:${userId}) is not admin.`)
     }
+
+    const roomId = user.roomId
+
     const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
+      roomId,
       this.roomRepository,
     )
+    const messages = room.changeTopicState(topicId, state)
 
-    const changedTopics = room.changeTopicState(topicId, state)
-
-    // トピックの変更を配信
-    changedTopics.forEach(({ id }) => {
-      // TODO: `room.topics[id - 1]`の部分、RoomClass::getTopicsByTopicIdみたいなメソッドが欲しい
-      this.roomDelivery.changeTopicState(room.id, room.topics[id - 1])
-    })
-
-    // Botメッセージを作成
-    const chatItems = changedTopics.map(({ id, newState, oldState }) =>
-      RoomSystemMessageHelper.buildTopicStateChangeSystemMessage(
-        room,
-        id,
-        oldState,
-        newState,
-      ),
-    )
-
-    chatItems.forEach((chatItem) => {
-      // Botメッセージをモデルに反映
-      room.postChatItem(room.systemUser.id, chatItem)
-      // Botメッセージを配信
-      this.chatItemDelivery.postMessage(chatItem)
+    messages.forEach((m) => {
+      this.chatItemDelivery.postMessage(m)
+      this.roomDelivery.changeTopicState(roomId, room.topics[m.topicId - 1])
     })
 
     await Promise.all([
       this.roomRepository.update(room),
-      ...chatItems.map((m) => this.chatItemRepository.saveMessage(m)),
+      ...messages.map((m) => this.chatItemRepository.saveMessage(m)),
     ])
   }
 }
