@@ -3,6 +3,7 @@ import { StampModel } from "sushi-chat-shared"
 import getUUID from "~/utils/getUUID"
 import buildSocket from "~/utils/socketIO"
 import { AuthStore } from "~/utils/store-accessor"
+import emitAsync from "~/utils/emitAsync"
 
 @Module({
   name: "stamps",
@@ -36,7 +37,7 @@ export default class Stamps extends VuexModule {
   }
 
   @Action({ rawError: true })
-  public sendFavorite(topicId: number) {
+  public async sendFavorite(topicId: number) {
     const socket = buildSocket(AuthStore.idToken)
     const id = getUUID()
     // StampStoreは配信で追加する
@@ -46,8 +47,6 @@ export default class Stamps extends VuexModule {
       timestamp: 1000, // TODO: 正しいタイムスタンプを設定する
       createdAt: new Date().toISOString(),
     })
-    socket.emit("POST_STAMP", { topicId, id }, (res) => {
-      console.log(res)
-    })
+    await emitAsync(socket, "POST_STAMP", { topicId, id })
   }
 }
