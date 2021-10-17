@@ -12,6 +12,22 @@ import { SocketIOType } from "./socketIO"
  * @param eventName Emitするイベント名
  * @param payload リクエストデータ
  * @returns レスポンスデータ
+ *
+ * @example
+ * try {
+ *   const data = await emitAsync(socket, "POST_CHAT_ITEM", params)
+ *   console.log("success: ", data)
+ * } catch (e) {
+ *   console.error("error: ", res.error)
+ * }
+ * // 以下とほぼ等価
+ * socket.emit("POST_CHAT_ITEM", params, (res) => {
+ *   if (res.result === "success") {
+ *      console.log("success: ", res.data)
+ *   } else {
+ *     console.error("error: ", res.error)
+ *   }
+ * })
  */
 const emitAsync = <EventName extends ServerListenEventName>(
   socket: SocketIOType,
