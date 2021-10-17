@@ -221,17 +221,6 @@ export default Vue.extend({
     shareUrl(): string {
       return `${location.origin}?roomId=${encodeURIComponent(this.roomId)}`
     },
-    // playOrPause() {
-    //   return function (topicState: string) {
-    //     if (topicState === "ongoing") {
-    //       return "pause_circle"
-    //     } else if (topicState === "paused" || topicState === "not-started") {
-    //       return "play_circle"
-    //     } else {
-    //       return null
-    //     }
-    //   }
-    // },
   },
   methods: {
     // ルーム開始
