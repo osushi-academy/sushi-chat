@@ -26,7 +26,7 @@ class ChatItemRepository implements IChatItemRepository {
         message.user.id,
         ChatItemRepository.chatItemTypeMap["message"],
         ChatItemRepository.senderTypeMap[message.senderType],
-        message.quote ? message.quote.id : null,
+        message.quote?.id,
         message.content,
         message.timestamp,
         formatDate(message.createdAt),
@@ -69,7 +69,7 @@ class ChatItemRepository implements IChatItemRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "INSERT INTO chat_items (id, room_id, topic_id, user_id, chat_item_type_id, sender_type_id, quote_id, content, timestamp, created_at) VALUES ($1, $2, $3, $4, $5, $6, NULL, $7, $8, $9)"
+      "INSERT INTO chat_items (id, room_id, topic_id, user_id, chat_item_type_id, sender_type_id, quote_id, content, timestamp, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)"
 
     try {
       await pgClient.query(query, [
@@ -79,6 +79,7 @@ class ChatItemRepository implements IChatItemRepository {
         question.user.id,
         ChatItemRepository.chatItemTypeMap["question"],
         ChatItemRepository.senderTypeMap[question.senderType],
+        question.quote?.id,
         question.content,
         question.timestamp,
         formatDate(question.createdAt),
@@ -234,12 +235,18 @@ class ChatItemRepository implements IChatItemRepository {
         )
       }
       case "question": {
+        const quoteId = row.quote_id
+        const quote =
+          quoteId !== null
+            ? ((await this.find(quoteId)) as Message | Answer)
+            : null
         return new Question(
           id,
           topicId,
           systemUser,
           senderType,
           row.content,
+          quote,
           createdAt,
           timestamp,
         )

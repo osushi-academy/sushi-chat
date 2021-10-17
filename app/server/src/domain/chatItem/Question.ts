@@ -1,6 +1,8 @@
 import ChatItem from "./ChatItem"
 import { ChatItemSenderType } from "sushi-chat-shared"
 import User from "../user/User"
+import Message from "./Message"
+import Answer from "./Answer"
 
 class Question extends ChatItem {
   constructor(
@@ -9,6 +11,7 @@ class Question extends ChatItem {
     user: User,
     senderType: ChatItemSenderType,
     public readonly content: string,
+    public readonly quote: Message | Answer | null,
     createdAt: Date,
     timestamp?: number,
     isPinned = false,

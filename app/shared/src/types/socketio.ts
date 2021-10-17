@@ -82,6 +82,7 @@ export type PubChatItemParam = ChatItemModel
 
 // POST_STAMP
 export type PostStampRequest = {
+  id: string
   topicId: number
 }
 export type PostStampResponse = SuccessResponse | ErrorResponse
