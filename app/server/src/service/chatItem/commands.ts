@@ -15,6 +15,7 @@ export type PostReactionCommand = PostChatItemCommand & {
 
 export type PostQuestionCommand = PostChatItemCommand & {
   content: string
+  quoteId: string | null
 }
 
 export type PostAnswerCommand = PostChatItemCommand & {

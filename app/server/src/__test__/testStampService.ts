@@ -75,7 +75,8 @@ describe("StampServiceのテスト", () => {
 
   describe("postのテスト", () => {
     test("正常系_stampを投稿する", async () => {
-      await stampService.post({ userId, topicId: 1 })
+      const stampId = uuid()
+      await stampService.post({ id: stampId, userId, topicId: 1 })
       // stampIntervalDeliveryのインターバル処理でスタンプで配信されるのを待つ
       await delay(200)
 
@@ -88,8 +89,9 @@ describe("StampServiceのテスト", () => {
     })
 
     test("異常系_OPEN状態でないTopicへはスタンプを投稿できない", async () => {
+      const stampId = uuid()
       await expect(() =>
-        stampService.post({ userId, topicId: 2 }),
+        stampService.post({ id: stampId, userId, topicId: 2 }),
       ).rejects.toThrowError()
     })
   })
