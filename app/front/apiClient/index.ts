@@ -29,7 +29,6 @@ const pathBuilder = (path: {
 /**
  * @sample
  * ```ts
- *  NOTE: サンプル実装のためコメントアウト
  *  async asyncData({ app }) {
  *    const sampleResponse = await app.$apiClient.get(
  *      { pathname: "/room/:id/history", params: { id: "roomId" } },
