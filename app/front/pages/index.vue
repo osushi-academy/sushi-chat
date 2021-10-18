@@ -125,12 +125,12 @@ export default Vue.extend({
       // TODO: this.room.idが存在しない場合、/loginにリダイレクト
       this.$router.push("/login")
     }
-    // socket接続
-    this.$initSocket(UserItemStore.userItems.isAdmin)
-
     // statusに合わせた操作をする
     this.checkStatusAndAction()
     DeviceStore.determineOs()
+  },
+  beforeDestroy() {
+    this.$socket().disconnect()
   },
   methods: {
     async checkStatusAndAction() {
@@ -170,6 +170,9 @@ export default Vue.extend({
     },
     // socket.ioのセットアップ。配信を受け取る
     socketSetUp() {
+      // socket接続
+      this.$initSocket(UserItemStore.userItems.isAdmin)
+
       // SocketIOのコールバックの登録
       this.$socket().on("PUB_CHAT_ITEM", (chatItem: ChatItemModel) => {
         console.log(chatItem)
@@ -177,18 +180,6 @@ export default Vue.extend({
         ChatItemStore.addOrUpdate(chatItem)
       })
       this.$socket().on("PUB_CHANGE_TOPIC_STATE", (res) => {
-        if (res.state === "ongoing") {
-          // 現在ongoingなトピックがあればfinishedにする
-          const t = Object.fromEntries(
-            Object.entries(this.topicStateItems).map(
-              ([topicId, topicState]) => [
-                topicId,
-                topicState === "ongoing" ? "finished" : topicState,
-              ],
-            ),
-          )
-          TopicStateItemStore.set(t)
-        }
         // クリックしたTopicのStateを変える
         TopicStateItemStore.change({ key: res.topicId, state: res.state })
       })
@@ -244,6 +235,7 @@ export default Vue.extend({
     },
     // ルーム入室
     enterRoom(iconId: number) {
+      this.socketSetUp()
       this.$socket().emit(
         "ENTER_ROOM",
         {
@@ -270,11 +262,11 @@ export default Vue.extend({
           ChatItemStore.setChatItems(res.data.chatItems)
         },
       )
-      this.socketSetUp()
       this.isRoomEnter = true
     },
     // 管理者ルーム入室
     adminEnterRoom() {
+      this.socketSetUp()
       this.$socket().emit(
         "ADMIN_ENTER_ROOM",
         {
@@ -295,7 +287,6 @@ export default Vue.extend({
           this.activeUserCount = res.data.activeUserCount
         },
       )
-      this.socketSetUp()
       this.isRoomEnter = true
       UserItemStore.changeMyIcon(0)
     },

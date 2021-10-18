@@ -34,8 +34,8 @@ class AdminService {
     const managedRoomsIds = admin.managedRoomsIds
 
     // roomがnullの場合は無視する
-    const managedRooms: RoomClass[] = (
-      await Promise.all(
+    const managedRooms = (
+      await Promise.all<RoomClass | null>(
         managedRoomsIds.map(async (roomId) => {
           const room = await this.findRoom(roomId)
           return room

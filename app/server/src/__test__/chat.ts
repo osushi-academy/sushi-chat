@@ -311,12 +311,22 @@ describe("機能テスト", () => {
     })
 
     test("正常系_2番目のトピックを開始", (resolve) => {
+      let times = 0
+      const mock = jest.fn()
       clientSockets[0].on("PUB_CHANGE_TOPIC_STATE", (res) => {
-        expect(res).toStrictEqual<PubChangeTopicStateParam>({
-          topicId: roomData.topics[1].id,
-          state: "ongoing",
-        })
-        resolve()
+        mock(res)
+        times += 1
+        if (times === 2) {
+          expect(mock).toHaveBeenCalledWith({
+            topicId: roomData.topics[0].id,
+            state: "finished",
+          })
+          expect(mock).toHaveBeenCalledWith({
+            topicId: roomData.topics[1].id,
+            state: "ongoing",
+          })
+          resolve()
+        }
       })
       adminSocket.emit(
         "ADMIN_CHANGE_TOPIC_STATE",
