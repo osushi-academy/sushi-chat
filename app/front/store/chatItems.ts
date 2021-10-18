@@ -77,7 +77,7 @@ export default class ChatItems extends VuexModule {
       content: text,
       createdAt: new Date().toISOString(),
       quote: target,
-      timestamp: undefined, // TODO: 正しいタイムスタンプを設定する
+      timestamp: undefined,
     })
     // サーバーに送信する
     const socket = buildSocket(AuthStore.idToken)
@@ -102,7 +102,7 @@ export default class ChatItems extends VuexModule {
       type: "reaction",
       senderType: "general", // TODO: senderType取得
       iconId: UserItemStore.userItems.myIconId,
-      timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+      timestamp: undefined,
       createdAt: new Date().toISOString(),
       quote: message,
     })
@@ -140,7 +140,7 @@ export default class ChatItems extends VuexModule {
       iconId: UserItemStore.userItems.myIconId,
       content: text,
       createdAt: new Date().toISOString(),
-      timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
+      timestamp: undefined,
       quote: target,
     })
     // サーバーに反映する
@@ -180,7 +180,7 @@ export default class ChatItems extends VuexModule {
       type: "answer",
       senderType: "general", // TODO: senderType取得
       iconId: UserItemStore.userItems.myIconId,
-      timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+      timestamp: undefined,
       createdAt: new Date().toISOString(),
       quote: target || null,
       content: text,
