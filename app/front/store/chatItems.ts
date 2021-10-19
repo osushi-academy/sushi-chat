@@ -3,6 +3,7 @@ import { PostChatItemRequest, ChatItemModel } from "sushi-chat-shared"
 import getUUID from "~/utils/getUUID"
 import { AuthStore, UserItemStore } from "~/store"
 import buildSocket from "~/utils/socketIO"
+import emitAsync from "~/utils/emitAsync"
 
 @Module({
   name: "chatItems",
@@ -41,6 +42,12 @@ export default class ChatItems extends VuexModule {
     )
   }
 
+  @Mutation
+  public remove(chatItemId: string) {
+    const index = this._chatItems.findIndex(({ id }) => id === chatItemId)
+    this._chatItems.splice(index, 1)
+  }
+
   @Action({ rawError: true })
   public addOrUpdate(chatItem: ChatItemModel) {
     if (this._chatItems.find(({ id }) => id === chatItem.id)) {
@@ -51,7 +58,7 @@ export default class ChatItems extends VuexModule {
   }
 
   @Action({ rawError: true })
-  public postMessage({
+  public async postMessage({
     text,
     topicId,
     target,
@@ -77,18 +84,23 @@ export default class ChatItems extends VuexModule {
       content: text,
       createdAt: new Date().toISOString(),
       quote: target,
-      timestamp: 0, // TODO: 正しいタイムスタンプを設定する
+      timestamp: undefined,
     })
     // サーバーに送信する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit("POST_CHAT_ITEM", params, (res) => {
-      console.log(res)
-    })
-    console.log("send reaction: ", text)
+    try {
+      await emitAsync(socket, "POST_CHAT_ITEM", params)
+      // TODO: 正しいタイムスタンプを設定する
+    } catch (e) {
+      // ローカルで追加したchatItemを削除する
+      this.remove(params.id)
+      throw e
+    }
+    console.log("send message: ", text)
   }
 
   @Action({ rawError: true })
-  public postReaction({ message }: { message: ChatItemModel }) {
+  public async postReaction({ message }: { message: ChatItemModel }) {
     const params: PostChatItemRequest = {
       id: getUUID(),
       type: "reaction",
@@ -102,20 +114,25 @@ export default class ChatItems extends VuexModule {
       type: "reaction",
       senderType: "general", // TODO: senderType取得
       iconId: UserItemStore.userItems.myIconId,
-      timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+      timestamp: undefined,
       createdAt: new Date().toISOString(),
       quote: message,
     })
     // サーバーに反映する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit("POST_CHAT_ITEM", params, (res) => {
-      console.log(res)
-    })
+    try {
+      await emitAsync(socket, "POST_CHAT_ITEM", params)
+      // TODO: 正しいタイムスタンプを設定する
+    } catch (e) {
+      // ローカルで追加したchatItemを削除する
+      this.remove(params.id)
+      throw e
+    }
     console.log("send reaction: ", message.content)
   }
 
   @Action({ rawError: true })
-  public postQuestion({
+  public async postQuestion({
     text,
     topicId,
     target,
@@ -140,19 +157,24 @@ export default class ChatItems extends VuexModule {
       iconId: UserItemStore.userItems.myIconId,
       content: text,
       createdAt: new Date().toISOString(),
-      timestamp: 60000, // TODO: 正しいタイムスタンプを設定する
+      timestamp: undefined,
       quote: target,
     })
     // サーバーに反映する
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit("POST_CHAT_ITEM", params, (res) => {
-      console.log(res)
-    })
+    try {
+      await emitAsync(socket, "POST_CHAT_ITEM", params)
+      // TODO: 正しいタイムスタンプを設定する
+    } catch (e) {
+      // ローカルで追加したchatItemを削除する
+      this.remove(params.id)
+      throw e
+    }
     console.log("send question: ", text)
   }
 
   @Action({ rawError: true })
-  public postAnswer({
+  public async postAnswer({
     text,
     topicId,
     target,
@@ -168,11 +190,6 @@ export default class ChatItems extends VuexModule {
       quoteId: target.id,
       content: text,
     }
-    // サーバーに反映する
-    const socket = buildSocket(AuthStore.idToken)
-    socket.emit("POST_CHAT_ITEM", params, (res) => {
-      console.log(res)
-    })
     // ローカルに反映する
     this.add({
       id: params.id,
@@ -180,11 +197,21 @@ export default class ChatItems extends VuexModule {
       type: "answer",
       senderType: "general", // TODO: senderType取得
       iconId: UserItemStore.userItems.myIconId,
-      timestamp: 1100, // TODO: 正しいタイムスタンプを設定する
+      timestamp: undefined,
       createdAt: new Date().toISOString(),
       quote: target || null,
       content: text,
     })
+    // サーバーに反映する
+    const socket = buildSocket(AuthStore.idToken)
+    try {
+      await emitAsync(socket, "POST_CHAT_ITEM", params)
+      // TODO: 正しいタイムスタンプを設定する
+    } catch (e) {
+      // ローカルで追加したchatItemを削除する
+      this.remove(params.id)
+      throw e
+    }
     console.log("send answer: ", text)
   }
 }

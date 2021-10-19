@@ -116,10 +116,12 @@
             </button>
             <div v-if="isRoomOngoing || isRoomFinished" class="topic-infos">
               <div class="topic-info">
-                334<span class="text-mini">comments</span>
+                {{ postCounts[topic.id].commentCount
+                }}<span class="text-mini">comments</span>
               </div>
               <div class="topic-info">
-                334<span class="text-mini">stamps</span>
+                {{ postCounts[topic.id].stampCount
+                }}<span class="text-mini">stamps</span>
               </div>
             </div>
           </div>
@@ -152,7 +154,13 @@ import {
   AlertCircleIcon,
 } from "vue-feather-icons"
 import ICONS from "@/utils/icons"
-import { UserItemStore, TopicStore, TopicStateItemStore } from "~/store"
+import {
+  UserItemStore,
+  TopicStore,
+  TopicStateItemStore,
+  ChatItemStore,
+  StampStore,
+} from "~/store"
 
 type DataType = {
   copyCompleted: boolean
@@ -221,17 +229,23 @@ export default Vue.extend({
     shareUrl(): string {
       return `${location.origin}/room/${encodeURIComponent(this.roomId)}`
     },
-    // playOrPause() {
-    //   return function (topicState: string) {
-    //     if (topicState === "ongoing") {
-    //       return "pause_circle"
-    //     } else if (topicState === "paused" || topicState === "not-started") {
-    //       return "play_circle"
-    //     } else {
-    //       return null
-    //     }
-    //   }
-    // },
+    // 各トピックごとのコメント数、スタンプ数を集計する
+    postCounts(): Record<number, { commentCount: number; stampCount: number }> {
+      return Object.fromEntries(
+        TopicStore.topics.map(({ id }) => [
+          id,
+          {
+            commentCount: ChatItemStore.chatItems.filter(
+              ({ topicId, senderType }) =>
+                topicId === id && senderType !== "system",
+            ).length,
+            stampCount: StampStore.stamps.filter(
+              ({ topicId }) => topicId === id,
+            ).length,
+          },
+        ]),
+      )
+    },
   },
   methods: {
     // ルーム開始

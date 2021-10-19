@@ -1,5 +1,6 @@
 import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
 import { AuthStore } from "~/store"
+import emitAsync from "~/utils/emitAsync"
 import buildSocket from "~/utils/socketIO"
 
 @Module({
@@ -27,7 +28,7 @@ export default class PinnedChatItems extends VuexModule {
   }
 
   @Action({ rawError: true })
-  public send({
+  public async send({
     topicId,
     chatItemId,
   }: {
@@ -35,15 +36,9 @@ export default class PinnedChatItems extends VuexModule {
     chatItemId: string
   }) {
     const socket = buildSocket(AuthStore.idToken)
-    socket.emit(
-      "POST_PINNED_MESSAGE",
-      {
-        topicId,
-        chatItemId,
-      },
-      (res) => {
-        console.log(res)
-      },
-    )
+    await emitAsync(socket, "POST_PINNED_MESSAGE", {
+      topicId,
+      chatItemId,
+    })
   }
 }
