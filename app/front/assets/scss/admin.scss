@@ -4,7 +4,7 @@
   z-index: $z-modal;
   right: 0;
   width: 800px;
-  max-width: calc(100% - 500px);
+  max-width: calc(100% - 500px); // ChatRoom1つ分の幅
   height: 100%;
   background-color: $bg;
   word-break: break-all;
