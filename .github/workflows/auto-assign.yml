@@ -1,4 +1,5 @@
-name: Assign
+# https://zenn.dev/snowcait/articles/d6bc5eafd8ab75
+name: Auto Assignees
 
 on:
   pull_request:
