@@ -50,7 +50,12 @@
           title="ピン留め"
         ></PinIcon>
       </div>
-      <div class="topic-header__bookmark--text">{{ bookmarkContent }}</div>
+      <button
+        class="topic-header__bookmark--text"
+        @click="clickScrollToMessage"
+      >
+        {{ bookmarkContent }}
+      </button>
       <button
         class="topic-header__bookmark--close-icon"
         aria-label="ピン留め解除"
@@ -65,7 +70,6 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
-// import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
 import { ChatItemModel } from "sushi-chat-shared"
 import { DownloadIcon, MoreVerticalIcon, XCircleIcon } from "vue-feather-icons"
 import PinIcon from "vue-material-design-icons/Pin.vue"
@@ -132,6 +136,24 @@ export default Vue.extend({
       console.log("removeBookmark")
       if (this.bookmarkItem != null) {
         PinnedChatItemsStore.delete(this.bookmarkItem?.id)
+      }
+    },
+    clickScrollToMessage() {
+      if (this.bookmarkItem == null) {
+        return
+      }
+      const element: HTMLElement | null = document.getElementById(
+        this.bookmarkItem.id,
+      )
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        })
+        element.classList.add("highlight")
+        setTimeout(() => {
+          element.classList.remove("highlight")
+        }, 0)
       }
     },
   },
