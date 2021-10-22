@@ -57,6 +57,7 @@
         {{ bookmarkContent }}
       </button>
       <button
+        v-show="isAdmin || isSpeaker"
         class="topic-header__bookmark--close-icon"
         aria-label="ピン留め解除"
         title="ピン留め解除"
@@ -73,7 +74,7 @@ import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
 import { DownloadIcon, MoreVerticalIcon, XCircleIcon } from "vue-feather-icons"
 import PinIcon from "vue-material-design-icons/Pin.vue"
-import { PinnedChatItemsStore, UserItemStore } from "~/store"
+import { PinnedChatItemsStore, TopicStore, UserItemStore } from "~/store"
 
 type DataType = {
   isAllCommentShowed: boolean
@@ -112,6 +113,9 @@ export default Vue.extend({
   computed: {
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
+    },
+    isSpeaker(): boolean {
+      return UserItemStore.userItems.speakerId === this.topicIndex
     },
     bookmarkContent(): string | undefined {
       if (this.bookmarkItem?.type === "reaction") {
