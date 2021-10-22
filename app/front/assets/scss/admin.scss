@@ -1,19 +1,16 @@
 /*管理画面*/
 .drawer-menu-wrapper {
-  position: absolute;
+  position: fixed;
   z-index: $z-modal;
   right: 0;
-  width: 100%;
+  width: 800px;
+  max-width: calc(100% - 500px);
   height: 100%;
   background-color: $bg;
   word-break: break-all;
-  display: none;
-  @media screen and (min-width: $large+px) {
-    display: block;
-  }
 
   .drawer-menu {
-    padding: 30px;
+    padding: 16px 30px;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -161,7 +158,7 @@
           justify-content: center;
           align-items: center;
           & .text-mini {
-            font-size: 60%;
+            font-size: 12px;
           }
         }
       }
@@ -191,6 +188,10 @@
 
           &.pause {
             margin-right: 0.5rem;
+          }
+
+          &.reopen {
+            padding: 10px;
           }
         }
       }
@@ -222,9 +223,6 @@
 }
 
 @media screen and (min-width: 880px) {
-  .drawer-menu-wrapper {
-    width: calc(80% - 440px - 2em);
-  }
   .room-info {
     padding: 0px;
   }

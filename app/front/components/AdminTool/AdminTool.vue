@@ -4,8 +4,6 @@
       <div class="drawer-menu__header">
         <div class="room-info">
           <div class="room-title">
-            <!-- {{ topics }}
-            {{ topicStateItems }} -->
             <p>管理者ツール - {{ title }}</p>
           </div>
           <div class="room-url">
@@ -110,6 +108,7 @@
               v-else-if="topicStateItems[topic.id] === 'finished'"
               aria-label="トピックを再度開始する"
               title="トピックを再度開始する"
+              class="reopen"
               @click="clickRestartButton(topic.id)"
             >
               <RotateCcwIcon aria-hidden="true"></RotateCcwIcon>
