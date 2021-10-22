@@ -42,7 +42,7 @@
         <span class="text">現在までのチャット履歴のダウンロード</span>
       </div>
     </div>
-    <div v-if="bookmarkContent != null" class="topic-header__bookmark">
+    <div v-if="pinnedChatItemContent != null" class="topic-header__bookmark">
       <div class="chatitem__bookmark">
         <PinIcon
           class="icon selected"
@@ -54,14 +54,14 @@
         class="topic-header__bookmark--text"
         @click="clickScrollToMessage"
       >
-        {{ bookmarkContent }}
+        {{ pinnedChatItemContent }}
       </button>
       <button
         v-show="isAdmin || isSpeaker"
         class="topic-header__bookmark--close-icon"
         aria-label="ピン留め解除"
         title="ピン留め解除"
-        @click="removeBookmark()"
+        @click="removePinnedMessage"
       >
         <XCircleIcon size="1.2x" aria-hidden="true"></XCircleIcon>
       </button>
@@ -74,7 +74,7 @@ import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
 import { DownloadIcon, MoreVerticalIcon, XCircleIcon } from "vue-feather-icons"
 import PinIcon from "vue-material-design-icons/Pin.vue"
-import { PinnedChatItemsStore, TopicStore, UserItemStore } from "~/store"
+import { PinnedChatItemsStore, UserItemStore } from "~/store"
 
 type DataType = {
   isAllCommentShowed: boolean
@@ -99,7 +99,7 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
-    bookmarkItem: {
+    pinnedChatItem: {
       type: Object,
       default: undefined,
     } as PropOptions<ChatItemModel | undefined>,
@@ -117,11 +117,11 @@ export default Vue.extend({
     isSpeaker(): boolean {
       return UserItemStore.userItems.speakerId === this.topicIndex
     },
-    bookmarkContent(): string | undefined {
-      if (this.bookmarkItem?.type === "reaction") {
+    pinnedChatItemContent(): string | undefined {
+      if (this.pinnedChatItem?.type === "reaction") {
         return
       }
-      return this.bookmarkItem?.content
+      return this.pinnedChatItem?.content
     },
   },
   methods: {
@@ -136,20 +136,20 @@ export default Vue.extend({
       this.isAllCommentShowed = false
       this.$emit("click-not-show-all")
     },
-    removeBookmark() {
-      if (this.bookmarkItem != null) {
+    removePinnedMessage() {
+      if (this.pinnedChatItem != null) {
         PinnedChatItemsStore.send({
-          chatItemId: this.bookmarkItem?.id,
+          chatItemId: this.pinnedChatItem?.id,
           topicId: this.topicIndex,
         })
       }
     },
     clickScrollToMessage() {
-      if (this.bookmarkItem == null) {
+      if (this.pinnedChatItem == null) {
         return
       }
       const element: HTMLElement | null = document.getElementById(
-        this.bookmarkItem.id,
+        this.pinnedChatItem.id,
       )
       if (element) {
         element.scrollIntoView({

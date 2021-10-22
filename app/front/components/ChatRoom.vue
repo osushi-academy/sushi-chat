@@ -3,7 +3,7 @@
     <TopicHeader
       :title="topic.title"
       :topic-index="topicId"
-      :bookmark-item="pinnedChatItem"
+      :pinned-chat-item="pinnedChatItem"
       @download="clickDownload"
       @click-show-all="clickShowAll"
       @click-not-show-all="clickNotShowAll"
