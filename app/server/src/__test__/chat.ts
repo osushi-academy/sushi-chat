@@ -20,18 +20,21 @@ import AdminService from "../service/admin/AdminService"
 import {
   AdminEnterRoomResponse,
   ChatItemModel,
+  EnterRoomResponse,
   ErrorResponse,
   PubChangeTopicStateParam,
   PubChatItemParam,
   PubPinnedMessageParam,
   PubStampParam,
   RoomModel,
+  RoomState,
   ServerListenEventsMap,
   ServerPubEventsMap,
   StampModel,
   SuccessResponse,
 } from "sushi-chat-shared"
 import delay from "../utils/delay"
+import User from "../domain/user/User"
 
 describe("機能テスト", () => {
   const MATCHING = {
@@ -39,6 +42,14 @@ describe("機能テスト", () => {
     DATE: expect.stringMatching(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/),
     CODE: expect.stringMatching(/[0-9]{3}/),
     TEXT: expect.stringMatching(/.+/),
+  }
+
+  const SYSTEM_MESSAGE = {
+    start:
+      "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n",
+    pause: "【運営Bot】\n発表が中断されました",
+    finish:
+      "【運営Bot】\n発表が終了しました！\n（引き続きコメントを投稿いただけます）",
   }
 
   // RESTクライアント
@@ -753,203 +764,115 @@ describe("機能テスト", () => {
     })
   })
 
-  // describe("途中から入室した場合", () => {
-  //   beforeAll(async () => await delay(100))
-  //
-  //   test("途中から入室した場合に履歴が見れる", (resolve) => {
-  //     clientSockets[3].emit(
-  //       "ENTER_ROOM",
-  //       { roomId, iconId: "4" },
-  //       (res: any) => {
-  //         expect(res).toStrictEqual({
-  //           // NOTE: changeTopicStateで現在開いているトピックを閉じた際のbotメッセージと、次のトピックが開いた際の
-  //           //  botメッセージが同時に追加されるが、それらがDBに格納される順序が不安定だったため、順序を考慮しないように
-  //           //  している。アプリケーションの挙動としてはそれらは別トピックに投稿されるメッセージのため、問題はないはず。
-  //           chatItems: expect.arrayContaining([
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "0",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               id: expect.any(String),
-  //               topicId: "1",
-  //               type: "message",
-  //               content:
-  //                 "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n",
-  //               target: null,
-  //             },
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "0",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               id: expect.any(String),
-  //               topicId: "1",
-  //               type: "message",
-  //               content:
-  //                 "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
-  //               target: null,
-  //             },
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "0",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               id: expect.any(String),
-  //               topicId: "2",
-  //               type: "message",
-  //               content:
-  //                 "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n",
-  //               target: null,
-  //             },
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "0",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               id: expect.any(String),
-  //               topicId: "2",
-  //               type: "message",
-  //               content:
-  //                 "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
-  //               target: null,
-  //             },
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "0",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               id: expect.any(String),
-  //               topicId: "3",
-  //               type: "message",
-  //               content:
-  //                 "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n",
-  //               target: null,
-  //             },
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "0",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               id: expect.any(String),
-  //               topicId: "3",
-  //               type: "message",
-  //               content: "【運営Bot】\n 発表が中断されました",
-  //               target: null,
-  //             },
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "0",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               id: expect.any(String),
-  //               topicId: "1",
-  //               type: "message",
-  //               content: "【運営Bot】\n 発表が再開されました",
-  //               target: null,
-  //             },
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "2",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               id: messageId,
-  //               topicId: "1",
-  //               type: "message",
-  //               content: "コメント",
-  //               target: null,
-  //             },
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "3",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               target: {
-  //                 id: messageId,
-  //                 topicId: topics[0].id,
-  //                 type: "message",
-  //                 iconId: "2",
-  //                 timestamp: expect.any(Number),
-  //                 createdAt: expect.stringMatching(
-  //                   /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //                 ),
-  //                 content: "コメント",
-  //                 target: null,
-  //               },
-  //               id: reactionId,
-  //               topicId: "1",
-  //               type: "reaction",
-  //             },
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "2",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               id: questionId,
-  //               topicId: "1",
-  //               type: "question",
-  //               content: "質問",
-  //             },
-  //             {
-  //               timestamp: expect.any(Number),
-  //               iconId: "3",
-  //               createdAt: expect.stringMatching(
-  //                 /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //               ),
-  //               id: answerId,
-  //               topicId: "1",
-  //               type: "answer",
-  //               content: "回答",
-  //               target: {
-  //                 id: questionId,
-  //                 topicId: topics[0].id,
-  //                 type: "question",
-  //                 iconId: "2",
-  //                 timestamp: expect.any(Number),
-  //                 createdAt: expect.stringMatching(
-  //                   /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/,
-  //                 ),
-  //                 content: "質問",
-  //               },
-  //             },
-  //           ]),
-  //           topics: [
-  //             { ...topics[0], state: "active" },
-  //             { ...topics[1], state: "finished" },
-  //             { ...topics[2], state: "paused" },
-  //             ...topics.slice(3),
-  //           ],
-  //           activeUserCount: 5,
-  //         })
-  //         resolve()
-  //       },
-  //     )
-  //   })
-  // })
-  //
-  // describe("ルームの終了・閉じる", () => {
-  //   test("ルームを終了する", (resolve) => {
-  //     clientSockets[0].on("PUB_FINISH_ROOM", () => {
-  //       resolve()
-  //     })
-  //     adminSocket.emit("ADMIN_FINISH_ROOM", {})
-  //   })
-  //
-  //   test("ルームを閉じる", (resolve) => {
-  //     clientSockets[0].on("PUB_CLOSE_ROOM", () => {
-  //       resolve()
-  //     })
-  //     adminSocket.emit("ADMIN_CLOSE_ROOM", {})
-  //   })
-  // })
+  describe.skip("途中からルームに入る", () => {
+    const systemMessageBase: Omit<ChatItemModel, "topicId" | "content"> = {
+      id: MATCHING.UUID,
+      createdAt: MATCHING.DATE,
+      type: "message",
+      senderType: "system",
+      iconId: User.SYSTEM_USER_ICON_ID.valueOf(),
+      timestamp: expect.any(Number),
+    }
+
+    test("正常系_チャットやスタンプの履歴が見れる", (resolve) => {
+      clientSockets[3].emit(
+        "ENTER_ROOM",
+        {
+          roomId: roomData.id,
+          iconId: 4,
+          speakerTopicId: roomData.topics[0].id,
+        },
+        (res) => {
+          expect(res).toStrictEqual<EnterRoomResponse>({
+            result: "success",
+            data: {
+              // トピックの終了と開始が同時に発生する時、system messageの順番を仕様上規定していないので、
+              // 順番を考慮しないようにarrayContainingを使っている
+              chatItems: expect.arrayContaining([
+                {
+                  ...systemMessageBase,
+                  topicId: roomData.topics[0].id,
+                  content: SYSTEM_MESSAGE.start,
+                },
+                {
+                  ...systemMessageBase,
+                  topicId: roomData.topics[0].id,
+                  content: SYSTEM_MESSAGE.finish,
+                },
+                {
+                  ...systemMessageBase,
+                  topicId: roomData.topics[1].id,
+                  content: SYSTEM_MESSAGE.start,
+                },
+                {
+                  ...systemMessageBase,
+                  topicId: roomData.topics[1].id,
+                  content: SYSTEM_MESSAGE.finish,
+                },
+                {
+                  ...systemMessageBase,
+                  topicId: roomData.topics[2].id,
+                  content: SYSTEM_MESSAGE.start,
+                },
+                {
+                  ...systemMessageBase,
+                  topicId: roomData.topics[2].id,
+                  content: SYSTEM_MESSAGE.pause,
+                },
+                {
+                  ...systemMessageBase,
+                  topicId: roomData.topics[2].id,
+                  content: SYSTEM_MESSAGE.start,
+                },
+                message,
+                reaction,
+                question,
+                answer,
+                notOnGoingTopicMessage,
+              ]),
+              stamps,
+              // ルームに参加しているユーザー(管理者ユーザー + 一般ユーザー) + システムユーザー
+              activeUserCount: 1 + clientSockets.length + 1,
+              pinnedChatItemIds: [messageId],
+              topicStates: [
+                {
+                  topicId: roomData.topics[0].id,
+                  state: "finished",
+                },
+                { topicId: roomData.topics[1].id, state: "finished" },
+
+                { topicId: roomData.topics[2].id, state: "ongoing" },
+              ],
+            },
+          })
+          resolve()
+        },
+      )
+    })
+  })
+
+  describe("roomの終了", () => {
+    test("正常系_roomを終了する", () => {
+      adminSocket.emit("ADMIN_FINISH_ROOM", {}, async (res) => {
+        expect(res).toStrictEqual({
+          result: "success",
+        })
+
+        const roomRes = await client.get(`/room/${roomData.id}`)
+        expect(roomRes.body.data.state).toBe<RoomState>("finished")
+      })
+    })
+
+    test("異常系_存在しないroomを終了しようとするとエラーが返る", () => {
+      adminSocket.emit("ADMIN_FINISH_ROOM", {}, async (res) => {
+        expect(res).toStrictEqual<ErrorResponse>({
+          result: "error",
+          error: {
+            code: "400",
+            message: expect.any(String),
+          },
+        })
+      })
+    })
+  })
 })
