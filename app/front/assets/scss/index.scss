@@ -149,6 +149,8 @@
     &--text {
       flex: 1;
       font-size: 14px;
+      word-break: break-all;
+      text-align: left;
     }
     &--close-icon {
       flex-shrink: 0;
