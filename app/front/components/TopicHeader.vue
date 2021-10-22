@@ -137,9 +137,11 @@ export default Vue.extend({
       this.$emit("click-not-show-all")
     },
     removeBookmark() {
-      console.log("removeBookmark")
       if (this.bookmarkItem != null) {
-        PinnedChatItemsStore.delete(this.bookmarkItem?.id)
+        PinnedChatItemsStore.send({
+          chatItemId: this.bookmarkItem?.id,
+          topicId: this.topicIndex,
+        })
       }
     },
     clickScrollToMessage() {
