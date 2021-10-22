@@ -61,7 +61,7 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      room.calcTimestamp(topicId),
+      room.calcTimestamp(topicId) ?? undefined,
     )
 
     room.postChatItem(userId, message)

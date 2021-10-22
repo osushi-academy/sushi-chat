@@ -93,7 +93,10 @@ class RoomClass {
     return this._archivedAt
   }
 
-  public calcTimestamp = (topicId: number): number => {
+  public calcTimestamp = (topicId: number): number | null => {
+    if(this.topics.find(({ id }) => id === topicId)?.state !== "ongoing") {
+      return null
+    }
     const openedDate = this.findOpenedDateOrThrow(topicId)
     const offsetTime = this._topicTimeData[topicId].offsetTime
     const timestamp = new Date().getTime() - openedDate - offsetTime
