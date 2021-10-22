@@ -118,6 +118,7 @@ span.key-span {
     display: flex;
     flex: 1;
     overflow-x: scroll;
+    margin-right: Min($admin-tool-width, $admin-tool-max-width);
   }
 }
 
