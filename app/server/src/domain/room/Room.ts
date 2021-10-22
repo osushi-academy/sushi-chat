@@ -94,7 +94,7 @@ class RoomClass {
   }
 
   public calcTimestamp = (topicId: number): number | null => {
-    if(this.topics.find(({ id }) => id === topicId)?.state !== "ongoing") {
+    if (this.topics.find(({ id }) => id === topicId)?.state !== "ongoing") {
       return null
     }
     const openedDate = this.findOpenedDateOrThrow(topicId)
@@ -352,7 +352,7 @@ class RoomClass {
       content,
       null,
       new Date(),
-      this.calcTimestamp(topicId),
+      this.calcTimestamp(topicId) ?? undefined,
     )
     this._chatItems.push(botMessage)
 
