@@ -27,7 +27,7 @@
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
       />
-      <template v-if="isRoomEnter">
+      <template v-if="isRoomEnter || isAdmin">
         <div v-for="(topic, index) in topics" :key="index">
           <ChatRoom
             :topic-index="index"
