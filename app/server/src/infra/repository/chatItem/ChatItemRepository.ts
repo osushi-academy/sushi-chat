@@ -124,14 +124,20 @@ class ChatItemRepository implements IChatItemRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "SELECT ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at, u.icon_id, u.is_admin, u.is_system, u.has_left " +
+      "SELECT " +
+      "ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at, " +
+      "u.icon_id, u.is_admin, u.is_system, u.has_left, " +
+      "q.id AS quote_id, q.room_id AS quote_room_id, q.topic_id AS quote_topic_id, q.user_id AS quote_user_id, q.chat_item_type_id AS quote_type_id, q.sender_type_id AS quote_sender_type_id, q.content AS quote_content, q.timestamp AS quote_timestamp, q.created_at AS quote_created_at, " +
+      "qu.icon_id AS quote_icon_id, qu.is_admin AS quote_is_admin, qu.is_system AS quote_is_system, qu.has_left AS quote_has_left " +
       "FROM chat_items as ci " +
-      "JOIN users u " +
-      "ON ci.user_id = u.id AND ci.id = $1"
+      "JOIN users u ON ci.user_id = u.id AND ci.id = $1 " +
+      "LEFT JOIN chat_items q ON ci.quote_id = q.id " +
+      "LEFT JOIN users qu ON q.user_id = qu.id"
 
     try {
       const res = await pgClient.query(query, [chatItemId])
       if (res.rowCount < 1) return null
+
       return await this.buildChatItem(res.rows[0])
     } catch (e) {
       ChatItemRepository.logError(e, "find()")
@@ -147,8 +153,15 @@ class ChatItemRepository implements IChatItemRepository {
     const query =
       "SELECT " +
       "ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at, " +
-      "u.icon_id, u.is_admin, u.is_system, u.has_left " +
-      "FROM chat_items ci JOIN users u ON ci.user_id = u.id AND ci.room_id = $1 ORDER BY ci.created_at"
+      "u.icon_id, u.is_admin, u.is_system, u.has_left, " +
+      "q.id AS quote_id, q.room_id AS quote_room_id, q.topic_id AS quote_topic_id, q.user_id AS quote_user_id, q.chat_item_type_id AS quote_type_id, q.sender_type_id AS quote_sender_type_id, q.content AS quote_content, q.timestamp AS quote_timestamp, q.created_at AS quote_created_at, " +
+      "qu.icon_id AS quote_icon_id, qu.is_admin AS quote_is_admin, qu.is_system AS quote_is_system, qu.has_left AS quote_has_left " +
+      "FROM chat_items ci " +
+      "JOIN users u ON ci.user_id = u.id AND ci.room_id = $1 " +
+      "LEFT JOIN chat_items q ON ci.quote_id = q.id " +
+      "LEFT JOIN users qu ON q.user_id = qu.id " +
+      "ORDER BY ci.created_at"
+
     try {
       const res = await pgClient.query(query, [roomId])
       return Promise.all(res.rows.map(this.buildChatItem))
@@ -181,7 +194,7 @@ class ChatItemRepository implements IChatItemRepository {
 
   // NOTE: arrow functionにしないとthisの挙動のせいでバグる
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private buildChatItem = async (row: any) => {
+  private buildChatItem(row: any) {
     const id = row.id
     const roomId = row.room_id
     const topicId = row.topic_id
@@ -193,78 +206,99 @@ class ChatItemRepository implements IChatItemRepository {
     const timestamp = row.timestamp
     const createdAt = row.created_at
     const iconId = row.icon_id
-    const isAdmin = row.isAdmin
-    const isSystem = row.isSystem
+    const isAdmin = row.is_admin
+    const isSystem = row.is_system
+    const user = new User(userId, isAdmin, isSystem, roomId, iconId)
 
-    const systemUser = new User(userId, isAdmin, isSystem, roomId, iconId)
+    let quote: ChatItem | null = null
+    if (row.quote_id) {
+      const quoteId = row.quote_id
+      const quoteRoomId = row.quote_room_id
+      const quoteTopicId = row.quote_topic_id
+      const quoteUserId = row.quote_user_id
+      const quoteTypeId = ChatItemRepository.intToChatItemType(
+        row.quote_type_id,
+      )
+      const quoteSenderType = ChatItemRepository.intToSenderType(
+        row.quote_sender_type_id,
+      )
+      const quoteTimestamp = row.quote_timestamp
+      const quoteCreatedAt = row.quote_created_at
+      const quoteIconId = row.quote_icon_id
+      const quoteIsAdmin = row.quote_is_admin
+      const quoteIsSystem = row.quote_is_system
+      const quoteUser = new User(
+        quoteUserId,
+        quoteIsAdmin,
+        quoteIsSystem,
+        quoteRoomId,
+        quoteIconId,
+      )
+
+      switch (quoteTypeId) {
+        case "message":
+          quote = new Message(
+            quoteId,
+            quoteTopicId,
+            quoteUser,
+            quoteSenderType,
+            row.quote_content,
+            null,
+            quoteCreatedAt,
+            quoteTimestamp,
+          )
+      }
+    }
 
     // NOTE: 複数回クエリを発行するとパフォーマンスの低下につながるので、一回のクエリでとってこれるならそうしたい
     switch (chatItemType) {
-      case "message": {
-        const quoteId = row.quote_id
-        const quote =
-          quoteId !== null
-            ? ((await this.find(quoteId)) as Message | Answer)
-            : null
-
+      case "message":
         return new Message(
           id,
           topicId,
-          systemUser,
+          user,
           senderType,
           row.content,
-          quote,
+          quote as Message | Answer | null,
           createdAt,
           timestamp,
         )
-      }
-      case "reaction": {
-        const quote = (await this.find(row.quote_id)) as
-          | Message
-          | Question
-          | Answer
 
+      case "reaction":
         return new Reaction(
           id,
           topicId,
-          systemUser,
+          user,
           senderType,
-          quote,
+          quote as Message | Question | Answer,
           createdAt,
           timestamp,
         )
-      }
-      case "question": {
-        const quoteId = row.quote_id
-        const quote =
-          quoteId !== null
-            ? ((await this.find(quoteId)) as Message | Answer)
-            : null
+
+      case "question":
         return new Question(
           id,
           topicId,
-          systemUser,
+          user,
           senderType,
           row.content,
-          quote,
+          quote as Message | Answer,
           createdAt,
           timestamp,
         )
-      }
-      case "answer": {
-        const quote = (await this.find(row.quote_id)) as Question
 
+      case "answer":
         return new Answer(
           id,
           topicId,
-          systemUser,
+          user,
           senderType,
           row.content,
-          quote,
+          quote as Question,
           createdAt,
           timestamp,
         )
-      }
+
       default: {
         throw new Error(`chatItemType(${chatItemType}) is invalid.`)
       }
