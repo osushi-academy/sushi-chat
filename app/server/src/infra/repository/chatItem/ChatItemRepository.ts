@@ -106,7 +106,7 @@ class ChatItemRepository implements IChatItemRepository {
         answer.user.id,
         ChatItemRepository.chatItemTypeMap["answer"],
         ChatItemRepository.senderTypeMap[answer.senderType],
-        answer.quote.id,
+        (answer.quote as Question).id,
         answer.content,
         answer.timestamp,
         formatDate(answer.createdAt),
