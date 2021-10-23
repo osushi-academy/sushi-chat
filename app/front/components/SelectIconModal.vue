@@ -54,9 +54,9 @@
           name="speaker"
           class="sushi-select__section--speaker"
         >
-          <option :value="0">未選択</option>
+          <option :value="0">視聴者</option>
           <option v-for="topic in topics" :key="topic.id" :value="topic.id">
-            {{ topic.title }}
+            スピーカー：{{ topic.title }}
           </option>
         </select>
       </article>

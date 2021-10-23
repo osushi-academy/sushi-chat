@@ -149,6 +149,8 @@
     &--text {
       flex: 1;
       font-size: 14px;
+      word-break: break-all;
+      text-align: left;
     }
     &--close-icon {
       flex-shrink: 0;
@@ -604,10 +606,12 @@
 
   & > .system_message {
     position: relative;
-    background-color: $placeholder-gray;
+    background-color: rgb(249, 249, 249);
     padding: 0.6em 1em;
     border-radius: 5px;
     color: $text-gray;
+    width: 100%;
+    font-size: 12px;
   }
 
   .badgecomment {

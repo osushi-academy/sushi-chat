@@ -75,8 +75,10 @@ class RealtimeRoomService {
     )
     const messages = room.changeTopicState(topicId, state)
 
-    this.roomDelivery.changeTopicState(roomId, room.topics[topicId - 1])
-    messages.forEach((m) => this.chatItemDelivery.postMessage(m))
+    messages.forEach((m) => {
+      this.chatItemDelivery.postMessage(m)
+      this.roomDelivery.changeTopicState(roomId, room.topics[m.topicId - 1])
+    })
 
     await Promise.all([
       this.roomRepository.update(room),

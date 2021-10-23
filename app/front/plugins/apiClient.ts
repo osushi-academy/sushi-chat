@@ -2,7 +2,10 @@ import { Plugin } from "@nuxt/types"
 import ApiClient from "~/apiClient"
 
 const repositoryPlugin: Plugin = (context, inject) => {
-  const apiClient = new ApiClient(context.$axios)
+  const axios = context.$axios.create({
+    timeout: 10 * 1000,
+  })
+  const apiClient = new ApiClient(axios)
 
   // NOTE: idTokenの変更を監視して、変更があればAPIClientに反映する
   context.store.watch(
