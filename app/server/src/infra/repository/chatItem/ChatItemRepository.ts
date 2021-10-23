@@ -222,6 +222,7 @@ class ChatItemRepository implements IChatItemRepository {
       const quoteSenderType = ChatItemRepository.intToSenderType(
         row.quote_sender_type_id,
       )
+      const quoteContent = row.quote_content
       const quoteTimestamp = row.quote_timestamp
       const quoteCreatedAt = row.quote_created_at
       const quoteIconId = row.quote_icon_id
@@ -242,11 +243,42 @@ class ChatItemRepository implements IChatItemRepository {
             quoteTopicId,
             quoteUser,
             quoteSenderType,
-            row.quote_content,
+            quoteContent,
             null,
             quoteCreatedAt,
             quoteTimestamp,
           )
+          break
+
+        case "question":
+          quote = new Question(
+            quoteId,
+            quoteTopicId,
+            quoteUser,
+            quoteSenderType,
+            quoteContent,
+            null,
+            quoteCreatedAt,
+            quoteTimestamp,
+          )
+          break
+
+        case "answer":
+          quote = new Answer(
+            quoteId,
+            quoteTopicId,
+            quoteUser,
+            quoteSenderType,
+            quoteContent,
+            null,
+            quoteCreatedAt,
+            quoteTimestamp,
+          )
+          break
+
+        default:
+          // "Reaction"がquoteになることもないので、その場合もここにくる
+          throw Error(`Invalid quote type: ${quoteTypeId}`)
       }
     }
 
@@ -282,7 +314,7 @@ class ChatItemRepository implements IChatItemRepository {
           user,
           senderType,
           row.content,
-          quote as Message | Answer,
+          quote as Message | Answer | null,
           createdAt,
           timestamp,
         )
