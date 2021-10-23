@@ -1,5 +1,5 @@
 import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
-import { PostChatItemRequest, ChatItemModel } from "sushi-chat-shared"
+import { PostChatItemRequest, ChatItemModel, ChatItemSenderType } from "sushi-chat-shared"
 import getUUID from "~/utils/getUUID"
 import { AuthStore, UserItemStore } from "~/store"
 import buildSocket from "~/utils/socketIO"
@@ -74,12 +74,16 @@ export default class ChatItems extends VuexModule {
       content: text,
       quoteId: target?.id,
     }
+    const senderType: ChatItemSenderType = 
+      UserItemStore.userItems.isAdmin? "admin" : 
+      UserItemStore.userItems.speakerId === topicId? "speaker" :
+      "general"
     // ローカルに反映する
     this.add({
       id: params.id,
       topicId,
       type: "message",
-      senderType: "general", // TODO: senderType取得
+      senderType,
       iconId: UserItemStore.userItems.myIconId,
       content: text,
       createdAt: new Date().toISOString(),
@@ -112,7 +116,7 @@ export default class ChatItems extends VuexModule {
       id: params.id,
       topicId: message.topicId,
       type: "reaction",
-      senderType: "general", // TODO: senderType取得
+      senderType: "general",
       iconId: UserItemStore.userItems.myIconId,
       timestamp: undefined,
       createdAt: new Date().toISOString(),
@@ -148,12 +152,16 @@ export default class ChatItems extends VuexModule {
       content: text,
       quoteId: target?.id,
     }
+    const senderType: ChatItemSenderType = 
+      UserItemStore.userItems.isAdmin? "admin" : 
+      UserItemStore.userItems.speakerId === topicId? "speaker" :
+      "general"
     // ローカルに反映する
     this.add({
       id: params.id,
       topicId,
       type: "question",
-      senderType: "general", // TODO: senderType取得
+      senderType,
       iconId: UserItemStore.userItems.myIconId,
       content: text,
       createdAt: new Date().toISOString(),
@@ -190,12 +198,16 @@ export default class ChatItems extends VuexModule {
       quoteId: target.id,
       content: text,
     }
+    const senderType: ChatItemSenderType = 
+      UserItemStore.userItems.isAdmin? "admin" : 
+      UserItemStore.userItems.speakerId === topicId? "speaker" :
+      "general"
     // ローカルに反映する
     this.add({
       id: params.id,
       topicId,
       type: "answer",
-      senderType: "general", // TODO: senderType取得
+      senderType,
       iconId: UserItemStore.userItems.myIconId,
       timestamp: undefined,
       createdAt: new Date().toISOString(),
