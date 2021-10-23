@@ -105,7 +105,9 @@ class ChatItemModelBuilder {
       senderType: answer.senderType,
       iconId: answer.user.iconId.valueOf(),
       content: answer.content,
-      quote: !recursive ? undefined : this.buildQuestion(answer.quote),
+      quote: !recursive
+        ? undefined
+        : this.buildQuestion(answer.quote as Question),
       timestamp: answer.timestamp,
     }
   }

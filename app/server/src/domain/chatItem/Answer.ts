@@ -10,7 +10,9 @@ class Answer extends ChatItem {
     user: User,
     senderType: ChatItemSenderType,
     public readonly content: string,
-    public readonly quote: Question,
+    // FIXME: quoteとしてインスタンスかされる際にnullにしたいので暫定的にこうしている。
+    //  仕様的にはAnswerのquoteがないことはあり得ないので、ChatItemがquoteIdのみを持つようにするなどの修正をする必要あり。
+    public readonly quote: Question | null,
     createdAt: Date,
     timestamp?: number,
     isPinned = false,
