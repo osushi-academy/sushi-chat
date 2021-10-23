@@ -261,7 +261,7 @@ describe("ChatItemServiceのテスト", () => {
       expect(answer.timestamp).not.toBeNull()
       expect(answer.isPinned).toBeFalsy()
       expect(answer.content).toBe("テストアンサー")
-      expect(answer.quote.id).toBe(target.id)
+      expect((answer.quote as Question).id).toBe(target.id)
 
       const delivered = chatItemDeliverySubscriber[0]
       expect(delivered.type).toBe("post")
@@ -273,7 +273,7 @@ describe("ChatItemServiceのテスト", () => {
       expect(deliveredAnswer.timestamp).not.toBeNull()
       expect(deliveredAnswer.isPinned).toBeFalsy()
       expect(deliveredAnswer.content).toBe("テストアンサー")
-      expect(deliveredAnswer.quote.id).toBe(target.id)
+      expect((deliveredAnswer.quote as Question).id).toBe(target.id)
     })
   })
 
