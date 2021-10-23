@@ -75,17 +75,6 @@
             @click="clickThumbUp"
           >
             <ThumbUpIcon :size="19" class="icon"></ThumbUpIcon>
-            <!-- <span
-              :style="{
-                backgroundColor: isLikedChatItem ? icon.colorCode : '',
-                color: isLikedChatItem ? 'white' : '',
-                transform: isLikedChatItem ? 'rotate(-20deg)' : '',
-              }"
-              class="material-icons"
-              @click="clickThumbUp"
-            >
-              thumb_up
-            </span> -->
           </button>
         </div>
       </div>
@@ -179,11 +168,8 @@ export default Vue.extend({
     icon() {
       return ICONS[this.$props.message.iconId] ?? ICONS[0]
     },
-    pinnedChatItems() {
-      return PinnedChatItemsStore.pinnedChatItems
-    },
     isBookMarked(): boolean {
-      return this.pinnedChatItems.includes(this.message.id)
+      return PinnedChatItemsStore.pinnedChatItems.includes(this.message.id)
     },
     isAdminorSpeaker(): boolean {
       return (
