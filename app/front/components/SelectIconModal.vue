@@ -51,14 +51,15 @@
         </div>
         <div class="sushi-select__section--speaker">
           <select v-model="speakerId" name="speaker" class="select-speaker">
-            <option :value="0">
-              視聴者
-            </option>
+            <option :value="0">視聴者</option>
             <option v-for="topic in topics" :key="topic.id" :value="topic.id">
               スピーカー：{{ topic.title }}
             </option>
           </select>
-          <ChevronDownIcon class="select-icon"></ChevronDownIcon>
+          <ChevronDownIcon
+            class="select-icon"
+            aria-hidden="true"
+          ></ChevronDownIcon>
         </div>
       </article>
     </section>
