@@ -52,7 +52,7 @@
         <div class="sushi-select__section--speaker">
           <select v-model="speakerId" name="speaker" class="select-speaker">
             <option :value="0">
-              視聴者視聴者視聴者視聴者視聴者視聴者視聴者視聴者視聴者視聴者視聴者視聴者視聴者視聴者視聴者視聴者
+              視聴者
             </option>
             <option v-for="topic in topics" :key="topic.id" :value="topic.id">
               スピーカー：{{ topic.title }}
