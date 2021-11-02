@@ -3,6 +3,8 @@
 cd /app || exit 1
 
 yarn build:shared
-yarn build:server --outDir /dist
 
-cp app/server/.env /dist/.env
+mkdir -p /out/app/server
+yarn build:server --outDir /out/app/server/dist
+
+cp app/server/.env /out/app/server/.env

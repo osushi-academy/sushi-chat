@@ -1,3 +1,3 @@
 #!/bin/bash
 
-chmod -R 700 /dist && chown -R app:app /dist
+chmod -R 700 /out && chown -R app:app /out
