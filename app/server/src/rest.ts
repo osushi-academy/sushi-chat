@@ -13,7 +13,7 @@ export const restSetup = (
   adminService: AdminService,
 ) => {
   // For health check
-  app.get("/", (req, res) => res.send("200"))
+  app.get("/", (req, res) => res.send("ok"))
 
   // TODO: controllerに処理を書きすぎてるので修正する
   // チャット履歴・スタンプ履歴を取得する

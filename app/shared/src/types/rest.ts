@@ -9,7 +9,7 @@ export type RestApiDefinition = {
       get: {
         query: Empty
         request: Empty
-        response: "200"
+        response: "ok"
       }
     }
   }
