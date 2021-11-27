@@ -83,6 +83,7 @@ describe("機能テスト", () => {
   let question: ChatItemModel
   let answer: ChatItemModel
   let notOnGoingTopicMessage: ChatItemModel
+  let stampId: string
   let stamps: StampModel[]
   let history: {
     chatItems: ChatItemModel[]
@@ -738,6 +739,8 @@ describe("機能テスト", () => {
     })
 
     test("正常系_スタンプを投稿する", (resolve) => {
+      stampId = uuid()
+
       clientSockets[0].on("PUB_STAMP", (res) => {
         expect(res).toStrictEqual<PubStampParam>([
           {
@@ -752,7 +755,7 @@ describe("機能テスト", () => {
       })
       clientSockets[1].emit(
         "POST_STAMP",
-        { topicId: roomData.topics[2].id },
+        { id: stampId, topicId: roomData.topics[2].id },
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       )
@@ -760,9 +763,11 @@ describe("機能テスト", () => {
 
     // FIXME: アプリケーションの方が未対応
     test.skip("異常系_進行中でないトピックにはスタンプを投稿できない", (resolve) => {
+      const dummyStampId = uuid()
+
       clientSockets[1].emit(
         "POST_STAMP",
-        { topicId: roomData.topics[0].id },
+        { id: dummyStampId, topicId: roomData.topics[0].id },
         (res) => {
           expect(res).toStrictEqual<ErrorResponse>({
             result: "error",
@@ -774,11 +779,12 @@ describe("機能テスト", () => {
     })
 
     test.skip("異常系_存在しないトピックにはスタンプを投稿できない", (resolve) => {
+      const dummyStampId = uuid()
       const notExistTopicId = 10
 
       clientSockets[1].emit(
         "POST_STAMP",
-        { topicId: notExistTopicId },
+        { id: dummyStampId, topicId: notExistTopicId },
         (res) => {
           expect(res).toStrictEqual<ErrorResponse>({
             result: "error",
