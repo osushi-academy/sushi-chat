@@ -43,7 +43,7 @@ class RoomClass {
   ) {
     // バリデーション
     // トピックタイトル
-    topics.forEach((topic, i) => {
+    topics.forEach((topic) => {
       if (unicodeLength.get(topic.title) > MAX_TOPIC_TITLE_LENGTH) {
         throw new Error(
           `Topic title length(${topic.title}, id ${topic.id}) is too long.`,
