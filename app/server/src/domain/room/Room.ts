@@ -3,12 +3,19 @@ import ChatItem from "../chatItem/ChatItem"
 import Stamp from "../stamp/Stamp"
 import Message from "../chatItem/Message"
 import Topic, { TopicTimeData } from "./Topic"
-import { RoomState, TopicState } from "sushi-chat-shared"
+import {
+  RoomState,
+  TopicState,
+  MAX_ROOM_TITLE_LENGTH,
+  MAX_ROOM_DESCRIPTION_LENGTH,
+  MAX_TOPIC_TITLE_LENGTH,
+} from "sushi-chat-shared"
 import { PartiallyPartial } from "../../types/utils"
 import SystemUser from "../user/SystemUser"
 import UserFactory from "../../infra/factory/UserFactory"
 import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
+import unicodeLength from "unicode-length"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -33,6 +40,32 @@ class RoomClass {
       id,
     ),
   ) {
+    // バリデーション
+    // トピックタイトル
+    topics.forEach((topic, i) => {
+      if (unicodeLength.get(topic.title) > MAX_TOPIC_TITLE_LENGTH) {
+        throw new Error(
+          `Topic title length(${topic.title}, id ${topic.id}) is too long.`,
+        )
+      }
+      this._topics[i] = {
+        ...topic,
+        id: topic.id ?? i + 1,
+        state: topic.state ?? "not-started",
+        pinnedChatItemId: topic.pinnedChatItemId,
+      }
+    })
+    // ルームタイトル
+    if (unicodeLength.get(this.title) > MAX_ROOM_TITLE_LENGTH) {
+      throw new Error(`Room title length(${this.title}}) is too long.`)
+    }
+    // ルーム説明
+    if (unicodeLength.get(this.description) > MAX_ROOM_DESCRIPTION_LENGTH) {
+      throw new Error(
+        `Room description length(${this.description}}) is too long.`,
+      )
+    }
+    // 初期化
     this._topics = topics.map((topic, i) => ({
       ...topic,
       id: topic.id ?? i + 1,
