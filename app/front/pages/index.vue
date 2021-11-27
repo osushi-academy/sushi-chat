@@ -137,7 +137,7 @@ export default Vue.extend({
     DeviceStore.determineOs()
   },
   beforeDestroy() {
-    this.$socket().disconnect()
+    this.$socket()?.disconnect()
   },
   methods: {
     async checkStatusAndAction() {

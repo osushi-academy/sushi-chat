@@ -158,6 +158,8 @@
     &--text {
       flex: 1;
       font-size: 14px;
+      word-break: break-all;
+      text-align: left;
     }
     &--close-icon {
       flex-shrink: 0;
@@ -813,7 +815,6 @@
           overflow: hidden;
           margin-left: 0.6rem;
           text-align: left;
-          line-height: 1;
           font-size: 13px;
         }
 

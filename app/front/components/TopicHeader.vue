@@ -42,7 +42,7 @@
         <span class="text">現在までのチャット履歴のダウンロード</span>
       </div>
     </div>
-    <div v-if="bookmarkContent != null" class="topic-header__bookmark">
+    <div v-if="pinnedChatItemContent != null" class="topic-header__bookmark">
       <div class="chatitem__bookmark">
         <PinIcon
           class="icon selected"
@@ -50,12 +50,18 @@
           title="ピン留め"
         ></PinIcon>
       </div>
-      <div class="topic-header__bookmark--text">{{ bookmarkContent }}</div>
       <button
+        class="topic-header__bookmark--text"
+        @click="clickScrollToMessage"
+      >
+        {{ pinnedChatItemContent }}
+      </button>
+      <button
+        v-show="isAdmin || isSpeaker"
         class="topic-header__bookmark--close-icon"
         aria-label="ピン留め解除"
         title="ピン留め解除"
-        @click="removeBookmark()"
+        @click="removePinnedMessage"
       >
         <XCircleIcon size="1.2x" aria-hidden="true"></XCircleIcon>
       </button>
@@ -65,7 +71,6 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
-// import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
 import { ChatItemModel } from "sushi-chat-shared"
 import { DownloadIcon, MoreVerticalIcon, XCircleIcon } from "vue-feather-icons"
 import PinIcon from "vue-material-design-icons/Pin.vue"
@@ -94,7 +99,7 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
-    bookmarkItem: {
+    pinnedChatItem: {
       type: Object,
       default: undefined,
     } as PropOptions<ChatItemModel | undefined>,
@@ -109,11 +114,14 @@ export default Vue.extend({
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
     },
-    bookmarkContent(): string | undefined {
-      if (this.bookmarkItem?.type === "reaction") {
+    isSpeaker(): boolean {
+      return UserItemStore.userItems.speakerId === this.topicIndex
+    },
+    pinnedChatItemContent(): string | undefined {
+      if (this.pinnedChatItem?.type === "reaction") {
         return
       }
-      return this.bookmarkItem?.content
+      return this.pinnedChatItem?.content
     },
   },
   methods: {
@@ -128,10 +136,30 @@ export default Vue.extend({
       this.isAllCommentShowed = false
       this.$emit("click-not-show-all")
     },
-    removeBookmark() {
-      console.log("removeBookmark")
-      if (this.bookmarkItem != null) {
-        PinnedChatItemsStore.delete(this.bookmarkItem?.id)
+    removePinnedMessage() {
+      if (this.pinnedChatItem != null) {
+        PinnedChatItemsStore.send({
+          chatItemId: this.pinnedChatItem?.id,
+          topicId: this.topicIndex,
+        })
+      }
+    },
+    clickScrollToMessage() {
+      if (this.pinnedChatItem == null) {
+        return
+      }
+      const element: HTMLElement | null = document.getElementById(
+        this.pinnedChatItem.id,
+      )
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        })
+        element.classList.add("highlight")
+        setTimeout(() => {
+          element.classList.remove("highlight")
+        }, 0)
       }
     },
   },
