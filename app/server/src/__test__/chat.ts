@@ -57,9 +57,7 @@ describe("機能テスト", () => {
     id: MATCHING.UUID,
     createdAt: MATCHING.DATE,
     type: "message",
-    // TODO: システムメッセージのsenderTypeがadminになってしまっている。
-    //  アプリケーションコードの修正が必要
-    senderType: "admin",
+    senderType: "system",
     iconId: User.SYSTEM_USER_ICON_ID.valueOf(),
     timestamp: expect.any(Number),
   }
