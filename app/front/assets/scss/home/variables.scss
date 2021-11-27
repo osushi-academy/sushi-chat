@@ -1,6 +1,5 @@
 @mixin home-padding-layout($py: 0) {
   padding: $py + rem 5%;
-  margin-bottom: 0;
   @media screen and (min-width: $small) {
     padding: $py + rem 10%;
   }
