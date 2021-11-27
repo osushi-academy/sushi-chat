@@ -796,13 +796,13 @@ describe("機能テスト", () => {
           },
           {
             ...SYSTEM_MESSAGE_BASE,
-            topicId: roomData.topics[1].id,
-            content: SYSTEM_MESSAGE_CONTENT.start,
+            topicId: roomData.topics[0].id,
+            content: SYSTEM_MESSAGE_CONTENT.finish,
           },
           {
             ...SYSTEM_MESSAGE_BASE,
-            topicId: roomData.topics[0].id,
-            content: SYSTEM_MESSAGE_CONTENT.finish,
+            topicId: roomData.topics[1].id,
+            content: SYSTEM_MESSAGE_CONTENT.start,
           },
           {
             ...SYSTEM_MESSAGE_BASE,
@@ -847,7 +847,9 @@ describe("機能テスト", () => {
           expect(res).toStrictEqual<EnterRoomResponse>({
             result: "success",
             data: {
-              ...history,
+              chatItems: expect.arrayContaining(history.chatItems),
+              stamps: history.stamps,
+              pinnedChatItemIds: history.pinnedChatItemIds,
               // ルームに参加しているユーザー(管理者ユーザー + 一般ユーザー) + システムユーザー
               activeUserCount: 1 + clientSockets.length + 1,
               topicStates: [
