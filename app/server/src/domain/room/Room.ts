@@ -49,12 +49,6 @@ class RoomClass {
           `Topic title length(${topic.title}, id ${topic.id}) is too long.`,
         )
       }
-      this._topics[i] = {
-        ...topic,
-        id: topic.id ?? i + 1,
-        state: topic.state ?? "not-started",
-        pinnedChatItemId: topic.pinnedChatItemId,
-      }
     })
     // ルームタイトル
     if (unicodeLength.get(this.title) > MAX_ROOM_TITLE_LENGTH) {
