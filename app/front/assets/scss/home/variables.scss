@@ -1,10 +1,10 @@
 @mixin home-padding-layout($py: 0) {
   padding: $py + rem 5%;
-  margin-bottom: 2rem;
-  @media screen and (min-width: $small+px) {
+  margin-bottom: 0;
+  @media screen and (min-width: $small) {
     padding: $py + rem 10%;
   }
-  @media screen and (min-width: $large+px) {
+  @media screen and (min-width: $large) {
     padding: $py + rem 20%;
   }
 }
@@ -46,10 +46,10 @@
     font-size: 0.9rem;
   } @else if $size== "xl" {
     font-size: 1rem;
-    @media screen and (min-width: $small+px) {
+    @media screen and (min-width: $small) {
       font-size: 1.5rem;
     }
-    @media screen and (min-width: $large+px) {
+    @media screen and (min-width: $large) {
       font-size: 1.5rem;
     }
   } @else if $size== "lg" {
@@ -131,14 +131,14 @@
   }
   &--name {
     width: 30%;
-    @media screen and (min-width: $small+px) {
+    @media screen and (min-width: $small) {
       width: 50%;
     }
   }
   &--date {
     margin: 0 0.5rem;
-    width: 8rem;
-    @media screen and (min-width: $small+px) {
+    width: 9rem;
+    @media screen and (min-width: $small) {
       margin: 0 2rem;
     }
   }

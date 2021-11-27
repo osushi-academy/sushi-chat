@@ -77,7 +77,7 @@
       @include text-size("mdi");
     }
     &--content {
-      @media screen and (min-width: $small+px) {
+      @media screen and (min-width: $small) {
         display: flex;
         align-items: center;
       }
@@ -223,7 +223,7 @@
     color: $text-gray;
     margin: 0 0 1rem 0;
     @include text-size;
-    @media screen and (min-width: $small+px) {
+    @media screen and (min-width: $small) {
       display: flex;
     }
     input {
@@ -239,7 +239,7 @@
     resize: vertical;
     width: 100%;
     @include white-text-box;
-    @media screen and (min-width: $small+px) {
+    @media screen and (min-width: $small) {
       padding: 1.5rem !important;
       min-height: 150px;
     }
@@ -257,20 +257,20 @@
       margin: 0 0 0.5rem 0;
     }
     &__content {
-      @media screen and (min-width: $small+px) {
+      @media screen and (min-width: $small) {
         display: flex;
       }
       &__detail {
         @include text-size("normal");
         @include white-text-box;
-        @media screen and (min-width: $small+px) {
+        @media screen and (min-width: $small) {
           display: flex;
           flex: 1;
           align-items: flex-start;
         }
         &--url {
           word-break: break-all;
-          @media screen and (min-width: $small+px) {
+          @media screen and (min-width: $small) {
             flex: 1;
             overflow-x: scroll;
           }
