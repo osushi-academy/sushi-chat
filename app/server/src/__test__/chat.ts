@@ -44,12 +44,21 @@ describe("機能テスト", () => {
     TEXT: expect.stringMatching(/.+/),
   }
 
-  const SYSTEM_MESSAGE = {
+  const SYSTEM_MESSAGE_CONTENT = {
     start:
       "【運営Bot】\n 発表が始まりました！\nコメントを投稿して盛り上げましょう 🎉🎉\n",
     pause: "【運営Bot】\n発表が中断されました",
     finish:
-      "【運営Bot】\n発表が終了しました！\n（引き続きコメントを投稿いただけます）",
+      "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
+  }
+
+  const SYSTEM_MESSAGE_BASE: Omit<ChatItemModel, "topicId" | "content"> = {
+    id: MATCHING.UUID,
+    createdAt: MATCHING.DATE,
+    type: "message",
+    senderType: "system",
+    iconId: User.SYSTEM_USER_ICON_ID.valueOf(),
+    timestamp: expect.any(Number),
   }
 
   // RESTクライアント
@@ -74,6 +83,11 @@ describe("機能テスト", () => {
   let answer: ChatItemModel
   let notOnGoingTopicMessage: ChatItemModel
   let stamps: StampModel[]
+  let history: {
+    chatItems: ChatItemModel[]
+    stamps: StampModel[]
+    pinnedChatItemIds: string[]
+  }
 
   // テストのセットアップ
   beforeAll(async (done) => {
@@ -728,6 +742,7 @@ describe("機能テスト", () => {
       clientSockets[1].emit(
         "POST_STAMP",
         { topicId: roomData.topics[2].id },
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         () => {},
       )
     })
@@ -764,17 +779,62 @@ describe("機能テスト", () => {
     })
   })
 
-  describe.skip("途中からルームに入る", () => {
-    const systemMessageBase: Omit<ChatItemModel, "topicId" | "content"> = {
-      id: MATCHING.UUID,
-      createdAt: MATCHING.DATE,
-      type: "message",
-      senderType: "system",
-      iconId: User.SYSTEM_USER_ICON_ID.valueOf(),
-      timestamp: expect.any(Number),
-    }
+  describe("途中からルームに入る", () => {
+    beforeAll(() => {
+      history = {
+        // トピックの終了と開始が同時に発生する時、system messageの順番を仕様上規定していないので、
+        // 順番を考慮しないようにarrayContainingを使っている
+        // chatItems: expect.arrayContaining([
+        chatItems: [
+          {
+            ...SYSTEM_MESSAGE_BASE,
+            topicId: roomData.topics[0].id,
+            content: SYSTEM_MESSAGE_CONTENT.start,
+          },
+          {
+            ...SYSTEM_MESSAGE_BASE,
+            topicId: roomData.topics[0].id,
+            content: SYSTEM_MESSAGE_CONTENT.finish,
+          },
+          {
+            ...SYSTEM_MESSAGE_BASE,
+            topicId: roomData.topics[1].id,
+            content: SYSTEM_MESSAGE_CONTENT.start,
+          },
+          {
+            ...SYSTEM_MESSAGE_BASE,
+            topicId: roomData.topics[1].id,
+            content: SYSTEM_MESSAGE_CONTENT.finish,
+          },
+          {
+            ...SYSTEM_MESSAGE_BASE,
+            topicId: roomData.topics[2].id,
+            content: SYSTEM_MESSAGE_CONTENT.start,
+          },
+          {
+            ...SYSTEM_MESSAGE_BASE,
+            topicId: roomData.topics[2].id,
+            content: SYSTEM_MESSAGE_CONTENT.pause,
+          },
+          {
+            ...SYSTEM_MESSAGE_BASE,
+            topicId: roomData.topics[2].id,
+            content: SYSTEM_MESSAGE_CONTENT.start,
+          },
+          message,
+          reaction,
+          question,
+          answer,
+          notOnGoingTopicMessage,
+        ],
+        stamps,
+        pinnedChatItemIds: [messageId],
+      }
+    })
 
-    test("正常系_チャットやスタンプの履歴が見れる", (resolve) => {
+    // TODO: システムメッセージのsenderTypeがadminになってしまっていて落ちるのでskipしている。
+    //  アプリケーションコードの修正が必要
+    test.skip("正常系_チャットやスタンプの履歴が見れる", (resolve) => {
       clientSockets[3].emit(
         "ENTER_ROOM",
         {
@@ -786,54 +846,9 @@ describe("機能テスト", () => {
           expect(res).toStrictEqual<EnterRoomResponse>({
             result: "success",
             data: {
-              // トピックの終了と開始が同時に発生する時、system messageの順番を仕様上規定していないので、
-              // 順番を考慮しないようにarrayContainingを使っている
-              chatItems: expect.arrayContaining([
-                {
-                  ...systemMessageBase,
-                  topicId: roomData.topics[0].id,
-                  content: SYSTEM_MESSAGE.start,
-                },
-                {
-                  ...systemMessageBase,
-                  topicId: roomData.topics[0].id,
-                  content: SYSTEM_MESSAGE.finish,
-                },
-                {
-                  ...systemMessageBase,
-                  topicId: roomData.topics[1].id,
-                  content: SYSTEM_MESSAGE.start,
-                },
-                {
-                  ...systemMessageBase,
-                  topicId: roomData.topics[1].id,
-                  content: SYSTEM_MESSAGE.finish,
-                },
-                {
-                  ...systemMessageBase,
-                  topicId: roomData.topics[2].id,
-                  content: SYSTEM_MESSAGE.start,
-                },
-                {
-                  ...systemMessageBase,
-                  topicId: roomData.topics[2].id,
-                  content: SYSTEM_MESSAGE.pause,
-                },
-                {
-                  ...systemMessageBase,
-                  topicId: roomData.topics[2].id,
-                  content: SYSTEM_MESSAGE.start,
-                },
-                message,
-                reaction,
-                question,
-                answer,
-                notOnGoingTopicMessage,
-              ]),
-              stamps,
+              ...history,
               // ルームに参加しているユーザー(管理者ユーザー + 一般ユーザー) + システムユーザー
               activeUserCount: 1 + clientSockets.length + 1,
-              pinnedChatItemIds: [messageId],
               topicStates: [
                 {
                   topicId: roomData.topics[0].id,
