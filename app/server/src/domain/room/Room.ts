@@ -1,14 +1,15 @@
-import { v4 as uuid } from "uuid"
 import ChatItem from "../chatItem/ChatItem"
 import Stamp from "../stamp/Stamp"
-import Message from "../chatItem/Message"
 import Topic, { TopicTimeData } from "./Topic"
 import { RoomState, TopicState } from "sushi-chat-shared"
 import { PartiallyPartial } from "../../types/utils"
 import SystemUser from "../user/SystemUser"
 import UserFactory from "../../infra/factory/UserFactory"
+import Reaction from "../chatItem/Reaction"
 import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
+import Message from "../chatItem/Message"
+import { v4 as uuid } from "uuid"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -339,6 +340,24 @@ class RoomClass {
   public postChatItem = (userId: string, chatItem: ChatItem) => {
     this.assertRoomIsOngoing()
     this.assertUserExists(userId)
+    // NOTE: 同じユーザーが、同じchatItemに対し、複数回リアクションすることはできない
+    if (
+      chatItem instanceof Reaction &&
+      this.chatItems
+        .filter(
+          (chatItem): chatItem is Reaction => chatItem instanceof Reaction,
+        )
+        .find(
+          ({ topicId, user, quote }) =>
+            topicId === chatItem.topicId &&
+            user.id === chatItem.user.id &&
+            quote.id === chatItem.quote.id,
+        ) != null
+    ) {
+      throw new Error(
+        `Reaction(topicId: ${chatItem.topicId}, user.id: ${chatItem.user.id}, quote.id: ${chatItem.quote.id}) has already exists.`,
+      )
+    }
 
     this._chatItems.push(chatItem)
   }

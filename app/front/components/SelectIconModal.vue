@@ -49,16 +49,18 @@
             </div>
           </span>
         </div>
-        <select
-          v-model="speakerId"
-          name="speaker"
-          class="sushi-select__section--speaker"
-        >
-          <option :value="0">視聴者</option>
-          <option v-for="topic in topics" :key="topic.id" :value="topic.id">
-            スピーカー：{{ topic.title }}
-          </option>
-        </select>
+        <div class="sushi-select__section--speaker">
+          <select v-model="speakerId" name="speaker" class="select-speaker">
+            <option :value="0">視聴者</option>
+            <option v-for="topic in topics" :key="topic.id" :value="topic.id">
+              スピーカー：{{ topic.title }}
+            </option>
+          </select>
+          <ChevronDownIcon
+            class="select-icon"
+            aria-hidden="true"
+          ></ChevronDownIcon>
+        </div>
       </article>
     </section>
     <section class="sushi-select__section">
@@ -87,7 +89,7 @@
 
 <script lang="ts">
 import Vue from "vue"
-import { HelpCircleIcon } from "vue-feather-icons"
+import { HelpCircleIcon, ChevronDownIcon } from "vue-feather-icons"
 import ICONS from "@/utils/icons"
 import { TopicStore, UserItemStore } from "~/store"
 
@@ -95,6 +97,7 @@ export default Vue.extend({
   name: "SelectIconModal",
   components: {
     HelpCircleIcon,
+    ChevronDownIcon,
   },
   props: {
     title: {
