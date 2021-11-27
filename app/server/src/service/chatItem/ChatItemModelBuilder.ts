@@ -70,7 +70,18 @@ class ChatItemModelBuilder {
     }
   }
 
-  public static buildQuestion(question: Question): ChatItemModel {
+  public static buildQuestion(
+    question: Question,
+    recursive = true,
+  ): ChatItemModel {
+    const quote = question.quote
+    const quoteModel =
+      !recursive || quote == null
+        ? undefined
+        : quote instanceof Message
+        ? this.buildMessage(quote, false)
+        : this.buildAnswer(quote, false)
+
     return {
       id: question.id,
       topicId: question.topicId,
@@ -79,6 +90,7 @@ class ChatItemModelBuilder {
       senderType: question.senderType,
       iconId: question.user.iconId.valueOf(),
       content: question.content,
+      quote: quoteModel,
       timestamp: question.timestamp,
     }
   }
@@ -93,7 +105,9 @@ class ChatItemModelBuilder {
       senderType: answer.senderType,
       iconId: answer.user.iconId.valueOf(),
       content: answer.content,
-      quote: !recursive ? undefined : this.buildQuestion(answer.quote),
+      quote: !recursive
+        ? undefined
+        : this.buildQuestion(answer.quote as Question),
       timestamp: answer.timestamp,
     }
   }

@@ -3,7 +3,7 @@
     <TopicHeader
       :title="topic.title"
       :topic-index="topicId"
-      :bookmark-item="pinnedChatItem"
+      :pinned-chat-item="pinnedChatItem"
       @download="clickDownload"
       @click-show-all="clickShowAll"
       @click-not-show-all="clickNotShowAll"
@@ -172,30 +172,40 @@ export default Vue.extend({
   },
   methods: {
     // 送信ボタン
-    clickSubmit(text: string, isQuestion: boolean) {
-      const target = this.selectedChatItem
+    async clickSubmit(text: string, isQuestion: boolean) {
+      const target = this.selectedChatItem ?? undefined
       const topicId = this.topicId
-      if (target == null) {
-        if (isQuestion) {
-          // 質問
-          ChatItemStore.postQuestion({ text, topicId })
-        } else {
-          // 通常メッセージ
-          ChatItemStore.postMessage({ text, topicId })
+      try {
+        if (target == null || target.type !== "question") {
+          // リプライ
+          if (isQuestion) {
+            // 質問
+            await ChatItemStore.postQuestion({ text, topicId, target })
+          } else {
+            // 通常メッセージ
+            await ChatItemStore.postMessage({
+              text,
+              topicId,
+              target,
+            })
+          }
+        } else if (target.type === "question") {
+          // 回答
+          await ChatItemStore.postAnswer({ text, topicId, target })
         }
-      } else if (target.type === "message" || target.type === "answer") {
-        // リプライ
-        ChatItemStore.postMessage({ text, topicId, target })
-      } else if (target.type === "question") {
-        // 回答
-        ChatItemStore.postAnswer({ text, topicId, target })
+      } catch (e) {
+        window.alert("メッセージの送信に失敗しました")
       }
       this.clickScroll()
       this.selectedChatItem = null
     },
     // リアクションボタン
-    clickReaction(message: ChatItemModel) {
-      ChatItemStore.postReaction({ message })
+    async clickReaction(message: ChatItemModel) {
+      try {
+        await ChatItemStore.postReaction({ message })
+      } catch (e) {
+        window.alert("リアクションの送信に失敗しました")
+      }
     },
     // リプライ先のChatItemを選択し、textareaにフォーカス
     selectChatItem(message: ChatItemModel) {
@@ -268,30 +278,35 @@ export default Vue.extend({
     clickNotShowAll() {
       this.isAllCommentShowed = false
     },
-    pinChatItem(chatItemId: string) {
-      console.log(chatItemId)
-      if (!this.pinnedChatItem) {
-        // 新規でピン留め
-        PinnedChatItemsStore.send({
-          topicId: this.topicId,
-          chatItemId,
-        })
-      } else if (this.pinnedChatItem.id === chatItemId) {
-        // this.pinnedChatItemを外す
-        PinnedChatItemsStore.send({
-          topicId: this.topicId,
-          chatItemId,
-        })
-      } else {
-        // this.pinnedChatItemを外して、ピン留め
-        PinnedChatItemsStore.send({
-          topicId: this.topicId,
-          chatItemId: this.pinnedChatItem.id,
-        })
-        PinnedChatItemsStore.send({
-          topicId: this.topicId,
-          chatItemId,
-        })
+    async pinChatItem(chatItemId: string) {
+      try {
+        if (!this.pinnedChatItem) {
+          // 新規でピン留め
+          await PinnedChatItemsStore.send({
+            topicId: this.topicId,
+            chatItemId,
+          })
+        } else if (this.pinnedChatItem.id === chatItemId) {
+          // this.pinnedChatItemを外す
+          await PinnedChatItemsStore.send({
+            topicId: this.topicId,
+            chatItemId,
+          })
+        } else {
+          // TODO: ここも本来はサーバー側で対応したい（既存のピン留めがあればサーバ側で自動で外す）
+          // this.pinnedChatItemを外して、ピン留め
+          await PinnedChatItemsStore.send({
+            topicId: this.topicId,
+            chatItemId: this.pinnedChatItem.id,
+          })
+          await PinnedChatItemsStore.send({
+            topicId: this.topicId,
+            chatItemId,
+          })
+        }
+      } catch (e) {
+        console.error(e)
+        window.alert("ピン留めのリクエストに失敗しました")
       }
     },
   },

@@ -27,6 +27,7 @@ import IAdminRepository from "./domain/admin/IAdminRepository"
 import { DefaultEventsMap } from "socket.io/dist/typed-events"
 import IStampFactory from "./domain/stamp/IStampFactory"
 import IAdminAuth from "./domain/admin/IAdminAuth"
+import AdminAuth from "./infra/auth/AdminAuth"
 
 export class GlobalSocket extends Server<
   DefaultEventsMap,
@@ -117,6 +118,21 @@ const createSocketIOServer = async (
       new UserDelivery(socket, io),
       adminAuth,
     )
+
+    // デバッグ用
+    if (process.env.NODE_ENV !== "production") {
+      socket.use(async ([eventName, data], next) => {
+        if (socket.handshake.auth.token != null) {
+          const { adminId } = await new AdminAuth().verifyIdToken(
+            socket.handshake.auth.token,
+          )
+          console.log(eventName, adminId, data)
+        } else {
+          console.log(eventName, data)
+        }
+        next()
+      })
+    }
     // socketのidは一意なので、それを匿名ユーザーのidとして用いる
     const userId = socket.id
 
@@ -181,7 +197,7 @@ const createSocketIOServer = async (
             await chatItemService.postMessage({
               ...commandBase,
               content: received.content as string,
-              quoteId: received.quoteId as string,
+              quoteId: received.quoteId ?? null,
             })
             break
 
@@ -196,6 +212,7 @@ const createSocketIOServer = async (
             await chatItemService.postQuestion({
               ...commandBase,
               content: received.content as string,
+              quoteId: received.quoteId ?? null,
             })
             break
 
@@ -226,6 +243,7 @@ const createSocketIOServer = async (
     socket.on("POST_STAMP", async (received, callback) => {
       try {
         await stampService.post({
+          id: received.id,
           userId,
           topicId: received.topicId,
         })

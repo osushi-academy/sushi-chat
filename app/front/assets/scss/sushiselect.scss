@@ -64,6 +64,7 @@
     }
     &--help {
       position: relative;
+      z-index: 10;
       @include material-icons-in-text;
       & > .icon {
         margin-left: 0.5rem;
@@ -88,18 +89,33 @@
       }
     }
     &--speaker {
-      max-width: 100%;
+      position: relative;
       width: 400px;
-      padding: 10px 10px;
-      border: 1px solid transparent;
-      border-radius: 10px;
-      outline: none;
       margin-bottom: 50px;
-      cursor: pointer;
-      @include text-size("normal");
+      & > .select-speaker {
+        -webkit-appearance: none;
+        appearance: none;
+        max-width: 100%;
+        width: 100%;
+        padding: 10px;
+        padding-right: 2.5em;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        outline: none;
+        cursor: pointer;
+        @include text-size("normal");
 
-      &:focus-visible {
-        border-color: rgb(214, 214, 214);
+        &:focus-visible {
+          border-color: rgb(214, 214, 214);
+        }
+      }
+
+      & > .select-icon {
+        position: absolute;
+        right: 0.5em;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
       }
     }
     /* アイコン選択モーダル */

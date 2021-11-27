@@ -75,17 +75,6 @@
             @click="clickThumbUp"
           >
             <ThumbUpIcon :size="19" class="icon"></ThumbUpIcon>
-            <!-- <span
-              :style="{
-                backgroundColor: isLikedChatItem ? icon.colorCode : '',
-                color: isLikedChatItem ? 'white' : '',
-                transform: isLikedChatItem ? 'rotate(-20deg)' : '',
-              }"
-              class="material-icons"
-              @click="clickThumbUp"
-            >
-              thumb_up
-            </span> -->
           </button>
         </div>
       </div>
@@ -179,11 +168,8 @@ export default Vue.extend({
     icon() {
       return ICONS[this.$props.message.iconId] ?? ICONS[0]
     },
-    pinnedChatItems() {
-      return PinnedChatItemsStore.pinnedChatItems
-    },
     isBookMarked(): boolean {
-      return this.pinnedChatItems.includes(this.message.id)
+      return PinnedChatItemsStore.pinnedChatItems.includes(this.message.id)
     },
     isAdminorSpeaker(): boolean {
       return (
@@ -217,13 +203,22 @@ export default Vue.extend({
     },
     // タイムスタンプを分、秒単位に変換
     showTimestamp(timeStamp?: number): string {
-      let sec: number = Math.floor((timeStamp as number) / 1000)
-      const min: number = Math.floor(sec / 60)
-      sec %= 60
-      if (sec < 10) {
-        return `${min}` + ":0" + `${sec}`
+      if (timeStamp == null) {
+        return ""
+      }
+      const timeStampSec = timeStamp / 1000
+      const hours = Math.floor(timeStampSec / 3600)
+      if (hours > 99) {
+        return "99:59:59"
+      }
+      const minutes = Math.floor((timeStampSec - 3600 * hours) / 60)
+      const seconds = Math.floor(timeStampSec - 3600 * hours - 60 * minutes)
+      if (hours > 1) {
+        return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
+          .toString()
+          .padStart(2, "0")}`
       } else {
-        return `${min}` + ":" + `${sec}`
+        return `${minutes}:${seconds.toString().padStart(2, "0")}`
       }
     },
     bookmark() {
