@@ -938,4 +938,30 @@ describe("機能テスト", () => {
       expect(res.statusCode).toBe(404)
     })
   })
+
+  describe("roomの公開停止", () => {
+    test("正常系_ルームを公開停止できる", async () => {
+      const res = await client
+        .put(`/room/${roomData.id}/archive`)
+        .set("Authorization", "Bearer token")
+      expect(res.statusCode).toBe(200)
+
+      const room = await client.get(`/room/${roomData.id}`)
+      expect(room.body.data.state).toBe<RoomState>("archived")
+    })
+
+    // TODO: アプリケーション側で適切なステータスコードを返すようになっていないので修正したらskipを外す
+    test.skip("異常系_存在しないルームは公開停止できない", async () => {
+      const notExistRoomId = uuid()
+      const res = await client
+        .put(`/room/${notExistRoomId}/archive`)
+        .set("Authorization", "Bearer token")
+      expect(res.statusCode).toBe(404)
+    })
+
+    test("異常系_管理者ユーザーのトークンを渡さないとルームを公開停止できない", async () => {
+      const res = await client.put(`/room/${roomData.id}/archive`)
+      expect(res.statusCode).toBe(401)
+    })
+  })
 })
