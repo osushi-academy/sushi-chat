@@ -929,5 +929,13 @@ describe("機能テスト", () => {
         },
       })
     })
+
+    // TODO: アプリケーション側で適切なステータスコードを返すようになっていないので修正したらskipを外す
+    test.skip("異常系_存在しないルームの履歴は見れない", async () => {
+      const notExistRoomId = uuid()
+      const res = await client.get(`/room/${notExistRoomId}/history`)
+
+      expect(res.statusCode).toBe(404)
+    })
   })
 })
