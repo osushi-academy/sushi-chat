@@ -10,6 +10,7 @@ import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
 import Message from "../chatItem/Message"
 import { v4 as uuid } from "uuid"
+import { ArgumentError } from "../../error"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -233,7 +234,7 @@ class RoomClass {
       }
 
       default: {
-        throw new Error(`Topic state(${state}) is invalid.`)
+        throw new ArgumentError(`Topic state(${state}) is invalid.`)
       }
     }
   }

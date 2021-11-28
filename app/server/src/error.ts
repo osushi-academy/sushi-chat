@@ -49,3 +49,7 @@ export class RunTimeError extends Error {
     this.code = code ?? 500
   }
 }
+
+export class ArgumentError extends Error {
+  _argumentError: undefined
+}
