@@ -39,9 +39,9 @@
     <div class="error-message">
       <span
         class="text-counter"
-        :class="{ over: maxMessageLength < text.length }"
+        :class="{ over: maxMessageLength < messageLangth }"
       >
-        文字数をオーバーしています ({{ text.length - maxMessageLength }}文字)
+        文字数をオーバーしています ({{ messageLangth - maxMessageLength }}文字)
       </span>
     </div>
     <div class="textarea-footer">
@@ -56,7 +56,7 @@
       <button
         class="submit-button"
         :disabled="
-          disabled || maxMessageLength < text.length || text.length == 0
+          disabled || maxMessageLength < messageLangth || messageLangth == 0
         "
         :class="{
           admin: isAdmin,
@@ -74,8 +74,9 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
-import { ChatItemModel } from "sushi-chat-shared"
+import { ChatItemModel, MAX_MESSAGE_LENGTH } from "sushi-chat-shared"
 import { XIcon, SendIcon } from "vue-feather-icons"
+import unicodeLength from "unicode-length"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 import { UserItemStore } from "~/store"
 
@@ -114,7 +115,7 @@ export default Vue.extend({
     return {
       isQuestion: false,
       text: "",
-      maxMessageLength: 300,
+      maxMessageLength: MAX_MESSAGE_LENGTH,
     }
   },
   computed: {
@@ -129,6 +130,9 @@ export default Vue.extend({
     isSpeaker(): boolean {
       return UserItemStore.userItems.speakerId === this.topicId
     },
+    messageLangth(): number {
+      return unicodeLength.get(this.text)
+    },
   },
   methods: {
     sendMessage() {
@@ -138,7 +142,7 @@ export default Vue.extend({
       }
 
       // 文字数制限
-      if (this.text.length > this.maxMessageLength) {
+      if (unicodeLength.get(this.text) > this.maxMessageLength) {
         return
       }
 
