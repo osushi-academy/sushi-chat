@@ -17,7 +17,7 @@ import { ChatItemSenderType } from "sushi-chat-shared"
 import UserService from "../user/UserService"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import User from "../../domain/user/User"
-import { ArgumentError, RunTimeError } from "../../error"
+import { ArgumentError, NotFoundError, RunTimeError } from "../../error"
 
 class ChatItemService {
   constructor(
@@ -54,6 +54,16 @@ class ChatItemService {
       ? ((await this.chatItemRepository.find(quoteId)) as Message | Answer)
       : null
 
+    let timestamp: number
+    try {
+      timestamp = room.calcTimestamp(topicId)
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new RunTimeError(e.message, 404)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
     const message = new Message(
       chatItemId,
       topicId,
@@ -62,7 +72,7 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      room.calcTimestamp(topicId),
+      timestamp,
     )
 
     try {
@@ -96,6 +106,16 @@ class ChatItemService {
       | Question
       | Answer
 
+    let timestamp: number
+    try {
+      timestamp = room.calcTimestamp(topicId)
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new RunTimeError(e.message, 404)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
     const reaction = new Reaction(
       chatItemId,
       topicId,
@@ -103,7 +123,7 @@ class ChatItemService {
       senderType,
       quote,
       new Date(),
-      room.calcTimestamp(topicId),
+      timestamp,
     )
 
     try {
@@ -139,6 +159,16 @@ class ChatItemService {
         ? null
         : ((await this.chatItemRepository.find(quoteId)) as Message | Answer)
 
+    let timestamp: number
+    try {
+      timestamp = room.calcTimestamp(topicId)
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new RunTimeError(e.message, 404)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
     const question = new Question(
       chatItemId,
       topicId,
@@ -147,7 +177,7 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      room.calcTimestamp(topicId),
+      timestamp,
     )
 
     try {
@@ -179,6 +209,16 @@ class ChatItemService {
     )
     const quote = (await this.chatItemRepository.find(quoteId)) as Question
 
+    let timestamp: number
+    try {
+      timestamp = room.calcTimestamp(topicId)
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new RunTimeError(e.message, 404)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
     const answer = new Answer(
       chatItemId,
       topicId,
@@ -187,7 +227,7 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      room.calcTimestamp(topicId),
+      timestamp,
     )
 
     try {

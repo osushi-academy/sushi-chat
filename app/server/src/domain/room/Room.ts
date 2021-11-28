@@ -10,7 +10,7 @@ import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
 import Message from "../chatItem/Message"
 import { v4 as uuid } from "uuid"
-import { ArgumentError, NotFoundError } from "../../error"
+import { ArgumentError, NotFoundError, RunTimeError } from "../../error"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -362,6 +362,17 @@ class RoomClass {
   }
 
   private postBotMessage = (topicId: number, content: string): Message => {
+    let timestamp: number
+    try {
+      timestamp = this.calcTimestamp(topicId)
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new RunTimeError(e.message, 404)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
+
     const botMessage = new Message(
       uuid(),
       topicId,
@@ -370,7 +381,7 @@ class RoomClass {
       content,
       null,
       new Date(),
-      this.calcTimestamp(topicId),
+      timestamp,
     )
     this._chatItems.push(botMessage)
 
@@ -392,7 +403,7 @@ class RoomClass {
   private findOpenedDateOrThrow(topicId: number): number {
     const openedDate = this._topicTimeData[topicId].openedDate
     if (openedDate === null) {
-      throw new Error(`openedDate of topicId(id: ${topicId}) is null.`)
+      throw new NotFoundError(`openedDate of topicId(id: ${topicId}) is null.`)
     }
     return openedDate
   }

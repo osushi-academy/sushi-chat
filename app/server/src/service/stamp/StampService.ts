@@ -6,6 +6,7 @@ import IUserRepository from "../../domain/user/IUserRepository"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import UserService from "../user/UserService"
 import IStampFactory from "../../domain/stamp/IStampFactory"
+import { NotFoundError, RunTimeError } from "../../error"
 
 class StampService {
   constructor(
@@ -24,7 +25,17 @@ class StampService {
       roomId,
       this.roomRepository,
     )
-    const timestamp = room.calcTimestamp(topicId)
+
+    let timestamp: number
+    try {
+      timestamp = room.calcTimestamp(topicId)
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new RunTimeError(e.message, 404)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
 
     const stamp = this.stampFactory.create(
       id,
