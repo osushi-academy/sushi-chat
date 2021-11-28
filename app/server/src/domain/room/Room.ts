@@ -10,7 +10,7 @@ import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
 import Message from "../chatItem/Message"
 import { v4 as uuid } from "uuid"
-import { ArgumentError } from "../../error"
+import { ArgumentError, NotFoundError } from "../../error"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -384,7 +384,7 @@ class RoomClass {
   private findTopicOrThrow(topicId: number) {
     const topic = this._topics.find((topic) => topic.id === topicId)
     if (!topic) {
-      throw new Error(`Topic(id:${topicId}) was not found.`)
+      throw new NotFoundError(`Topic(id:${topicId}) was not found.`)
     }
     return topic
   }

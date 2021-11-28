@@ -53,3 +53,7 @@ export class RunTimeError extends Error {
 export class ArgumentError extends Error {
   _argumentError: undefined
 }
+
+export class NotFoundError extends Error {
+  _notFoundError: undefined
+}

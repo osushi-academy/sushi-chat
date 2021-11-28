@@ -6,7 +6,7 @@ import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
 import UserService from "../user/UserService"
 import IUserRepository from "../../domain/user/IUserRepository"
 import Message from "../../domain/chatItem/Message"
-import { ArgumentError, RunTimeError } from "../../error"
+import { ArgumentError, NotFoundError, RunTimeError } from "../../error"
 
 class RealtimeRoomService {
   constructor(
@@ -80,7 +80,9 @@ class RealtimeRoomService {
     try {
       messages = room.changeTopicState(topicId, state)
     } catch (e) {
-      if (e instanceof ArgumentError) {
+      if (e instanceof NotFoundError) {
+        throw new RunTimeError(e.message, 404)
+      } else if (e instanceof ArgumentError) {
         throw new RunTimeError(e.message, 400)
       } else {
         throw new RunTimeError(e.message)
