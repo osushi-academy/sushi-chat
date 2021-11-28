@@ -17,6 +17,7 @@ import { ChatItemSenderType } from "sushi-chat-shared"
 import UserService from "../user/UserService"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import User from "../../domain/user/User"
+import { ArgumentError, RunTimeError } from "../../error"
 
 class ChatItemService {
   constructor(
@@ -64,7 +65,15 @@ class ChatItemService {
       room.calcTimestamp(topicId),
     )
 
-    room.postChatItem(userId, message)
+    try {
+      room.postChatItem(userId, message)
+    } catch (e) {
+      if (e instanceof ArgumentError) {
+        throw new RunTimeError(e.message, 400)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
     console.log(`message: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postMessage(message)
@@ -97,7 +106,15 @@ class ChatItemService {
       room.calcTimestamp(topicId),
     )
 
-    room.postChatItem(userId, reaction)
+    try {
+      room.postChatItem(userId, reaction)
+    } catch (e) {
+      if (e instanceof ArgumentError) {
+        throw new RunTimeError(e.message, 400)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
     console.log(`reaction to ${quoteId}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postReaction(reaction)
@@ -133,7 +150,15 @@ class ChatItemService {
       room.calcTimestamp(topicId),
     )
 
-    room.postChatItem(userId, question)
+    try {
+      room.postChatItem(userId, question)
+    } catch (e) {
+      if (e instanceof ArgumentError) {
+        throw new RunTimeError(e.message, 400)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
     console.log(`question: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postQuestion(question)
@@ -165,7 +190,15 @@ class ChatItemService {
       room.calcTimestamp(topicId),
     )
 
-    room.postChatItem(userId, answer)
+    try {
+      room.postChatItem(userId, answer)
+    } catch (e) {
+      if (e instanceof ArgumentError) {
+        throw new RunTimeError(e.message, 400)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
     console.log(`answer: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postAnswer(answer)

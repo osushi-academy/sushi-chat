@@ -338,6 +338,7 @@ class RoomClass {
   public postChatItem = (userId: string, chatItem: ChatItem) => {
     this.assertRoomIsOngoing()
     this.assertUserExists(userId)
+
     // NOTE: 同じユーザーが、同じchatItemに対し、複数回リアクションすることはできない
     if (
       chatItem instanceof Reaction &&
@@ -352,7 +353,7 @@ class RoomClass {
             quote.id === chatItem.quote.id,
         ) != null
     ) {
-      throw new Error(
+      throw new ArgumentError(
         `Reaction(topicId: ${chatItem.topicId}, user.id: ${chatItem.user.id}, quote.id: ${chatItem.quote.id}) has already exists.`,
       )
     }
