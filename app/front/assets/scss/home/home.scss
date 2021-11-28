@@ -131,7 +131,7 @@
         margin: 0 0.5rem 0 0;
         &--element {
           margin: 0 0 0.5rem 0;
-          padding: 0.92rem 0;
+          padding: 0.55rem 0;
         }
       }
       &__list {
@@ -147,6 +147,7 @@
             padding: 0 !important;
             @include white-text-box($expand: "true");
             input {
+              width: 100%;
               border: none;
               flex: 1;
               padding: 0;
@@ -156,7 +157,7 @@
             }
           }
           &--remove {
-            margin: 0.2rem;
+            margin: 0.2rem 0;
             @include material-icon-button(
               $size: "sm",
               $color: #f07b7b,
@@ -169,6 +170,7 @@
             }
           }
           &--sort {
+            margin: 0;
             cursor: grab !important;
             @include material-icon-button;
             &--dragging {
