@@ -61,21 +61,23 @@
                   />
                   <button
                     type="button"
-                    class="home-create__room__sessions__list--element--remove"
                     :disabled="!canDeleteSessionInput"
                     @click="removeSession(idx)"
                   >
-                    <MinusCircleIcon size="1.2x"></MinusCircleIcon>
+                    <MinusCircleIcon
+                      class="home-create__room__sessions__list--element--remove"
+                    ></MinusCircleIcon>
                   </button>
                 </form>
                 <button
-                  class="home-create__room__sessions__list--element--sort"
                   :class="{
                     'home-create__room__sessions__list--element--sort--dragging':
                       isDragging === true,
                   }"
                 >
-                  <MenuIcon size="1.2x"></MenuIcon>
+                  <MenuIcon
+                    class="home-create__room__sessions__list--element--sort"
+                  ></MenuIcon>
                 </button>
               </div>
             </transition-group>

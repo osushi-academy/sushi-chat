@@ -125,12 +125,13 @@
       display: grid;
       margin: 1rem 0;
       grid-template-columns: auto 1fr;
+      align-items: center;
       &__index {
         grid-column: 1;
         margin: 0 0.5rem 0 0;
         &--element {
-          margin: 0.2rem 0 0.9em 0;
-          padding: 0.5rem 0;
+          margin: 0 0 0.5rem 0;
+          padding: 0.92rem 0;
         }
       }
       &__list {
@@ -138,7 +139,6 @@
         &--element {
           display: flex;
           align-items: center;
-          width: 85%;
           margin: 0 0 0.5rem 0;
           &--input {
             display: flex;
@@ -150,7 +150,6 @@
               border: none;
               flex: 1;
               padding: 0;
-              @include white-text-box($expand: "true");
               &:focus {
                 outline: none;
               }
