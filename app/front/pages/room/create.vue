@@ -113,6 +113,11 @@ import VModal from "vue-js-modal"
 import draggable from "vuedraggable"
 import PlusIcon from "vue-material-design-icons/Plus.vue"
 import { MenuIcon, MinusCircleIcon } from "vue-feather-icons"
+import {
+  MAX_ROOM_TITLE_LENGTH,
+  MAX_TOPIC_TITLE_LENGTH,
+} from "sushi-chat-shared"
+import unicodeLength from "unicode-length"
 import AddSessionsModal from "@/components/Home/AddSessionsModal.vue"
 import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue"
 
@@ -121,7 +126,6 @@ type DataType = {
   roomName: string
   sessionList: { title: string; id: number }[]
   isDragging: boolean
-  MAX_TOPIC_LENGTH: number
 }
 
 let sessionId = 0
@@ -142,7 +146,6 @@ export default Vue.extend({
       roomName: "",
       sessionList: [{ title: "", id: sessionId++ }],
       isDragging: false,
-      MAX_TOPIC_LENGTH: 100,
     }
   },
   computed: {
@@ -203,8 +206,8 @@ export default Vue.extend({
         // 重複しているトピックはカウントしない
         if (set.has(topicTitle)) continue
         // 長さ制限を超えている
-        if (topicTitle.length > this.MAX_TOPIC_LENGTH) {
-          alert("セッション名は" + this.MAX_TOPIC_LENGTH + "文字までです。")
+        if (unicodeLength.get(topicTitle) > MAX_TOPIC_TITLE_LENGTH) {
+          alert("セッション名は" + MAX_TOPIC_TITLE_LENGTH + "文字までです。")
           return
         }
         const t = {
@@ -235,6 +238,21 @@ export default Vue.extend({
         // room名とセッションが不足していたらエラー
         if (this.roomName === "" || sessions.length === 0) {
           throw new Error("入力が不足しています")
+        }
+        // room名が長すぎたらエラー
+        if (unicodeLength.get(this.roomName) > MAX_ROOM_TITLE_LENGTH) {
+          throw new Error(
+            "イベント名は" + MAX_ROOM_TITLE_LENGTH + "文字までです。",
+          )
+        }
+        // セッション名が長すぎたらエラー
+        for (const topic of sessions) {
+          // 長さ制限を超えている
+          if (unicodeLength.get(topic.title) > MAX_TOPIC_TITLE_LENGTH) {
+            throw new Error(
+              "セッション名は" + MAX_TOPIC_TITLE_LENGTH + "文字までです。",
+            )
+          }
         }
 
         const res = await this.$apiClient.post("/room", {
