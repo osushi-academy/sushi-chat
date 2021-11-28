@@ -17,7 +17,7 @@
         @hide-modal="hide"
       />
       <AdminTool
-        v-if="isAdmin && room.adminInviteKey != null"
+        v-if="showAdminTool"
         :room="room"
         :room-id="room.id"
         :title="room.title"
@@ -27,7 +27,11 @@
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
       />
-      <template v-if="isRoomEnter || isAdmin">
+      <div
+        v-if="isRoomEnter"
+        class="chat-room-area"
+        :class="{ 'show-admin-tool': showAdminTool }"
+      >
         <div v-for="(topic, index) in topics" :key="index">
           <ChatRoom
             :topic-index="index"
@@ -35,7 +39,7 @@
             :topic-state="topicStateItems[topic.id]"
           />
         </div>
-      </template>
+      </div>
     </main>
   </div>
 </template>
@@ -111,6 +115,9 @@ export default Vue.extend({
     topicStateItems() {
       // 各トピックの状態
       return TopicStateItemStore.topicStateItems
+    },
+    showAdminTool(): boolean {
+      return this.isAdmin && this.room.adminInviteKey != null
     },
   },
   created() {
