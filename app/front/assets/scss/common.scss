@@ -23,6 +23,10 @@ button {
   &:focus-visible {
     outline: auto;
   }
+
+  &:disabled {
+    cursor: default;
+  }
 }
 
 label {

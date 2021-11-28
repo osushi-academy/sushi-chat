@@ -49,7 +49,6 @@ import {
   RoomModel,
   RoomState,
   StampModel,
-  ChatItemModel,
   PubUserCountParam,
   PubPinnedMessageParam,
 } from "sushi-chat-shared"
@@ -174,10 +173,10 @@ export default Vue.extend({
       this.$initSocket(UserItemStore.userItems.isAdmin)
 
       // SocketIOのコールバックの登録
-      this.$socket().on("PUB_CHAT_ITEM", (chatItem: ChatItemModel) => {
+      this.$socket().on("PUB_CHAT_ITEM", (chatItem) => {
         console.log(chatItem)
         // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
-        ChatItemStore.addOrUpdate(chatItem)
+        ChatItemStore.addOrUpdate({ ...chatItem, status: "success" })
       })
       this.$socket().on("PUB_CHANGE_TOPIC_STATE", (res) => {
         // クリックしたTopicのStateを変える
@@ -259,7 +258,12 @@ export default Vue.extend({
               PinnedChatItemsStore.add(pinnedChatItem)
             }
           })
-          ChatItemStore.setChatItems(res.data.chatItems)
+          ChatItemStore.setChatItems(
+            res.data.chatItems.map((chatItem) => ({
+              ...chatItem,
+              status: "success",
+            })),
+          )
         },
       )
       this.isRoomEnter = true
@@ -277,7 +281,12 @@ export default Vue.extend({
             console.error(res.error)
             return
           }
-          ChatItemStore.setChatItems(res.data.chatItems)
+          ChatItemStore.setChatItems(
+            res.data.chatItems.map((chatItem) => ({
+              ...chatItem,
+              status: "success",
+            })),
+          )
           res.data.topicStates.forEach((topicState) => {
             TopicStateItemStore.change({
               key: topicState.topicId,

@@ -86,6 +86,7 @@ import TextArea from "@/components/TextArea.vue"
 import FavoriteButton from "@/components/FavoriteButton.vue"
 import exportText from "@/utils/textExports"
 import { ChatItemStore, TopicStore, PinnedChatItemsStore } from "~/store"
+import { ChatItemWithStatus } from "~/store/chatItems"
 
 // Data型
 type DataType = {
@@ -140,7 +141,7 @@ export default Vue.extend({
     },
     pinnedChatItem() {
       const chatItems = ChatItemStore.chatItems.filter(
-        (chatItemModel): chatItemModel is ChatItemModel =>
+        (chatItemModel): chatItemModel is ChatItemWithStatus =>
           chatItemModel.topicId === this.topicId,
       )
       const pinnedChatItems = PinnedChatItemsStore.pinnedChatItems
