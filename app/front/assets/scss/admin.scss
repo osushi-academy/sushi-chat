@@ -8,7 +8,7 @@
   background-color: $bg;
   word-break: break-all;
   display: none;
-  @media screen and (min-width: $large+px) {
+  @media screen and (min-width: $large) {
     display: block;
   }
 
