@@ -6,7 +6,7 @@ import express from "express"
 import AdminService from "./service/admin/AdminService"
 import RestRoomService from "./service/room/RestRoomService"
 import { covertToNewTopicArray } from "./utils/topics"
-import { handleRestError, RunTimeError } from "./error"
+import { handleRestError, ErrorWithCode } from "./error"
 
 export const restSetup = (
   app: Routes,
@@ -97,7 +97,7 @@ export const restSetup = (
     const token = extractToken(req.headers.authorization)
     if (!token) {
       handleRestError(
-        new RunTimeError(
+        new ErrorWithCode(
           "Token is missing; e.g. Authorization: Bearer <ID_TOKEN>",
           401,
         ),
@@ -204,7 +204,7 @@ export const restSetup = (
     const adminInviteKey = req.query["admin_invite_key"]
     if (!adminInviteKey) {
       handleRestError(
-        new RunTimeError("`Invite admin` needs admin_invite_key.", 400),
+        new ErrorWithCode("`Invite admin` needs admin_invite_key.", 400),
         req.route,
         res,
       )
@@ -213,7 +213,7 @@ export const restSetup = (
     }
     if (typeof adminInviteKey !== "string") {
       handleRestError(
-        new RunTimeError("invalid parameter.", 400),
+        new ErrorWithCode("invalid parameter.", 400),
         req.route,
         res,
       )

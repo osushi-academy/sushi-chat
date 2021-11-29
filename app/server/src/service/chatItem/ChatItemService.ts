@@ -20,7 +20,7 @@ import User from "../../domain/user/User"
 import {
   ArgumentError,
   NotFoundError,
-  RunTimeError,
+  ErrorWithCode,
   StateError,
 } from "../../error"
 
@@ -64,9 +64,9 @@ class ChatItemService {
       timestamp = room.calcTimestamp(topicId)
     } catch (e) {
       if (e instanceof NotFoundError) {
-        throw new RunTimeError(e.message, 404)
+        throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
     const message = new Message(
@@ -84,9 +84,9 @@ class ChatItemService {
       room.postChatItem(userId, message)
     } catch (e) {
       if (e instanceof ArgumentError || e instanceof StateError) {
-        throw new RunTimeError(e.message, 400)
+        throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
     console.log(`message: ${content}(id: ${chatItemId})`)
@@ -116,9 +116,9 @@ class ChatItemService {
       timestamp = room.calcTimestamp(topicId)
     } catch (e) {
       if (e instanceof NotFoundError) {
-        throw new RunTimeError(e.message, 404)
+        throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
     const reaction = new Reaction(
@@ -135,9 +135,9 @@ class ChatItemService {
       room.postChatItem(userId, reaction)
     } catch (e) {
       if (e instanceof ArgumentError || e instanceof StateError) {
-        throw new RunTimeError(e.message, 400)
+        throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
     console.log(`reaction to ${quoteId}(id: ${chatItemId})`)
@@ -169,9 +169,9 @@ class ChatItemService {
       timestamp = room.calcTimestamp(topicId)
     } catch (e) {
       if (e instanceof NotFoundError) {
-        throw new RunTimeError(e.message, 404)
+        throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
     const question = new Question(
@@ -189,9 +189,9 @@ class ChatItemService {
       room.postChatItem(userId, question)
     } catch (e) {
       if (e instanceof ArgumentError || e instanceof StateError) {
-        throw new RunTimeError(e.message, 400)
+        throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
     console.log(`question: ${content}(id: ${chatItemId})`)
@@ -219,9 +219,9 @@ class ChatItemService {
       timestamp = room.calcTimestamp(topicId)
     } catch (e) {
       if (e instanceof NotFoundError) {
-        throw new RunTimeError(e.message, 404)
+        throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
     const answer = new Answer(
@@ -239,9 +239,9 @@ class ChatItemService {
       room.postChatItem(userId, answer)
     } catch (e) {
       if (e instanceof ArgumentError || e instanceof StateError) {
-        throw new RunTimeError(e.message, 400)
+        throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
     console.log(`answer: ${content}(id: ${chatItemId})`)

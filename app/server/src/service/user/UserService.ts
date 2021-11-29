@@ -13,7 +13,7 @@ import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
 import StampModelBuilder from "../stamp/StampModelBuilder"
 import IconId, { NewIconId } from "../../domain/user/IconId"
 import IAdminAuth from "../../domain/admin/IAdminAuth"
-import { RunTimeError, StateError } from "../../error"
+import { ErrorWithCode, StateError } from "../../error"
 
 class UserService {
   constructor(
@@ -58,9 +58,9 @@ class UserService {
       activeUserCount = room.joinAdminUser(userId, adminId)
     } catch (e) {
       if (e instanceof StateError) {
-        throw new RunTimeError(e.message, 400)
+        throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
 
@@ -106,9 +106,9 @@ class UserService {
       activeUserCount = room.joinUser(userId)
     } catch (e) {
       if (e instanceof StateError) {
-        throw new RunTimeError(e.message, 400)
+        throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
 

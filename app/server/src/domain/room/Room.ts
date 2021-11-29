@@ -13,7 +13,7 @@ import { v4 as uuid } from "uuid"
 import {
   ArgumentError,
   NotFoundError,
-  RunTimeError,
+  ErrorWithCode,
   StateError,
 } from "../../error"
 
@@ -372,9 +372,9 @@ class RoomClass {
       timestamp = this.calcTimestamp(topicId)
     } catch (e) {
       if (e instanceof NotFoundError) {
-        throw new RunTimeError(e.message, 404)
+        throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
 

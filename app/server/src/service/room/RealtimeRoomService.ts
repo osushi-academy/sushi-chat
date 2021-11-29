@@ -9,7 +9,7 @@ import Message from "../../domain/chatItem/Message"
 import {
   ArgumentError,
   NotFoundError,
-  RunTimeError,
+  ErrorWithCode,
   StateError,
 } from "../../error"
 
@@ -57,9 +57,9 @@ class RealtimeRoomService {
       room.finishRoom()
     } catch (e) {
       if (e instanceof StateError) {
-        throw new RunTimeError(e.message, 400)
+        throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
 
@@ -94,11 +94,11 @@ class RealtimeRoomService {
       messages = room.changeTopicState(topicId, state)
     } catch (e) {
       if (e instanceof NotFoundError) {
-        throw new RunTimeError(e.message, 404)
+        throw new ErrorWithCode(e.message, 404)
       } else if (e instanceof ArgumentError || e instanceof StateError) {
-        throw new RunTimeError(e.message, 400)
+        throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
 

@@ -23,7 +23,7 @@ import { DefaultEventsMap } from "socket.io/dist/typed-events"
 import IStampFactory from "./domain/stamp/IStampFactory"
 import IAdminAuth from "./domain/admin/IAdminAuth"
 import AdminAuth from "./infra/auth/AdminAuth"
-import { handleSocketIOError, logError, RunTimeError } from "./error"
+import { handleSocketIOError, logError, ErrorWithCode } from "./error"
 
 export class GlobalSocket extends Server<
   DefaultEventsMap,
@@ -224,7 +224,7 @@ const createSocketIOServer = async (
             handleSocketIOError(
               callback,
               "POST_CHAT_ITEM",
-              new RunTimeError(`Invalid received.type: ${chatItemType}`, 400),
+              new ErrorWithCode(`Invalid received.type: ${chatItemType}`, 400),
             )
             return
         }

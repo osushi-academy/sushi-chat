@@ -4,27 +4,27 @@ import { Response } from "express"
 export const handleSocketIOError = (
   callback: (response: ErrorResponse) => void,
   event: ServerListenEventName,
-  error: RunTimeError,
+  error: ErrorWithCode,
 ) => {
   logError(event, error)
 
   callback({
     result: "error",
     error: {
-      code: `${error.code}`,
+      code: `${error.statusCode}`,
       message: error.message ?? "Unknown error",
     },
   })
 }
 
 export const handleRestError = (
-  error: RunTimeError,
+  error: ErrorWithCode,
   route: string,
   res: Response,
 ) => {
   logError(route, error)
 
-  const code = error.code
+  const code = error.statusCode
 
   res.status(code).send({
     result: "error",
@@ -35,27 +35,33 @@ export const handleRestError = (
   })
 }
 
-export const logError = (context: string, error: RunTimeError) => {
+export const logError = (context: string, error: ErrorWithCode) => {
   const date = new Date().toISOString()
   console.error(`[${date}]${context}:${error ?? "Unknown error."}`)
 }
 
-export class RunTimeError extends Error {
-  readonly code: number
+export class ErrorWithCode extends Error {
+  readonly statusCode: number
 
-  constructor(message: string, code?: number) {
+  constructor(message: string, statusCode?: number) {
     super(message)
     this.name = "RunTimeError"
-    this.code = code ?? 500
+    this.statusCode = statusCode ?? 500
   }
 }
 
 export class ArgumentError extends Error {
-  _argumentError: undefined
+  constructor(message?: string) {
+    super(message)
+    this.name = "ArgumentError"
+  }
 }
 
 export class NotFoundError extends Error {
-  _notFoundError: undefined
+  constructor(message?: string) {
+    super(message)
+    this.name = "NotFoundError"
+  }
 }
 
 export class StateError extends Error {

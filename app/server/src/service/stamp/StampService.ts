@@ -6,7 +6,7 @@ import IUserRepository from "../../domain/user/IUserRepository"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import UserService from "../user/UserService"
 import IStampFactory from "../../domain/stamp/IStampFactory"
-import { NotFoundError, RunTimeError, StateError } from "../../error"
+import { NotFoundError, ErrorWithCode, StateError } from "../../error"
 
 class StampService {
   constructor(
@@ -31,9 +31,9 @@ class StampService {
       timestamp = room.calcTimestamp(topicId)
     } catch (e) {
       if (e instanceof NotFoundError) {
-        throw new RunTimeError(e.message, 404)
+        throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
 
@@ -48,9 +48,9 @@ class StampService {
       room.postStamp(stamp)
     } catch (e) {
       if (e instanceof StateError) {
-        throw new RunTimeError(e.message, 400)
+        throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new RunTimeError(e.message)
+        throw new ErrorWithCode(e.message)
       }
     }
 
