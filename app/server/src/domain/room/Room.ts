@@ -10,7 +10,12 @@ import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
 import Message from "../chatItem/Message"
 import { v4 as uuid } from "uuid"
-import { ArgumentError, NotFoundError, RunTimeError } from "../../error"
+import {
+  ArgumentError,
+  NotFoundError,
+  RunTimeError,
+  StateError,
+} from "../../error"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -410,7 +415,7 @@ class RoomClass {
 
   private assertRoomIsOngoing() {
     if (this._state != "ongoing") {
-      throw new Error(`Room(id: ${this.id}) is not ongoing.`)
+      throw new StateError(`Room(id: ${this.id}) is not ongoing.`)
     }
   }
 

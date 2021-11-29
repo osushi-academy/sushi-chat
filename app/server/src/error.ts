@@ -57,3 +57,10 @@ export class ArgumentError extends Error {
 export class NotFoundError extends Error {
   _notFoundError: undefined
 }
+
+export class StateError extends Error {
+  constructor(message?: string) {
+    super(message)
+    this.name = "StateError"
+  }
+}

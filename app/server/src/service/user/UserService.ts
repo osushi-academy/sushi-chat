@@ -13,6 +13,7 @@ import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
 import StampModelBuilder from "../stamp/StampModelBuilder"
 import IconId, { NewIconId } from "../../domain/user/IconId"
 import IAdminAuth from "../../domain/admin/IAdminAuth"
+import { RunTimeError, StateError } from "../../error"
 
 class UserService {
   constructor(
@@ -49,9 +50,19 @@ class UserService {
       this.roomRepository,
     )
 
-    // roomが始まっていない or adminでないと、ここでエラー
     const { adminId } = await this.adminAuth.verifyIdToken(idToken)
-    const activeUserCount = room.joinAdminUser(userId, adminId)
+
+    // roomが始まっていない or adminでないと、ここでエラー
+    let activeUserCount: number
+    try {
+      activeUserCount = room.joinAdminUser(userId, adminId)
+    } catch (e) {
+      if (e instanceof StateError) {
+        throw new RunTimeError(e.message, 400)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
 
     // roomにjoinできたらuserも作成
 
@@ -90,7 +101,16 @@ class UserService {
     )
 
     // roomが始まっていないとここでエラー
-    const activeUserCount = room.joinUser(userId)
+    let activeUserCount: number
+    try {
+      activeUserCount = room.joinUser(userId)
+    } catch (e) {
+      if (e instanceof StateError) {
+        throw new RunTimeError(e.message, 400)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
 
     await this.createUser(
       activeUserCount,

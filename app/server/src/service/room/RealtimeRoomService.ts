@@ -6,7 +6,12 @@ import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
 import UserService from "../user/UserService"
 import IUserRepository from "../../domain/user/IUserRepository"
 import Message from "../../domain/chatItem/Message"
-import { ArgumentError, NotFoundError, RunTimeError } from "../../error"
+import {
+  ArgumentError,
+  NotFoundError,
+  RunTimeError,
+  StateError,
+} from "../../error"
 
 class RealtimeRoomService {
   constructor(
@@ -48,7 +53,15 @@ class RealtimeRoomService {
       this.roomRepository,
     )
 
-    room.finishRoom()
+    try {
+      room.finishRoom()
+    } catch (e) {
+      if (e instanceof StateError) {
+        throw new RunTimeError(e.message, 400)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
 
     await this.roomRepository.update(room)
   }
@@ -82,7 +95,7 @@ class RealtimeRoomService {
     } catch (e) {
       if (e instanceof NotFoundError) {
         throw new RunTimeError(e.message, 404)
-      } else if (e instanceof ArgumentError) {
+      } else if (e instanceof ArgumentError || e instanceof StateError) {
         throw new RunTimeError(e.message, 400)
       } else {
         throw new RunTimeError(e.message)

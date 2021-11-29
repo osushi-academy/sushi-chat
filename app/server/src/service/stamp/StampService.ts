@@ -6,7 +6,7 @@ import IUserRepository from "../../domain/user/IUserRepository"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import UserService from "../user/UserService"
 import IStampFactory from "../../domain/stamp/IStampFactory"
-import { NotFoundError, RunTimeError } from "../../error"
+import { NotFoundError, RunTimeError, StateError } from "../../error"
 
 class StampService {
   constructor(
@@ -44,7 +44,15 @@ class StampService {
       topicId,
       timestamp,
     )
-    room.postStamp(stamp)
+    try {
+      room.postStamp(stamp)
+    } catch (e) {
+      if (e instanceof StateError) {
+        throw new RunTimeError(e.message, 400)
+      } else {
+        throw new RunTimeError(e.message)
+      }
+    }
 
     this.stampDelivery.pushStamp(stamp)
     await this.stampRepository.store(stamp)

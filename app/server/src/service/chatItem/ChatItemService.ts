@@ -17,7 +17,12 @@ import { ChatItemSenderType } from "sushi-chat-shared"
 import UserService from "../user/UserService"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import User from "../../domain/user/User"
-import { ArgumentError, NotFoundError, RunTimeError } from "../../error"
+import {
+  ArgumentError,
+  NotFoundError,
+  RunTimeError,
+  StateError,
+} from "../../error"
 
 class ChatItemService {
   constructor(
@@ -78,7 +83,7 @@ class ChatItemService {
     try {
       room.postChatItem(userId, message)
     } catch (e) {
-      if (e instanceof ArgumentError) {
+      if (e instanceof ArgumentError || e instanceof StateError) {
         throw new RunTimeError(e.message, 400)
       } else {
         throw new RunTimeError(e.message)
@@ -129,7 +134,7 @@ class ChatItemService {
     try {
       room.postChatItem(userId, reaction)
     } catch (e) {
-      if (e instanceof ArgumentError) {
+      if (e instanceof ArgumentError || e instanceof StateError) {
         throw new RunTimeError(e.message, 400)
       } else {
         throw new RunTimeError(e.message)
@@ -183,7 +188,7 @@ class ChatItemService {
     try {
       room.postChatItem(userId, question)
     } catch (e) {
-      if (e instanceof ArgumentError) {
+      if (e instanceof ArgumentError || e instanceof StateError) {
         throw new RunTimeError(e.message, 400)
       } else {
         throw new RunTimeError(e.message)
@@ -233,7 +238,7 @@ class ChatItemService {
     try {
       room.postChatItem(userId, answer)
     } catch (e) {
-      if (e instanceof ArgumentError) {
+      if (e instanceof ArgumentError || e instanceof StateError) {
         throw new RunTimeError(e.message, 400)
       } else {
         throw new RunTimeError(e.message)
