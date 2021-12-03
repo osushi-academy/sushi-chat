@@ -45,7 +45,7 @@ export class ErrorWithCode extends Error {
 
   constructor(message: string, statusCode?: number) {
     super(message)
-    this.name = "RunTimeError"
+    this.name = "ErrorWithCode"
     this.statusCode = statusCode ?? 500
   }
 }
