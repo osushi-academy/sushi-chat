@@ -69,8 +69,19 @@ class UserService {
       true,
     )
 
+    let chatItems: ChatItemModel[]
+    try {
+      chatItems = ChatItemModelBuilder.buildChatItems(room.chatItems)
+    } catch (e) {
+      if (e instanceof ArgumentError) {
+        throw new ErrorWithCode(e.message, 500)
+      } else {
+        throw new ErrorWithCode(e.message)
+      }
+    }
+
     return {
-      chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
+      chatItems,
       stamps: StampModelBuilder.buildStamps(room.stamps),
       activeUserCount,
       pinnedChatItemIds: room.pinnedChatItemIds,
