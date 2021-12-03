@@ -30,17 +30,6 @@ class ChatItemService {
     private readonly chatItemDelivery: IChatItemDelivery,
   ) {}
 
-  public static async findChatItemOrThrow(
-    chatItemId: string,
-    chatItemRepository: IChatItemRepository,
-  ) {
-    const chatItem = await chatItemRepository.find(chatItemId)
-    if (!chatItem) {
-      throw new Error(`ChatItem(id:${chatItemId}) was not found.`)
-    }
-    return chatItem
-  }
-
   public async postMessage({
     topicId,
     chatItemId,
@@ -272,10 +261,10 @@ class ChatItemService {
   }
 
   public async pinChatItem({ chatItemId }: PinChatItemCommand) {
-    const pinnedChatItem = await ChatItemService.findChatItemOrThrow(
-      chatItemId,
-      this.chatItemRepository,
-    )
+    const pinnedChatItem = await this.chatItemRepository.find(chatItemId)
+    if (!pinnedChatItem) {
+      throw new ErrorWithCode(`ChatItem(${chatItemId}) was not found.`)
+    }
 
     this.chatItemDelivery.pinChatItem(pinnedChatItem)
     await this.chatItemRepository.pinChatItem(pinnedChatItem)
