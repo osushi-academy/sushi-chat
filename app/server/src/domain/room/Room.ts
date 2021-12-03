@@ -123,8 +123,10 @@ class RoomClass {
 
   /**
    * ルームを終了する
+   *  @param adminId adminのID
    */
-  public finishRoom = () => {
+  public finishRoom = (adminId: string) => {
+    this.assertIsAdmin(adminId)
     this.assertRoomIsOngoing()
 
     this._state = "finished"

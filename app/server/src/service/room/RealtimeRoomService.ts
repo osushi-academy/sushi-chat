@@ -8,6 +8,7 @@ import Message from "../../domain/chatItem/Message"
 import {
   ArgumentError,
   ErrorWithCode,
+  NotAuthorizedError,
   NotFoundError,
   StateError,
 } from "../../error"
@@ -41,10 +42,12 @@ class RealtimeRoomService {
     }
 
     try {
-      room.finishRoom()
+      room.finishRoom(userId)
     } catch (e) {
       if (e instanceof StateError) {
         throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotAuthorizedError) {
+        throw new ErrorWithCode(e.message, 403)
       } else {
         throw new ErrorWithCode(e.message)
       }
