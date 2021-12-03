@@ -420,13 +420,8 @@ class RoomClass {
   }
 
   private assertRoomIsNotStarted() {
-    if (this._state != "not-started") {
-      // TODO: エラーの種別を捕捉できる仕組みが必要。カスタムのエラーを定義する。
-      //  → 例：複数管理者がほぼ同時にルーム開始/終了をリクエストした場合、2番手のエラーはserviceかcontrollerでエラーの
-      //         種別を捕捉できた方が良さそう
-      throw new Error(
-        `[sushi-chat-server] Room(id: ${this.id}) has already started.`,
-      )
+    if (this._state !== "not-started") {
+      throw new StateError(`Room(${this.id}) has already started.`)
     }
   }
 

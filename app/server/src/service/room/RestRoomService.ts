@@ -9,6 +9,7 @@ import {
 } from "./commands"
 import IRoomFactory from "../../domain/room/IRoomFactory"
 import { RoomModel } from "sushi-chat-shared"
+import { ErrorWithCode, StateError } from "../../error"
 
 class RestRoomService {
   constructor(
@@ -35,7 +36,16 @@ class RestRoomService {
   // Roomを開始する。
   public async start(command: StartRoomCommand) {
     const room = await this.find(command.id)
-    room.startRoom(command.adminId)
+
+    try {
+      room.startRoom(command.adminId)
+    } catch (e) {
+      if (e instanceof StateError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else {
+        throw new ErrorWithCode(e.message)
+      }
+    }
 
     await this.roomRepository.update(room)
   }
