@@ -64,7 +64,15 @@ class RestRoomService {
   // Roomをアーカイブし、閲覧できなくする。
   public async archive(command: ArchiveRoomCommand) {
     const room = await this.find(command.id)
-    await room.archiveRoom(command.adminId)
+    try {
+      await room.archiveRoom(command.adminId)
+    } catch (e) {
+      if (e instanceof StateError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else {
+        throw new ErrorWithCode(e.message)
+      }
+    }
 
     await this.roomRepository.update(room)
   }
