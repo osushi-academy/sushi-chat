@@ -13,7 +13,7 @@ import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
 import StampModelBuilder from "../stamp/StampModelBuilder"
 import IconId, { NewIconId } from "../../domain/user/IconId"
 import IAdminAuth from "../../domain/admin/IAdminAuth"
-import { ErrorWithCode, StateError } from "../../error"
+import { ArgumentError, ErrorWithCode, StateError } from "../../error"
 
 class UserService {
   constructor(
@@ -112,11 +112,22 @@ class UserService {
       }
     }
 
+    let newIconId: IconId
+    try {
+      newIconId = NewIconId(iconId)
+    } catch (e) {
+      if (e instanceof ArgumentError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else {
+        throw new ErrorWithCode(e.message)
+      }
+    }
+
     await this.createUser(
       activeUserCount,
       userId,
       roomId,
-      NewIconId(iconId),
+      newIconId,
       false,
       speakerTopicId,
     )
