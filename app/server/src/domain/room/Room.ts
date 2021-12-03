@@ -173,12 +173,10 @@ class RoomClass {
   /**
    * ユーザーをルームから退室させる
    * @param userId 退室させるユーザーのID
-   * @returns number アクティブなユーザー数
+   * @returns number ユーザーを退室させた後のアクティブユーザー数
    */
   public leaveUser = (userId: string): number => {
-    this.assertUserExists(userId)
     this.userIds.delete(userId)
-
     return this.activeUserCount
   }
 
@@ -432,9 +430,9 @@ class RoomClass {
   }
 
   private assertUserExists(userId: string) {
-    const exists = this.userIds.has(userId)
-    if (!exists) {
-      throw new Error(`[sushi-chat-server] User(${userId}) does not exists.`)
+    const exist = this.userIds.has(userId)
+    if (!exist) {
+      throw new NotFoundError(`User(${userId}) not exist.`)
     }
   }
 

@@ -50,6 +50,9 @@ class StampService {
     } catch (e) {
       if (e instanceof StateError) {
         throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotFoundError) {
+        // userがroomに属していなかった場合
+        throw new ErrorWithCode(e.message, 400)
       } else {
         throw new ErrorWithCode(e.message)
       }

@@ -86,6 +86,9 @@ class ChatItemService {
     } catch (e) {
       if (e instanceof ArgumentError || e instanceof StateError) {
         throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotFoundError) {
+        // userがroomに参加していなかった場合
+        throw new ErrorWithCode(e.message, 400)
       } else {
         throw new ErrorWithCode(e.message)
       }
@@ -139,6 +142,9 @@ class ChatItemService {
       room.postChatItem(userId, reaction)
     } catch (e) {
       if (e instanceof ArgumentError || e instanceof StateError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotFoundError) {
+        // userがroomに参加していなかった場合
         throw new ErrorWithCode(e.message, 400)
       } else {
         throw new ErrorWithCode(e.message)
@@ -196,6 +202,9 @@ class ChatItemService {
     } catch (e) {
       if (e instanceof ArgumentError || e instanceof StateError) {
         throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotFoundError) {
+        // userがroomに参加していなかった場合
+        throw new ErrorWithCode(e.message, 400)
       } else {
         throw new ErrorWithCode(e.message)
       }
@@ -248,6 +257,9 @@ class ChatItemService {
       room.postChatItem(userId, answer)
     } catch (e) {
       if (e instanceof ArgumentError || e instanceof StateError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotFoundError) {
+        // userがroomに参加していなかった場合
         throw new ErrorWithCode(e.message, 400)
       } else {
         throw new ErrorWithCode(e.message)
