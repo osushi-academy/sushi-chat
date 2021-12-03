@@ -12,8 +12,9 @@ import Message from "../chatItem/Message"
 import { v4 as uuid } from "uuid"
 import {
   ArgumentError,
-  NotFoundError,
   ErrorWithCode,
+  NotAuthorizedError,
+  NotFoundError,
   StateError,
 } from "../../error"
 
@@ -445,11 +446,11 @@ class RoomClass {
     return this.adminInviteKey === adminInviteKey
   }
 
-  private assertIsAdmin(adminId: string) {
-    const isAdmin = this.adminIds.has(adminId)
+  private assertIsAdmin(userId: string) {
+    const isAdmin = this.adminIds.has(userId)
     if (!isAdmin) {
-      throw new Error(
-        `Admin(${adminId}) is not admin of this room(id:${this.id}).`,
+      throw new NotAuthorizedError(
+        `User(${userId}) is not admin of room(${this.id}).`,
       )
     }
   }

@@ -70,3 +70,10 @@ export class StateError extends Error {
     this.name = "StateError"
   }
 }
+
+export class NotAuthorizedError extends Error {
+  constructor(message?: string) {
+    super(message)
+    this.name = "NotAuthorizedError"
+  }
+}

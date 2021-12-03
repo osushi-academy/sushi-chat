@@ -9,7 +9,12 @@ import {
 } from "./commands"
 import IRoomFactory from "../../domain/room/IRoomFactory"
 import { RoomModel } from "sushi-chat-shared"
-import { ArgumentError, ErrorWithCode, StateError } from "../../error"
+import {
+  ArgumentError,
+  ErrorWithCode,
+  NotAuthorizedError,
+  StateError,
+} from "../../error"
 
 class RestRoomService {
   constructor(
@@ -42,6 +47,8 @@ class RestRoomService {
     } catch (e) {
       if (e instanceof StateError) {
         throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotAuthorizedError) {
+        throw new ErrorWithCode(e.message, 403)
       } else {
         throw new ErrorWithCode(e.message)
       }
@@ -78,6 +85,8 @@ class RestRoomService {
     } catch (e) {
       if (e instanceof StateError) {
         throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotAuthorizedError) {
+        throw new ErrorWithCode(e.message, 403)
       } else {
         throw new ErrorWithCode(e.message)
       }

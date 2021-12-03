@@ -12,7 +12,12 @@ import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
 import StampModelBuilder from "../stamp/StampModelBuilder"
 import IconId, { NewIconId } from "../../domain/user/IconId"
 import IAdminAuth from "../../domain/admin/IAdminAuth"
-import { ArgumentError, ErrorWithCode, StateError } from "../../error"
+import {
+  ArgumentError,
+  ErrorWithCode,
+  NotAuthorizedError,
+  StateError,
+} from "../../error"
 
 class UserService {
   constructor(
@@ -47,6 +52,8 @@ class UserService {
     } catch (e) {
       if (e instanceof StateError) {
         throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotAuthorizedError) {
+        throw new ErrorWithCode(e.message, 403)
       } else {
         throw new ErrorWithCode(e.message)
       }
