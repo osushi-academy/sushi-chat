@@ -186,7 +186,11 @@ class RoomClass {
    * @param adminInviteKey 送られてきた招待キー
    */
   public inviteAdmin = (adminId: string, adminInviteKey: string): void => {
-    this.assertSameAdminInviteKey(adminInviteKey)
+    const result = this.validateAdminInviteKey(adminInviteKey)
+    if (!result) {
+      throw new ArgumentError(`AdminInviteKey(${adminInviteKey}) is invalid.`)
+    }
+
     this.adminIds.add(adminId)
   }
 
@@ -436,13 +440,9 @@ class RoomClass {
     }
   }
 
-  private assertSameAdminInviteKey(adminInviteKey: string) {
-    const same = this.adminInviteKey === adminInviteKey
-    if (!same) {
-      throw new Error(
-        `[sushi-chat-server] adminInviteKey(${adminInviteKey}) does not matches.`,
-      )
-    }
+  private validateAdminInviteKey(adminInviteKey: string) {
+    // TODO: ハッシュ化して保存しておいて、受け取った値をハッシュ化して比較すべき
+    return this.adminInviteKey === adminInviteKey
   }
 
   private assertIsAdmin(adminId: string) {

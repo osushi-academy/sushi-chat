@@ -9,7 +9,7 @@ import {
 } from "./commands"
 import IRoomFactory from "../../domain/room/IRoomFactory"
 import { RoomModel } from "sushi-chat-shared"
-import { ErrorWithCode, StateError } from "../../error"
+import { ArgumentError, ErrorWithCode, StateError } from "../../error"
 
 class RestRoomService {
   constructor(
@@ -53,7 +53,16 @@ class RestRoomService {
   // Roomに管理者を紐付ける
   public async inviteAdmin(command: InviteRoomCommand): Promise<RoomClass> {
     const room = await this.find(command.id)
-    room.inviteAdmin(command.adminId, command.adminInviteKey)
+
+    try {
+      room.inviteAdmin(command.adminId, command.adminInviteKey)
+    } catch (e) {
+      if (e instanceof ArgumentError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else {
+        throw new ErrorWithCode(e.message)
+      }
+    }
 
     await this.roomRepository.update(room)
     console.log(`new admin invited to room: ${command.id}`)
