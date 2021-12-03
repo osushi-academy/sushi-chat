@@ -96,7 +96,7 @@ describe("AdminServiceのテスト", () => {
         ),
       )
 
-      const managedRooms = await adminService.getManagedRooms({
+      const managedRooms = await adminService.fetchManagedRooms({
         adminId: admin.id,
       })
       expect(managedRooms).toHaveLength(rooms.length)

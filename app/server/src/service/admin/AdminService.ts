@@ -4,6 +4,7 @@ import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
 import { getManagedRoomsCommand } from "./commands"
 import IAdminAuth from "../../domain/admin/IAdminAuth"
+import { ErrorWithCode } from "../../error"
 
 class AdminService {
   constructor(
@@ -26,37 +27,24 @@ class AdminService {
     return adminId
   }
 
-  // 管理しているRoomを取得する
-  public async getManagedRooms(
-    command: getManagedRoomsCommand,
-  ): Promise<RoomClass[]> {
-    const admin = await this.find(command.adminId)
-    const managedRoomsIds = admin.managedRoomsIds
-
-    // roomがnullの場合は無視する
-    const managedRooms = (
-      await Promise.all<RoomClass | null>(
-        managedRoomsIds.map(async (roomId) => {
-          const room = await this.findRoom(roomId)
-          return room
-        }),
-      )
-    ).filter((room): room is RoomClass => room != null)
-
-    return managedRooms
-  }
-
-  private async find(adminId: string): Promise<Admin> {
+  /**
+   * 指定されたAdminが管理するルーム一覧を返す
+   * @param adminId 管理者のユーザーID
+   * @return Promise<RoomClass[]> 管理者が管理しているルームの一覧
+   */
+  public async fetchManagedRooms({
+    adminId,
+  }: getManagedRoomsCommand): Promise<RoomClass[]> {
     const admin = await this.adminRepository.find(adminId)
     if (!admin) {
-      throw new Error(`[sushi-chat-server] Admin does not exists.`)
+      throw new ErrorWithCode(`Admin(${adminId}) was not found.`)
     }
-    return admin
-  }
 
-  private async findRoom(roomId: string): Promise<RoomClass | null> {
-    const room = await this.roomRepository.find(roomId)
-    return room
+    const managedRooms = await Promise.all(
+      admin.managedRoomsIds.map((roomId) => this.roomRepository.find(roomId)),
+    )
+
+    return managedRooms.filter((room): room is RoomClass => room !== null)
   }
 }
 

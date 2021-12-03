@@ -122,7 +122,7 @@ export const restSetup = (
   // 管理しているルーム一覧を取得する
   adminRouter.get("/room", async (req, res) => {
     try {
-      const rooms = await adminService.getManagedRooms({
+      const rooms = await adminService.fetchManagedRooms({
         adminId: req.body.adminId,
       })
 
