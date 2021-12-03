@@ -21,22 +21,6 @@ class RealtimeRoomService {
     private readonly chatItemDelivery: IChatItemDelivery,
   ) {}
 
-  /**
-   * idからroomを取得。存在しなければエラーを投げる
-   * @param roomId
-   * @param roomRepository
-   */
-  public static async findRoomOrThrow(
-    roomId: string,
-    roomRepository: IRoomRepository,
-  ) {
-    const room = await roomRepository.find(roomId)
-    if (!room) {
-      throw new Error(`Room(id:${roomId}) was not found.`)
-    }
-    return room
-  }
-
   /** Roomを終了して投稿できなくする。閲覧は可能。
    *  Adminのみ実行可能
    *  @param roomId
@@ -49,11 +33,12 @@ class RealtimeRoomService {
     if (!user.isAdmin) {
       throw new ErrorWithCode(`User(${userId}) is not admin.`, 403)
     }
+    const roomId = user.roomId
 
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId}) was not found.`)
+    }
 
     try {
       room.finishRoom()
@@ -86,13 +71,12 @@ class RealtimeRoomService {
     if (!user.isAdmin) {
       throw new ErrorWithCode(`User(${userId}) is not admin.`, 403)
     }
-
     const roomId = user.roomId
 
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
-      this.roomRepository,
-    )
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId}) was not found.`, 404)
+    }
 
     let messages: Message[]
     try {

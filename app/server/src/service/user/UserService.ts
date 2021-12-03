@@ -8,7 +8,6 @@ import User from "../../domain/user/User"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import IUserDelivery from "../../domain/user/IUserDelivery"
 import ChatItemModelBuilder from "../chatItem/ChatItemModelBuilder"
-import RealtimeRoomService from "../room/RealtimeRoomService"
 import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
 import StampModelBuilder from "../stamp/StampModelBuilder"
 import IconId, { NewIconId } from "../../domain/user/IconId"
@@ -34,10 +33,10 @@ class UserService {
     pinnedChatItemIds: (string | null)[]
     topicStates: { topicId: number; state: TopicState }[]
   }> {
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
-      this.roomRepository,
-    )
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId}) was not found.`, 404)
+    }
 
     const { adminId } = await this.adminAuth.verifyIdToken(idToken)
 
@@ -84,10 +83,10 @@ class UserService {
     pinnedChatItemIds: (string | null)[]
     topicStates: { topicId: number; state: TopicState }[]
   }> {
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
-      this.roomRepository,
-    )
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId}) was not found`, 404)
+    }
 
     // roomが始まっていないとここでエラー
     let activeUserCount: number
@@ -133,13 +132,15 @@ class UserService {
   public async leaveRoom({ userId }: UserLeaveCommand) {
     const user = await this.userRepository.find(userId)
     if (!user) {
-      // 操作不要
+      // ユーザーがまだ登録されていなければ、ルームに入る前に接続が切れたと判断して何も処理をしない
       return
     }
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const roomId = user.roomId
+
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId}) was not found.`)
+    }
 
     const activeUserCount = room.leaveUser(user.id)
 

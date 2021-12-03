@@ -14,7 +14,6 @@ import {
 import IUserRepository from "../../domain/user/IUserRepository"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import { ChatItemSenderType } from "sushi-chat-shared"
-import RealtimeRoomService from "../room/RealtimeRoomService"
 import User from "../../domain/user/User"
 import {
   ArgumentError,
@@ -50,10 +49,13 @@ class ChatItemService {
     userId,
   }: PostMessageCommand) {
     const { user, senderType } = await this.fetchUserData(userId, topicId)
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const roomId = user.roomId
+
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room${roomId}) was not found.`, 404)
+    }
+
     const quote = quoteId
       ? ((await this.chatItemRepository.find(quoteId)) as Message | Answer)
       : null
@@ -101,10 +103,13 @@ class ChatItemService {
     quoteId,
   }: PostReactionCommand) {
     const { user, senderType } = await this.fetchUserData(userId, topicId)
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const roomId = user.roomId
+
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room${roomId}) was not found.`, 404)
+    }
+
     const quote = (await this.chatItemRepository.find(quoteId)) as
       | Message
       | Question
@@ -153,10 +158,12 @@ class ChatItemService {
     quoteId,
   }: PostQuestionCommand) {
     const { user, senderType } = await this.fetchUserData(userId, topicId)
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const roomId = user.roomId
+
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room${roomId}) was not found.`, 404)
+    }
 
     const quote =
       quoteId == null
@@ -207,10 +214,13 @@ class ChatItemService {
     content,
   }: PostAnswerCommand) {
     const { user, senderType } = await this.fetchUserData(userId, topicId)
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const roomId = user.roomId
+
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId} was not found.`, 404)
+    }
+
     const quote = (await this.chatItemRepository.find(quoteId)) as Question
 
     let timestamp: number

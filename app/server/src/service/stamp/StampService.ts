@@ -3,7 +3,6 @@ import IStampRepository from "../../domain/stamp/IStampRepository"
 import { PostStampCommand } from "./commands"
 import IStampDelivery from "../../domain/stamp/IStampDelivery"
 import IUserRepository from "../../domain/user/IUserRepository"
-import RealtimeRoomService from "../room/RealtimeRoomService"
 import IStampFactory from "../../domain/stamp/IStampFactory"
 import { ErrorWithCode, NotFoundError, StateError } from "../../error"
 
@@ -23,10 +22,10 @@ class StampService {
     }
     const roomId = user.roomId
 
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
-      this.roomRepository,
-    )
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId}) was not found.`)
+    }
 
     let timestamp: number
     try {
