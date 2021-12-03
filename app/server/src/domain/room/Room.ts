@@ -400,7 +400,7 @@ class RoomClass {
   private findTopicOrThrow(topicId: number) {
     const topic = this._topics.find((topic) => topic.id === topicId)
     if (!topic) {
-      throw new NotFoundError(`Topic(id:${topicId}) was not found.`)
+      throw new NotFoundError(`Topic(${topicId}) was not found.`)
     }
     return topic
   }
@@ -414,8 +414,8 @@ class RoomClass {
   }
 
   private assertRoomIsOngoing() {
-    if (this._state != "ongoing") {
-      throw new StateError(`Room(id: ${this.id}) is not ongoing.`)
+    if (this._state !== "ongoing") {
+      throw new StateError(`Room(${this.id}) is not ongoing.`)
     }
   }
 
@@ -426,17 +426,15 @@ class RoomClass {
   }
 
   private assertRoomIsFinished() {
-    if (this._state != "finished") {
-      throw new Error(`Room(id: ${this.id}) is not finished.`)
+    if (this._state !== "finished") {
+      throw new StateError(`Room(${this.id}) is not finished.`)
     }
   }
 
   private assertUserExists(userId: string) {
     const exists = this.userIds.has(userId)
     if (!exists) {
-      throw new Error(
-        `[sushi-chat-server] User(id: ${userId}) does not exists.`,
-      )
+      throw new Error(`[sushi-chat-server] User(${userId}) does not exists.`)
     }
   }
 
@@ -453,7 +451,7 @@ class RoomClass {
     const isAdmin = this.adminIds.has(adminId)
     if (!isAdmin) {
       throw new Error(
-        `Admin(id:${adminId}) is not admin of this room(id:${this.id}).`,
+        `Admin(${adminId}) is not admin of this room(id:${this.id}).`,
       )
     }
   }
