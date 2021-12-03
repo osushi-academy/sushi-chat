@@ -4,14 +4,16 @@ import { Response } from "express"
 export const handleSocketIOError = (
   callback: (response: ErrorResponse) => void,
   event: ServerListenEventName,
-  error: ErrorWithCode,
+  error: Error,
 ) => {
   logError(event, error)
+
+  const code = error instanceof ErrorWithCode ? error.statusCode : 500
 
   callback({
     result: "error",
     error: {
-      code: `${error.statusCode}`,
+      code: code.toString(),
       message: error.message ?? "Unknown error",
     },
   })
@@ -35,7 +37,7 @@ export const handleRestError = (
   })
 }
 
-export const logError = (context: string, error: ErrorWithCode) => {
+export const logError = (context: string, error: Error) => {
   const date = new Date().toISOString()
   console.error(`[${date}]${context}:${error ?? "Unknown error."}`)
 }
