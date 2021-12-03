@@ -23,17 +23,6 @@ class UserService {
     private readonly adminAuth: IAdminAuth,
   ) {}
 
-  public static async findUserOrThrow(
-    id: string,
-    userRepository: IUserRepository,
-  ): Promise<User> {
-    const user = await userRepository.find(id)
-    if (!user) {
-      throw new Error(`User(id:${id}) was not found.`)
-    }
-    return user
-  }
-
   public async adminEnterRoom({
     roomId,
     userId,

@@ -4,9 +4,8 @@ import { PostStampCommand } from "./commands"
 import IStampDelivery from "../../domain/stamp/IStampDelivery"
 import IUserRepository from "../../domain/user/IUserRepository"
 import RealtimeRoomService from "../room/RealtimeRoomService"
-import UserService from "../user/UserService"
 import IStampFactory from "../../domain/stamp/IStampFactory"
-import { NotFoundError, ErrorWithCode, StateError } from "../../error"
+import { ErrorWithCode, NotFoundError, StateError } from "../../error"
 
 class StampService {
   constructor(
@@ -18,7 +17,10 @@ class StampService {
   ) {}
 
   public async post({ id, userId, topicId }: PostStampCommand) {
-    const user = await UserService.findUserOrThrow(userId, this.userRepository)
+    const user = await this.userRepository.find(userId)
+    if (!user) {
+      throw new ErrorWithCode(`User(${userId}) was not found.`)
+    }
     const roomId = user.roomId
 
     const room = await RealtimeRoomService.findRoomOrThrow(

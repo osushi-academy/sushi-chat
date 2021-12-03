@@ -3,13 +3,12 @@ import { ChangeTopicStateCommand, FinishRoomCommand } from "./commands"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import IRoomDelivery from "../../domain/room/IRoomDelivery"
 import IChatItemRepository from "../../domain/chatItem/IChatItemRepository"
-import UserService from "../user/UserService"
 import IUserRepository from "../../domain/user/IUserRepository"
 import Message from "../../domain/chatItem/Message"
 import {
   ArgumentError,
-  NotFoundError,
   ErrorWithCode,
+  NotFoundError,
   StateError,
 } from "../../error"
 
@@ -43,9 +42,12 @@ class RealtimeRoomService {
    *  @param roomId
    */
   public async finish({ userId }: FinishRoomCommand) {
-    const user = await UserService.findUserOrThrow(userId, this.userRepository)
+    const user = await this.userRepository.find(userId)
+    if (!user) {
+      throw new ErrorWithCode(`User(${userId}) was not found.`, 404)
+    }
     if (!user.isAdmin) {
-      throw new Error(`User(id:${userId}) is not admin.`)
+      throw new ErrorWithCode(`User(${userId}) is not admin.`, 403)
     }
 
     const room = await RealtimeRoomService.findRoomOrThrow(
@@ -77,9 +79,12 @@ class RealtimeRoomService {
     userId,
     state,
   }: ChangeTopicStateCommand) {
-    const user = await UserService.findUserOrThrow(userId, this.userRepository)
+    const user = await this.userRepository.find(userId)
+    if (!user) {
+      throw new ErrorWithCode(`User(${userId}) was not found.`, 404)
+    }
     if (!user.isAdmin) {
-      throw new Error(`User(id:${userId}) is not admin.`)
+      throw new ErrorWithCode(`User(${userId}) is not admin.`, 403)
     }
 
     const roomId = user.roomId
