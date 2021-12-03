@@ -14,13 +14,12 @@ import {
 import IUserRepository from "../../domain/user/IUserRepository"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import { ChatItemSenderType } from "sushi-chat-shared"
-import UserService from "../user/UserService"
 import RealtimeRoomService from "../room/RealtimeRoomService"
 import User from "../../domain/user/User"
 import {
   ArgumentError,
-  NotFoundError,
   ErrorWithCode,
+  NotFoundError,
   StateError,
 } from "../../error"
 
@@ -267,16 +266,16 @@ class ChatItemService {
     user: User
     senderType: ChatItemSenderType
   }> => {
-    const user = await UserService.findUserOrThrow(userId, this.userRepository)
-    const isAdmin = user.isAdmin
+    const user = await this.userRepository.find(userId)
+    if (!user) {
+      throw new ErrorWithCode(`User(${userId}) was not found.`, 404)
+    }
 
-    // const roomId = user.roomId
-    const senderType = isAdmin
+    const senderType = user.isAdmin
       ? "admin"
       : user.speakAt === topicId
       ? "speaker"
       : "general"
-    // const iconId = isAdmin ? User.ADMIN_ICON_ID : user.iconId
 
     return { user, senderType }
   }
