@@ -31,9 +31,6 @@ class RealtimeRoomService {
     if (!user) {
       throw new ErrorWithCode(`User(${userId}) was not found.`, 404)
     }
-    if (!user.isAdmin) {
-      throw new ErrorWithCode(`User(${userId}) is not admin.`, 403)
-    }
     const roomId = user.roomId
 
     const room = await this.roomRepository.find(roomId)
@@ -42,7 +39,7 @@ class RealtimeRoomService {
     }
 
     try {
-      room.finishRoom(userId)
+      room.finishRoom(user)
     } catch (e) {
       if (e instanceof StateError) {
         throw new ErrorWithCode(e.message, 400)

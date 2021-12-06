@@ -17,6 +17,7 @@ import {
   NotFoundError,
   StateError,
 } from "../../error"
+import User from "../user/User"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -123,10 +124,15 @@ class RoomClass {
 
   /**
    * ルームを終了する
-   *  @param adminId adminのID
+   *  @param admin 自分が管理しているRoomに参加しているadmin
    */
-  public finishRoom = (adminId: string) => {
-    this.assertIsAdmin(adminId)
+  public finishRoom = (admin: User) => {
+    // NOTE:
+    //  ユーザーとしてRoomに参加しているadminなので、this.adminIdsには含まれないことに注意。
+    //  なのでthis.assertIsAdmin()は使わない。
+    if (!admin.isAdmin) {
+      throw new NotAuthorizedError(`User(${admin.id}) is not admin.`)
+    }
     this.assertRoomIsOngoing()
 
     this._state = "finished"
@@ -202,8 +208,7 @@ class RoomClass {
    * @param adminId 確認したいadminのID
    */
   public isAdmin = (adminId: string): boolean => {
-    const isAdmin = this.adminIds.has(adminId)
-    return isAdmin
+    return this.adminIds.has(adminId)
   }
 
   /**

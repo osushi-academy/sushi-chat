@@ -13,7 +13,7 @@ class EphemeralRoomRepository implements IRoomRepository {
     this.rooms.push(room)
 
     // room作成者のmanagedRoomIdsを更新
-    const adminId = room.adminIds.values().next().value as string
+    const adminId = room.adminIds.values().next().value
     const admin = this.adminRepository.admins.find((a) => a.id === adminId)
     if (!admin) {
       throw new NotFoundError(`Admin(${adminId}) was not found.`)
