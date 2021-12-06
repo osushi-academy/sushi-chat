@@ -51,31 +51,63 @@
       </div>
       <div class="comment-footer">
         <div class="comment-timestamp">
-          {{ showTimestamp(message.timestamp) }}
+          {{
+            message.status === "loading"
+              ? "送信中"
+              : showTimestamp(message.timestamp)
+          }}
         </div>
         <div class="badges">
-          <button v-if="isAdminorSpeaker" class="pin-icon" @click="bookmark()">
-            <PinIcon
-              :size="18"
-              :class="{ selected: isBookMarked }"
-              class="icon"
-            ></PinIcon>
-          </button>
-          <button class="reply-icon" @click="clickReply">
-            <ReplyIcon :size="20" class="icon"></ReplyIcon>
-          </button>
-          <button
-            class="bg-good-icon"
-            :class="{ 'is-liked': isLikedChatItem }"
-            :style="{
-              backgroundColor: isLikedChatItem ? icon.colorCode : undefined,
-            }"
-            :disabled="isLikedChatItem"
-            :aria-pressed="isLikedChatItem"
-            @click="clickThumbUp"
-          >
-            <ThumbUpIcon :size="19" class="icon"></ThumbUpIcon>
-          </button>
+          <template v-if="message.status !== 'failure'">
+            <button
+              v-if="isAdminorSpeaker"
+              class="pin-icon"
+              :disabled="message.status !== 'success'"
+              @click="bookmark()"
+            >
+              <PinIcon
+                :size="18"
+                :class="{ selected: isBookMarked }"
+                class="icon"
+              ></PinIcon>
+            </button>
+            <button
+              class="reply-icon"
+              :disabled="message.status !== 'success'"
+              @click="clickReply"
+            >
+              <ReplyIcon :size="20" class="icon"></ReplyIcon>
+            </button>
+            <button
+              class="bg-good-icon"
+              :class="{ 'is-liked': isLikedChatItem }"
+              :style="{
+                backgroundColor: isLikedChatItem ? icon.colorCode : undefined,
+              }"
+              :disabled="isLikedChatItem || message.status !== 'success'"
+              :aria-pressed="isLikedChatItem"
+              @click="clickThumbUp"
+            >
+              <ThumbUpIcon :size="19" class="icon"></ThumbUpIcon>
+            </button>
+          </template>
+          <div v-else class="error-label">
+            <AlertCircleIcon
+              class="error-icon"
+              size="14"
+              aria-hidden="true"
+            ></AlertCircleIcon>
+            <p class="error-message">送信失敗</p>
+            <button
+              aria-label="リトライ"
+              title="リトライ"
+              class="retry-button"
+              :disabled="isRetrying"
+              @click="retrySend"
+            >
+              <RotateCcwIcon size="14" stroke-width="2.5px"></RotateCcwIcon>
+            </button>
+          </div>
         </div>
       </div>
     </article>
@@ -125,18 +157,22 @@
 <script lang="ts">
 import Vue from "vue"
 import type { PropOptions } from "vue"
-import { ChatItemModel } from "sushi-chat-shared"
-import { ArrowUpLeftIcon } from "vue-feather-icons"
+import {
+  ArrowUpLeftIcon,
+  AlertCircleIcon,
+  RotateCcwIcon,
+} from "vue-feather-icons"
 import PinIcon from "vue-material-design-icons/Pin.vue"
 import ReplyIcon from "vue-material-design-icons/Reply.vue"
 import ThumbUpIcon from "vue-material-design-icons/ThumbUp.vue"
 import UrlToLink from "@/components/UrlToLink.vue"
 import ICONS from "@/utils/icons"
-import { PinnedChatItemsStore, UserItemStore } from "~/store"
+import { ChatItemStore, PinnedChatItemsStore, UserItemStore } from "~/store"
+import { ChatItemWithStatus } from "~/store/chatItems"
 
 type DataType = {
   isLikedChatItem: boolean
-  // isBookMarked: boolean
+  isRetrying: boolean
 }
 
 export default Vue.extend({
@@ -147,12 +183,14 @@ export default Vue.extend({
     PinIcon,
     ReplyIcon,
     ThumbUpIcon,
+    AlertCircleIcon,
+    RotateCcwIcon,
   },
   props: {
     message: {
       type: Object,
       required: true,
-    } as PropOptions<ChatItemModel>,
+    } as PropOptions<ChatItemWithStatus>,
     topicId: {
       type: Number,
       required: true,
@@ -161,7 +199,7 @@ export default Vue.extend({
   data(): DataType {
     return {
       isLikedChatItem: false,
-      // isBookMarked: false,
+      isRetrying: false,
     }
   },
   computed: {
@@ -223,6 +261,14 @@ export default Vue.extend({
     },
     bookmark() {
       this.$emit("click-pin")
+    },
+    async retrySend() {
+      this.isRetrying = true
+      try {
+        await ChatItemStore.retrySendChatItem({ chatItem: this.message })
+      } finally {
+        this.isRetrying = false
+      }
     },
   },
 })
