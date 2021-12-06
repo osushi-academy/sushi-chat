@@ -18,13 +18,13 @@ class StampService {
   public async post({ id, userId, topicId }: PostStampCommand) {
     const user = await this.userRepository.find(userId)
     if (!user) {
-      throw new ErrorWithCode(`User(${userId}) was not found.`)
+      throw new ErrorWithCode(`User(${userId}) was not found.`, 404)
     }
     const roomId = user.roomId
 
     const room = await this.roomRepository.find(roomId)
     if (!room) {
-      throw new ErrorWithCode(`Room(${roomId}) was not found.`)
+      throw new ErrorWithCode(`Room(${roomId}) was not found.`, 404)
     }
 
     let timestamp: number
@@ -34,7 +34,7 @@ class StampService {
       if (e instanceof NotFoundError) {
         throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
 
@@ -54,7 +54,7 @@ class StampService {
         // userがroomに属していなかった場合
         throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
 

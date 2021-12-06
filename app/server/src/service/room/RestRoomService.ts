@@ -50,7 +50,7 @@ class RestRoomService {
       } else if (e instanceof NotAuthorizedError) {
         throw new ErrorWithCode(e.message, 403)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
 
@@ -67,7 +67,7 @@ class RestRoomService {
       if (e instanceof ArgumentError) {
         throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
 
@@ -88,7 +88,7 @@ class RestRoomService {
       } else if (e instanceof NotAuthorizedError) {
         throw new ErrorWithCode(e.message, 403)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
 

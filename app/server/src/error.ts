@@ -14,25 +14,21 @@ export const handleSocketIOError = (
     result: "error",
     error: {
       code: code.toString(),
-      message: error.message ?? "Unknown error",
+      message: error.message ?? "Unknown Error",
     },
   })
 }
 
-export const handleRestError = (
-  error: ErrorWithCode,
-  route: string,
-  res: Response,
-) => {
+export const handleRestError = (error: Error, route: string, res: Response) => {
   logError(route, error)
 
-  const code = error.statusCode
+  const code = error instanceof ErrorWithCode ? error.statusCode : 500
 
   res.status(code).send({
     result: "error",
     error: {
-      code: `${code}`,
-      message: error.message ?? "Unknown error.",
+      code: code.toString(),
+      message: error.message ?? "Unknown Error.",
     },
   })
 }
@@ -45,10 +41,10 @@ export const logError = (context: string, error: Error) => {
 export class ErrorWithCode extends Error {
   readonly statusCode: number
 
-  constructor(message: string, statusCode?: number) {
+  constructor(message: string, statusCode: number) {
     super(message)
     this.name = "ErrorWithCode"
-    this.statusCode = statusCode ?? 500
+    this.statusCode = statusCode
   }
 }
 

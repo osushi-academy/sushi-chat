@@ -56,7 +56,7 @@ class ChatItemService {
       if (e instanceof NotFoundError) {
         throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
     const message = new Message(
@@ -79,7 +79,7 @@ class ChatItemService {
         // userがroomに参加していなかった場合
         throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
     console.log(`message: ${content}(id: ${chatItemId})`)
@@ -114,7 +114,7 @@ class ChatItemService {
       if (e instanceof NotFoundError) {
         throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
     const reaction = new Reaction(
@@ -136,7 +136,7 @@ class ChatItemService {
         // userがroomに参加していなかった場合
         throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
     console.log(`reaction to ${quoteId}(id: ${chatItemId})`)
@@ -172,7 +172,7 @@ class ChatItemService {
       if (e instanceof NotFoundError) {
         throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
     const question = new Question(
@@ -195,7 +195,7 @@ class ChatItemService {
         // userがroomに参加していなかった場合
         throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
     console.log(`question: ${content}(id: ${chatItemId})`)
@@ -228,7 +228,7 @@ class ChatItemService {
       if (e instanceof NotFoundError) {
         throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
     const answer = new Answer(
@@ -251,7 +251,7 @@ class ChatItemService {
         // userがroomに参加していなかった場合
         throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
     console.log(`answer: ${content}(id: ${chatItemId})`)
@@ -263,7 +263,7 @@ class ChatItemService {
   public async pinChatItem({ chatItemId }: PinChatItemCommand) {
     const pinnedChatItem = await this.chatItemRepository.find(chatItemId)
     if (!pinnedChatItem) {
-      throw new ErrorWithCode(`ChatItem(${chatItemId}) was not found.`)
+      throw new ErrorWithCode(`ChatItem(${chatItemId}) was not found.`, 404)
     }
 
     this.chatItemDelivery.pinChatItem(pinnedChatItem)

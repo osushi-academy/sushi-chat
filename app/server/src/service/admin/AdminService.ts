@@ -37,7 +37,7 @@ class AdminService {
   }: getManagedRoomsCommand): Promise<RoomClass[]> {
     const admin = await this.adminRepository.find(adminId)
     if (!admin) {
-      throw new ErrorWithCode(`Admin(${adminId}) was not found.`)
+      throw new ErrorWithCode(`Admin(${adminId}) was not found.`, 404)
     }
 
     const managedRooms = await Promise.all(

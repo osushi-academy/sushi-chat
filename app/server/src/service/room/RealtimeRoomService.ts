@@ -38,7 +38,7 @@ class RealtimeRoomService {
 
     const room = await this.roomRepository.find(roomId)
     if (!room) {
-      throw new ErrorWithCode(`Room(${roomId}) was not found.`)
+      throw new ErrorWithCode(`Room(${roomId}) was not found.`, 404)
     }
 
     try {
@@ -49,7 +49,7 @@ class RealtimeRoomService {
       } else if (e instanceof NotAuthorizedError) {
         throw new ErrorWithCode(e.message, 403)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
 
@@ -90,7 +90,7 @@ class RealtimeRoomService {
       } else if (e instanceof ArgumentError || e instanceof StateError) {
         throw new ErrorWithCode(e.message, 400)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
 

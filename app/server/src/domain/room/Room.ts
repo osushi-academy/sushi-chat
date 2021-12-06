@@ -379,7 +379,7 @@ class RoomClass {
       if (e instanceof NotFoundError) {
         throw new ErrorWithCode(e.message, 404)
       } else {
-        throw new ErrorWithCode(e.message)
+        throw new Error(e.message)
       }
     }
 
