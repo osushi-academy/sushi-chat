@@ -76,7 +76,7 @@ import Vue from "vue"
 import type { PropOptions } from "vue"
 import { ChatItemModel, MAX_MESSAGE_LENGTH } from "sushi-chat-shared"
 import { XIcon, SendIcon } from "vue-feather-icons"
-import unicodeLength from "unicode-length"
+import split from "graphemesplit"
 import KeyInstruction from "@/components/KeyInstruction.vue"
 import { UserItemStore } from "~/store"
 
@@ -131,7 +131,7 @@ export default Vue.extend({
       return UserItemStore.userItems.speakerId === this.topicId
     },
     messageLangth(): number {
-      return unicodeLength.get(this.text)
+      return split(this.text).length
     },
   },
   methods: {
@@ -142,7 +142,7 @@ export default Vue.extend({
       }
 
       // 文字数制限
-      if (unicodeLength.get(this.text) > this.maxMessageLength) {
+      if (this.messageLangth > this.maxMessageLength) {
         return
       }
 
