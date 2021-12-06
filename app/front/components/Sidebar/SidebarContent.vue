@@ -4,7 +4,7 @@
       <button class="menu-button" @click="clickHumberger">
         <menu-icon size="1x"></menu-icon>
       </button>
-      <div class="title">{{ title }}</div>
+      <div class="title">{{ room.title }}</div>
     </div>
     <div class="event-logo">
       <img
@@ -24,7 +24,7 @@
     </div>
     <div class="event-description">
       <p>
-        {{ description }}
+        {{ room.description }}
       </p>
     </div>
     <div class="channel-section">
@@ -144,8 +144,10 @@
 </template>
 <script lang="ts">
 import Vue from "vue"
+import { RoomModel } from "sushi-chat-shared"
 import type { PropOptions } from "vue"
 import { MenuIcon } from "vue-feather-icons"
+import { RoomStore } from "~/store"
 
 type DataType = {
   openSessions: boolean
@@ -158,14 +160,6 @@ export default Vue.extend({
     MenuIcon,
   },
   props: {
-    title: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
     topics: {
       type: Array,
       required: true,
@@ -195,6 +189,9 @@ export default Vue.extend({
     }
   },
   computed: {
+    room(): RoomModel {
+      return RoomStore.room
+    },
     selectedTopic(): { id: number; title: string } | undefined {
       const selectedTopicId = this.selectedTopicId
       return this.topics.find(({ id }) => id === selectedTopicId)
