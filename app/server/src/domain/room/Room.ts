@@ -15,7 +15,7 @@ import SystemUser from "../user/SystemUser"
 import UserFactory from "../../infra/factory/UserFactory"
 import Question from "../chatItem/Question"
 import Answer from "../chatItem/Answer"
-import unicodeLength from "unicode-length"
+import split from "graphemesplit"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -43,18 +43,18 @@ class RoomClass {
     // バリデーション
     // トピックタイトル
     topics.forEach((topic) => {
-      if (unicodeLength.get(topic.title) > MAX_TOPIC_TITLE_LENGTH) {
+      if (split(topic.title).length > MAX_TOPIC_TITLE_LENGTH) {
         throw new Error(
           `Topic title length(${topic.title}, id ${topic.id}) is too long.`,
         )
       }
     })
     // ルームタイトル
-    if (unicodeLength.get(this.title) > MAX_ROOM_TITLE_LENGTH) {
+    if (split(this.title).length > MAX_ROOM_TITLE_LENGTH) {
       throw new Error(`Room title length(${this.title}}) is too long.`)
     }
     // ルーム説明
-    if (unicodeLength.get(this.description) > MAX_ROOM_DESCRIPTION_LENGTH) {
+    if (split(this.description).length > MAX_ROOM_DESCRIPTION_LENGTH) {
       throw new Error(
         `Room description length(${this.description}}) is too long.`,
       )

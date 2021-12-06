@@ -2,7 +2,7 @@ import Answer from "./Answer"
 import ChatItem from "./ChatItem"
 import { ChatItemSenderType, MAX_MESSAGE_LENGTH } from "sushi-chat-shared"
 import User from "../user/User"
-import unicodeLength from "unicode-length"
+import split from "graphemesplit"
 
 class Message extends ChatItem {
   constructor(
@@ -19,7 +19,7 @@ class Message extends ChatItem {
     super(id, topicId, user, senderType, createdAt, timestamp, isPinned)
     // バリデーション
     // ルームタイトル
-    if (unicodeLength.get(this.content) > MAX_MESSAGE_LENGTH) {
+    if (split(this.content).length > MAX_MESSAGE_LENGTH) {
       throw new Error(`Message content length(${this.content}}) is too long.`)
     }
   }

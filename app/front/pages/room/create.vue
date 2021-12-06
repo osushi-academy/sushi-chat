@@ -117,7 +117,7 @@ import {
   MAX_ROOM_TITLE_LENGTH,
   MAX_TOPIC_TITLE_LENGTH,
 } from "sushi-chat-shared"
-import unicodeLength from "unicode-length"
+import split from "graphemesplit"
 import AddSessionsModal from "@/components/Home/AddSessionsModal.vue"
 import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue"
 
@@ -206,7 +206,7 @@ export default Vue.extend({
         // 重複しているトピックはカウントしない
         if (set.has(topicTitle)) continue
         // 長さ制限を超えている
-        if (unicodeLength.get(topicTitle) > MAX_TOPIC_TITLE_LENGTH) {
+        if (split(topicTitle).length > MAX_TOPIC_TITLE_LENGTH) {
           alert("セッション名は" + MAX_TOPIC_TITLE_LENGTH + "文字までです。")
           return
         }
@@ -240,7 +240,7 @@ export default Vue.extend({
           throw new Error("入力が不足しています")
         }
         // room名が長すぎたらエラー
-        if (unicodeLength.get(this.roomName) > MAX_ROOM_TITLE_LENGTH) {
+        if (split(this.roomName).length > MAX_ROOM_TITLE_LENGTH) {
           throw new Error(
             "イベント名は" + MAX_ROOM_TITLE_LENGTH + "文字までです。",
           )
@@ -248,7 +248,7 @@ export default Vue.extend({
         // セッション名が長すぎたらエラー
         for (const topic of sessions) {
           // 長さ制限を超えている
-          if (unicodeLength.get(topic.title) > MAX_TOPIC_TITLE_LENGTH) {
+          if (split(topic.title).length > MAX_TOPIC_TITLE_LENGTH) {
             throw new Error(
               "セッション名は" + MAX_TOPIC_TITLE_LENGTH + "文字までです。",
             )
