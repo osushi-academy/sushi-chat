@@ -19,9 +19,6 @@ class StampRepository implements IStampRepository {
         stamp.userId,
         stamp.timestamp,
       ])
-    } catch (e) {
-      StampRepository.logError(e, "store()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -48,9 +45,6 @@ class StampRepository implements IStampRepository {
     try {
       const res = await pgClient.query(query, values)
       return res.rows[0].count as number
-    } catch (e) {
-      StampRepository.logError(e, "count()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -73,20 +67,9 @@ class StampRepository implements IStampRepository {
           r.timestamp,
         )
       })
-    } catch (e) {
-      StampRepository.logError(e, "selectByRoomId()")
-      throw e
     } finally {
       pgClient.release()
     }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static logError(error: any, context: string) {
-    const datetime = new Date().toISOString()
-    console.error(
-      `[${datetime}] StampRepository.${context}: ${error ?? "Unknown error."}`,
-    )
   }
 }
 
