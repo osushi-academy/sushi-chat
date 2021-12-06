@@ -124,15 +124,8 @@ class RoomClass {
 
   /**
    * ルームを終了する
-   *  @param admin 自分が管理しているRoomに参加しているadmin
    */
-  public finishRoom = (admin: User) => {
-    // NOTE:
-    //  ユーザーとしてRoomに参加しているadminなので、this.adminIdsには含まれないことに注意。
-    //  なのでthis.assertIsAdmin()は使わない。
-    if (!admin.isAdmin) {
-      throw new NotAuthorizedError(`User(${admin.id}) is not admin.`)
-    }
+  public finishRoom = () => {
     this.assertRoomIsOngoing()
 
     this._state = "finished"
@@ -213,6 +206,7 @@ class RoomClass {
 
   /**
    * トピックの状態を変更する
+   * admin(Roomに参加している)のみ実行可能
    * @param topicId 状態が更新されるトピックのID
    * @param state 変更後のトピックの状態
    */
