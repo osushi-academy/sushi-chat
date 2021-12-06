@@ -142,13 +142,10 @@ export default Vue.extend({
     async checkStatusAndAction() {
       // ルーム情報取得・status更新
       const res = await this.$apiClient
-        .get(
-          {
-            pathname: "/room/:id",
-            params: { id: this.room.id },
-          },
-          {},
-        )
+        .get({
+          pathname: "/room/:id",
+          params: { id: this.room.id },
+        })
         .catch((e) => {
           throw new Error(e)
         })
@@ -321,13 +318,10 @@ export default Vue.extend({
     startRoom() {
       // TODO: ルームの状態をindex、またはvuexでもつ
       this.$apiClient
-        .put(
-          {
-            pathname: "/room/:id/start",
-            params: { id: this.room.id },
-          },
-          {},
-        )
+        .put({
+          pathname: "/room/:id/start",
+          params: { id: this.room.id },
+        })
         .then(() => {
           this.adminEnterRoom()
           this.roomState = "ongoing"
