@@ -29,7 +29,7 @@
     </div>
     <div class="channel-section">
       <ul>
-        <li class="channel">
+        <!-- <li class="channel">
           <button
             class="channel-content"
             :class="{ selected: selectedTopicId === 0 }"
@@ -37,7 +37,7 @@
           >
             <span class="hashtag">#</span>雑談ラウンジ
           </button>
-        </li>
+        </li> -->
         <li class="channel">
           <button
             class="channel-content has-subchannel"
@@ -144,10 +144,10 @@
 </template>
 <script lang="ts">
 import Vue from "vue"
-import { RoomModel } from "sushi-chat-shared"
+import { RoomModel, Topic } from "sushi-chat-shared"
 import type { PropOptions } from "vue"
 import { MenuIcon } from "vue-feather-icons"
-import { RoomStore } from "~/store"
+import { RoomStore, TopicStore } from "~/store"
 
 type DataType = {
   openSessions: boolean
@@ -160,10 +160,6 @@ export default Vue.extend({
     MenuIcon,
   },
   props: {
-    topics: {
-      type: Array,
-      required: true,
-    } as PropOptions<{ id: number; title: string }[]>, // NOTE: ここの受け渡しの形は暫定
     showHumberger: {
       type: Boolean,
       default: false,
@@ -185,12 +181,15 @@ export default Vue.extend({
   data(): DataType {
     return {
       openSessions: true,
-      selectedTopicId: 0, // TODO: Vuexに移す
+      selectedTopicId: 0,
     }
   },
   computed: {
     room(): RoomModel {
       return RoomStore.room
+    },
+    topics(): Topic[] {
+      return TopicStore.topics
     },
     selectedTopic(): { id: number; title: string } | undefined {
       const selectedTopicId = this.selectedTopicId

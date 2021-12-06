@@ -1,10 +1,7 @@
 <template>
   <div class="topic-header">
     <div class="main-line">
-      <SidebarDrawer
-        :title="title"
-        :description="'2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。'"
-      />
+      <SidebarDrawer />
       <div class="index">
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>

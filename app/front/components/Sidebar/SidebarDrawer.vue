@@ -5,7 +5,6 @@
         v-if="showSidebar"
         :image-url="imageUrl"
         :show-humberger="true"
-        :topics="topics"
         :class="'sidebar-content'"
         :click-humberger="() => (showSidebar = !showSidebar)"
       ></SidebarContent>
@@ -20,9 +19,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { MenuIcon } from "vue-feather-icons"
-import { Topic } from "sushi-chat-shared"
 import SidebarContent from "@/components/Sidebar/SidebarContent.vue"
-import { TopicStore } from "~/store"
 
 type DataType = {
   showSidebar: boolean
@@ -45,12 +42,5 @@ export default Vue.extend({
       showSidebar: true,
     }
   },
-  computed: {
-    topics(): Topic[] {
-      // 各トピックの情報
-      return TopicStore.topics
-    },
-  },
-  methods: {},
 })
 </script>
