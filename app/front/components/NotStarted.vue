@@ -2,10 +2,13 @@
   <div class="sushi-select not-started">
     <div class="sushi-select__bg" />
     <div class="not-started__title">suhi-chatへようこそ</div>
-    <div v-if="title != '' || description != ''" class="not-started__textbox">
-      <div class="not-started__textbox--title">{{ title }}</div>
+    <div
+      v-if="room.title != '' || room.description != ''"
+      class="not-started__textbox"
+    >
+      <div class="not-started__textbox--title">{{ room.title }}</div>
       <div>
-        {{ description }}
+        {{ room.description }}
       </div>
     </div>
     <div class="not-started__warning">
@@ -19,17 +22,14 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { RoomModel } from "sushi-chat-shared"
+import { RoomStore } from "~/store"
 
 export default Vue.extend({
   name: "NotStarted",
-  props: {
-    title: {
-      type: String,
-      default: "",
-    },
-    description: {
-      type: String,
-      default: "",
+  computed: {
+    room(): RoomModel {
+      return RoomStore.room
     },
   },
   methods: {

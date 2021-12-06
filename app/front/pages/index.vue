@@ -3,26 +3,17 @@
     <main>
       <SelectIconModal
         v-if="isRoomStarted && !isAdmin && !isRoomEnter"
-        :title="room.title"
-        :description="room.description"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
       <NotStarted
         v-if="!isRoomStarted && !isAdmin"
-        :title="room.title"
-        :description="room.description"
         @check-status-and-action="checkStatusAndAction"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
       <AdminTool
         v-if="showAdminTool"
-        :room="room"
-        :room-id="room.id"
-        :title="room.title"
-        :room-state="roomState"
-        :admin-invite-key="room.adminInviteKey"
         @start-room="startRoom"
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
@@ -51,7 +42,6 @@ import {
   Topic,
   TopicState,
   RoomModel,
-  RoomState,
   StampModel,
   PubUserCountParam,
   PubPinnedMessageParam,
@@ -67,6 +57,7 @@ import {
   TopicStore,
   TopicStateItemStore,
   PinnedChatItemsStore,
+  RoomStore,
 } from "~/store"
 
 // Data型
@@ -76,9 +67,7 @@ type DataType = {
   isDrawer: boolean
   // ルーム情報
   activeUserCount: number
-  room: RoomModel
   isRoomEnter: boolean
-  roomState: RoomState
 }
 Vue.use(VModal)
 export default Vue.extend({
@@ -95,12 +84,13 @@ export default Vue.extend({
       isDrawer: false,
       // ルーム情報
       activeUserCount: 0,
-      room: {} as RoomModel,
       isRoomEnter: false,
-      roomState: "not-started",
     }
   },
   computed: {
+    room(): RoomModel {
+      return RoomStore.room
+    },
     isRoomStarted(): boolean {
       return this.room.state === "ongoing"
     },
@@ -121,7 +111,7 @@ export default Vue.extend({
   },
   created() {
     // roomId取得
-    this.room.id = this.$route.query.roomId as string
+    RoomStore.setId(this.$route.query.roomId as string)
     if (this.$route.query.user === "admin") {
       UserItemStore.changeIsAdmin(true)
     }
@@ -156,8 +146,7 @@ export default Vue.extend({
       if (res.result === "error") {
         throw new Error(res.error.message)
       }
-      this.room = res.data
-      this.roomState = res.data.state
+      RoomStore.set(res.data)
       TopicStore.set(res.data.topics)
 
       // 開催中の時
@@ -311,7 +300,7 @@ export default Vue.extend({
       this.$socket().emit("ADMIN_FINISH_ROOM", {}, (res) => {
         console.log(res)
       })
-      this.roomState = "finished"
+      RoomStore.setState("finished")
     },
     // アイコン選択
     clickIcon(index: number) {
@@ -330,7 +319,7 @@ export default Vue.extend({
         )
         .then(() => {
           this.adminEnterRoom()
-          this.roomState = "ongoing"
+          RoomStore.setState("ongoing")
         })
         .catch((e) => {
           console.error(e)

@@ -3,8 +3,8 @@
     <transition name="sidebar-drawer-transition">
       <SidebarContent
         v-if="showSidebar"
-        :title="title"
-        :description="description"
+        :title="room.title"
+        :description="room.description"
         :image-url="imageUrl"
         :show-humberger="true"
         :topics="topics"
@@ -22,9 +22,9 @@
 <script lang="ts">
 import Vue from "vue"
 import { MenuIcon } from "vue-feather-icons"
-import { Topic } from "sushi-chat-shared"
+import { RoomModel, Topic } from "sushi-chat-shared"
 import SidebarContent from "@/components/Sidebar/SidebarContent.vue"
-import { TopicStore } from "~/store"
+import { TopicStore, RoomStore } from "~/store"
 
 type DataType = {
   showSidebar: boolean
@@ -37,14 +37,6 @@ export default Vue.extend({
     MenuIcon,
   },
   props: {
-    title: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
     imageUrl: {
       type: String,
       default: undefined,
@@ -56,6 +48,9 @@ export default Vue.extend({
     }
   },
   computed: {
+    room(): RoomModel {
+      return RoomStore.room
+    },
     topics(): Topic[] {
       // 各トピックの情報
       return TopicStore.topics

@@ -9,6 +9,7 @@ import Topics from "~/store/topics"
 import TopicStateItems from "~/store/topicStateItems"
 import Auth from "~/store/auth"
 import PinnedChatItems from "~/store/pinnedChatItems"
+import Room from "~/store/room"
 
 let ChatItemStore: ChatItems
 let DeviceStore: Device
@@ -18,6 +19,7 @@ let TopicStore: Topics
 let TopicStateItemStore: TopicStateItems
 let AuthStore: Auth
 let PinnedChatItemsStore: PinnedChatItems
+let RoomStore: Room
 
 function initialiseStores(store: Store<any>): void {
   ChatItemStore = getModule(ChatItems, store)
@@ -28,6 +30,7 @@ function initialiseStores(store: Store<any>): void {
   TopicStateItemStore = getModule(TopicStateItems, store)
   AuthStore = getModule(Auth, store)
   PinnedChatItemsStore = getModule(PinnedChatItems,store)
+  RoomStore = getModule(Room, store)
 }
 
 export {
@@ -39,5 +42,6 @@ export {
   TopicStore,
   TopicStateItemStore,
   AuthStore,
-  PinnedChatItemsStore
+  PinnedChatItemsStore,
+  RoomStore
 }

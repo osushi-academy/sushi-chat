@@ -1,11 +1,10 @@
 <template>
   <div class="topic-header">
     <div class="main-line">
-      <!-- TODO:横スクロールから1セッションへの切り替えが完了するまで非表示 -->
-      <!-- <SidebarDrawer
-        :title="'技育CAMPハッカソン vol.5'"
+      <SidebarDrawer
+        :title="title"
         :description="'2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。'"
-      /> -->
+      />
       <div class="index">
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>
@@ -74,6 +73,7 @@ import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
 import { DownloadIcon, MoreVerticalIcon, XCircleIcon } from "vue-feather-icons"
 import PinIcon from "vue-material-design-icons/Pin.vue"
+import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
 import { PinnedChatItemsStore, UserItemStore } from "~/store"
 
 type DataType = {
@@ -84,13 +84,21 @@ type DataType = {
 export default Vue.extend({
   name: "TopicHeader",
   components: {
-    // SidebarDrawer,
+    SidebarDrawer,
     XCircleIcon,
     PinIcon,
     MoreVerticalIcon,
     DownloadIcon,
   },
   props: {
+    roomTitle: {
+      type: String,
+      required: true,
+    },
+    roomDescription: {
+      type: String,
+      default: "",
+    },
     title: {
       type: String,
       required: true,
