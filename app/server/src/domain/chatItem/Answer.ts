@@ -22,7 +22,9 @@ class Answer extends ChatItem {
     // バリデーション
     // ルームタイトル
     if (split(this.content).length > MAX_MESSAGE_LENGTH) {
-      throw new Error(`Answer content length(${this.content}}) is too long.`)
+      throw new Error(
+        `Answer(id: ${this.id}) content length(${this.content}}) is too long.`,
+      )
     }
   }
 }
