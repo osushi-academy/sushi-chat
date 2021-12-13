@@ -23,6 +23,14 @@ describe("ChatItemServiceのテスト", () => {
   let roomId: string
   let target: Message
 
+  // 300文字
+  const longSafeContent =
+    "親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事がある。なぜそんな無闇をしたと聞く人があるかも知れぬ。別段深い理由でもない。新築の二階から首を出していたら、同級生の一人が冗談に、いくら威張っても、そこから飛び降りる事は出来まい。弱虫やーい。と囃したからである。小使に負ぶさって帰って来た時、おやじが大きな眼をして二階ぐらいから飛び降りて腰を抜かす奴があるかと云ったから、この次は抜かさずに飛んで見せますと答えた。（青空文庫より）親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした🤷‍♂️"
+
+  // 301文字
+  const longErrorContent =
+    "親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事がある。なぜそんな無闇をしたと聞く人があるかも知れぬ。別段深い理由でもない。新築の二階から首を出していたら、同級生の一人が冗談に、いくら威張っても、そこから飛び降りる事は出来まい。弱虫やーい。と囃したからである。小使に負ぶさって帰って来た時、おやじが大きな眼をして二階ぐらいから飛び降りて腰を抜かす奴があるかと云ったから、この次は抜かさずに飛んで見せますと答えた。（青空文庫より）親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事🤷‍♂️"
+
   let chatItemRepository: IChatItemRepository
   let chatItemDeliverySubscriber: {
     type: "post" | "pin"
@@ -96,7 +104,7 @@ describe("ChatItemServiceのテスト", () => {
         chatItemId: messageId,
         userId,
         topicId: 1,
-        content: "テストメッセージ",
+        content: longSafeContent,
         quoteId: null,
       })
 
@@ -111,7 +119,7 @@ describe("ChatItemServiceのテスト", () => {
       expect(message.senderType).toBe<ChatItemSenderType>("general")
       expect(message.timestamp).not.toBeNull()
       expect(message.isPinned).toBeFalsy()
-      expect(message.content).toBe("テストメッセージ")
+      expect(message.content).toBe(longSafeContent)
       expect(message.quote).toBeNull()
 
       const delivered = chatItemDeliverySubscriber[0]
@@ -123,17 +131,17 @@ describe("ChatItemServiceのテスト", () => {
       expect(deliveredMessage.senderType).toBe<ChatItemSenderType>("general")
       expect(deliveredMessage.timestamp).not.toBeNull()
       expect(deliveredMessage.isPinned).toBeFalsy()
-      expect(deliveredMessage.content).toBe("テストメッセージ")
+      expect(deliveredMessage.content).toBe(longSafeContent)
       expect(deliveredMessage.quote).toBeNull()
     })
 
-    test("正常系_quoteがあるmessageを投稿", async () => {
+    test("正常系_絵文字込み300文字でquoteがあるmessageを投稿", async () => {
       const messageId = uuid()
       await chatItemService.postMessage({
         chatItemId: messageId,
         userId,
         topicId: 1,
-        content: "テストメッセージ",
+        content: longSafeContent,
         quoteId: target.id,
       })
 
@@ -148,7 +156,7 @@ describe("ChatItemServiceのテスト", () => {
       expect(message.senderType).toBe<ChatItemSenderType>("general")
       expect(message.timestamp).not.toBeNull()
       expect(message.isPinned).toBeFalsy()
-      expect(message.content).toBe("テストメッセージ")
+      expect(message.content).toBe(longSafeContent)
       expect(message.quote?.id).toBe(target.id)
 
       const delivered = chatItemDeliverySubscriber[0]
@@ -160,19 +168,18 @@ describe("ChatItemServiceのテスト", () => {
       expect(deliveredMessage.senderType).toBe<ChatItemSenderType>("general")
       expect(deliveredMessage.timestamp).not.toBeNull()
       expect(deliveredMessage.isPinned).toBeFalsy()
-      expect(deliveredMessage.content).toBe("テストメッセージ")
+      expect(deliveredMessage.content).toBe(longSafeContent)
       expect(deliveredMessage.quote?.id).toBe(target.id)
     })
 
-    test("異常系_300文字を超えるmessageを投稿", async () => {
+    test("異常系_絵文字込みで300文字を超えるmessageを投稿", async () => {
       const messageId = uuid()
       await expect(() =>
         chatItemService.postMessage({
           chatItemId: messageId,
           userId,
           topicId: 1,
-          content:
-            "親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事がある。なぜそんな無闇をしたと聞く人があるかも知れぬ。別段深い理由でもない。新築の二階から首を出していたら、同級生の一人が冗談に、いくら威張っても、そこから飛び降りる事は出来まい。弱虫やーい。と囃したからである。小使に負ぶさって帰って来た時、おやじが大きな眼をして二階ぐらいから飛び降りて腰を抜かす奴があるかと云ったから、この次は抜かさずに飛んで見せますと答えた。（青空文庫より）親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事が",
+          content: longErrorContent,
           quoteId: null,
         }),
       ).rejects.toThrowError()
@@ -216,11 +223,11 @@ describe("ChatItemServiceのテスト", () => {
   })
 
   describe("postQuestionのテスト", () => {
-    test("正常系_questionを投稿", async () => {
+    test("正常系_絵文字込み300文字のquestionを投稿", async () => {
       const questionId = uuid()
       await chatItemService.postQuestion({
         chatItemId: questionId,
-        content: "テストクエスチョン",
+        content: longSafeContent,
         userId,
         topicId: 1,
         quoteId: null,
@@ -237,7 +244,7 @@ describe("ChatItemServiceのテスト", () => {
       expect(question.senderType).toBe<ChatItemSenderType>("general")
       expect(question.timestamp).not.toBeNull()
       expect(question.isPinned).toBeFalsy()
-      expect(question.content).toBe("テストクエスチョン")
+      expect(question.content).toBe(longSafeContent)
 
       const delivered = chatItemDeliverySubscriber[0]
       expect(delivered.type).toBe("post")
@@ -248,7 +255,7 @@ describe("ChatItemServiceのテスト", () => {
       expect(deliveredQuestion.senderType).toBe<ChatItemSenderType>("general")
       expect(deliveredQuestion.timestamp).not.toBeNull()
       expect(deliveredQuestion.isPinned).toBeFalsy()
-      expect(deliveredQuestion.content).toBe("テストクエスチョン")
+      expect(deliveredQuestion.content).toBe(longSafeContent)
     })
 
     test("異常系_300文字を超えるquestionを投稿", async () => {
@@ -258,8 +265,7 @@ describe("ChatItemServiceのテスト", () => {
           chatItemId: messageId,
           userId,
           topicId: 1,
-          content:
-            "親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事がある。なぜそんな無闇をしたと聞く人があるかも知れぬ。別段深い理由でもない。新築の二階から首を出していたら、同級生の一人が冗談に、いくら威張っても、そこから飛び降りる事は出来まい。弱虫やーい。と囃したからである。小使に負ぶさって帰って来た時、おやじが大きな眼をして二階ぐらいから飛び降りて腰を抜かす奴があるかと云ったから、この次は抜かさずに飛んで見せますと答えた。（青空文庫より）親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事が",
+          content: longErrorContent,
           quoteId: null,
         }),
       ).rejects.toThrowError()
@@ -267,13 +273,13 @@ describe("ChatItemServiceのテスト", () => {
   })
 
   describe("postAnswerのテスト", () => {
-    test("正常系_anserが投稿される", async () => {
+    test("正常系_絵文字込み300文字のanserが投稿される", async () => {
       const answerId = uuid()
       await chatItemService.postMessage({
         chatItemId: answerId,
         userId,
         topicId: 1,
-        content: "テストアンサー",
+        content: longSafeContent,
         quoteId: target.id,
       })
 
@@ -288,7 +294,7 @@ describe("ChatItemServiceのテスト", () => {
       expect(answer.senderType).toBe<ChatItemSenderType>("general")
       expect(answer.timestamp).not.toBeNull()
       expect(answer.isPinned).toBeFalsy()
-      expect(answer.content).toBe("テストアンサー")
+      expect(answer.content).toBe(longSafeContent)
       expect((answer.quote as Question).id).toBe(target.id)
 
       const delivered = chatItemDeliverySubscriber[0]
@@ -300,7 +306,7 @@ describe("ChatItemServiceのテスト", () => {
       expect(deliveredAnswer.senderType).toBe<ChatItemSenderType>("general")
       expect(deliveredAnswer.timestamp).not.toBeNull()
       expect(deliveredAnswer.isPinned).toBeFalsy()
-      expect(deliveredAnswer.content).toBe("テストアンサー")
+      expect(deliveredAnswer.content).toBe(longSafeContent)
       expect((deliveredAnswer.quote as Question).id).toBe(target.id)
     })
 
@@ -311,8 +317,7 @@ describe("ChatItemServiceのテスト", () => {
           chatItemId: messageId,
           userId,
           topicId: 1,
-          content:
-            "親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事がある。なぜそんな無闇をしたと聞く人があるかも知れぬ。別段深い理由でもない。新築の二階から首を出していたら、同級生の一人が冗談に、いくら威張っても、そこから飛び降りる事は出来まい。弱虫やーい。と囃したからである。小使に負ぶさって帰って来た時、おやじが大きな眼をして二階ぐらいから飛び降りて腰を抜かす奴があるかと云ったから、この次は抜かさずに飛んで見せますと答えた。（青空文庫より）親譲りの無鉄砲で小供の時から損ばかりしている。小学校に居る時分学校の二階から飛び降りて一週間ほど腰を抜かした事が",
+          content: longErrorContent,
           quoteId: target.id,
         }),
       ).rejects.toThrowError()
