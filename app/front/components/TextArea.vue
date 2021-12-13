@@ -39,9 +39,9 @@
     <div class="error-message">
       <span
         class="text-counter"
-        :class="{ over: maxMessageLength < messageLangth }"
+        :class="{ over: maxMessageLength < messageLength }"
       >
-        文字数をオーバーしています ({{ messageLangth - maxMessageLength }}文字)
+        文字数をオーバーしています ({{ messageLength - maxMessageLength }}文字)
       </span>
     </div>
     <div class="textarea-footer">
@@ -56,7 +56,7 @@
       <button
         class="submit-button"
         :disabled="
-          disabled || maxMessageLength < messageLangth || messageLangth == 0
+          disabled || maxMessageLength < messageLength || messageLength == 0
         "
         :class="{
           admin: isAdmin,
@@ -130,7 +130,7 @@ export default Vue.extend({
     isSpeaker(): boolean {
       return UserItemStore.userItems.speakerId === this.topicId
     },
-    messageLangth(): number {
+    messageLength(): number {
       return split(this.text).length
     },
   },
@@ -142,7 +142,7 @@ export default Vue.extend({
       }
 
       // 文字数制限
-      if (this.messageLangth > this.maxMessageLength) {
+      if (this.messageLength > this.maxMessageLength) {
         return
       }
 
