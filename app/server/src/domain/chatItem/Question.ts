@@ -21,7 +21,9 @@ class Question extends ChatItem {
     // バリデーション
     // ルームタイトル
     if (split(this.content).length > MAX_MESSAGE_LENGTH) {
-      throw new Error(`Question content length(${this.content}}) is too long.`)
+      throw new Error(
+        `Question(id: ${this.id}) content length(${this.content}}) is too long.`,
+      )
     }
   }
 }
