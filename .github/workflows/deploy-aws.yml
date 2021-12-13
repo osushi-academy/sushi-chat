@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - TOMOFUMI-KONDO/fix-deploy-command
 
 jobs:
   deploy:
@@ -27,6 +26,6 @@ jobs:
           --deployment-group-name ${{ env.PROJECT }}-deploy-group \
           --description "Deployment for ${{ env.PROJECT }}" \
           --github-location repository=$GITHUB_REPOSITORY,commitId="${{ github.sha }}" \
-          --file-exists-behavior RETAIN \
+          --file-exists-behavior OVERWRITE \
         env:
           PROJECT: sushi-chat

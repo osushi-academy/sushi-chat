@@ -20,6 +20,8 @@ resource "aws_codedeploy_deployment_group" "deploy-group" {
 }
 
 resource "aws_iam_role" "deploy-service-role" {
+  name = "${var.project}-deploy-service-role"
+
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -37,7 +39,6 @@ resource "aws_iam_role" "deploy-service-role" {
   })
 
   tags = {
-    Name    = "${var.project}-deploy-service-role"
     Project = var.project
   }
 }
