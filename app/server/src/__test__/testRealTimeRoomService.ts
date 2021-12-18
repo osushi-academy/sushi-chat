@@ -226,6 +226,28 @@ describe("RealtimeRoomServiceのテスト", () => {
         deliveredChatItemContentsCount + 1,
       )
     })
+
+    test("異常系_存在しないuserはトピックの状態を変更できない", async () => {
+      const notExistUserId = uuid()
+
+      await expect(() =>
+        roomService.finish({ userId: notExistUserId }),
+      ).rejects.toThrow()
+    })
+
+    test("異常系_adminでないuserはトピックの状態を変更できない", async () => {
+      const notAdminUser = new User(
+        uuid(),
+        false,
+        false,
+        adminUser.roomId,
+        NewIconId(1),
+      )
+
+      await expect(() =>
+        roomService.finish({ userId: notAdminUser.id }),
+      ).rejects.toThrow()
+    })
   })
 
   describe("finishのテスト", () => {
@@ -246,7 +268,7 @@ describe("RealtimeRoomServiceのテスト", () => {
 
       await expect(() =>
         roomService.finish({ userId: notExistUserId }),
-      ).rejects.toThrowError()
+      ).rejects.toThrow()
     })
 
     test("異常系_adminでないuserはroomをfinishできない", async () => {
@@ -260,7 +282,7 @@ describe("RealtimeRoomServiceのテスト", () => {
 
       await expect(() =>
         roomService.finish({ userId: notAdminUser.id }),
-      ).rejects.toThrowError()
+      ).rejects.toThrow()
     })
   })
 })
