@@ -357,7 +357,7 @@
     transform: translate(-50%, 150%);
     background: rgba($black, 0.5);
     padding: 0.5em;
-    z-index: 30;
+    z-index: calc($z-modal - 1);
     width: 32px;
     height: 32px;
     border-radius: 100%;

@@ -33,7 +33,7 @@
           <button
             class="channel-content"
             :class="{ selected: selectedTopicId === 0 }"
-            @click="selectedTopicId = 0"
+            @click="selectTopic(0)"
           >
             <span class="hashtag">#</span>雑談ラウンジ
           </button>
@@ -74,7 +74,7 @@
                 <button
                   class="subchannel"
                   :class="{ selected: selectedTopicId === topic.id }"
-                  @click="selectedTopicId = topic.id"
+                  @click="selectTopic(topic.id)"
                 >
                   <span
                     :class="{ 'subchannel-arrow': true, first: index === 0 }"
@@ -147,11 +147,10 @@ import Vue from "vue"
 import { RoomModel, Topic } from "sushi-chat-shared"
 import type { PropOptions } from "vue"
 import { MenuIcon } from "vue-feather-icons"
-import { RoomStore, TopicStore } from "~/store"
+import { RoomStore, SelectedTopicStore, TopicStore } from "~/store"
 
 type DataType = {
   openSessions: boolean
-  selectedTopicId: number
 }
 
 export default Vue.extend({
@@ -181,7 +180,6 @@ export default Vue.extend({
   data(): DataType {
     return {
       openSessions: true,
-      selectedTopicId: 0,
     }
   },
   computed: {
@@ -191,9 +189,11 @@ export default Vue.extend({
     topics(): Topic[] {
       return TopicStore.topics
     },
+    selectedTopicId(): number {
+      return SelectedTopicStore.selectedTopicId
+    },
     selectedTopic(): { id: number; title: string } | undefined {
-      const selectedTopicId = this.selectedTopicId
-      return this.topics.find(({ id }) => id === selectedTopicId)
+      return this.topics.find(({ id }) => id === this.selectedTopicId)
     },
   },
   methods: {
@@ -208,6 +208,9 @@ export default Vue.extend({
     },
     leave(el: HTMLElement) {
       el.style.height = "0"
+    },
+    selectTopic(id: number) {
+      SelectedTopicStore.set(id)
     },
   },
 })

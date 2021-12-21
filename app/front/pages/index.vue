@@ -23,13 +23,11 @@
         class="chat-room-area"
         :class="{ 'show-admin-tool': showAdminTool }"
       >
-        <div v-for="(topic, index) in topics" :key="index">
-          <ChatRoom
-            :topic-index="index"
-            :topic-id="topic.id"
-            :topic-state="topicStateItems[topic.id]"
-          />
-        </div>
+        <ChatRoom
+          :topic-index="selectedTopicId"
+          :topic-id="selectedTopicId"
+          :topic-state="topicStateItems[selectedTopicId]"
+        />
       </div>
     </main>
   </div>
@@ -53,6 +51,7 @@ import {
   ChatItemStore,
   DeviceStore,
   UserItemStore,
+  SelectedTopicStore,
   StampStore,
   TopicStore,
   TopicStateItemStore,
@@ -104,6 +103,9 @@ export default Vue.extend({
     topicStateItems() {
       // 各トピックの状態
       return TopicStateItemStore.topicStateItems
+    },
+    selectedTopicId(): number {
+      return SelectedTopicStore.selectedTopicId
     },
     showAdminTool(): boolean {
       return this.isAdmin && this.room.adminInviteKey != null

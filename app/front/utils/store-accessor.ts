@@ -4,6 +4,7 @@ import { getModule } from "vuex-module-decorators"
 import ChatItems from "~/store/chatItems"
 import Device from "~/store/device"
 import UserItems from "~/store/userItems"
+import SelectedTopicId from "~/store/selectedTopicId"
 import Stamps from "~/store/stamps"
 import Topics from "~/store/topics"
 import TopicStateItems from "~/store/topicStateItems"
@@ -14,6 +15,7 @@ import Room from "~/store/room"
 let ChatItemStore: ChatItems
 let DeviceStore: Device
 let UserItemStore: UserItems
+let SelectedTopicStore: SelectedTopicId
 let StampStore: Stamps
 let TopicStore: Topics
 let TopicStateItemStore: TopicStateItems
@@ -25,6 +27,7 @@ function initialiseStores(store: Store<any>): void {
   ChatItemStore = getModule(ChatItems, store)
   DeviceStore = getModule(Device, store)
   UserItemStore = getModule(UserItems, store)
+  SelectedTopicStore = getModule(SelectedTopicId, store)
   StampStore = getModule(Stamps, store)
   TopicStore = getModule(Topics, store)
   TopicStateItemStore = getModule(TopicStateItems, store)
@@ -38,6 +41,7 @@ export {
   ChatItemStore,
   DeviceStore,
   UserItemStore,
+  SelectedTopicStore,
   StampStore, 
   TopicStore,
   TopicStateItemStore,
