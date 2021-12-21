@@ -1,9 +1,9 @@
-create function set_update_time() returns trigger as '
+CREATE FUNCTION set_update_time() RETURNS trigger AS '
   begin
     new.updated_at := ''now'';
     return new;
   end;
-' language 'plpgsql';
+' LANGUAGE 'plpgsql';
 
 CREATE TABLE IF NOT EXISTS room_states
 (
