@@ -61,7 +61,7 @@
               : 'not-started'
           "
         >
-          <div class="topic-number">#{{ index }}</div>
+          <div class="topic-number">#{{ topic.id }}</div>
           <div class="topic-name">
             {{ topic.title }}
             <span v-if="topicStateItems[topic.id] === 'ongoing'" class="label">
