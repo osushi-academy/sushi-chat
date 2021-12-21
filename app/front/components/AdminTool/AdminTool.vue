@@ -52,7 +52,7 @@
 
       <div class="drawer-menu__topic-list">
         <div
-          v-for="(topic, index) in topics"
+          v-for="topic in topics"
           :key="topic.id"
           class="topic"
           :class="
