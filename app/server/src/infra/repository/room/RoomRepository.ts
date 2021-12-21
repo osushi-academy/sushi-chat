@@ -174,14 +174,13 @@ class RoomRepository implements IRoomRepository {
     const pgClient = await this.pgPool.client()
 
     const roomQuery =
-      "UPDATE rooms SET room_state_id = $1, start_at = $2, finish_at = $3, archived_at = $4, updated_at = $5 WHERE id = $6"
+      "UPDATE rooms SET room_state_id = $1, start_at = $2, finish_at = $3, archived_at = $4 WHERE id = $5"
     const updateRoom = async () => {
       await pgClient.query(roomQuery, [
         RoomRepository.roomStateMap[room.state],
         room.startAt,
         room.finishAt,
         room.archivedAt,
-        formatDate(new Date()),
         room.id,
       ])
     }
