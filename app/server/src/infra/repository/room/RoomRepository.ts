@@ -196,14 +196,13 @@ class RoomRepository implements IRoomRepository {
     }
 
     const topicQuery =
-      "UPDATE topics SET topic_state_id = $1, offset_mil_sec = $2, updated_at = $3 WHERE room_id = $4 AND id = $5"
+      "UPDATE topics SET topic_state_id = $1, offset_mil_sec = $2, WHERE room_id = $3 AND id = $4"
     const updateTopic = async () => {
       await Promise.all(
         room.topics.map((t) =>
           pgClient.query(topicQuery, [
             RoomRepository.topicStateMap[t.state],
             room.topicTimeData[t.id].offsetTime,
-            formatDate(new Date()),
             room.id,
             t.id,
           ]),
