@@ -7,7 +7,7 @@
     left: 0;
     z-index: $z-modal;
   }
-  @media screen and (max-width: $large+px) {
+  @media screen and (max-width: $large) {
     & .sidebar-drawer-transition {
       &-enter-active,
       &-leave-active {
