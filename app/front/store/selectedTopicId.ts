@@ -6,14 +6,14 @@ import { Module, VuexModule, Mutation } from "vuex-module-decorators"
   namespaced: true,
 })
 export default class SelectedTopicId extends VuexModule {
-  private _topics = 1
+  private _id = 1
 
   public get selectedTopicId(): number {
-    return this._topics
+    return this._id
   }
 
   @Mutation
   public set(n: number) {
-    this._topics = n
+    this._id = n
   }
 }

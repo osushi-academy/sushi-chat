@@ -6,30 +6,20 @@
         :image-url="imageUrl"
         :show-humberger="true"
         :class="'sidebar-content'"
-        :click-humberger="() => (showSidebar = !showSidebar)"
+        :click-humberger="closeSidebar"
       ></SidebarContent>
     </transition>
-    <div class="menu-button-wrapper">
-      <button class="menu-button" @click="showSidebar = true">
-        <menu-icon size="1x"></menu-icon>
-      </button>
-    </div>
   </div>
 </template>
 <script lang="ts">
 import Vue from "vue"
-import { MenuIcon } from "vue-feather-icons"
 import SidebarContent from "@/components/Sidebar/SidebarContent.vue"
-
-type DataType = {
-  showSidebar: boolean
-}
+import { SidebarStore } from "~/store"
 
 export default Vue.extend({
   name: "SidebarDrawer",
   components: {
     SidebarContent,
-    MenuIcon,
   },
   props: {
     imageUrl: {
@@ -37,10 +27,15 @@ export default Vue.extend({
       default: undefined,
     },
   },
-  data(): DataType {
-    return {
-      showSidebar: true,
-    }
+  computed: {
+    showSidebar(): boolean {
+      return SidebarStore.showSidebar
+    },
+  },
+  methods: {
+    closeSidebar() {
+      SidebarStore.set(false)
+    },
   },
 })
 </script>

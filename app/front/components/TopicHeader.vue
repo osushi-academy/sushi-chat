@@ -1,7 +1,11 @@
 <template>
   <div class="topic-header">
     <div class="main-line">
-      <SidebarDrawer />
+      <div v-if="!showSidebar" class="menu-button-wrapper">
+        <button class="menu-button" @click="openSidebar">
+          <menu-icon size="1x"></menu-icon>
+        </button>
+      </div>
       <div class="index">
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>
@@ -68,10 +72,14 @@
 import Vue from "vue"
 import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
-import { DownloadIcon, MoreVerticalIcon, XCircleIcon } from "vue-feather-icons"
+import {
+  DownloadIcon,
+  MoreVerticalIcon,
+  XCircleIcon,
+  MenuIcon,
+} from "vue-feather-icons"
 import PinIcon from "vue-material-design-icons/Pin.vue"
-import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
-import { PinnedChatItemsStore, UserItemStore } from "~/store"
+import { PinnedChatItemsStore, UserItemStore, SidebarStore } from "~/store"
 
 type DataType = {
   isAllCommentShowed: boolean
@@ -81,11 +89,11 @@ type DataType = {
 export default Vue.extend({
   name: "TopicHeader",
   components: {
-    SidebarDrawer,
     XCircleIcon,
     PinIcon,
     MoreVerticalIcon,
     DownloadIcon,
+    MenuIcon,
   },
   props: {
     roomTitle: {
@@ -128,6 +136,9 @@ export default Vue.extend({
       }
       return this.pinnedChatItem?.content
     },
+    showSidebar(): boolean {
+      return SidebarStore.showSidebar
+    },
   },
   methods: {
     clickDownload() {
@@ -166,6 +177,9 @@ export default Vue.extend({
           element.classList.remove("highlight")
         }, 0)
       }
+    },
+    openSidebar() {
+      SidebarStore.set(true)
     },
   },
 })

@@ -5,6 +5,7 @@ import ChatItems from "~/store/chatItems"
 import Device from "~/store/device"
 import UserItems from "~/store/userItems"
 import SelectedTopicId from "~/store/selectedTopicId"
+import ShowSidebar from "~/store/showSidebar"
 import Stamps from "~/store/stamps"
 import Topics from "~/store/topics"
 import TopicStateItems from "~/store/topicStateItems"
@@ -16,6 +17,7 @@ let ChatItemStore: ChatItems
 let DeviceStore: Device
 let UserItemStore: UserItems
 let SelectedTopicStore: SelectedTopicId
+let SidebarStore: ShowSidebar
 let StampStore: Stamps
 let TopicStore: Topics
 let TopicStateItemStore: TopicStateItems
@@ -28,6 +30,7 @@ function initialiseStores(store: Store<any>): void {
   DeviceStore = getModule(Device, store)
   UserItemStore = getModule(UserItems, store)
   SelectedTopicStore = getModule(SelectedTopicId, store)
+  SidebarStore = getModule(ShowSidebar, store)
   StampStore = getModule(Stamps, store)
   TopicStore = getModule(Topics, store)
   TopicStateItemStore = getModule(TopicStateItems, store)
@@ -42,6 +45,7 @@ export {
   DeviceStore,
   UserItemStore,
   SelectedTopicStore,
+  SidebarStore,
   StampStore, 
   TopicStore,
   TopicStateItemStore,

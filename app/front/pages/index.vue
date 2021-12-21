@@ -23,6 +23,7 @@
         class="chat-room-area"
         :class="{ 'show-admin-tool': showAdminTool }"
       >
+        <SidebarDrawer />
         <ChatRoom
           :topic-index="selectedTopicId"
           :topic-id="selectedTopicId"
@@ -47,6 +48,7 @@ import {
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
+import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
 import {
   ChatItemStore,
   DeviceStore,
@@ -75,6 +77,7 @@ export default Vue.extend({
     AdminTool,
     ChatRoom,
     SelectIconModal,
+    SidebarDrawer,
   },
   data(): DataType {
     return {

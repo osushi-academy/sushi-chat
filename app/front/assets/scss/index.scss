@@ -65,6 +65,27 @@
     color: white;
     min-height: 3em;
 
+    & > .menu-button-wrapper {
+      background: transparent;
+      z-index: 40;
+
+      & > .menu-button {
+        width: 2.5em;
+        height: 2.5em;
+        border: none;
+        background: transparent;
+        border-radius: 99px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        &:hover,
+        &:focus {
+          background: $hover-button-background;
+        }
+      }
+    }
+
     & > .index {
       font-weight: bold;
       margin-left: 0.5em;
