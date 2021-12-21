@@ -2,12 +2,12 @@
   <div class="container page">
     <main>
       <SelectIconModal
-        v-if="isRoomStarted && !isAdmin && !isRoomEnter"
+        v-if="loadingFinished && isRoomStarted && !isAdmin && !isRoomEnter"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
       <NotStarted
-        v-if="!isRoomStarted && !isAdmin"
+        v-if="loadingFinished && !isRoomStarted && !isAdmin"
         @check-status-and-action="checkStatusAndAction"
         @click-icon="clickIcon"
         @hide-modal="hide"
@@ -112,6 +112,9 @@ export default Vue.extend({
     },
     showAdminTool(): boolean {
       return this.isAdmin && this.room.adminInviteKey != null
+    },
+    loadingFinished(): boolean {
+      return Object.keys(this.room).length > 1
     },
   },
   created() {
