@@ -1,3 +1,15 @@
+DROP TRIGGER update_service_admins_trigger ON service_admins;
+DROP TRIGGER update_rooms_trigger ON rooms;
+DROP TRIGGER update_topic_states_trigger ON topic_state;
+DROP TRIGGER update_topics_trigger ON topics;
+DROP TRIGGER update_icons_trigger ON icons;
+DROP TRIGGER update_admins_trigger ON admins;
+DROP TRIGGER update_sender_types_trigger ON sender_types;
+DROP TRIGGER update_chat_item_types_trigger ON chat_item_types;
+DROP TRIGGER update_service_admins_trigger ON service_admins;
+
+DROP FUNCTION set_update_time();
+
 DROP TABLE IF EXISTS service_admins;
 
 DROP TABLE IF EXISTS stamps;
