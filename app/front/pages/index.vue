@@ -2,14 +2,14 @@
   <div class="container page">
     <main>
       <SelectIconModal
-        v-if="isRoomStarted && !isAdmin && !isRoomEnter"
+        v-if="loadingFinished && isRoomStarted && !isAdmin && !isRoomEnter"
         :title="room.title"
         :description="room.description"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
       <NotStarted
-        v-if="!isRoomStarted && !isAdmin"
+        v-if="loadingFinished && !isRoomStarted && !isAdmin"
         :title="room.title"
         :description="room.description"
         @check-status-and-action="checkStatusAndAction"
@@ -17,7 +17,7 @@
         @hide-modal="hide"
       />
       <AdminTool
-        v-if="isAdmin && room.adminInviteKey != null"
+        v-if="showAdminTool"
         :room="room"
         :room-id="room.id"
         :title="room.title"
@@ -27,7 +27,11 @@
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
       />
-      <template v-if="isRoomEnter || isAdmin">
+      <div
+        v-if="isRoomEnter"
+        class="chat-room-area"
+        :class="{ 'show-admin-tool': showAdminTool }"
+      >
         <div v-for="(topic, index) in topics" :key="index">
           <ChatRoom
             :topic-index="index"
@@ -35,7 +39,7 @@
             :topic-state="topicStateItems[topic.id]"
           />
         </div>
-      </template>
+      </div>
     </main>
   </div>
 </template>
@@ -49,7 +53,6 @@ import {
   RoomModel,
   RoomState,
   StampModel,
-  ChatItemModel,
   PubUserCountParam,
   PubPinnedMessageParam,
 } from "sushi-chat-shared"
@@ -111,6 +114,12 @@ export default Vue.extend({
     topicStateItems() {
       // 各トピックの状態
       return TopicStateItemStore.topicStateItems
+    },
+    showAdminTool(): boolean {
+      return this.isAdmin && this.room.adminInviteKey != null
+    },
+    loadingFinished(): boolean {
+      return Object.keys(this.room).length > 1
     },
   },
   created() {
@@ -174,10 +183,10 @@ export default Vue.extend({
       this.$initSocket(UserItemStore.userItems.isAdmin)
 
       // SocketIOのコールバックの登録
-      this.$socket().on("PUB_CHAT_ITEM", (chatItem: ChatItemModel) => {
+      this.$socket().on("PUB_CHAT_ITEM", (chatItem) => {
         console.log(chatItem)
         // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
-        ChatItemStore.addOrUpdate(chatItem)
+        ChatItemStore.addOrUpdate({ ...chatItem, status: "success" })
       })
       this.$socket().on("PUB_CHANGE_TOPIC_STATE", (res) => {
         // クリックしたTopicのStateを変える
@@ -259,7 +268,12 @@ export default Vue.extend({
               PinnedChatItemsStore.add(pinnedChatItem)
             }
           })
-          ChatItemStore.setChatItems(res.data.chatItems)
+          ChatItemStore.setChatItems(
+            res.data.chatItems.map((chatItem) => ({
+              ...chatItem,
+              status: "success",
+            })),
+          )
         },
       )
       this.isRoomEnter = true
@@ -277,7 +291,12 @@ export default Vue.extend({
             console.error(res.error)
             return
           }
-          ChatItemStore.setChatItems(res.data.chatItems)
+          ChatItemStore.setChatItems(
+            res.data.chatItems.map((chatItem) => ({
+              ...chatItem,
+              status: "success",
+            })),
+          )
           res.data.topicStates.forEach((topicState) => {
             TopicStateItemStore.change({
               key: topicState.topicId,

@@ -25,6 +25,11 @@
   }
 }
 
+.chat-room-area {
+  display: flex;
+  overflow-x: scroll;
+}
+
 .topic-block {
   white-space: normal;
   height: 100%;
@@ -93,7 +98,6 @@
       &:disabled {
         color: rgba(204, 204, 204, 0.5);
         background: transparent;
-        cursor: default;
       }
     }
   }
@@ -338,7 +342,6 @@
       &:disabled {
         background: rgb(192, 192, 192);
         border-color: rgb(192, 192, 192);
-        cursor: default;
       }
     }
   }
@@ -700,9 +703,13 @@
           margin-left: 0.5rem;
           color: $text-gray;
 
-          &:hover {
+          &:hover:not(:disabled) {
             color: $text-gray;
             background-color: $placeholder-gray;
+          }
+
+          &:disabled {
+            color: $disabled-gray;
           }
 
           & > .icon {
@@ -739,6 +746,44 @@
           &.is-liked {
             color: white;
             transform: rotate(-20deg);
+          }
+        }
+      }
+
+      .error-label {
+        display: flex;
+        align-items: center;
+
+        & > .error-icon {
+          color: rgb(249, 69, 69);
+        }
+
+        & > .error-message {
+          @include text-size($size: "sm");
+          display: block;
+          margin-left: 0.5em;
+          line-height: 1.1;
+          color: rgb(249, 69, 69);
+        }
+
+        & > .retry-button {
+          display: flex;
+          margin-left: 0.5em;
+          width: 1.7em;
+          height: 1.7em;
+          padding: 0;
+          border-radius: 4px;
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          &:hover:not(:disabled) {
+            background: rgba(249, 69, 69, 0.1);
+          }
+
+          & > svg {
+            color: rgb(249, 69, 69);
           }
         }
       }
