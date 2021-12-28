@@ -177,6 +177,7 @@ class ChatItemService {
       chatItemId,
       this.chatItemRepository,
     )
+    // TODO: speakerしかピン留めできないようにする
 
     this.chatItemDelivery.pinChatItem(pinnedChatItem)
     await this.chatItemRepository.pinChatItem(pinnedChatItem)
