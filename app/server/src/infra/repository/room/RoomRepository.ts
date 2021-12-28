@@ -7,7 +7,6 @@ import IStampRepository from "../../../domain/stamp/IStampRepository"
 import Topic, { TopicTimeData } from "../../../domain/room/Topic"
 import PGPool from "../PGPool"
 import { RoomState, TopicState } from "sushi-chat-shared"
-import { formatDate } from "../../../utils/date"
 import IAdminRepository from "../../../domain/admin/IAdminRepository"
 import User from "../../../domain/user/User"
 
@@ -181,6 +180,7 @@ class RoomRepository implements IRoomRepository {
         room.startAt,
         room.finishAt,
         room.archivedAt,
+        new Date(),
         room.id,
       ])
     }
@@ -203,7 +203,7 @@ class RoomRepository implements IRoomRepository {
           pgClient.query(topicQuery, [
             RoomRepository.topicStateMap[t.state],
             room.topicTimeData[t.id].offsetTime,
-            formatDate(new Date()),
+            new Date(),
             room.id,
             t.id,
           ]),

@@ -62,10 +62,15 @@
                       )
                     "
                     @keydown.delete="
-                      if (sessionList[idx].title.length === 0) {
+                      if (
+                        sessionList[idx].title.length === 0 &&
+                        composing == false
+                      ) {
                         removeSessionAndMoveFocus($event, idx, 'up')
                       }
                     "
+                    @compositionstart="composing = true"
+                    @compositionend="composing = false"
                   />
                   <button
                     type="button"
@@ -135,6 +140,8 @@ type DataType = {
   roomDescription: string
   sessionList: { title: string; id: number }[]
   isDragging: boolean
+  MAX_TOPIC_LENGTH: number
+  composing: boolean
 }
 
 let sessionId = 0
@@ -156,6 +163,8 @@ export default Vue.extend({
       roomDescription: "",
       sessionList: [{ title: "", id: sessionId++ }],
       isDragging: false,
+      MAX_TOPIC_LENGTH: 100,
+      composing: false,
     }
   },
   computed: {

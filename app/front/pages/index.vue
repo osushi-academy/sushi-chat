@@ -2,14 +2,14 @@
   <div class="container page">
     <main>
       <SelectIconModal
-        v-if="isRoomStarted && !isAdmin && !isRoomEnter"
+        v-if="loadingFinished && isRoomStarted && !isAdmin && !isRoomEnter"
         :title="room.title"
         :description="room.description"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
       <NotStarted
-        v-if="!isRoomStarted && !isAdmin"
+        v-if="loadingFinished && !isRoomStarted && !isAdmin"
         :title="room.title"
         :description="room.description"
         @check-status-and-action="checkStatusAndAction"
@@ -118,6 +118,9 @@ export default Vue.extend({
     showAdminTool(): boolean {
       return this.isAdmin && this.room.adminInviteKey != null
     },
+    loadingFinished(): boolean {
+      return Object.keys(this.room).length > 1
+    },
   },
   created() {
     // roomId取得
@@ -142,13 +145,10 @@ export default Vue.extend({
     async checkStatusAndAction() {
       // ルーム情報取得・status更新
       const res = await this.$apiClient
-        .get(
-          {
-            pathname: "/room/:id",
-            params: { id: this.room.id },
-          },
-          {},
-        )
+        .get({
+          pathname: "/room/:id",
+          params: { id: this.room.id },
+        })
         .catch((e) => {
           throw new Error(e)
         })
@@ -321,13 +321,10 @@ export default Vue.extend({
     startRoom() {
       // TODO: ルームの状態をindex、またはvuexでもつ
       this.$apiClient
-        .put(
-          {
-            pathname: "/room/:id/start",
-            params: { id: this.room.id },
-          },
-          {},
-        )
+        .put({
+          pathname: "/room/:id/start",
+          params: { id: this.room.id },
+        })
         .then(() => {
           this.adminEnterRoom()
           this.roomState = "ongoing"

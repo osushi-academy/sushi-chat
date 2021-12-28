@@ -126,7 +126,8 @@ export default Vue.extend({
   layout: "home",
   middleware: "privateRoute",
   async asyncData({ app }): Promise<AsyncDataType> {
-    const response = await app.$apiClient.get("/room", {})
+    const response = await app.$apiClient.get("/room")
+
     if (response.result === "success") {
       const rooms = response.data
       const ongoingRooms = rooms.filter((room) => room.state === "ongoing")
@@ -174,13 +175,10 @@ export default Vue.extend({
       }
       try {
         console.log(id)
-        const response = await this.$apiClient.put(
-          {
-            pathname: "/room/:id/archive",
-            params: { id },
-          },
-          {},
-        )
+        const response = await this.$apiClient.put({
+          pathname: "/room/:id/archive",
+          params: { id },
+        })
 
         if (response.result === "success") {
           this.finishedRooms = this.finishedRooms.filter(
