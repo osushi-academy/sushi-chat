@@ -51,18 +51,18 @@ resource "aws_launch_template" "main" {
   }
 
   tags = {
-    Name    = "${var.project}-launch-template"
     Project = var.project
   }
 }
 
 resource "aws_iam_instance_profile" "write_cloud_watch_logs" {
-  name = "write_cloud_watch_logs"
+  name = "${var.project}-write_cloud_watch_logs"
   role = aws_iam_role.write_cloud_watch_logs.name
 }
 
 resource "aws_iam_role" "write_cloud_watch_logs" {
-  name = "write_cloud_watch_logs"
+  name = "${var.project}-write_cloud_watch_logs"
+
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = {
@@ -76,7 +76,6 @@ resource "aws_iam_role" "write_cloud_watch_logs" {
   })
 
   tags = {
-    Name    = "${var.project}-write_cloud_watch_logs"
     project = var.project
   }
 }
@@ -92,6 +91,7 @@ data "aws_iam_policy" "cloud_watch_agent_server_policy" {
 
 // TODO: 手動デプロイする必要がなくなったらprivateサブネットに配置する。ただその場合はNat Gatewayが必要になるので注意
 resource "aws_security_group" "public_instance" {
+  name        = "${var.project}-sg-public-instance"
   description = "This is a security group for API server for sushi-chat app. It allows http and https from alb, and ssh from admin."
   vpc_id      = aws_vpc.main.id
 
@@ -104,7 +104,6 @@ resource "aws_security_group" "public_instance" {
   }
 
   tags = {
-    Name    = "${var.project}-sg-public-instance"
     project = var.project
   }
 }
