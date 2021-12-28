@@ -160,7 +160,7 @@ describe("機能テスト", () => {
 
   describe("room作成", () => {
     const title = "テストルーム"
-    const topics = [1, 2, 3].map((i) => ({ title: `テストトピック-${i}` }))
+    const topics = [1, 2, 3, 4].map((i) => ({ title: `テストトピック-${i}` }))
     const description = "これはテスト用のルームです。"
 
     test("正常系_管理者がroomを作成", async () => {
@@ -672,6 +672,28 @@ describe("機能テスト", () => {
         },
       )
     })
+
+    test("異常系_未開始のtopicには投稿できない", (resolve) => {
+      clientSockets[1].emit(
+        "POST_CHAT_ITEM",
+        {
+          id: uuid(),
+          topicId: roomData.topics[3].id,
+          type: "message",
+          content: "未開始のtopicへの投稿",
+        },
+        (res) => {
+          expect(res).toStrictEqual<ErrorResponse>({
+            result: "error",
+            error: {
+              code: MATCHING.CODE,
+              message: MATCHING.TEXT,
+            },
+          })
+          resolve()
+        },
+      )
+    })
   })
 
   describe("ChatItemをピン留め", () => {
@@ -845,7 +867,7 @@ describe("機能テスト", () => {
           notOnGoingTopicMessage,
         ],
         stamps,
-        pinnedChatItemIds: [notOnGoingTopicMessageId, null, messageId],
+        pinnedChatItemIds: [notOnGoingTopicMessageId, null, messageId, null],
       }
     })
 
@@ -874,6 +896,7 @@ describe("機能テスト", () => {
                 { topicId: roomData.topics[1].id, state: "finished" },
 
                 { topicId: roomData.topics[2].id, state: "ongoing" },
+                { topicId: roomData.topics[3].id, state: "not-started" },
               ],
             },
           })
