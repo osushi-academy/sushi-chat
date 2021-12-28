@@ -120,6 +120,7 @@ export const restSetup = (
   adminRouter.get("/room", async (req, res) => {
     try {
       const rooms = await adminService.getManagedRooms({
+        // @ts-ignore bodyをadminIdの受け渡しに利用しているため
         adminId: req.body.adminId,
       })
 
