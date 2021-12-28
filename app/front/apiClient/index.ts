@@ -1,5 +1,6 @@
 import { NuxtAxiosInstance } from "@nuxtjs/axios"
 import { RestApi, PathsWithMethod } from "sushi-chat-shared"
+import getIdToken from "~/utils/getIdToken"
 
 type PathObject<
   Method extends "get" | "post" | "put",
@@ -54,7 +55,8 @@ export default class Repository {
    * idTokenを設定する
    * @param idToken idToken
    */
-  public setToken(idToken: string | null) {
+  public async setToken() {
+    const idToken = await getIdToken()
     if (idToken != null) {
       this.nuxtAxios.setToken(`Bearer ${idToken}`)
     } else {
@@ -74,6 +76,7 @@ export default class Repository {
       : Path | PathObject<"get", Path>,
     data: RestApi<"get", Path>["request"],
   ) {
+    await this.setToken()
     return await this.nuxtAxios.$get<RestApi<"get", Path>["response"]>(
       typeof path === "string" ? path : pathBuilder(path),
       { data },
@@ -92,6 +95,7 @@ export default class Repository {
       : Path | PathObject<"post", Path>,
     data: RestApi<"post", Path>["request"],
   ) {
+    await this.setToken()
     return await this.nuxtAxios.$post<RestApi<"post", Path>["response"]>(
       typeof path === "string" ? path : pathBuilder(path),
       data,
@@ -110,6 +114,7 @@ export default class Repository {
       : Path | PathObject<"put", Path>,
     data: RestApi<"put", Path>["request"],
   ) {
+    await this.setToken()
     return await this.nuxtAxios.$put<RestApi<"put", Path>["response"]>(
       typeof path === "string" ? path : pathBuilder(path),
       data,

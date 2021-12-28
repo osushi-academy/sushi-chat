@@ -1,5 +1,5 @@
 import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
-import { AuthStore } from "~/store"
+import { UserItemStore } from "~/store"
 import emitAsync from "~/utils/emitAsync"
 import buildSocket from "~/utils/socketIO"
 
@@ -35,7 +35,7 @@ export default class PinnedChatItems extends VuexModule {
     topicId: number
     chatItemId: string
   }) {
-    const socket = buildSocket(AuthStore.idToken)
+    const socket = await buildSocket(UserItemStore.userItems.isAdmin)
     await emitAsync(socket, "POST_PINNED_MESSAGE", {
       topicId,
       chatItemId,
