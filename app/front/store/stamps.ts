@@ -2,7 +2,7 @@ import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
 import { StampModel } from "sushi-chat-shared"
 import getUUID from "~/utils/getUUID"
 import buildSocket from "~/utils/socketIO"
-import { AuthStore } from "~/utils/store-accessor"
+import { UserItemStore } from "~/utils/store-accessor"
 import emitAsync from "~/utils/emitAsync"
 
 @Module({
@@ -38,7 +38,7 @@ export default class Stamps extends VuexModule {
 
   @Action({ rawError: true })
   public async sendFavorite(topicId: number) {
-    const socket = buildSocket(AuthStore.idToken)
+    const socket = await buildSocket(UserItemStore.userItems.isAdmin)
     const id = getUUID()
     // StampStoreは配信で追加する
     this.add({
