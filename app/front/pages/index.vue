@@ -254,6 +254,12 @@ export default Vue.extend({
             console.error(res.error)
             return
           }
+          ChatItemStore.setChatItems(
+            res.data.chatItems.map((chatItem) => ({
+              ...chatItem,
+              status: "success",
+            })),
+          )
           res.data.topicStates.forEach((topicState) => {
             TopicStateItemStore.change({
               key: topicState.topicId,
@@ -265,12 +271,6 @@ export default Vue.extend({
               PinnedChatItemsStore.add(pinnedChatItem)
             }
           })
-          ChatItemStore.setChatItems(
-            res.data.chatItems.map((chatItem) => ({
-              ...chatItem,
-              status: "success",
-            })),
-          )
         },
       )
       this.isRoomEnter = true
@@ -299,6 +299,11 @@ export default Vue.extend({
               key: topicState.topicId,
               state: topicState.state,
             })
+          })
+          res.data.pinnedChatItemIds.forEach((pinnedChatItem) => {
+            if (pinnedChatItem) {
+              PinnedChatItemsStore.add(pinnedChatItem)
+            }
           })
           this.activeUserCount = res.data.activeUserCount
         },
