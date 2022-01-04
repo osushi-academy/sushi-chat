@@ -152,9 +152,20 @@
     }
     &--text {
       flex: 1;
-      font-size: 14px;
+      display: -webkit-box;
       word-break: break-all;
+      overflow-wrap: anywhere;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
       text-align: left;
+      font-size: 100%;
+      width: 100%;
+      max-height: 2.5rem;
+      &:hover {
+        text-decoration: underline;
+        cursor: pointer;
+      }
     }
     &--close-icon {
       flex-shrink: 0;
@@ -659,14 +670,16 @@
           flex: 1;
           display: -webkit-box;
           color: $text-gray;
-          font-size: 80%;
-          text-align: left;
           word-break: break-all;
           overflow-wrap: anywhere;
           margin-bottom: 0.3rem;
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
           overflow: hidden;
+          text-align: left;
+          font-size: 80%;
+          width: 100%;
+          max-height: 2rem;
           &:hover {
             text-decoration: underline;
             cursor: pointer;
