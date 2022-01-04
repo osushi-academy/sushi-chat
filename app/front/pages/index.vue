@@ -55,6 +55,7 @@ import {
   StampModel,
   PubUserCountParam,
   PubPinnedMessageParam,
+  EnterRoomResponse,
 } from "sushi-chat-shared"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
@@ -250,30 +251,9 @@ export default Vue.extend({
           speakerTopicId: UserItemStore.userItems.speakerId,
         },
         (res) => {
-          if (res.result === "error") {
-            console.error(res.error)
-            return
-          }
-          ChatItemStore.setChatItems(
-            res.data.chatItems.map((chatItem) => ({
-              ...chatItem,
-              status: "success",
-            })),
-          )
-          res.data.topicStates.forEach((topicState) => {
-            TopicStateItemStore.change({
-              key: topicState.topicId,
-              state: topicState.state,
-            })
-          })
-          res.data.pinnedChatItemIds.forEach((pinnedChatItem) => {
-            if (pinnedChatItem) {
-              PinnedChatItemsStore.add(pinnedChatItem)
-            }
-          })
+          this.getRoomInfo(res)
         },
       )
-      this.isRoomEnter = true
     },
     // 管理者ルーム入室
     adminEnterRoom() {
@@ -284,32 +264,36 @@ export default Vue.extend({
           roomId: this.room.id,
         },
         (res) => {
-          if (res.result === "error") {
-            console.error(res.error)
-            return
-          }
-          ChatItemStore.setChatItems(
-            res.data.chatItems.map((chatItem) => ({
-              ...chatItem,
-              status: "success",
-            })),
-          )
-          res.data.topicStates.forEach((topicState) => {
-            TopicStateItemStore.change({
-              key: topicState.topicId,
-              state: topicState.state,
-            })
-          })
-          res.data.pinnedChatItemIds.forEach((pinnedChatItem) => {
-            if (pinnedChatItem) {
-              PinnedChatItemsStore.add(pinnedChatItem)
-            }
-          })
-          this.activeUserCount = res.data.activeUserCount
+          this.getRoomInfo(res)
         },
       )
-      this.isRoomEnter = true
       UserItemStore.changeMyIcon(0)
+    },
+    // 入室時のルームの情報を取得
+    getRoomInfo(res: EnterRoomResponse) {
+      if (res.result === "error") {
+        console.error(res.error)
+        return
+      }
+      ChatItemStore.setChatItems(
+        res.data.chatItems.map((chatItem) => ({
+          ...chatItem,
+          status: "success",
+        })),
+      )
+      res.data.topicStates.forEach((topicState) => {
+        TopicStateItemStore.change({
+          key: topicState.topicId,
+          state: topicState.state,
+        })
+      })
+      res.data.pinnedChatItemIds.forEach((pinnedChatItem) => {
+        if (pinnedChatItem) {
+          PinnedChatItemsStore.add(pinnedChatItem)
+        }
+      })
+      this.activeUserCount = res.data.activeUserCount
+      this.isRoomEnter = true
     },
     // ルーム終了
     finishRoom() {
