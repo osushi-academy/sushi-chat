@@ -34,7 +34,7 @@
           <UrlToLink :text="message.content" />
         </div>
         <div v-else class="text">
-          <button
+          <div
             class="long-text"
             @click.stop="
               // NOTE: 型推論のためにifを追加
@@ -45,7 +45,7 @@
               > {{ message.quote.content }}
             </template>
             <template v-else> Q. {{ message.quote.content }} </template>
-          </button>
+          </div>
           <UrlToLink :text="message.content" />
         </div>
       </div>

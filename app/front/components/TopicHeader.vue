@@ -50,12 +50,9 @@
           title="ピン留め"
         ></PinIcon>
       </div>
-      <button
-        class="topic-header__bookmark--text"
-        @click="clickScrollToMessage"
-      >
+      <div class="topic-header__bookmark--text" @click="clickScrollToMessage">
         {{ pinnedChatItemContent }}
-      </button>
+      </div>
       <button
         v-show="isAdmin || isSpeaker"
         class="topic-header__bookmark--close-icon"
