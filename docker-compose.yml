@@ -1,20 +1,40 @@
 version: '3'
 services:
-  app:
+  front:
     container_name: sushi-front
-    # 対話モード
-    tty: true
-    # Dockerfileの場所
     build:
-        context: ./
-        dockerfile: ./app/Dockerfile
+        context: .
+        dockerfile: app/front/Dockerfile
     working_dir: /home
-    # ホストOSとコンテナ内でソースコードを共有する
-    # cachedで高速化
     volumes:
       - ./:/home:cached
-    # コンテナ内部の3000を外部から3000でアクセスする
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
       - HOST=0.0.0.0
+      - API_BASE_URL=http://localhost:7000
+  server:
+    container_name: sushi-server
+    build:
+      context: .
+      dockerfile: app/server/Dockerfile
+    environment:
+      - NODE_ENV=development
+      - DB_SSL=OFF
+      - DATABASE_URL=postgres://sushi:chat@db:5432/sushi_chat
+      - FIREBASE_ADMIN_PROJECT_ID=$FIREBASE_ADMIN_PROJECT_ID
+      - FIREBASE_ADMIN_CLIENT_EMAIL=$FIREBASE_ADMIN_CLIENT_EMAIL
+      - FIREBASE_ADMIN_PRIVATE_KEY=$FIREBASE_ADMIN_PRIVATE_KEY
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./app/server:/src/app/server
+      - ./app/shared:/src/app/shared
+  db:
+    container_name: sushi-db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: chat
+      POSTGRES_USER: sushi
+      POSTGRES_DB: sushi_chat
