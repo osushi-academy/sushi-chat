@@ -476,6 +476,18 @@ describe("機能テスト", () => {
   // NOTE: roomData.topics[2]のトピックが進行中になっている前提
   describe("ChatItemの投稿", () => {
     beforeAll(() => {
+      // await new Promise((resolve) =>
+      //   adminSocket.emit(
+      //     "ADMIN_CHANGE_TOPIC_STATE",
+      //     {
+      //       topicId: roomData.topics[2].id,
+      //       state: "ongoing",
+      //     },
+      //     // eslint-disable-next-line @typescript-eslint/no-empty-function
+      //     resolve,
+      //   ),
+      // )
+
       clientSockets[2].emit(
         "ENTER_ROOM",
         {
@@ -619,7 +631,8 @@ describe("機能テスト", () => {
       notOnGoingTopicMessageId = uuid()
 
       clientSockets[0].on("PUB_CHAT_ITEM", (res) => {
-        expect(res).toStrictEqual<PubChatItemParam>({
+        // NOTE: `timestamp: undefined` は存在しない
+        expect(res).toEqual<PubChatItemParam>({
           id: notOnGoingTopicMessageId,
           topicId: roomData.topics[0].id,
           createdAt: MATCHING.DATE,
@@ -627,7 +640,6 @@ describe("機能テスト", () => {
           senderType: "speaker",
           iconId: 3,
           content: "ongoingでないトピックへの投稿",
-          timestamp: undefined,
         })
         notOnGoingTopicMessage = res
         resolve()
@@ -880,7 +892,7 @@ describe("機能テスト", () => {
           speakerTopicId: roomData.topics[0].id,
         },
         (res) => {
-          expect(res).toStrictEqual<EnterRoomResponse>({
+          expect(res).toEqual<EnterRoomResponse>({
             result: "success",
             data: {
               chatItems: expect.arrayContaining(history.chatItems),
