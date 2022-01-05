@@ -95,9 +95,11 @@ class RoomClass {
   }
 
   public calcTimestamp = (topicId: number): number | null => {
-    if (this.topics.find(({ id }) => id === topicId)?.state !== "ongoing") {
+    const topic = this.findTopicOrThrow(topicId)
+    if (topic.state !== "ongoing") {
       return null
     }
+
     const openedDate = this.findOpenedDateOrThrow(topicId)
     const offsetTime = this._topicTimeData[topicId].offsetTime
     const timestamp = new Date().getTime() - openedDate - offsetTime
@@ -347,6 +349,7 @@ class RoomClass {
         .filter(
           (chatItem): chatItem is Reaction => chatItem instanceof Reaction,
         )
+        // TODO: Array::some使う
         .find(
           ({ topicId, user, quote }) =>
             topicId === chatItem.topicId &&
