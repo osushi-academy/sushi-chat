@@ -96,6 +96,9 @@ class RoomClass {
 
   public calcTimestamp = (topicId: number): number | null => {
     const topic = this.findTopicOrThrow(topicId)
+    if (topic.state === "not-started") {
+      throw new Error(`Topic(id:${topicId}) was not started.`)
+    }
     if (topic.state !== "ongoing") {
       return null
     }
@@ -292,8 +295,6 @@ class RoomClass {
    * @returns MessageClass 運営botメッセージ
    */
   private finishTopic = (topic: Topic): Message => {
-    topic.state = "finished"
-
     // 質問の集計
     const questions = this._chatItems.filter<Question>(
       (c): c is Question => c instanceof Question && c.topicId === topic.id,
@@ -311,7 +312,7 @@ class RoomClass {
     )
 
     // トピック終了のBotメッセージ
-    return this.postBotMessage(
+    const message = this.postBotMessage(
       topic.id,
       [
         "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
@@ -321,6 +322,11 @@ class RoomClass {
         .filter(Boolean)
         .join("\n"),
     )
+
+    // NOTE: stateの更新前に、botmessageのタイムスタンプを計算しておく必要がある
+    topic.state = "finished"
+
+    return message
   }
 
   /**
@@ -345,7 +351,7 @@ class RoomClass {
     // NOTE: 同じユーザーが、同じchatItemに対し、複数回リアクションすることはできない
     if (
       chatItem instanceof Reaction &&
-      !this.chatItems
+      this.chatItems
         .filter(
           (chatItem): chatItem is Reaction => chatItem instanceof Reaction,
         )
