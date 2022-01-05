@@ -282,11 +282,17 @@ class RoomClass {
    * @returns MessageClass 運営botメッセージ
    */
   private pauseTopic(topic: Topic): Message {
-    topic.state = "paused"
-
     this._topicTimeData[topic.id].pausedDate = new Date().getTime()
 
-    return this.postBotMessage(topic.id, "【運営Bot】\n 発表が中断されました")
+    const message = this.postBotMessage(
+      topic.id,
+      "【運営Bot】\n 発表が中断されました",
+    )
+
+    // NOTE: stateの更新前に、botmessageのタイムスタンプを計算しておく必要がある
+    topic.state = "paused"
+
+    return message
   }
 
   /**
