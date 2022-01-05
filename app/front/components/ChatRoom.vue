@@ -13,13 +13,14 @@
         <transition-group
           :id="topicId"
           ref="scrollable"
-          class="scrollable list-complete"
+          class="scrollable list-complete disable-scroll-transition"
           tag="div"
         >
           <div
             v-for="message in chatItems"
             :key="message.id"
             class="list-complete-item"
+            :class="{ 'disable-scroll-transition': disableScrollTransition }"
           >
             <MessageComponent
               v-if="
@@ -59,7 +60,11 @@
           :topic-id="topicId"
         />
       </div>
-      <button class="message-badge" :class="{ isNotify }" @click="clickScroll">
+      <button
+        class="message-badge"
+        :class="{ isNotify }"
+        @click="scrollToBottom"
+      >
         <ArrowDownIcon size="1.2x"></ArrowDownIcon>
       </button>
     </div>
@@ -94,6 +99,7 @@ type DataType = {
   selectedChatItem: ChatItemModel | null
   showGraph: boolean
   isAllCommentShowed: boolean
+  disableScrollTransition: boolean
 }
 
 export default Vue.extend({
@@ -128,6 +134,7 @@ export default Vue.extend({
       selectedChatItem: null,
       showGraph: false,
       isAllCommentShowed: true,
+      disableScrollTransition: false,
     }
   },
   computed: {
@@ -197,7 +204,7 @@ export default Vue.extend({
       } catch (e) {
         window.alert("メッセージの送信に失敗しました")
       }
-      this.clickScroll()
+      this.scrollToBottom()
       this.selectedChatItem = null
     },
     // リアクションボタン
@@ -236,8 +243,9 @@ export default Vue.extend({
       }
     },
     // いちばん下までスクロール
-    clickScroll() {
+    scrollToBottom() {
       const element: Element | null = (this.$refs.scrollable as Vue).$el
+      console.log(element?.scrollHeight)
       if (element) {
         element.scrollTo({
           top: element.scrollHeight,
@@ -275,6 +283,9 @@ export default Vue.extend({
     },
     clickShowAll() {
       this.isAllCommentShowed = true
+      Vue.nextTick(() => {
+        setTimeout(() => this.scrollToBottom(), 100)
+      })
     },
     clickNotShowAll() {
       this.isAllCommentShowed = false
