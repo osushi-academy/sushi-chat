@@ -627,7 +627,7 @@ describe("機能テスト", () => {
           senderType: "speaker",
           iconId: 3,
           content: "ongoingでないトピックへの投稿",
-          timestamp: expect.any(Number),
+          timestamp: undefined,
         })
         notOnGoingTopicMessage = res
         resolve()
