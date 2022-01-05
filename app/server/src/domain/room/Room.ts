@@ -345,17 +345,16 @@ class RoomClass {
     // NOTE: 同じユーザーが、同じchatItemに対し、複数回リアクションすることはできない
     if (
       chatItem instanceof Reaction &&
-      this.chatItems
+      !this.chatItems
         .filter(
           (chatItem): chatItem is Reaction => chatItem instanceof Reaction,
         )
-        // TODO: Array::some使う
-        .find(
+        .some(
           ({ topicId, user, quote }) =>
             topicId === chatItem.topicId &&
             user.id === chatItem.user.id &&
             quote.id === chatItem.quote.id,
-        ) != null
+        )
     ) {
       throw new Error(
         `Reaction(topicId: ${chatItem.topicId}, user.id: ${chatItem.user.id}, quote.id: ${chatItem.quote.id}) has already exists.`,
