@@ -1,9 +1,20 @@
 import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
-import { PostChatItemRequest, ChatItemModel, ChatItemSenderType } from "sushi-chat-shared"
+import { ChatItemModel, ChatItemSenderType } from "sushi-chat-shared"
 import getUUID from "~/utils/getUUID"
-import { AuthStore, UserItemStore } from "~/store"
+import { UserItemStore } from "~/store"
 import buildSocket from "~/utils/socketIO"
 import emitAsync from "~/utils/emitAsync"
+
+/**
+ * メッセージの通信状態
+ * - success: 送信成功 or サーバから配信されたメッセージ
+ * - failure: 送信失敗
+ * - loading: 送信中
+ */
+export type ChatItemStatus = "success" | "failure" | "loading"
+export type ChatItemWithStatus = ChatItemModel & {
+  status: ChatItemStatus
+}
 
 @Module({
   name: "chatItems",
@@ -11,24 +22,24 @@ import emitAsync from "~/utils/emitAsync"
   namespaced: true,
 })
 export default class ChatItems extends VuexModule {
-  private _chatItems: ChatItemModel[] = []
+  private _chatItems: ChatItemWithStatus[] = []
 
-  public get chatItems(): ChatItemModel[] {
+  public get chatItems(): ChatItemWithStatus[] {
     return this._chatItems
   }
 
   @Mutation
-  public add(chatItem: ChatItemModel) {
+  public add(chatItem: ChatItemWithStatus) {
     this._chatItems.push(chatItem)
   }
 
   @Mutation
-  public setChatItems(chatItems: ChatItemModel[]) {
+  public setChatItems(chatItems: ChatItemWithStatus[]) {
     this._chatItems = chatItems
   }
 
   @Mutation
-  public addList(chatItems: ChatItemModel[]) {
+  public addList(chatItems: ChatItemWithStatus[]) {
     if (chatItems.length === 0) {
       return
     }
@@ -36,9 +47,16 @@ export default class ChatItems extends VuexModule {
   }
 
   @Mutation
-  public update(chatItem: ChatItemModel) {
+  public update(chatItem: ChatItemWithStatus) {
     this._chatItems = this._chatItems.map((item) =>
       item.id === chatItem.id ? chatItem : item,
+    )
+  }
+
+  @Mutation
+  public updateStatus({ id, status }: { id: string; status: ChatItemStatus }) {
+    this._chatItems = this._chatItems.map((item) =>
+      item.id === id ? { ...item, status } : item,
     )
   }
 
@@ -49,7 +67,7 @@ export default class ChatItems extends VuexModule {
   }
 
   @Action({ rawError: true })
-  public addOrUpdate(chatItem: ChatItemModel) {
+  public addOrUpdate(chatItem: ChatItemWithStatus) {
     if (this._chatItems.find(({ id }) => id === chatItem.id)) {
       this.update(chatItem)
     } else {
@@ -67,20 +85,19 @@ export default class ChatItems extends VuexModule {
     topicId: number
     target?: ChatItemModel
   }) {
-    const params: PostChatItemRequest = {
-      id: getUUID(),
-      type: "message",
-      topicId,
-      content: text,
-      quoteId: target?.id,
-    }
-    const senderType: ChatItemSenderType = 
-      UserItemStore.userItems.isAdmin? "admin" : 
-      UserItemStore.userItems.speakerId === topicId? "speaker" :
-      "general"
+    const id = getUUID()
+    const isAdmin = UserItemStore.userItems.isAdmin
+
+    const senderType: ChatItemSenderType = isAdmin
+      ? "admin"
+      : UserItemStore.userItems.speakerId === topicId
+      ? "speaker"
+      : "general"
+
     // ローカルに反映する
     this.add({
-      id: params.id,
+      id,
+      status: "loading",
       topicId,
       type: "message",
       senderType,
@@ -90,30 +107,32 @@ export default class ChatItems extends VuexModule {
       quote: target,
       timestamp: undefined,
     })
+
     // サーバーに送信する
-    const socket = buildSocket(AuthStore.idToken)
+    const socket = await buildSocket(isAdmin)
     try {
-      await emitAsync(socket, "POST_CHAT_ITEM", params)
-      // TODO: 正しいタイムスタンプを設定する
+      await emitAsync(socket, "POST_CHAT_ITEM", {
+        id,
+        type: "message",
+        topicId,
+        content: text,
+        quoteId: target?.id,
+      })
+      console.log("send message: ", text)
     } catch (e) {
-      // ローカルで追加したchatItemを削除する
-      this.remove(params.id)
-      throw e
+      this.updateStatus({ id, status: "failure" })
     }
-    console.log("send message: ", text)
   }
 
   @Action({ rawError: true })
   public async postReaction({ message }: { message: ChatItemModel }) {
-    const params: PostChatItemRequest = {
-      id: getUUID(),
-      type: "reaction",
-      topicId: message.topicId,
-      quoteId: message.id,
-    }
+    const id = getUUID()
+    const isAdmin = UserItemStore.userItems.isAdmin
+
     // ローカルに反映する
     this.add({
-      id: params.id,
+      id,
+      status: "loading",
       topicId: message.topicId,
       type: "reaction",
       senderType: "general",
@@ -123,16 +142,18 @@ export default class ChatItems extends VuexModule {
       quote: message,
     })
     // サーバーに反映する
-    const socket = buildSocket(AuthStore.idToken)
+    const socket = await buildSocket(isAdmin)
     try {
-      await emitAsync(socket, "POST_CHAT_ITEM", params)
-      // TODO: 正しいタイムスタンプを設定する
+      await emitAsync(socket, "POST_CHAT_ITEM", {
+        id,
+        type: "reaction",
+        topicId: message.topicId,
+        quoteId: message.id,
+      })
+      console.log("send reaction: ", message.content)
     } catch (e) {
-      // ローカルで追加したchatItemを削除する
-      this.remove(params.id)
-      throw e
+      this.updateStatus({ id, status: "failure" })
     }
-    console.log("send reaction: ", message.content)
   }
 
   @Action({ rawError: true })
@@ -145,20 +166,19 @@ export default class ChatItems extends VuexModule {
     topicId: number
     target?: ChatItemModel
   }) {
-    const params: PostChatItemRequest = {
-      id: getUUID(),
-      type: "question",
-      topicId,
-      content: text,
-      quoteId: target?.id,
-    }
-    const senderType: ChatItemSenderType = 
-      UserItemStore.userItems.isAdmin? "admin" : 
-      UserItemStore.userItems.speakerId === topicId? "speaker" :
-      "general"
+    const id = getUUID()
+    const isAdmin = UserItemStore.userItems.isAdmin
+
+    const senderType: ChatItemSenderType = isAdmin
+      ? "admin"
+      : UserItemStore.userItems.speakerId === topicId
+      ? "speaker"
+      : "general"
+
     // ローカルに反映する
     this.add({
-      id: params.id,
+      id,
+      status: "loading",
       topicId,
       type: "question",
       senderType,
@@ -169,16 +189,19 @@ export default class ChatItems extends VuexModule {
       quote: target,
     })
     // サーバーに反映する
-    const socket = buildSocket(AuthStore.idToken)
+    const socket = await buildSocket(isAdmin)
     try {
-      await emitAsync(socket, "POST_CHAT_ITEM", params)
-      // TODO: 正しいタイムスタンプを設定する
+      await emitAsync(socket, "POST_CHAT_ITEM", {
+        id,
+        type: "question",
+        topicId,
+        content: text,
+        quoteId: target?.id,
+      })
+      console.log("send question: ", text)
     } catch (e) {
-      // ローカルで追加したchatItemを削除する
-      this.remove(params.id)
-      throw e
+      this.updateStatus({ id, status: "failure" })
     }
-    console.log("send question: ", text)
   }
 
   @Action({ rawError: true })
@@ -191,20 +214,18 @@ export default class ChatItems extends VuexModule {
     topicId: number
     target: ChatItemModel
   }) {
-    const params: PostChatItemRequest = {
-      id: getUUID(),
-      type: "answer",
-      topicId,
-      quoteId: target.id,
-      content: text,
-    }
-    const senderType: ChatItemSenderType = 
-      UserItemStore.userItems.isAdmin? "admin" : 
-      UserItemStore.userItems.speakerId === topicId? "speaker" :
-      "general"
+    const id = getUUID()
+    const isAdmin = UserItemStore.userItems.isAdmin
+
+    const senderType: ChatItemSenderType = UserItemStore.userItems.isAdmin
+      ? "admin"
+      : UserItemStore.userItems.speakerId === topicId
+      ? "speaker"
+      : "general"
     // ローカルに反映する
     this.add({
-      id: params.id,
+      id,
+      status: "loading",
       topicId,
       type: "answer",
       senderType,
@@ -215,15 +236,31 @@ export default class ChatItems extends VuexModule {
       content: text,
     })
     // サーバーに反映する
-    const socket = buildSocket(AuthStore.idToken)
+    const socket = await buildSocket(isAdmin)
     try {
-      await emitAsync(socket, "POST_CHAT_ITEM", params)
-      // TODO: 正しいタイムスタンプを設定する
+      await emitAsync(socket, "POST_CHAT_ITEM", {
+        id,
+        type: "answer",
+        topicId,
+        quoteId: target.id,
+        content: text,
+      })
+      console.log("send answer: ", text)
     } catch (e) {
-      // ローカルで追加したchatItemを削除する
-      this.remove(params.id)
-      throw e
+      this.updateStatus({ id, status: "failure" })
     }
-    console.log("send answer: ", text)
+  }
+
+  @Action({ rawError: true })
+  public async retrySendChatItem({ chatItem }: { chatItem: ChatItemModel }) {
+    const isAdmin = UserItemStore.userItems.isAdmin
+    const socket = await buildSocket(isAdmin)
+    this.updateStatus({ id: chatItem.id, status: "loading" })
+    try {
+      await emitAsync(socket, "POST_CHAT_ITEM", chatItem)
+      console.log("retry send chatItem: ", chatItem.content)
+    } catch (e) {
+      this.updateStatus({ id: chatItem.id, status: "failure" })
+    }
   }
 }

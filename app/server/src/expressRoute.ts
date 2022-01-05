@@ -16,7 +16,7 @@ export type Routes = Omit<ExpressCore, "get" | "post" | "put"> & {
       req: express.Request<
         RestApi<"get", Path>["params"],
         RestApi<"get", Path>["response"],
-        RestApi<"get", Path>["request"],
+        unknown,
         RestApi<"get", Path>["query"]
       >,
       res: express.Response<RestApi<"get", Path>["response"]>,
