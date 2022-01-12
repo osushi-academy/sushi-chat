@@ -90,8 +90,10 @@
     }
     &--speaker {
       position: relative;
-      width: 400px;
+      width: 100%;
+      max-width: 400px;
       margin-bottom: 50px;
+      background: white;
       & > .select-speaker {
         -webkit-appearance: none;
         appearance: none;
