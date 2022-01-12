@@ -28,10 +28,6 @@
 .chat-room-area {
   display: flex;
   overflow-x: scroll;
-
-  &.show-admin-tool {
-    margin-right: Min($admin-tool-width, $admin-tool-max-width);
-  }
 }
 
 .topic-block {
@@ -652,7 +648,6 @@
   .reaction {
     position: relative;
     width: 100%;
-    min-height: 5rem;
     flex-grow: 1;
     flex-shrink: 0;
     padding: 0em 0.8em 0.35em;

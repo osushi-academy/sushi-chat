@@ -6,12 +6,9 @@
   height: 100%;
   background-color: $bg;
   word-break: break-all;
-  width: 100%;
-  max-width: 100%;
-
-  @media screen and (min-width: 1000px) {
-    width: $admin-tool-width;
-    max-width: $admin-tool-max-width;
+  display: none;
+  @media screen and (min-width: $large) {
+    display: block;
   }
 
   .drawer-menu {
