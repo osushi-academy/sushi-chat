@@ -28,6 +28,7 @@ import { DefaultEventsMap } from "socket.io/dist/typed-events"
 import IStampFactory from "./domain/stamp/IStampFactory"
 import IAdminAuth from "./domain/admin/IAdminAuth"
 import AdminAuth from "./infra/auth/AdminAuth"
+import { CORS_OPTION } from "./utils/http"
 
 export class GlobalSocket extends Server<
   DefaultEventsMap,
@@ -51,7 +52,7 @@ const createSocketIOServer = async (
 ) => {
   const io = new GlobalSocket(httpServer, {
     cors: {
-      origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
+      ...CORS_OPTION,
       methods: ["GET", "POST"],
       credentials: true,
     },

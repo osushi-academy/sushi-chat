@@ -14,6 +14,7 @@ import StampFactory from "./infra/factory/StampFactory"
 import AdminService from "./service/admin/AdminService"
 import AdminAuth from "./infra/auth/AdminAuth"
 import cors from "cors"
+import { CORS_OPTION } from "./utils/http"
 
 const app = express()
 const httpServer = createServer(app)
@@ -65,11 +66,7 @@ httpServer.listen(PORT, () => {
 })
 
 // ref: https://www.npmjs.com/package/cors#configuring-cors
-const corsOption = {
-  origin: process.env.CORS_ORIGIN ?? "http://localhost:3000",
-  optionsSuccessStatus: 200,
-}
-const myCors = () => cors(corsOption)
+const myCors = () => cors(CORS_OPTION)
 // NOTE: genericsでstringを指定しないと、オーバーロードがマッチしなくて型エラーが起こる
 app.options<string>("*", myCors())
 app.use(myCors())
