@@ -1,13 +1,16 @@
 import { Plugin } from "@nuxt/types"
 import buildSocket, { SocketIOType } from "~/utils/socketIO"
-const socketPlugin: Plugin = (context, inject) => {
-  let socket: SocketIOType | null = null
+
+const socketPlugin: Plugin = (_, inject) => {
   // socketを初期化する
-  inject("initSocket", (asAdmin: boolean) => {
-    socket = buildSocket(asAdmin ? context.store.state.auth._idToken : null)
+  const socket = new Promise<SocketIOType>((resolve) => {
+    inject("initSocket", async (asAdmin: boolean) => {
+      const socket: SocketIOType = await buildSocket(asAdmin)
+      resolve(socket)
+    })
   })
   // socketを取得する
-  inject("socket", () => socket)
+  inject("socket", async () => await socket)
 }
 
 export default socketPlugin
@@ -15,18 +18,18 @@ export default socketPlugin
 declare module "vue/types/vue" {
   interface Vue {
     readonly $initSocket: (asAdmin?: boolean) => void
-    readonly $socket: () => SocketIOType
+    readonly $socket: () => Promise<SocketIOType>
   }
 }
 
 declare module "@nuxt/types" {
   interface NuxtAppOptions {
     readonly $initSocket: (idToken?: boolean) => void
-    readonly $socket: () => SocketIOType
+    readonly $socket: () => Promise<SocketIOType>
   }
 
   interface Context {
     readonly $initSocket: (asAdmin?: boolean) => void
-    readonly $socket: () => SocketIOType
+    readonly $socket: () => Promise<SocketIOType>
   }
 }

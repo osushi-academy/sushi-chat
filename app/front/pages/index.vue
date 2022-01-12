@@ -55,6 +55,7 @@ import {
   StampModel,
   PubUserCountParam,
   PubPinnedMessageParam,
+  EnterRoomResponse,
 } from "sushi-chat-shared"
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
@@ -138,8 +139,9 @@ export default Vue.extend({
     this.checkStatusAndAction()
     DeviceStore.determineOs()
   },
-  beforeDestroy() {
-    this.$socket()?.disconnect()
+  async beforeDestroy() {
+    const socket = await this.$socket()
+    socket.disconnect()
   },
   methods: {
     async checkStatusAndAction() {
@@ -175,32 +177,33 @@ export default Vue.extend({
       // NOTE: もしかして：archivedも返ってくる？
     },
     // socket.ioのセットアップ。配信を受け取る
-    socketSetUp() {
+    async socketSetUp() {
       // socket接続
       this.$initSocket(UserItemStore.userItems.isAdmin)
+      const socket = await this.$socket()
 
       // SocketIOのコールバックの登録
-      this.$socket().on("PUB_CHAT_ITEM", (chatItem) => {
+      socket.on("PUB_CHAT_ITEM", (chatItem) => {
         console.log(chatItem)
         // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
         ChatItemStore.addOrUpdate({ ...chatItem, status: "success" })
       })
-      this.$socket().on("PUB_CHANGE_TOPIC_STATE", (res) => {
+      socket.on("PUB_CHANGE_TOPIC_STATE", (res) => {
         // クリックしたTopicのStateを変える
         TopicStateItemStore.change({ key: res.topicId, state: res.state })
       })
       // スタンプ通知時の、SocketIOのコールバックの登録
-      this.$socket().on("PUB_STAMP", (stamps: StampModel[]) => {
+      socket.on("PUB_STAMP", (stamps: StampModel[]) => {
         stamps.forEach((stamp) => {
           StampStore.addOrUpdate(stamp)
         })
       })
       // アクティブユーザー数のSocketIOのコールバックの登録
-      this.$socket().on("PUB_USER_COUNT", (res: PubUserCountParam) => {
+      socket.on("PUB_USER_COUNT", (res: PubUserCountParam) => {
         this.activeUserCount = res.activeUserCount
       })
       // ピン留めアイテムのSocketIOのコールバックの登録
-      this.$socket().on("PUB_PINNED_MESSAGE", (res: PubPinnedMessageParam) => {
+      socket.on("PUB_PINNED_MESSAGE", (res: PubPinnedMessageParam) => {
         if (
           PinnedChatItemsStore.pinnedChatItems.find(
             (id) => id === res.chatItemId,
@@ -221,9 +224,10 @@ export default Vue.extend({
         this.hamburgerMenu = "menu"
       }
     },
-    changeTopicState(topicId: number, state: TopicState) {
+    async changeTopicState(topicId: number, state: TopicState) {
       TopicStateItemStore.change({ key: topicId, state })
-      this.$socket().emit(
+      const socket = await this.$socket()
+      socket.emit(
         "ADMIN_CHANGE_TOPIC_STATE",
         {
           state,
@@ -240,9 +244,10 @@ export default Vue.extend({
       this.enterRoom(UserItemStore.userItems.myIconId)
     },
     // ルーム入室
-    enterRoom(iconId: number) {
-      this.socketSetUp()
-      this.$socket().emit(
+    async enterRoom(iconId: number) {
+      await this.socketSetUp()
+      const socket = await this.$socket()
+      socket.emit(
         "ENTER_ROOM",
         {
           iconId,
@@ -250,65 +255,55 @@ export default Vue.extend({
           speakerTopicId: UserItemStore.userItems.speakerId,
         },
         (res) => {
-          if (res.result === "error") {
-            console.error(res.error)
-            return
-          }
-          res.data.topicStates.forEach((topicState) => {
-            TopicStateItemStore.change({
-              key: topicState.topicId,
-              state: topicState.state,
-            })
-          })
-          res.data.pinnedChatItemIds.forEach((pinnedChatItem) => {
-            if (pinnedChatItem) {
-              PinnedChatItemsStore.add(pinnedChatItem)
-            }
-          })
-          ChatItemStore.setChatItems(
-            res.data.chatItems.map((chatItem) => ({
-              ...chatItem,
-              status: "success",
-            })),
-          )
+          this.getRoomInfo(res)
         },
       )
-      this.isRoomEnter = true
     },
     // 管理者ルーム入室
-    adminEnterRoom() {
-      this.socketSetUp()
-      this.$socket().emit(
+    async adminEnterRoom() {
+      await this.socketSetUp()
+      const socket = await this.$socket()
+      socket.emit(
         "ADMIN_ENTER_ROOM",
         {
           roomId: this.room.id,
         },
         (res) => {
-          if (res.result === "error") {
-            console.error(res.error)
-            return
-          }
-          ChatItemStore.setChatItems(
-            res.data.chatItems.map((chatItem) => ({
-              ...chatItem,
-              status: "success",
-            })),
-          )
-          res.data.topicStates.forEach((topicState) => {
-            TopicStateItemStore.change({
-              key: topicState.topicId,
-              state: topicState.state,
-            })
-          })
-          this.activeUserCount = res.data.activeUserCount
+          this.getRoomInfo(res)
         },
       )
-      this.isRoomEnter = true
       UserItemStore.changeMyIcon(0)
     },
+    // 入室時のルームの情報を取得
+    getRoomInfo(res: EnterRoomResponse) {
+      if (res.result === "error") {
+        console.error(res.error)
+        return
+      }
+      ChatItemStore.setChatItems(
+        res.data.chatItems.map((chatItem) => ({
+          ...chatItem,
+          status: "success",
+        })),
+      )
+      res.data.topicStates.forEach((topicState) => {
+        TopicStateItemStore.change({
+          key: topicState.topicId,
+          state: topicState.state,
+        })
+      })
+      res.data.pinnedChatItemIds.forEach((pinnedChatItem) => {
+        if (pinnedChatItem) {
+          PinnedChatItemsStore.add(pinnedChatItem)
+        }
+      })
+      this.activeUserCount = res.data.activeUserCount
+      this.isRoomEnter = true
+    },
     // ルーム終了
-    finishRoom() {
-      this.$socket().emit("ADMIN_FINISH_ROOM", {}, (res) => {
+    async finishRoom() {
+      const socket = await this.$socket()
+      socket.emit("ADMIN_FINISH_ROOM", {}, (res) => {
         console.log(res)
       })
       this.roomState = "finished"
