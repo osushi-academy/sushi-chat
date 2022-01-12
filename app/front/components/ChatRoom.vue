@@ -37,8 +37,10 @@
         </transition-group>
         <div v-if="showGraph" class="graph-wrapper">
           <div class="graph-action-area" style="text-align: end">
-            <button class="close-button" @click="showGraph = false">
-              <XIcon></XIcon>
+            <button>
+              <span class="close-button" @click="showGraph = false">
+                <XIcon></XIcon>
+              </span>
             </button>
           </div>
           <AnalysisGraph :topic-title="topic.title" :topic-id="topicId" />
