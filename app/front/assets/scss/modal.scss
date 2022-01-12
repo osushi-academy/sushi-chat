@@ -1,13 +1,14 @@
 /* モーダル */
 $modal-header-height: 48px;
+
 .modal-body {
   padding: 5px 25px;
   text-align: center;
 
   &.modal-scrollable {
     position: relative;
-    padding: 1em 1rem;
     height: 100%;
+    padding: 1em 1rem;
     padding-bottom: calc(#{$modal-header-height} + 1rem);
     overflow-y: scroll;
     overscroll-behavior: none;
@@ -27,36 +28,37 @@ $modal-header-height: 48px;
   }
 
   .topic-add {
-    border: 2px solid rgb(101, 247, 108);
     margin: 10px;
+    border: 2px solid rgb(101, 247, 108);
   }
 
   .topic-start {
-    border: 2px solid;
     margin: 10px;
+    border: 2px solid;
   }
 }
+
 .modal-header {
-  border-bottom: 1px solid #ddd;
+  height: $modal-header-height;
   padding: 5px 25px;
   overflow: hidden;
-  height: $modal-header-height;
-}
-.modal-actions {
-  margin-top: 8px;
-  display: flex;
-  justify-content: center;
+  border-bottom: 1px solid #ddd;
 }
 
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
 
 .modal-body input {
   width: 70%;
 }
 
 .secondary-button {
+  padding: 0 12px;
   background: white;
-  padding: 0px 12px;
   border-radius: 4px;
-  box-shadow: rgba(162, 162, 172, 0.2) 0px 2px 4px 0px;
+  box-shadow: rgba(162, 162, 172, 20%) 0 2px 4px 0;
   transition: all 0.3s;
 }

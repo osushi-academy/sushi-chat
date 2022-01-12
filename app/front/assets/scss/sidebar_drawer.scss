@@ -4,10 +4,12 @@
     &-leave-active {
       transition: all 0.3s;
     }
+
     &-enter,
     &-leave-to {
       transform: translateX(-100%);
     }
+
     &-enter-to,
     &-leave {
       transform: translateX(0);
@@ -23,23 +25,25 @@
   }
 
   & > .menu-button-wrapper {
-    //position: fixed;
-    //top: 0;
-    //left: 0;
-    background: transparent;
-    fill: $black;
     z-index: 40;
 
+    // position: fixed;
+    // top: 0;
+    // left: 0;
+    background: transparent;
+    fill: $black;
+
     & > .menu-button {
-      width: 2.5em;
-      height: 2.5em;
-      border: none;
-      background: transparent;
-      border-radius: 99px;
       display: flex;
       align-items: center;
       justify-content: center;
+      width: 2.5em;
+      height: 2.5em;
       color: white;
+      background: transparent;
+      border: none;
+      border-radius: 99px;
+
       &:hover,
       &:focus {
         background: $hover-button-background;
