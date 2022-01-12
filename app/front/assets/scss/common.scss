@@ -1,10 +1,10 @@
 body {
   font-family: "M PLUS 1p", sans-serif;
-  touch-action: manipulation; // ダブルタップによるズームは抑止
-  -webkit-font-smoothing: antialiased;
-  color: $black;
   font-size: 0.9rem;
+  color: $black;
+  touch-action: manipulation; // ダブルタップによるズームは抑止
   background: white;
+  -webkit-font-smoothing: antialiased;
 }
 
 .material-icons {
@@ -31,39 +31,39 @@ button {
 
 label {
   position: relative;
+  padding-left: 0;
   cursor: pointer;
-  padding-left: 0px;
 
   & > input[type="checkbox"] {
-    outline: none;
-    margin: 0.2rem;
     width: 12px;
     height: 12px;
+    margin: 0.2rem;
     cursor: pointer;
+    outline: none;
 
     &:focus-visible::before {
       outline: auto;
-      outline-offset: 2px;
       outline-color: blue;
+      outline-offset: 2px;
     }
 
     &::before {
       position: absolute;
       top: 50%;
       left: 0;
-      transform: translateY(-50%);
-      opacity: 1;
-      content: "";
       display: inline-block;
-      height: 16px;
       width: 16px;
+      height: 16px;
+      content: "";
       background: #fff;
       border: 1px solid #231815;
       border-radius: 1px;
+      opacity: 1;
+      transform: translateY(-50%);
     }
 
     &:checked::before {
-      background: rgb(59, 183, 255);
+      background: rgb(59 183 255);
       border-color: transparent;
     }
 
@@ -71,14 +71,14 @@ label {
       position: absolute;
       top: 50%;
       left: 0;
-      transform: translateY(-50%);
-      opacity: 0;
-      content: "";
       display: inline-block;
-      height: 16px;
       width: 16px;
-      background: white;
+      height: 16px;
       clip-path: polygon(10% 50%, 20% 40%, 45% 60%, 80% 20%, 90% 30%, 45% 83%);
+      content: "";
+      background: white;
+      opacity: 0;
+      transform: translateY(-50%);
     }
 
     &:checked::after {
@@ -94,27 +94,28 @@ textarea {
 }
 
 span.key-span {
-  background: rgb(110, 110, 110);
-  color: rgb(243, 243, 243);
-  border-radius: 1px;
   padding: 0 0.4em;
   margin: 0 0.2em;
   font-weight: bold;
+  color: rgb(243 243 243);
+  background: rgb(110 110 110);
+  border-radius: 1px;
 }
 
 .page {
   display: flex;
   flex-direction: column;
-  height: 100vh;
   min-width: 0;
+  height: 100vh;
 
   header {
     width: 100vw;
+
     button {
       float: right;
-      border: none;
-      color: rgb(110, 110, 110);
+      color: rgb(110 110 110);
       background-color: white;
+      border: none;
     }
   }
 
