@@ -28,6 +28,18 @@
 .chat-room-area {
   display: flex;
   overflow-x: scroll;
+  @media screen and (max-width: $large) {
+    &__cover {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: $z-modal - 1;
+      display: block;
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
 }
 
 .topic-block {

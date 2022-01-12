@@ -24,6 +24,11 @@
         :class="{ 'show-admin-tool': showAdminTool }"
       >
         <SidebarDrawer />
+        <div
+          v-if="showSidebar"
+          class="chat-room-area__cover"
+          @click="closeSidebar"
+        />
         <ChatRoom
           :topic-index="selectedTopicId"
           :topic-id="selectedTopicId"
@@ -55,6 +60,7 @@ import {
   DeviceStore,
   UserItemStore,
   SelectedTopicStore,
+  SidebarStore,
   StampStore,
   TopicStore,
   TopicStateItemStore,
@@ -64,9 +70,6 @@ import {
 
 // Data型
 type DataType = {
-  // 管理画面
-  hamburgerMenu: string
-  isDrawer: boolean
   // ルーム情報
   activeUserCount: number
   isRoomEnter: boolean
@@ -82,9 +85,6 @@ export default Vue.extend({
   },
   data(): DataType {
     return {
-      // 管理画面
-      hamburgerMenu: "menu",
-      isDrawer: false,
       // ルーム情報
       activeUserCount: 0,
       isRoomEnter: false,
@@ -116,6 +116,9 @@ export default Vue.extend({
     },
     loadingFinished(): boolean {
       return Object.keys(this.room).length > 1
+    },
+    showSidebar(): boolean {
+      return SidebarStore.showSidebar
     },
   },
   created() {
@@ -208,15 +211,6 @@ export default Vue.extend({
           PinnedChatItemsStore.add(res.chatItemId)
         }
       })
-    },
-    // 管理画面の開閉
-    clickDrawerMenu() {
-      this.isDrawer = !this.isDrawer
-      if (this.isDrawer) {
-        this.hamburgerMenu = "close"
-      } else {
-        this.hamburgerMenu = "menu"
-      }
     },
     async changeTopicState(topicId: number, state: TopicState) {
       TopicStateItemStore.change({ key: topicId, state })
@@ -322,6 +316,9 @@ export default Vue.extend({
           console.error(e)
           window.alert("ルームを開始できませんでした")
         })
+    },
+    closeSidebar() {
+      SidebarStore.set(false)
     },
   },
 })
