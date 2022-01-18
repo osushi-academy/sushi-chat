@@ -198,7 +198,7 @@ class RoomRepository implements IRoomRepository {
           room.startAt,
           room.finishAt,
           room.archivedAt,
-          formatDate(new Date()),
+          new Date(),
           room.id,
         ]),
         pgClient.query(roomAdminsQuery, [room.id, ...room.adminIds]),
@@ -207,7 +207,7 @@ class RoomRepository implements IRoomRepository {
             pgClient.query(topicQuery, [
               RoomRepository.topicStateMap[t.state],
               room.topicTimeData[t.id].offsetTime,
-              formatDate(new Date()),
+              new Date(),
               room.id,
               t.id,
             ]),
