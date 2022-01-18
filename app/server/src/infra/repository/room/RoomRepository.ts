@@ -203,7 +203,7 @@ class RoomRepository implements IRoomRepository {
           room.id,
         ]),
         pgClient.query(roomAdminsQuery, [room.id, ...room.adminIds]),
-        await Promise.all(
+        Promise.all(
           room.topics.map((t) =>
             pgClient.query(topicQuery, [
               RoomRepository.topicStateMap[t.state],
@@ -214,7 +214,7 @@ class RoomRepository implements IRoomRepository {
             ]),
           ),
         ),
-        await Promise.all(
+        Promise.all(
           Object.entries(room.topicTimeData)
             .filter(([_, topicTimeData]) => topicTimeData.openedDate !== null)
             .map(([topicId, topicTimeData]) =>
@@ -225,7 +225,7 @@ class RoomRepository implements IRoomRepository {
               ]),
             ),
         ),
-        await Promise.all(
+        Promise.all(
           Object.entries(room.topicTimeData)
             .filter(([_, topicTimeData]) => topicTimeData.pausedDate !== null)
             .map(([topicId, timeData]) =>
