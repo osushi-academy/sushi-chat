@@ -24,7 +24,7 @@ class StampService {
       roomId,
       this.roomRepository,
     )
-    const timestamp = room.calcTimestamp(topicId)
+    const timestamp = room.calcTimestamp(topicId) as number // NOTE: スタンプはongoing中しか送信できないため as number
 
     const stamp = this.stampFactory.create(
       id,

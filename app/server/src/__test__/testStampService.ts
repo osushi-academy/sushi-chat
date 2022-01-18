@@ -58,7 +58,10 @@ describe("StampServiceのテスト", () => {
         "test room",
         uuid(),
         "This is test room.",
-        [{ title: "test topic" }],
+        [
+          { id: 1, title: "test topic", state: "ongoing" },
+          { id: 2, title: "test topic 2", state: "not-started" },
+        ],
         new Set([admin.id]),
         "ongoing",
         new Date(),
@@ -88,7 +91,7 @@ describe("StampServiceのテスト", () => {
       expect(deliveredStamp.userId).toBe(userId)
     })
 
-    test("異常系_OPEN状態でないTopicへはスタンプを投稿できない", async () => {
+    test("異常系_ONGOING状態でないTopicへはスタンプを投稿できない", async () => {
       const stampId = uuid()
       await expect(() =>
         stampService.post({ id: stampId, userId, topicId: 2 }),
