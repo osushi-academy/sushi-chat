@@ -52,10 +52,12 @@
         ></PinIcon>
       </div>
       <button
-        class="topic-header__bookmark--text"
+        class="topic-header__bookmark--button"
         @click="clickScrollToMessage"
       >
-        {{ pinnedChatItemContent }}
+        <span class="topic-header__bookmark--content">
+          {{ pinnedChatItemContent }}
+        </span>
       </button>
       <button
         v-show="isAdmin || isSpeaker"

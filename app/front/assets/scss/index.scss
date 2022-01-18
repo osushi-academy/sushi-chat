@@ -161,11 +161,21 @@
       transform: rotate(20deg);
     }
 
-    &--text {
+    &--button {
       flex: 1;
-      font-size: 14px;
+    }
+
+    &--content {
+      display: box;
+      width: 100%;
+      max-height: 2.5rem;
+      overflow: hidden;
+      font-size: 100%;
       text-align: left;
       word-break: break-all;
+      overflow-wrap: anywhere;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
     }
 
     &--close-icon {
@@ -691,13 +701,18 @@
       & > .text {
         flex: 1;
         margin-left: 0.5em;
+        margin-left: 0.5em;
         word-break: break-all;
         overflow-wrap: anywhere;
 
-        & > .long-text {
-          display: box;
+        & .long-text--button {
           flex: 1;
-          margin-bottom: 0.3rem;
+        }
+
+        & .long-text--content {
+          display: box;
+          width: 100%;
+          max-height: 2rem;
           overflow: hidden;
           font-size: 80%;
           color: $text-gray;
@@ -706,11 +721,6 @@
           overflow-wrap: anywhere;
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
-
-          &:hover {
-            text-decoration: underline;
-            cursor: pointer;
-          }
         }
       }
     }
