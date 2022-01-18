@@ -13,7 +13,7 @@
         <transition-group
           :id="topicId"
           ref="scrollable"
-          class="scrollable list-complete disable-scroll-transition"
+          class="scrollable list-complete"
           tag="div"
         >
           <div
