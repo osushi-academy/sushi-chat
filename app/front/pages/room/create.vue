@@ -62,10 +62,7 @@
                       )
                     "
                     @keydown.delete="
-                      if (
-                        sessionList[idx].title.length === 0 &&
-                        composing == false
-                      ) {
+                      if (sessionList[idx].title.length === 0 && !composing) {
                         removeSessionAndMoveFocus($event, idx, 'up')
                       }
                     "

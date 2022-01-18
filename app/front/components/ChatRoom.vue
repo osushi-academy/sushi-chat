@@ -61,7 +61,11 @@
           :topic-id="topicId"
         />
       </div>
-      <button class="message-badge" :class="{ isNotify }" @click="clickScroll">
+      <button
+        class="message-badge"
+        :class="{ isNotify }"
+        @click="scrollToBottom"
+      >
         <ArrowDownIcon size="1.2x"></ArrowDownIcon>
       </button>
     </div>
@@ -199,7 +203,7 @@ export default Vue.extend({
       } catch (e) {
         window.alert("メッセージの送信に失敗しました")
       }
-      this.clickScroll()
+      this.scrollToBottom()
       this.selectedChatItem = null
     },
     // リアクションボタン
@@ -238,8 +242,9 @@ export default Vue.extend({
       }
     },
     // いちばん下までスクロール
-    clickScroll() {
+    scrollToBottom() {
       const element: Element | null = (this.$refs.scrollable as Vue).$el
+      console.log(element?.scrollHeight)
       if (element) {
         element.scrollTo({
           top: element.scrollHeight,
@@ -277,6 +282,9 @@ export default Vue.extend({
     },
     clickShowAll() {
       this.isAllCommentShowed = true
+      Vue.nextTick(() => {
+        setTimeout(() => this.scrollToBottom(), 100)
+      })
     },
     clickNotShowAll() {
       this.isAllCommentShowed = false
