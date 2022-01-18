@@ -196,7 +196,7 @@ class RoomRepository implements IRoomRepository {
     }
 
     const topicQuery =
-      "UPDATE topics SET topic_state_id = $1, offset_mil_sec = $2, WHERE room_id = $3 AND id = $4"
+      "UPDATE topics SET topic_state_id = $1, offset_mil_sec = $2 WHERE room_id = $3 AND id = $4"
     const updateTopic = async () => {
       await Promise.all(
         room.topics.map((t) =>
