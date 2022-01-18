@@ -20,7 +20,9 @@ import EphemeralAdminRepository from "../infra/repository/admin/EphemeralAdminRe
 import Admin from "../domain/admin/admin"
 
 describe("RealtimeRoomServiceのテスト", () => {
-  let adminUser: User
+  let roomId: string
+  let realtimeAdmin: User
+  let normalUser: User
   let topics: PartiallyPartial<Topic, "id" | "state" | "pinnedChatItemId">[]
 
   let roomRepository: IRoomRepository
@@ -52,19 +54,16 @@ describe("RealtimeRoomServiceのテスト", () => {
       new EphemeralChatItemDelivery(chatItemDeliverySubscribers),
     )
 
-    const admin = new Admin(uuid(), "Admin", [])
+    const adminId = uuid()
+    const admin = new Admin(adminId, "Admin", [])
     adminRepository.createIfNotExist(admin)
 
-    const adminUserId = uuid()
-    const roomId = uuid()
-    // WebSocket接続するadmin user
-    adminUser = new User(adminUserId, true, false, roomId, User.ADMIN_ICON_ID)
-    userRepository.create(adminUser)
-
+    roomId = uuid()
     const title = "テストルーム"
     const inviteKey = uuid()
     const description = "テスト用のルームです"
     topics = [1, 2].map((i) => ({ title: `テストトピック${i}` }))
+    const adminIds = new Set([admin.id])
     const state: RoomState = "ongoing"
     const startAt = new Date()
     const room = new RoomClass(
@@ -73,11 +72,29 @@ describe("RealtimeRoomServiceのテスト", () => {
       inviteKey,
       description,
       topics,
-      new Set([admin.id]),
+      adminIds,
       state,
       startAt,
     )
     roomRepository.build(room)
+
+    // WebSocket接続するadmin user
+    const realtimeAdminId = uuid()
+    realtimeAdmin = new User(
+      realtimeAdminId,
+      true,
+      false,
+      roomId,
+      User.ADMIN_ICON_ID,
+    )
+    userRepository.create(realtimeAdmin)
+    room.joinAdminUser(realtimeAdminId, adminId)
+
+    // WebSocket接続する一般user
+    const normalUserId = uuid()
+    normalUser = new User(normalUserId, false, false, roomId, NewIconId(1))
+    userRepository.create(normalUser)
+    room.joinUser(normalUserId)
   })
 
   describe("changeTopicStateのテスト", () => {
@@ -86,7 +103,7 @@ describe("RealtimeRoomServiceのテスト", () => {
 
     beforeEach(async () => {
       await roomService.changeTopicState({
-        userId: adminUser.id,
+        userId: realtimeAdmin.id,
         topicId: 1,
         state: "ongoing",
       })
@@ -98,14 +115,14 @@ describe("RealtimeRoomServiceのテスト", () => {
     test("正常系_進行中のtopicが終了して次のtopicが開始する", async () => {
       const nextTopicId = 2
       await roomService.changeTopicState({
-        userId: adminUser.id,
+        userId: realtimeAdmin.id,
         topicId: nextTopicId,
         state: "ongoing",
       })
 
-      const room = await roomRepository.find(adminUser.roomId)
+      const room = await roomRepository.find(roomId)
       if (!room) {
-        throw new Error(`Room(${adminUser.roomId}) was not found.`)
+        throw new Error(`Room(${roomId}) was not found.`)
       }
 
       expect(room.topics[0].state).toBe<TopicState>("finished")
@@ -122,7 +139,7 @@ describe("RealtimeRoomServiceのテスト", () => {
       expect(
         deliveredFinishContent.content,
       ).toStrictEqual<ChangeTopicStateContent>({
-        roomId: adminUser.roomId,
+        roomId,
         topic: {
           ...topics[0],
           id: 1,
@@ -138,7 +155,7 @@ describe("RealtimeRoomServiceのテスト", () => {
       expect(
         deliveredOngoingContent.content,
       ).toStrictEqual<ChangeTopicStateContent>({
-        roomId: adminUser.roomId,
+        roomId,
         topic: {
           ...topics[1],
           id: 2,
@@ -156,14 +173,14 @@ describe("RealtimeRoomServiceのテスト", () => {
     test("正常系_進行中のtopicが終了する", async () => {
       const currentTopicId = 1
       await roomService.changeTopicState({
-        userId: adminUser.id,
+        userId: realtimeAdmin.id,
         topicId: currentTopicId,
         state: "finished",
       })
 
-      const room = await roomRepository.find(adminUser.roomId)
+      const room = await roomRepository.find(roomId)
       if (!room) {
-        throw new Error(`Room(${adminUser.roomId}) was not found.`)
+        throw new Error(`Room(${roomId}) was not found.`)
       }
 
       expect(room.topics[0].state).toBe<TopicState>("finished")
@@ -175,7 +192,7 @@ describe("RealtimeRoomServiceのテスト", () => {
         roomDeliverySubscribers[0][deliveredRoomContentsCount]
       expect(deliveredContent.type).toBe<RoomDeliveryType>("CHANGE_TOPIC_STATE")
       expect(deliveredContent.content).toStrictEqual<ChangeTopicStateContent>({
-        roomId: adminUser.roomId,
+        roomId,
         topic: {
           ...topics[0],
           id: 1,
@@ -193,14 +210,14 @@ describe("RealtimeRoomServiceのテスト", () => {
     test("正常系_進行中のtopicが一時停止する", async () => {
       const currentTopicId = 1
       await roomService.changeTopicState({
-        userId: adminUser.id,
+        userId: realtimeAdmin.id,
         topicId: currentTopicId,
         state: "paused",
       })
 
-      const room = await roomRepository.find(adminUser.roomId)
+      const room = await roomRepository.find(roomId)
       if (!room) {
-        throw new Error(`Room(${adminUser.roomId}) was not found.`)
+        throw new Error(`Room(${roomId}) was not found.`)
       }
 
       expect(room.topics[0].state).toBe<TopicState>("paused")
@@ -212,7 +229,7 @@ describe("RealtimeRoomServiceのテスト", () => {
         roomDeliverySubscribers[0][deliveredRoomContentsCount]
       expect(deliveredContent.type).toBe<RoomDeliveryType>("CHANGE_TOPIC_STATE")
       expect(deliveredContent.content).toStrictEqual<ChangeTopicStateContent>({
-        roomId: adminUser.roomId,
+        roomId: roomId,
         topic: {
           ...topics[0],
           id: 1,
@@ -236,27 +253,19 @@ describe("RealtimeRoomServiceのテスト", () => {
     })
 
     test("異常系_adminでないuserはトピックの状態を変更できない", async () => {
-      const notAdminUser = new User(
-        uuid(),
-        false,
-        false,
-        adminUser.roomId,
-        NewIconId(1),
-      )
-
       await expect(() =>
-        roomService.finish({ userId: notAdminUser.id }),
+        roomService.finish({ userId: normalUser.id }),
       ).rejects.toThrow()
     })
   })
 
   describe("finishのテスト", () => {
     test("正常系_roomが終了する", async () => {
-      await roomService.finish({ userId: adminUser.id })
+      await roomService.finish({ userId: realtimeAdmin.id })
 
-      const room = await roomRepository.find(adminUser.roomId)
+      const room = await roomRepository.find(roomId)
       if (!room) {
-        throw new Error(`Room(${adminUser.roomId}) was not found.`)
+        throw new Error(`Room(${roomId}) was not found.`)
       }
 
       expect(room.state).toBe<RoomState>("finished")
@@ -272,16 +281,8 @@ describe("RealtimeRoomServiceのテスト", () => {
     })
 
     test("異常系_adminでないuserはroomをfinishできない", async () => {
-      const notAdminUser = new User(
-        uuid(),
-        false,
-        false,
-        adminUser.roomId,
-        NewIconId(1),
-      )
-
       await expect(() =>
-        roomService.finish({ userId: notAdminUser.id }),
+        roomService.finish({ userId: normalUser.id }),
       ).rejects.toThrow()
     })
   })
