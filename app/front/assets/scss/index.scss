@@ -150,8 +150,10 @@
     & > .icon {
       transform: rotate(20deg);
     }
-    &--text {
+    &--button {
       flex: 1;
+    }
+    &--content {
       display: -webkit-box;
       word-break: break-all;
       overflow-wrap: anywhere;
@@ -162,10 +164,6 @@
       font-size: 100%;
       width: 100%;
       max-height: 2.5rem;
-      &:hover {
-        text-decoration: underline;
-        cursor: pointer;
-      }
     }
     &--close-icon {
       flex-shrink: 0;
@@ -680,10 +678,6 @@
           font-size: 80%;
           width: 100%;
           max-height: 2rem;
-          &:hover {
-            text-decoration: underline;
-            cursor: pointer;
-          }
         }
       }
     }
