@@ -207,9 +207,12 @@ export default Vue.extend({
       return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
     },
     adminUrl(): string {
-      return `${location.origin}/invited/?roomId=${encodeURIComponent(
-        this.room.id,
-      )}&admin_invite_key=${encodeURIComponent(this.room.adminInviteKey)}`
+      if (this.room.adminInviteKey) {
+        return `${location.origin}/invited/?roomId=${encodeURIComponent(
+          this.room.id,
+        )}&admin_invite_key=${encodeURIComponent(this.room.adminInviteKey)}`
+      }
+      return ""
     },
     shareUrl(): string {
       return `${location.origin}?roomId=${encodeURIComponent(this.room.id)}`

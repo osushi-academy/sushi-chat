@@ -14,7 +14,7 @@ export default class Room extends VuexModule {
     state: 'not-started',
     description: undefined,
     startDate: undefined,
-    adminInviteKey: "undefined",
+    adminInviteKey: "",
   }
 
   public get room(): RoomModel {
