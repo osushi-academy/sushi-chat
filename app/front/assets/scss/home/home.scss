@@ -1,133 +1,101 @@
 .home {
-  min-height: 100vh;
   background-color: $bg;
-
+  min-height: 100vh;
   &__header {
     position: sticky;
     top: 0;
-    color: white;
     background-color: $admin-primary;
-
+    color: white;
     @include text-size("xl");
     @include home-padding-layout(0.5);
     @include invalidated-a-style;
   }
-
   &__main {
     @include home-padding-layout(1);
   }
 }
 
 .home-top {
-  margin: 2rem 0 0;
-
+  margin: 2rem 0 0 0;
   &__header {
-    margin: 0 0 1.5rem;
-
+    margin: 0 0 1.5rem 0;
     @include text-size("lg");
   }
-
   &__new-event {
+    margin: 0 0 2rem 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 0 0 2rem;
-
     &--input {
       width: 100%;
-      margin: 0 0 1rem;
-
+      margin: 0 0 1rem 0;
       @include white-text-box($expand: "true");
     }
-
     &--button {
-      display: inline-flex;
       margin: 0 auto;
-
       @include home-button-text;
+      display: inline-flex;
 
       & > .icon {
         margin-right: 0.25rem;
       }
     }
   }
-
   &__event {
-    margin: 0 0 1.5rem;
-
+    margin: 0 0 1.5rem 0;
     &--title {
-      margin: 0 0 0.7rem;
-
+      margin: 0 0 0.7rem 0;
       @include text-size("mdi");
     }
-
     &--item {
-      color: inherit;
       text-decoration: none;
-
+      color: inherit;
       :active {
         color: inherit;
       }
     }
-
     &__list {
       @include home-event-list-element;
     }
   }
-
   &__inquiry {
     margin: 3rem 0;
-
     &--title {
-      margin: 0 0 0.5rem;
-
+      margin: 0 0 0.5rem 0;
       @include text-size("mdi");
     }
-
     &--content {
       a {
         text-decoration: underline !important;
       }
-
       @include invalidated-a-style;
     }
   }
-
   &__account {
-    margin: 0 0 2rem;
-
+    margin: 0 0 2rem 0;
     &--title {
-      margin: 0 0 0.5rem;
-
+      margin: 0 0 0.5rem 0;
       @include text-size("mdi");
     }
-
     &--content {
       @media screen and (min-width: $small) {
         display: flex;
         align-items: center;
       }
     }
-
     &--logout-button {
       margin-top: 0.5rem;
-
       @include home-button-text;
     }
   }
-
   &__other {
-    margin: 0 0 1.5rem;
-
+    margin: 0 0 1.5rem 0;
     &--title {
-      margin: 0 0 1rem;
-
+      margin: 0 0 1rem 0;
       @include text-size("mdi");
     }
-
     &--delete-button {
       display: inline !important;
-
       @include home-button-text($danger);
     }
   }
@@ -135,100 +103,77 @@
 
 .home-create {
   &__header {
-    margin: 0 0 1.5rem;
-
+    margin: 0 0 1.5rem 0;
     @include text-size("xl");
   }
-
   &__event-name {
-    margin: 0 0 1.5rem;
-
+    margin: 0 0 1.5rem 0;
     &--title {
-      margin: 0 0 0.5rem;
-
+      margin: 0 0 0.5rem 0;
       @include text-size("lg");
     }
-
     &--input {
       width: 100%;
-
       @include white-text-box($expand: "true");
     }
   }
-
   &__room {
-    margin: 0 0 2rem;
-
+    margin: 0 0 2rem 0;
     &--title {
       @include text-size("lg");
     }
-
     &__sessions {
       display: grid;
+      margin: 1rem 0;
       grid-template-columns: auto 1fr;
       align-items: center;
-      margin: 1rem 0;
-
       &__index {
         grid-column: 1;
         margin: 0 0.5rem 0 0;
-
         &--element {
+          margin: 0 0 0.5rem 0;
           padding: 0.55rem 0;
-          margin: 0 0 0.5rem;
         }
       }
-
       &__list {
         grid-column: 2;
-
         &--element {
           display: flex;
           align-items: center;
-          margin: 0 0 0.5rem;
-
+          margin: 0 0 0.5rem 0;
           &--input {
             display: flex;
             flex: 1;
-            padding: 0 !important;
             margin: 0 0.5rem 0 0;
-
+            padding: 0 !important;
             input {
-              flex: 1;
               width: 100%;
-              padding: 0;
               border: none;
-
+              flex: 1;
+              padding: 0;
               @include white-text-box($expand: "true");
-
               &:focus {
                 outline: none;
               }
             }
           }
-
           &--remove {
             margin: 0.2rem 0;
-
             @include material-icon-button(
               $size: "sm",
               $color: #f07b7b,
               $border: "solid"
             );
-
             color: #f07b7b;
 
             &:disabled {
               visibility: hidden;
             }
           }
-
           &--sort {
             margin: 0;
             cursor: grab !important;
-
             @include material-icon-button;
-
             &--dragging {
               cursor: grabbing !important;
             }
@@ -236,15 +181,12 @@
         }
       }
     }
-
     &__add {
       display: flex;
-
       &--button,
       &--collective-button {
         @include home-button-text($admin-primary, false);
         @include text-size("normal");
-
         margin-right: 0.5rem;
 
         & > .icon {
@@ -253,7 +195,6 @@
       }
     }
   }
-
   &__create-new-event-button {
     @include home-button-text;
   }
@@ -262,65 +203,52 @@
 .home-modal {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
   background-color: $bg !important;
-
+  padding: 1.5rem;
   &__header {
     @include text-size("mdi");
   }
-
   &__content {
     flex: 1;
     margin: 1rem 0;
   }
-
   &__footer {
     align-self: flex-end;
   }
 }
-
 .vm--overlay {
-  background-color: rgb(10 10 10 / 50%) !important;
+  background-color: rgba(10, 10, 10, 0.5) !important;
 }
 
 .home-add-sessions-modal {
   &__separators {
-    margin: 0 0 1rem;
     color: $text-gray;
-
+    margin: 0 0 1rem 0;
     @include text-size;
-
     @media screen and (min-width: $small) {
       display: flex;
     }
-
     input {
       position: relative;
       top: 2px;
       margin: 0;
     }
-
     label {
       margin: 0 1rem 0 0;
     }
   }
-
   &__textarea {
-    width: 100%;
     resize: vertical;
-
+    width: 100%;
     @include white-text-box;
-
     @media screen and (min-width: $small) {
-      min-height: 150px;
       padding: 1.5rem !important;
+      min-height: 150px;
     }
   }
-
   &__count {
-    color: rgb(124 124 124);
     text-align: end;
-
+    color: rgb(124, 124, 124);
     @include text-size("normal");
   }
 }
@@ -328,39 +256,33 @@
 .home-creation-completed-modal {
   &__invitation {
     &--title {
-      margin: 0 0 0.5rem;
+      margin: 0 0 0.5rem 0;
     }
-
     &__content {
       @media screen and (min-width: $small) {
         display: flex;
       }
-
       &__detail {
         @include text-size("normal");
         @include white-text-box;
-
         @media screen and (min-width: $small) {
           display: flex;
           flex: 1;
           align-items: flex-start;
         }
-
         &--url {
           word-break: break-all;
-
           @media screen and (min-width: $small) {
             flex: 1;
             overflow-x: scroll;
           }
         }
-
         &--button {
+          border: none;
+          background: rgba(255, 255, 255, 0);
+          color: $admin-primary;
           padding: 0;
           margin-left: 5px;
-          color: $admin-primary;
-          background: rgb(255 255 255 / 0%);
-          border: none;
 
           & > .check-icon {
             color: #3ba73b;
@@ -376,10 +298,8 @@
 
     & > .hide-button {
       @include home-button-text($color: $admin-primary, $show-border: false);
-
       margin-right: 1rem;
     }
-
     & > .room-access-button {
       @include home-button-text;
     }

@@ -1,18 +1,16 @@
 @mixin rounded-button($color: $primary) {
-  padding: 4px 20px;
-  line-height: 1;
   color: $color;
-  white-space: nowrap;
-  background-color: white;
   border: 2px solid;
+  background-color: white;
+  padding: 4px 20px;
   border-radius: 99px;
-
+  white-space: nowrap;
+  line-height: 1;
   &:hover {
     @if $color == $primary {
-      background-color: rgb(242 141 47 / 20%);
+      background-color: rgba(242, 141, 47, 0.2);
     }
   }
-
   &.selected {
     color: white;
     background-color: $color;
@@ -33,72 +31,72 @@
 }
 
 .topic-block {
+  white-space: normal;
+  height: 100%;
   position: relative;
+  border-radius: 5px;
   display: flex;
   flex-direction: column;
   width: 100vw;
-  height: 100%;
   padding-bottom: 0.75rem;
-  white-space: normal;
-  border-radius: 5px;
 }
 
 @media screen and (min-width: 440px) {
   .topic-block {
-    width: 440px;
     margin: 0 2em;
+    width: 440px;
   }
 }
 
 .topic-header {
-  position: relative;
   flex-shrink: 0;
+  position: relative;
 
   & > .main-line {
-    position: relative;
     z-index: 1;
     display: flex;
+    position: relative;
     align-items: center;
-    min-height: 3em;
     padding: 0 1rem;
-    color: white;
     background-color: $primary;
+    color: white;
+    min-height: 3em;
 
     & > .index {
-      margin-left: 0.5em;
       font-weight: bold;
+      margin-left: 0.5em;
     }
 
     & > .title {
       display: inline-block;
-      flex: 1;
       padding: 0 0.5em;
+      flex: 1;
       font-weight: bold;
     }
 
     & > .link-button,
     .more-button {
+      width: 2em;
+      height: 2em;
+      border-radius: 100%;
+      border: none;
+      color: white;
+      background: transparent;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 2em;
-      height: 2em;
-      color: white;
-      background: transparent;
-      border: none;
-      border-radius: 100%;
       transition: all 0.1s;
 
       &:hover {
-        background: rgb(0 0 0 / 8%);
+        background: rgba(0, 0, 0, 0.08);
       }
 
       &:active {
-        background: rgb(0 0 0 / 8%);
+        background: rgba(0, 0, 0, 0.08);
       }
 
       &:disabled {
-        color: rgb(204 204 204 / 50%);
+        color: rgba(204, 204, 204, 0.5);
         background: transparent;
       }
     }
@@ -107,40 +105,33 @@
   &__details {
     position: relative;
     z-index: 0;
+    background-color: rgba(255, 255, 255, 0.1);
     padding: 15px;
-    background-color: rgb(255 255 255 / 10%);
-    border-bottom: 1px solid rgb(239 239 239);
-
+    border-bottom: 1px solid rgb(239, 239, 239);
     &--filter-btn {
       @include rounded-button;
-
       margin-bottom: 10px;
     }
-
     &--description {
       color: $text-gray;
-
       @include text-size($size: "sm");
     }
-
     &--line {
       width: 100%;
       height: 2px;
       margin: 10px 0;
       background-color: $placeholder-gray;
     }
-
     &--download {
-      display: flex;
-      align-items: center;
       color: $admin-primary;
       cursor: pointer;
-
+      display: flex;
+      align-items: center;
       @include text-size($size: "sm");
 
       & > .text {
-        margin-left: 0.3rem;
         text-decoration: underline;
+        margin-left: 0.3rem;
       }
 
       &:hover {
@@ -153,39 +144,35 @@
     position: relative;
     display: flex;
     align-items: center;
-    padding: 10px 5px;
     background-color: white;
-    border-bottom: 1px solid rgb(239 239 239);
-
+    padding: 10px 5px;
+    border-bottom: 1px solid rgb(239, 239, 239);
     & > .icon {
       transform: rotate(20deg);
     }
-
     &--text {
       flex: 1;
       font-size: 14px;
-      text-align: left;
       word-break: break-all;
+      text-align: left;
     }
-
     &--close-icon {
-      display: flex;
       flex-shrink: 0;
-      align-items: center;
       align-self: flex-start;
-      justify-content: center;
-      width: 30px;
-      height: 30px;
       margin-left: 10px;
       color: $text-gray;
       border-radius: 100%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       transition: all 0.1s;
 
       &:hover {
         background: rgba($black, 0.08);
       }
     }
-
     & > .chatitem__bookmark {
       margin-right: 10px;
     }
@@ -203,10 +190,10 @@
 
   & > .icon {
     display: flex;
+    font-size: 1.1rem;
+    padding: 0.3rem;
     width: 1.7rem;
     height: 1.7rem;
-    padding: 0.3rem;
-    font-size: 1.1rem;
     color: $text-gray;
     border-radius: 100%;
     transform: rotate(20deg);
@@ -216,7 +203,6 @@
       color: $text-gray;
       background-color: $placeholder-gray;
     }
-
     &.selected {
       color: #ff542f;
       background-color: white;
@@ -228,24 +214,22 @@
   position: fixed;
   margin-top: -75px;
 }
-
 .chat-area {
-  position: relative;
-  display: flex;
   flex: 1 1 0;
+  display: flex;
+  position: relative;
   overflow-y: hidden;
 
   & > .text-zone {
-    display: flex;
     flex: 1;
+    display: flex;
     flex-direction: column;
     justify-content: flex-end;
     overflow-y: hidden;
 
     & > .scrollable {
-      padding: 1em 1rem;
       overflow-y: scroll;
-
+      padding: 1em 1rem;
       @include scrollbar-hidden;
     }
 
@@ -253,100 +237,96 @@
       display: flex;
       flex-direction: column;
     }
-
     .list-complete-item {
       transition: all 0.3s;
       transform: translateX(0);
     }
-
     .list-complete-enter,
     .list-complete-leave-to {
       opacity: 0;
     }
-
     .list-complete-leave-active {
       position: absolute;
     }
 
     & > .graph-wrapper {
-      margin: 2px 16px 4px;
-      text-align: end;
+      margin: 2px 16px 4px 16px;
       border-top: 2px solid $gray;
+      text-align: end;
 
       & > .close-button {
-        background: transparent;
         border: none;
+        background: transparent;
       }
 
       & > .graph-action-area {
-        display: flex;
-        justify-content: flex-end;
+        text-align: end;
         padding-top: 4px;
         margin-bottom: -8px;
-        text-align: end;
+        display: flex;
+        justify-content: flex-end;
 
         & > .close-button {
+          border: none;
+          background: transparent;
+          border-radius: 100%;
+          width: 32px;
+          height: 32px;
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 32px;
-          height: 32px;
           padding: 0;
-          background: transparent;
-          border: none;
-          border-radius: 100%;
-
           &:hover {
-            background: rgb(0 0 0 / 2.1%);
+            background: rgba(0, 0, 0, 0.021);
           }
         }
       }
     }
 
     & > .show-graph-button {
+      text-align: center;
+      border: none;
+      background: $gray;
+      border-radius: 999px;
+      margin: 4px 54px 4px 16px;
+      padding: 8px 0;
+      font-size: 0.8rem;
+      transition: all 0.3s;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 8px 0;
-      margin: 4px 54px 4px 16px;
-      font-size: 0.8rem;
-      text-align: center;
-      background: $gray;
-      border: none;
-      border-radius: 999px;
-      transition: all 0.3s;
 
       & > .toggle-icon {
         margin-left: 8px;
       }
 
       &:hover {
-        background: rgb(206 205 205);
+        background: rgb(206, 205, 205);
       }
     }
   }
 
   & > .stamp-zone {
-    position: relative;
     flex-shrink: 1;
     width: 4rem;
+    background: white;
     margin-top: auto;
     margin-bottom: 1em;
-    background: white;
+    position: relative;
 
     & .stamp-submit-button {
+      border: none;
+      width: 3.2rem;
+      height: 3.2rem;
+      border: 4px solid rgb(207, 13, 13);
+      background: rgb(207, 13, 13);
+      color: white;
+      border-radius: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 3.2rem;
-      height: 3.2rem;
-      color: white;
-      background: rgb(207 13 13);
-      border: none;
-      border: 4px solid rgb(207 13 13);
-      border-radius: 100%;
-      outline-color: rgb(207 13 13);
       transition: all 0.2s;
+      outline-color: rgb(207, 13, 13);
 
       & > .icon {
         display: flex;
@@ -354,13 +334,13 @@
 
       &:hover:not(:disabled),
       &:active:not(:disabled) {
-        color: rgb(207 13 13);
         background: white;
+        color: rgb(207, 13, 13);
       }
 
       &:disabled {
-        background: rgb(192 192 192);
-        border-color: rgb(192 192 192);
+        background: rgb(192, 192, 192);
+        border-color: rgb(192, 192, 192);
       }
     }
   }
@@ -369,16 +349,16 @@
     position: absolute;
     bottom: 0.5em;
     left: 50%;
+    transform: translate(-50%, 150%);
+    background: rgba($black, 0.5);
+    padding: 0.5em;
     z-index: 30;
     width: 32px;
     height: 32px;
-    padding: 0.5em;
-    color: white;
-    background: rgba($black, 0.5);
     border-radius: 100%;
-    stroke-width: 4px;
     transition: all 0.1s;
-    transform: translate(-50%, 150%);
+    color: white;
+    stroke-width: 4px;
 
     &.isNotify {
       transform: translate(-50%, 0%);
@@ -387,33 +367,32 @@
 }
 
 .input-area {
-  position: relative;
   bottom: 0;
   background: white;
   border-top: 2px solid $gray;
+  position: relative;
 
   .textarea-header {
-    display: flex;
-    align-items: center;
     width: 100%;
-    padding: 0.5em 1em;
+    display: flex;
     margin-right: -4px;
-    font-weight: bold;
-    color: #808080;
+    padding: 0.5em 1em;
     border-bottom: 2px solid $gray;
+    align-items: center;
+    color: #808080;
+    font-weight: bold;
   }
 
   & > .sender-badge-wrapper {
     width: 100%;
     margin-top: 0.3em;
-
     & > .sender-badge {
       min-height: 20px;
-      padding: 0.15em 0.5em;
-      margin: 0.5em 1em;
       font-size: 75%;
       color: white;
+      padding: 0.15em 0.5em;
       border-radius: 5px;
+      margin: 0.5em 1em;
     }
   }
 
@@ -421,93 +400,83 @@
     display: flex;
     padding: 0.5em 1em;
   }
-
   .speaker {
     background-color: $primary;
   }
-
   .admin {
     background-color: $text-gray;
   }
-
   .none {
     background-color: white;
   }
-
   .normaltext {
     min-height: 80px !important;
   }
-
   & > .textarea {
-    width: 100%;
-    min-height: 60px;
     padding: 0.5em 1em;
+    border: none;
+    background: transparent;
     margin-right: 1em;
     line-height: 1.5;
+    width: 100%;
+    min-height: 60px;
     white-space: pre-line;
     resize: none;
-    background: transparent;
-    border: none;
 
     &:empty::before {
-      display: block;
-      color: rgb(167 167 167);
-      pointer-events: none;
       content: attr(placeholder);
+      pointer-events: none;
+      display: block;
+      color: rgb(167, 167, 167);
     }
 
     &:focus {
       outline: none;
     }
   }
-
   & > .textarea-footer {
     display: flex;
     align-items: center;
+    padding: 0em 1em 0.5em;
     justify-content: flex-end;
-    padding: 0 1em 0.5em;
-
     & > .submit-button {
       position: relative;
-      display: grid;
       flex-shrink: 0;
-      align-items: end;
       width: 24px;
       height: 24px;
+      vertical-align: middle;
+      text-align: center;
+      border: none;
+      background: transparent;
+      display: grid;
+      align-items: end;
       padding: 0;
       color: $primary;
-      text-align: center;
-      vertical-align: middle;
-      background: transparent;
-      border: none;
-
       &:disabled {
-        color: rgb(172 172 172);
+        color: rgb(172, 172, 172);
         cursor: default;
       }
 
       & > .question-badge {
         position: absolute;
-        right: -0.3rem;
-        bottom: 0;
         width: 0.75rem;
         height: 0.75rem;
+        line-height: 0.75rem;
+        border-radius: 100%;
         font-size: 0.4rem;
         font-weight: bold;
-        line-height: 0.75rem;
-        color: white;
         text-align: center;
-        background: rgb(48 135 248);
-        border-radius: 100%;
+        background: rgb(48, 135, 248);
+        color: white;
+        bottom: 0;
+        right: -0.3rem;
       }
-
       &:disabled {
         & > .question-badge {
           background: $disabled-gray;
         }
       }
     }
-
     .admin {
       color: $black;
     }
@@ -515,7 +484,6 @@
     & > .instruction {
       display: inline-block;
       flex: 1;
-
       & > .key-instruct {
         font-size: 70%;
         color: gray;
@@ -524,67 +492,63 @@
     }
 
     & > .question-checkbox {
-      margin-right: 3em;
       font-size: 85%;
+      margin-right: 3em;
       user-select: none;
     }
   }
-
   & > .error-message {
     display: block;
+    text-align: right;
     padding: 0 1em;
     margin-bottom: -13px;
-    text-align: right;
-
     & > .text-counter {
-      position: relative;
-      right: 0;
-      display: none;
       font-size: 70%;
       user-select: none;
+      display: none;
+      position: relative;
+      right: 0;
     }
-
     & > .over {
-      display: inline;
       color: red;
+      display: inline;
     }
   }
 
   & > .reply-bar {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 0.3em 14px;
-    margin-right: -4px;
-    font-size: 80%;
     background-color: $placeholder-gray;
+    width: 100%;
+    display: flex;
+    margin-right: -4px;
+    padding: 0.3em 14px;
+    align-items: center;
+    font-size: 80%;
 
     & > .reply-type {
       color: white;
     }
-
     & .reply {
-      padding: 0.15em 0.5em;
       background-color: $syoyu;
       border-radius: 5px;
+      padding: 0.15em 0.5em;
     }
 
     & .answer {
-      padding: 0.15em 0.5em;
       background-color: $answer-label;
       border-radius: 5px;
+      padding: 0.15em 0.5em;
     }
 
     & > .reply-content {
-      display: box;
-      flex: 1;
-      margin: 0 0.5rem;
-      overflow: hidden;
-      color: $text-gray;
+      display: -webkit-box;
       word-break: break-all;
       overflow-wrap: anywhere;
       -webkit-box-orient: vertical;
       -webkit-line-clamp: 1;
+      overflow: hidden;
+      color: $text-gray;
+      flex: 1;
+      margin: 0 0.5rem;
     }
 
     & > .reply-close-button {
@@ -593,9 +557,8 @@
       justify-content: center;
       width: 24px;
       height: 24px;
-      padding: 0;
       border-radius: 100%;
-
+      padding: 0;
       &:hover {
         background: rgba($black, 0.08);
       }
@@ -604,40 +567,37 @@
 }
 
 .fixed-phrase {
-  padding: 5px 10px;
-  margin-right: 10px;
-  cursor: pointer;
   background-color: white;
+  margin-right: 10px;
+  padding: 5px 10px;
   border-radius: 99px;
-  box-shadow: 0 1px 6px rgb(0 0 0 / 15%);
-
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
   &:hover {
     background-color: $placeholder-gray;
   }
 }
 
 .chatitem-wrapper {
-  display: flex;
   padding: 0.5em 0;
   scroll-snap-align: end;
-
+  display: flex;
   .sender-badge {
     display: inline-block;
+    vertical-align: top;
+    font-size: 8px;
+    background-color: $primary;
+    color: white;
     padding: 0.2em 0.8rem;
     margin-top: -1.5em;
     margin-left: -1.6em;
-    font-size: 8px;
-    color: white;
-    vertical-align: top;
-    background-color: $primary;
     border-top-left-radius: 4px;
     border-bottom-right-radius: 5px;
   }
-
   .sender-non-badge {
     display: inline-block;
-    color: white;
     background-color: white;
+    color: white;
   }
 
   .admin {
@@ -648,12 +608,12 @@
 
   & > .system_message {
     position: relative;
-    width: 100%;
+    background-color: rgb(249, 249, 249);
     padding: 0.6em 1em;
-    font-size: 12px;
-    color: $text-gray;
-    background-color: rgb(249 249 249);
     border-radius: 5px;
+    color: $text-gray;
+    width: 100%;
+    font-size: 12px;
   }
 
   .badgecomment {
@@ -661,54 +621,50 @@
   }
 
   .url-to-link__link {
-    color: rgb(47 82 199);
+    color: rgb(47, 82, 199);
   }
-
   & > .comment,
   .reaction {
     position: relative;
+    width: 100%;
     flex-grow: 1;
     flex-shrink: 0;
-    width: 100%;
-    padding: 0 0.8em 0.35em;
-    overflow: visible;
-    background: white;
+    padding: 0em 0.8em 0.35em;
     border: 1px solid $placeholder-gray;
+    background: white;
     border-radius: 5px;
-    box-shadow: 0 1px 6px rgb(0 0 0 / 15%);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+    overflow: visible;
     transition: border 3s ease-out, box-shadow 3s ease-out;
 
     // スクロール時のハイライトで利用するCSS / highlightクラスはjsで動的に追加される
     &.highlight {
-      border: 1px solid $primary;
-      box-shadow: 0 1px 10px rgba($primary, 0.9);
       transition: none;
+      border: 1px solid $primary;
+      box-shadow: 0px 1px 10px rgba($primary, 0.9);
     }
 
     .main-contents {
       display: flex;
-      min-height: 1rem;
       margin-top: -0.5em;
-
+      min-height: 1rem;
       & > .text {
         flex: 1;
-        margin-left: 0.5em;
         word-break: break-all;
         overflow-wrap: anywhere;
-
+        margin-left: 0.5em;
         & > .long-text {
-          display: box;
           flex: 1;
-          margin-bottom: 0.3rem;
-          overflow: hidden;
-          font-size: 80%;
+          display: -webkit-box;
           color: $text-gray;
+          font-size: 80%;
           text-align: left;
           word-break: break-all;
           overflow-wrap: anywhere;
+          margin-bottom: 0.3rem;
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 2;
-
+          overflow: hidden;
           &:hover {
             text-decoration: underline;
             cursor: pointer;
@@ -720,11 +676,10 @@
     .comment-footer {
       display: flex;
       align-items: flex-end;
-
       & > .comment-timestamp {
-        flex: 1;
-        font-size: 10px;
         color: $text-gray;
+        font-size: 10px;
+        flex: 1;
         user-select: none;
       }
 
@@ -735,16 +690,16 @@
         & > .pin-icon,
         & > .reply-icon,
         & > .bg-good-icon {
+          border: none;
+          background: transparent;
+          width: 1.7rem;
+          height: 1.7rem;
+          border-radius: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 1.7rem;
-          height: 1.7rem;
           margin-left: 0.5rem;
           color: $text-gray;
-          background: transparent;
-          border: none;
-          border-radius: 100%;
 
           &:hover:not(:disabled) {
             color: $text-gray;
@@ -756,11 +711,11 @@
           }
 
           & > .icon {
+            width: 1.7rem;
+            height: 1.7rem;
             display: flex;
             align-items: center;
             justify-items: center;
-            width: 1.7rem;
-            height: 1.7rem;
           }
 
           &.pin-icon {
@@ -777,7 +732,6 @@
             &:hover {
               color: $answer-label;
             }
-
             &:active {
               color: $answer-label;
             }
@@ -799,72 +753,71 @@
         align-items: center;
 
         & > .error-icon {
-          color: rgb(249 69 69);
+          color: rgb(249, 69, 69);
         }
 
         & > .error-message {
           @include text-size($size: "sm");
-
           display: block;
           margin-left: 0.5em;
           line-height: 1.1;
-          color: rgb(249 69 69);
+          color: rgb(249, 69, 69);
         }
 
         & > .retry-button {
           display: flex;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          margin-left: 0.5em;
           width: 1.7em;
           height: 1.7em;
           padding: 0;
-          margin-left: 0.5em;
           border-radius: 4px;
           transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
           &:hover:not(:disabled) {
-            background: rgb(249 69 69 / 10%);
+            background: rgba(249, 69, 69, 0.1);
           }
 
           & > svg {
-            color: rgb(249 69 69);
+            color: rgb(249, 69, 69);
           }
         }
       }
     }
 
     &.reaction {
-      display: flex;
+      box-shadow: none;
+      border: none;
       align-items: center;
+      display: flex;
+      padding: 0;
+      min-height: 0;
+      margin-left: 3rem;
       justify-content: flex-end;
       width: calc(100% - 48px);
-      min-height: 0;
-      padding: 0;
-      margin-left: 3rem;
-      border: none;
-      box-shadow: none;
 
       & > .icon-wrapper {
-        align-self: center; // NOTE: for safari (yuta-ike)
         width: 1.6rem;
         height: 1.6rem;
         margin: 0;
         margin-right: 0.5em;
+        align-self: center; // NOTE: for safari (yuta-ike)
 
         & > .reaction-badge {
-          position: absolute;
-          right: -0.9rem;
-          bottom: -0.1rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
           width: 1.3rem;
           height: 1.3rem;
           line-height: 1.1rem;
-          color: #fff;
-          text-align: center;
           border-radius: 100%;
+          text-align: center;
+          color: #fff;
+          position: absolute;
+          bottom: -0.1rem;
+          right: -0.9rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
           & > .icon {
             display: flex;
@@ -885,18 +838,18 @@
         }
 
         & > .long-text {
-          display: box;
           flex: 1;
-          margin-left: 0.6rem;
-          overflow: hidden;
-          font-size: 13px;
-          font-style: oblique;
+          display: -webkit-box;
           color: $text-gray;
-          text-align: left;
+          font-style: oblique;
           word-break: break-all;
           overflow-wrap: anywhere;
           -webkit-box-orient: vertical;
           -webkit-line-clamp: 1;
+          overflow: hidden;
+          margin-left: 0.6rem;
+          text-align: left;
+          font-size: 13px;
         }
 
         &:hover {
@@ -907,7 +860,6 @@
         }
       }
     }
-
     .icon-wrapper {
       width: 1.5rem;
       height: 1.5rem;
@@ -918,73 +870,69 @@
     background: #f2faff;
     border-color: #6db8ed;
   }
-
   .answer {
     background: #fff5f7;
     border-color: #eb9898;
   }
 
   .icon-wrapper {
-    position: relative;
-    display: grid;
     flex-shrink: 0;
-    align-items: center;
     width: 2rem;
     height: 2rem;
     padding: 0.1em;
-    user-select: none;
-    background: rgb(223 223 223);
     border-radius: 100%;
+    background: rgb(223, 223, 223);
+    display: grid;
+    align-items: center;
+    position: relative;
+    user-select: none;
 
     & > .question-badge {
-      position: absolute;
-      bottom: -0.2rem;
-      left: -0.2rem;
       width: 1rem;
       height: 1rem;
-      font-size: 10px;
-      font-weight: bold;
       line-height: 1rem;
-      color: white;
-      text-align: center;
-      background: rgb(48 135 248);
       border-radius: 100%;
-    }
-
-    & > .answer-badge {
+      font-size: 10px;
+      font-weight: bold;
+      text-align: center;
+      background: rgb(48, 135, 248);
+      color: white;
       position: absolute;
       bottom: -0.2rem;
       left: -0.2rem;
+    }
+    & > .answer-badge {
       width: 1rem;
       height: 1rem;
+      line-height: 1rem;
+      border-radius: 100%;
       font-size: 10px;
       font-weight: bold;
-      line-height: 1rem;
-      color: white;
       text-align: center;
       background: $answer-label;
-      border-radius: 100%;
-    }
-
-    & > .raction-badge {
+      color: white;
       position: absolute;
-      right: -0.7rem;
-      bottom: -0.1rem;
+      bottom: -0.2rem;
+      left: -0.2rem;
+    }
+    & > .raction-badge {
       width: 1.1rem;
       height: 1.1rem;
+      line-height: 1.1rem;
+      border-radius: 100%;
       font-size: 10px;
       font-weight: bold;
-      line-height: 1.1rem;
-      color: white;
       text-align: center;
-      background: rgb(48 135 248);
-      border-radius: 100%;
-
+      background: rgb(48, 135, 248);
+      color: white;
+      position: absolute;
+      bottom: -0.1rem;
+      right: -0.7rem;
       & > .material-icons {
+        font-size: 0.6rem;
+        padding: 0.25rem;
         width: 1.1rem;
         height: 1.1rem;
-        padding: 0.25rem;
-        font-size: 0.6rem;
       }
     }
   }

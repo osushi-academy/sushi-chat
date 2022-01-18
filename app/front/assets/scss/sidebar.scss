@@ -1,12 +1,12 @@
 .sidebar {
-  z-index: 50;
-  display: flex;
-  flex-direction: column;
   width: 320px;
   height: 100%;
-  padding: 16px 0;
-  color: $black;
   background: $bg;
+  z-index: 50;
+  color: $black;
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
 
   & > .top-section {
     display: flex;
@@ -14,15 +14,15 @@
     padding: 0 16px;
 
     & > .menu-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      margin-right: 16px;
       background: transparent;
       border: none;
       border-radius: 99px;
+      margin-right: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 36px;
+      height: 36px;
       transition: all 0.2s;
 
       &:hover,
@@ -39,47 +39,46 @@
   }
 
   & > .event-logo {
-    width: 72px;
-    max-width: 100%;
     margin-top: 36px;
     margin-right: auto;
     margin-left: auto;
-    background-color: $white;
+    width: 72px;
+    max-width: 100%;
     border-radius: 30px;
+    background-color: $white;
   }
 
   & > .event-description {
-    padding: 0 32px;
     margin-top: 16px;
-    font-size: 12px;
     color: #515151;
+    font-size: 12px;
+    padding: 0 32px;
   }
 
   & > .channel-section {
-    padding-left: 32px;
     margin-top: 20px;
-
+    padding-left: 32px;
     ul {
-      padding: 0;
       list-style: none;
+      padding: 0;
     }
 
     & .channel {
+      font-size: 18px;
       display: flex;
       flex-direction: column;
-      font-size: 18px;
 
       & > .channel-content {
         position: relative;
-        display: block;
-        padding: 8px;
+        padding: 8px 8px;
         margin-bottom: 8px;
-        color: $black;
-        text-align: left;
-        background: transparent;
-        border: none;
         border-top-left-radius: 12px;
         border-bottom-left-radius: 12px;
+        background: transparent;
+        border: none;
+        display: block;
+        text-align: left;
+        color: $black;
 
         &:not(.has-subchannel):hover,
         &:not(.has-subchannel):focus {
@@ -88,25 +87,24 @@
         }
 
         &:not(.has-subchannel).selected {
-          color: $white;
-          background: $primary;
           transition: all 0.1s;
+          background: $primary;
+          color: $white;
         }
 
         & > .channel-handle {
           position: absolute;
-          top: 50%;
-          left: -28px;
+          border-radius: 99px;
           width: 36px;
           height: 36px;
-          border-radius: 99px;
-          transition: background 0.2s;
+          top: 50%;
+          left: -28px;
           transform: translateY(-50%);
+          transition: background 0.2s;
 
           &:hover,
           &:focus-visible {
             background: $gray;
-
             & svg {
               fill: $text-gray;
             }
@@ -114,8 +112,8 @@
 
           & svg {
             fill: $disabled-gray;
-            transition: all 0.3s;
             transform: rotate(-90deg);
+            transition: all 0.3s;
           }
 
           &.open {
@@ -129,7 +127,6 @@
         &:focus-visible > .channel-handle {
           background: $gray;
           fill: $text-gray;
-
           & svg {
             fill: $text-gray;
           }
@@ -150,23 +147,22 @@
 
         & > .subchannel-wrapper {
           display: flex;
-
           & > .subchannel {
-            position: relative;
-            display: block;
             flex: 1;
-            padding-top: 0.4rem;
-            padding-bottom: 0.4rem;
-            padding-left: 0.5em;
+            position: relative;
             margin-top: 4px;
             margin-left: 3em;
+            padding-left: 0.5em;
+            padding-top: 0.4rem;
+            padding-bottom: 0.4rem;
             font-size: 16px;
-            color: $black;
-            text-align: left;
-            background: transparent;
-            border: none;
             border-top-left-radius: 12px;
             border-bottom-left-radius: 12px;
+            border: none;
+            display: block;
+            text-align: left;
+            color: $black;
+            background: transparent;
 
             &:hover,
             &:focus {
@@ -175,9 +171,9 @@
             }
 
             &.selected {
-              color: $white;
-              background: $primary;
               transition: all 0.1s;
+              background: $primary;
+              color: $white;
             }
 
             & > .subchannel-arrow {
@@ -186,15 +182,14 @@
               left: -1.25em;
               width: 1em;
               height: 2.8em;
-              border-bottom: 2px solid #c8c8c8;
               border-left: 2px solid #c8c8c8;
+              border-bottom: 2px solid #c8c8c8;
               border-bottom-left-radius: 4px;
 
               &.first {
                 height: 1.5em;
               }
             }
-
             & > .hashtag {
               margin-right: 10px;
 
@@ -211,17 +206,17 @@
   & > .footer-section {
     display: flex;
     flex-wrap: wrap;
-    padding: 0 32px;
     margin-top: auto;
+    padding: 0 32px;
 
     & > .footer-link {
       margin-top: 0.5em;
       margin-right: 1em;
 
       & > a {
-        font-size: 14px;
         color: $disabled-gray;
         text-decoration: underline;
+        font-size: 14px;
 
         &:hover,
         &:focus-visible {

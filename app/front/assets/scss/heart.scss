@@ -7,10 +7,10 @@
 
 .heart-button {
   position: absolute;
-  font-size: 30px;
-  pointer-events: none;
-  user-select: none;
   opacity: 0;
+  user-select: none;
+  pointer-events: none;
+  font-size: 30px;
 }
 
 .heart-button-animation {
@@ -20,22 +20,19 @@
 /* ========= アニメーションの設定 ======== */
 @keyframes heart {
   0% {
-    top: 0;
-    left: 50%;
-    opacity: 0;
     transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 0;
+    left: 50%;
+    top: 0;
   }
-
   20% {
     opacity: 1;
   }
-
   75% {
     opacity: 1;
   }
-
   100% {
-    opacity: 0;
     transform: translateY(-300px) scale(1.6);
+    opacity: 0;
   }
 }
