@@ -1,8 +1,10 @@
 @mixin home-padding-layout($py: 0) {
   padding: $py + rem 5%;
+
   @media screen and (min-width: $small) {
     padding: $py + rem 10%;
   }
+
   @media screen and (min-width: $large) {
     padding: $py + rem 20%;
   }
@@ -11,14 +13,15 @@
 @mixin home-button-text($color: $admin-primary, $show-border: true) {
   display: flex;
   align-items: center;
-  color: $color;
-  background: rgba(255, 255, 255, 0);
   padding: 8px 20px;
+  line-height: 1;
+  color: $color;
   text-decoration: none;
   white-space: nowrap;
+  background: rgba(255, 255, 255, 0%);
   border: 2px solid $color;
   border-radius: 4px;
-  line-height: 1;
+
   @if not $show-border {
     border-color: transparent;
   }
@@ -30,32 +33,35 @@
   &:hover,
   &:focus {
     @if $color == $admin-primary {
-      background-color: rgba(112, 145, 195, 0.1);
+      background-color: rgba(112, 145, 195, 10%);
     } @else if $color == $danger {
-      background-color: rgba(225, 147, 147, 0.1);
+      background-color: rgba(225, 147, 147, 10%);
     } @else if $color == $primary {
-      background-color: rgba(242, 141, 47, 0.1);
+      background-color: rgba(242, 141, 47, 10%);
     }
   }
+
   @include invalidated-a-style;
 }
 
 @mixin text-size($size: "normal") {
-  @if $size== "normal" {
+  @if $size == "normal" {
     font-size: 0.9rem;
-  } @else if $size== "xl" {
+  } @else if $size == "xl" {
     font-size: 1rem;
+
     @media screen and (min-width: $small) {
       font-size: 1.5rem;
     }
+
     @media screen and (min-width: $large) {
       font-size: 1.5rem;
     }
-  } @else if $size== "lg" {
+  } @else if $size == "lg" {
     font-size: 1.2rem;
-  } @else if $size== "mdi" {
+  } @else if $size == "mdi" {
     font-size: 1rem;
-  } @else if $size== "sm" {
+  } @else if $size == "sm" {
     font-size: 0.7rem;
   }
 }
@@ -68,16 +74,19 @@
 }
 
 @mixin white-text-box($expand: "false") {
+  padding: 0.5rem;
   background-color: white;
   border: none;
   border-radius: 4px;
-  padding: 0.5rem;
-  @if $expand== "true" {
+
+  @if $expand == "true" {
     padding: 0.5rem 1rem;
   }
+
   &:focus {
     outline: none;
   }
+
   &::placeholder {
     color: $text-placeholder;
   }
@@ -88,31 +97,36 @@
   $color: $text-gray,
   $border: "none"
 ) {
-  width: 24px;
-  height: 24px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 24px;
+  height: 24px;
   border-radius: 100%;
+
   &:hover,
   &:focus {
     cursor: pointer;
-    @if $color==#F07B7B {
-      background-color: rgba(240, 123, 123, 0.2);
+
+    @if $color == #f07b7b {
+      background-color: rgba(240, 123, 123, 20%);
     } @else {
-      background-color: rgba(111, 111, 111, 0.2);
+      background-color: rgba(111, 111, 111, 20%);
     }
   }
+
   .material-icons {
-    @if $size== "sm" {
+    @if $size == "sm" {
       font-size: 8px;
-    } @else if $size== "normal" {
+    } @else if $size == "normal" {
       font-size: 18px;
     }
-    @if $border== "solid" {
-      border: 2px solid;
+
+    @if $border == "solid" {
       font-weight: bold;
+      border: 2px solid;
     }
+
     color: $color;
     border-radius: 100%;
   }
@@ -121,35 +135,43 @@
 @mixin home-event-list-element {
   display: flex;
   width: 100%;
-  margin: 0 0 0.5rem 0;
   padding: 1rem;
+  margin: 0 0 0.5rem;
   text-align: left;
+
   @include white-text-box($expand: "true");
+
   button {
     background-color: inherit;
   }
+
   &--name {
     width: 30%;
+
     @media screen and (min-width: $small) {
       width: 50%;
     }
   }
+
   &--date {
-    margin: 0 0.5rem;
     width: 9rem;
+    margin: 0 0.5rem;
+
     @media screen and (min-width: $small) {
       margin: 0 2rem;
     }
   }
+
   &--role {
     flex: 1;
   }
+
   &--status {
     &--label {
-      padding: 0px 6px !important;
+      padding: 0 6px !important;
       color: $danger;
-      border-radius: 4px;
       border: 1px solid;
+      border-radius: 4px;
     }
   }
 }
