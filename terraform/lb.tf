@@ -4,9 +4,9 @@ resource "aws_lb" "main" {
   name               = "${var.project}-alb"
   security_groups    = [aws_security_group.public_alb.id]
   subnets            = [aws_subnet.public_a.id, aws_subnet.public_c.id]
+  enable_http2       = false
 
   tags = {
-    Name    = "${var.project}-alb"
     project = var.project
   }
 }
@@ -25,7 +25,6 @@ resource "aws_security_group" "public_alb" {
   }
 
   tags = {
-    Name    = "${var.project}-sg-alb"
     project = var.project
   }
 }
@@ -69,7 +68,6 @@ resource "aws_lb_target_group" "main" {
   }
 
   tags = {
-    Name    = "${var.project}-target-group"
     project = var.project
   }
 }

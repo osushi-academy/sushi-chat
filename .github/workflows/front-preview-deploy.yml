@@ -1,0 +1,26 @@
+name: Frontend preview deploy
+on:
+  pull_request:
+    paths:
+      - "app/front/**"
+      - "yarn.lock"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.ref }}
+      - name: Deploy to vercel
+        id: deploy-to-vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.ORG_ID }}
+          vercel-project-id: ${{ secrets.PROJECT_ID }}
+      - name: Comment to PR
+        uses: thollander/actions-comment-pull-request@v1
+        with:
+          message: "Success to deploy preview URL!\n\n${{ steps.deploy-to-vercel.outputs.preview-url }}"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
