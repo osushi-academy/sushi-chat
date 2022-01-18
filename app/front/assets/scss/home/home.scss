@@ -145,12 +145,12 @@
             flex: 1;
             margin: 0 0.5rem 0 0;
             padding: 0 !important;
-            @include white-text-box($expand: "true");
             input {
               width: 100%;
               border: none;
               flex: 1;
               padding: 0;
+              @include white-text-box($expand: "true");
               &:focus {
                 outline: none;
               }
