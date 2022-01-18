@@ -93,6 +93,7 @@
       width: 100%;
       max-width: 400px;
       margin-bottom: 50px;
+      border-radius: 4px;
       background: white;
       & > .select-speaker {
         -webkit-appearance: none;
@@ -102,7 +103,6 @@
         padding: 10px;
         padding-right: 2.5em;
         border: 1px solid transparent;
-        border-radius: 10px;
         outline: none;
         cursor: pointer;
         @include text-size("normal");
