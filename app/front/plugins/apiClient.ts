@@ -5,18 +5,8 @@ const repositoryPlugin: Plugin = (context, inject) => {
   const axios = context.$axios.create({
     timeout: 10 * 1000,
   })
-  const apiClient = new ApiClient(axios)
 
-  // NOTE: idTokenの変更を監視して、変更があればAPIClientに反映する
-  context.store.watch(
-    (state) => state.auth._idToken,
-    (idToken: string | null) => {
-      apiClient.setToken(idToken)
-    },
-    {
-      immediate: true,
-    },
-  )
+  const apiClient = new ApiClient(axios)
 
   inject("apiClient", apiClient)
 }

@@ -39,13 +39,10 @@ export default Vue.extend({
     InviteSuccess,
   },
   async asyncData({ app, query }) {
-    const res = await app.$apiClient.get(
-      {
-        pathname: "/room/:id",
-        params: { id: query.roomId as string },
-      },
-      {},
-    )
+    const res = await app.$apiClient.get({
+      pathname: "/room/:id",
+      params: { id: query.roomId as string },
+    })
     if (res.result === "error") {
       throw new Error("ルーム情報なし")
     }
@@ -70,9 +67,14 @@ export default Vue.extend({
   methods: {
     async regiaterAdmin() {
       const res = await this.$apiClient.post(
-        // @ts-ignore
-        `/room/${this.roomId}/invited?admin_invite_key=${this.adminInviteKey}`,
+        {
+          pathname: `/room/:id/invited`,
+          params: { id: this.roomId },
+        },
         {},
+        {
+          admin_invite_key: this.adminInviteKey,
+        },
       )
       if (res.result === "error") {
         window.alert("処理に失敗しました")
