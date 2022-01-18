@@ -7,7 +7,6 @@ import IStampRepository from "../../../domain/stamp/IStampRepository"
 import Topic, { TopicTimeData } from "../../../domain/room/Topic"
 import PGPool from "../PGPool"
 import { RoomState, TopicState } from "sushi-chat-shared"
-import { formatDate } from "../../../utils/date"
 import IAdminRepository from "../../../domain/admin/IAdminRepository"
 import User from "../../../domain/user/User"
 import { ArgumentError } from "../../../error"
@@ -273,4 +272,4 @@ class RoomRepository implements IRoomRepository {
   }
 }
 
-export default RoomRepository
+export default RoomRepositoryr

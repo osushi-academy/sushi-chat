@@ -265,6 +265,7 @@ class ChatItemService {
     if (!pinnedChatItem) {
       throw new ErrorWithCode(`ChatItem(${chatItemId}) was not found.`, 404)
     }
+   //TODO: speakerしかピン留めできないようにする
 
     this.chatItemDelivery.pinChatItem(pinnedChatItem)
     await this.chatItemRepository.pinChatItem(pinnedChatItem)

@@ -1,10 +1,10 @@
 @mixin sushi-select-layout($py: 0) {
   padding: $py + rem 5%;
   margin-bottom: 2rem;
-  @media screen and (min-width: $small+px) {
+  @media screen and (min-width: $small) {
     padding: $py + rem 20%;
   }
-  @media screen and (min-width: $large+px) {
+  @media screen and (min-width: $large) {
     padding: $py + rem 20%;
   }
 }
@@ -38,7 +38,7 @@
 
   &__header {
     color: #515151;
-    @media screen and (min-width: $small+px) {
+    @media screen and (min-width: $small) {
       padding: 0;
       margin-bottom: 32px;
     }
@@ -90,7 +90,8 @@
     }
     &--speaker {
       position: relative;
-      width: 400px;
+      width: 100%;
+      max-width: 400px;
       margin-bottom: 50px;
       & > .select-speaker {
         -webkit-appearance: none;
@@ -99,15 +100,12 @@
         width: 100%;
         padding: 10px;
         padding-right: 2.5em;
-        border: 1px solid transparent;
-        border-radius: 10px;
+        border: none;
+        border-radius: 4px;
+        background: white;
         outline: none;
         cursor: pointer;
         @include text-size("normal");
-
-        &:focus-visible {
-          border-color: rgb(214, 214, 214);
-        }
       }
 
       & > .select-icon {
@@ -169,7 +167,7 @@
       button {
         @include home-button-text($primary);
       }
-      @media screen and (min-width: $large+px) {
+      @media screen and (min-width: $large) {
         margin-left: 2rem;
       }
     }
@@ -190,11 +188,11 @@
     width: 24px;
     // margin-right: 0px;
     display: none;
-    @media screen and (min-width: $small+px) {
+    @media screen and (min-width: $small) {
       margin-right: 20px;
       display: block;
     }
-    @media screen and (min-width: $large+px) {
+    @media screen and (min-width: $large) {
       margin-right: 30px;
       width: 34px;
       display: block;
@@ -204,7 +202,7 @@
       height: 24px;
       background-color: $primary;
       border-radius: 100%;
-      @media screen and (min-width: $large+px) {
+      @media screen and (min-width: $large) {
         width: 34px;
         height: 34px;
       }
@@ -214,10 +212,10 @@
       height: 100%;
       margin: 0 auto;
       background-color: $primary;
-      @media screen and (min-width: $small+px) {
+      @media screen and (min-width: $small) {
         width: 3px;
       }
-      @media screen and (min-width: $large+px) {
+      @media screen and (min-width: $large) {
         width: 5px;
       }
     }
@@ -238,7 +236,7 @@
     object-fit: contain;
     align-self: center;
     margin-bottom: 30px;
-    @media screen and (min-width: $large+px) {
+    @media screen and (min-width: $large) {
       width: 100px;
       padding: 10px;
     }

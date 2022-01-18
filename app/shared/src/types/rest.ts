@@ -8,7 +8,6 @@ export type RestApiDefinition = {
     methods: {
       get: {
         query: Empty
-        request: Empty
         response: "ok"
       }
     }
@@ -18,7 +17,6 @@ export type RestApiDefinition = {
     methods: {
       get: {
         query: Empty
-        request: Empty
         response: SuccessResponse<RoomModel[]> | ErrorResponse
       }
       post: {
@@ -41,7 +39,6 @@ export type RestApiDefinition = {
     methods: {
       get: {
         query: Empty
-        request: Empty
         response: SuccessResponse<RoomModel> | ErrorResponse
       }
     }
@@ -65,7 +62,6 @@ export type RestApiDefinition = {
     methods: {
       get: {
         query: Empty
-        request: Empty
         response:
           | SuccessResponse<{
               chatItems: ChatItemModel[]
@@ -109,11 +105,15 @@ export type GeneralRestApiTypes = {
   [path: string]: {
     params: Record<string, unknown>
     methods: {
-      [K in "get" | "post" | "put"]?: {
+      [K in "post" | "put"]?: {
         query: Record<string, unknown>
         request: unknown
         response: unknown
       }
+    }
+    get?: {
+      query: Record<string, unknown>
+      response: unknown
     }
   }
 }
@@ -144,7 +144,6 @@ export type RestApi<
 > = Method extends "get"
   ? Path extends GetMethodPath
     ? {
-        request: RestApiDefinition[Path]["methods"]["get"]["request"]
         response: RestApiDefinition[Path]["methods"]["get"]["response"]
         params: RestApiDefinition[Path]["params"]
         query: RestApiDefinition[Path]["methods"]["get"]["query"]

@@ -9,8 +9,16 @@
         placeholder="イベント名"
       />
     </section>
+    <section class="home-create__event-name">
+      <div class="home-create__event-name--title">2. イベントの説明</div>
+      <textarea
+        v-model="roomDescription"
+        class="home-create__event-name--input"
+        placeholder="イベントの説明"
+      />
+    </section>
     <section class="home-create__room">
-      <div class="home-create__room--title">2. セッションの登録</div>
+      <div class="home-create__room--title">3. セッションの登録</div>
       <div class="home-create__room__sessions">
         <div class="home-create__room__sessions__index">
           <div v-for="num in sessionList.length" :key="num">
@@ -54,10 +62,15 @@
                       )
                     "
                     @keydown.delete="
-                      if (sessionList[idx].title.length === 0) {
+                      if (
+                        sessionList[idx].title.length === 0 &&
+                        composing == false
+                      ) {
                         removeSessionAndMoveFocus($event, idx, 'up')
                       }
                     "
+                    @compositionstart="composing = true"
+                    @compositionend="composing = false"
                   />
                   <button
                     type="button"
@@ -119,9 +132,11 @@ import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue
 Vue.use(VModal)
 type DataType = {
   roomName: string
+  roomDescription: string
   sessionList: { title: string; id: number }[]
   isDragging: boolean
   MAX_TOPIC_LENGTH: number
+  composing: boolean
 }
 
 let sessionId = 0
@@ -140,9 +155,11 @@ export default Vue.extend({
   data(): DataType {
     return {
       roomName: "",
+      roomDescription: "",
       sessionList: [{ title: "", id: sessionId++ }],
       isDragging: false,
       MAX_TOPIC_LENGTH: 100,
+      composing: false,
     }
   },
   computed: {
@@ -240,7 +257,7 @@ export default Vue.extend({
         const res = await this.$apiClient.post("/room", {
           title: this.roomName,
           topics: sessions.map(({ title }) => ({ title })), // titleのみの配列に変換
-          description: "hello, world",
+          description: this.roomDescription,
         })
 
         if (res.result === "error") {
