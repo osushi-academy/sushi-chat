@@ -40,7 +40,7 @@ class ChatItemModelBuilder {
       iconId: message.user.iconId.valueOf(),
       content: message.content,
       quote: quoteModel,
-      timestamp: message.timestamp,
+      timestamp: message.timestamp ?? undefined,
     }
   }
 
@@ -66,7 +66,7 @@ class ChatItemModelBuilder {
       senderType: reaction.senderType,
       iconId: reaction.user.iconId.valueOf(),
       quote: quoteModel,
-      timestamp: reaction.timestamp,
+      timestamp: reaction.timestamp ?? undefined,
     }
   }
 
@@ -91,7 +91,7 @@ class ChatItemModelBuilder {
       iconId: question.user.iconId.valueOf(),
       content: question.content,
       quote: quoteModel,
-      timestamp: question.timestamp,
+      timestamp: question.timestamp ?? undefined,
     }
   }
 
@@ -108,7 +108,7 @@ class ChatItemModelBuilder {
       quote: !recursive
         ? undefined
         : this.buildQuestion(answer.quote as Question),
-      timestamp: answer.timestamp,
+      timestamp: answer.timestamp ?? undefined,
     }
   }
 }
