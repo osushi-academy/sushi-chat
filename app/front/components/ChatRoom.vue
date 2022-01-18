@@ -20,7 +20,6 @@
             v-for="message in chatItems"
             :key="message.id"
             class="list-complete-item"
-            :class="{ 'disable-scroll-transition': disableScrollTransition }"
           >
             <MessageComponent
               v-if="
@@ -99,7 +98,6 @@ type DataType = {
   selectedChatItem: ChatItemModel | null
   showGraph: boolean
   isAllCommentShowed: boolean
-  disableScrollTransition: boolean
 }
 
 export default Vue.extend({
@@ -134,7 +132,6 @@ export default Vue.extend({
       selectedChatItem: null,
       showGraph: false,
       isAllCommentShowed: true,
-      disableScrollTransition: false,
     }
   },
   computed: {

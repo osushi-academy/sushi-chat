@@ -240,9 +240,6 @@
     .list-complete-item {
       transition: all 0.3s;
       transform: translateX(0);
-      &.disable-scroll-transition {
-        transition: transform 0s !important;
-      }
     }
     .list-complete-enter,
     .list-complete-leave-to {
