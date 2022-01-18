@@ -10,12 +10,11 @@
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>
       <div class="title">{{ title }}</div>
-      <button>
-        <span
-          class="more-button"
-          aria-label="メニューを開閉する"
-          @click="isOpenDetails = !isOpenDetails"
-        >
+      <button
+        aria-label="メニューを開閉する"
+        @click="isOpenDetails = !isOpenDetails"
+      >
+        <span class="more-button">
           <MoreVerticalIcon aria-hidden="true"></MoreVerticalIcon>
         </span>
       </button>
@@ -58,14 +57,13 @@
       >
         {{ pinnedChatItemContent }}
       </button>
-      <button>
-        <span
-          v-show="isAdmin || isSpeaker"
-          class="topic-header__bookmark--close-icon"
-          aria-label="ピン留め解除"
-          title="ピン留め解除"
-          @click="removePinnedMessage"
-        >
+      <button
+        v-show="isAdmin || isSpeaker"
+        aria-label="ピン留め解除"
+        title="ピン留め解除"
+        @click="removePinnedMessage"
+      >
+        <span class="topic-header__bookmark--close-icon">
           <XCircleIcon size="1.2x" aria-hidden="true"></XCircleIcon>
         </span>
       </button>

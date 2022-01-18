@@ -37,8 +37,8 @@
         </transition-group>
         <div v-if="showGraph" class="graph-wrapper">
           <div class="graph-action-area" style="text-align: end">
-            <button>
-              <span class="close-button" @click="showGraph = false">
+            <button @click="showGraph = false">
+              <span class="close-button">
                 <XIcon></XIcon>
               </span>
             </button>
