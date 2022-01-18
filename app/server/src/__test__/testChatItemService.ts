@@ -65,7 +65,7 @@ describe("ChatItemServiceのテスト", () => {
         "test room",
         uuid(),
         "This is test room.",
-        [{ title: "test topic" }],
+        [{ title: "test topic", state: "ongoing" }],
         new Set([admin.id]),
         "ongoing",
         new Date(),

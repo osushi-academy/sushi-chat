@@ -11,11 +11,12 @@
       </div>
       <div class="title">{{ title }}</div>
       <button
-        class="more-button"
         aria-label="メニューを開閉する"
         @click="isOpenDetails = !isOpenDetails"
       >
-        <MoreVerticalIcon aria-hidden="true"></MoreVerticalIcon>
+        <span class="more-button">
+          <MoreVerticalIcon aria-hidden="true"></MoreVerticalIcon>
+        </span>
       </button>
     </div>
     <div v-if="isOpenDetails" class="topic-header__details">
@@ -58,12 +59,13 @@
       </button>
       <button
         v-show="isAdmin || isSpeaker"
-        class="topic-header__bookmark--close-icon"
         aria-label="ピン留め解除"
         title="ピン留め解除"
         @click="removePinnedMessage"
       >
-        <XCircleIcon size="1.2x" aria-hidden="true"></XCircleIcon>
+        <span class="topic-header__bookmark--close-icon">
+          <XCircleIcon size="1.2x" aria-hidden="true"></XCircleIcon>
+        </span>
       </button>
     </div>
   </div>

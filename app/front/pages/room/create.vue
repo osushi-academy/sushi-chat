@@ -62,10 +62,7 @@
                       )
                     "
                     @keydown.delete="
-                      if (
-                        sessionList[idx].title.length === 0 &&
-                        composing == false
-                      ) {
+                      if (sessionList[idx].title.length === 0 && !composing) {
                         removeSessionAndMoveFocus($event, idx, 'up')
                       }
                     "
@@ -74,21 +71,23 @@
                   />
                   <button
                     type="button"
-                    class="home-create__room__sessions__list--element--remove"
                     :disabled="!canDeleteSessionInput"
                     @click="removeSession(idx)"
                   >
-                    <MinusCircleIcon size="1.2x"></MinusCircleIcon>
+                    <MinusCircleIcon
+                      class="home-create__room__sessions__list--element--remove"
+                    ></MinusCircleIcon>
                   </button>
                 </form>
                 <button
-                  class="home-create__room__sessions__list--element--sort"
                   :class="{
                     'home-create__room__sessions__list--element--sort--dragging':
                       isDragging === true,
                   }"
                 >
-                  <MenuIcon size="1.2x"></MenuIcon>
+                  <MenuIcon
+                    class="home-create__room__sessions__list--element--sort"
+                  ></MenuIcon>
                 </button>
               </div>
             </transition-group>
