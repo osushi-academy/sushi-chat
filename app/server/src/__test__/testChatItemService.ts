@@ -163,6 +163,19 @@ describe("ChatItemServiceのテスト", () => {
       expect(deliveredMessage.content).toBe("テストメッセージ")
       expect(deliveredMessage.quote?.id).toBe(target.id)
     })
+
+    test("異常系_存在しないuserIdならエラーを投げる", async () => {
+      const notExistUserId = uuid()
+      await expect(
+        chatItemService.postMessage({
+          chatItemId: uuid(),
+          userId: notExistUserId,
+          topicId: 1,
+          content: "テストメッセージ",
+          quoteId: null,
+        }),
+      ).rejects.toThrow()
+    })
   })
 
   describe("postReactionのテスト", () => {
@@ -198,6 +211,19 @@ describe("ChatItemServiceのテスト", () => {
       expect(deliveredReaction.timestamp).not.toBeNull()
       expect(deliveredReaction.isPinned).toBeFalsy()
       expect(deliveredReaction.quote?.id).toBe(target.id)
+    })
+
+    test("異常系_存在しないuserIdならエラーを投げる", async () => {
+      const notExistUserId = uuid()
+      await expect(
+        chatItemService.postMessage({
+          chatItemId: uuid(),
+          userId: notExistUserId,
+          topicId: 1,
+          content: "テストメッセージ",
+          quoteId: null,
+        }),
+      ).rejects.toThrow()
     })
   })
 
@@ -235,6 +261,19 @@ describe("ChatItemServiceのテスト", () => {
       expect(deliveredQuestion.timestamp).not.toBeNull()
       expect(deliveredQuestion.isPinned).toBeFalsy()
       expect(deliveredQuestion.content).toBe("テストクエスチョン")
+    })
+
+    test("異常系_存在しないuserIdならエラーを投げる", async () => {
+      const notExistUserId = uuid()
+      await expect(
+        chatItemService.postMessage({
+          chatItemId: uuid(),
+          userId: notExistUserId,
+          topicId: 1,
+          content: "テストメッセージ",
+          quoteId: null,
+        }),
+      ).rejects.toThrow()
     })
   })
 
@@ -275,6 +314,19 @@ describe("ChatItemServiceのテスト", () => {
       expect(deliveredAnswer.content).toBe("テストアンサー")
       expect((deliveredAnswer.quote as Question).id).toBe(target.id)
     })
+
+    test("異常系_存在しないuserIdならエラーを投げる", async () => {
+      const notExistUserId = uuid()
+      await expect(
+        chatItemService.postMessage({
+          chatItemId: uuid(),
+          userId: notExistUserId,
+          topicId: 1,
+          content: "テストメッセージ",
+          quoteId: null,
+        }),
+      ).rejects.toThrow()
+    })
   })
 
   describe("pinChatItemのテスト", () => {
@@ -283,6 +335,13 @@ describe("ChatItemServiceのテスト", () => {
 
       const pinned = await chatItemRepository.find(target.id)
       expect(pinned?.isPinned).toBeTruthy()
+    })
+
+    test("異常系_存在しないchatItemIdならエラーを投げる", async () => {
+      const notExistChatItemId = uuid()
+      await expect(
+        chatItemService.pinChatItem({ chatItemId: notExistChatItemId }),
+      ).rejects.toThrow()
     })
   })
 })
