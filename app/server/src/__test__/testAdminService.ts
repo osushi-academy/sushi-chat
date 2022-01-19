@@ -59,7 +59,7 @@ describe("AdminServiceのテスト", () => {
     })
   })
 
-  describe("getManagedRoomsのテスト", () => {
+  describe("fetchManagedRoomsのテスト", () => {
     test("正常系_管理しているroom一覧を取得する", async () => {
       // adminが既に登録されている状態にしておく
       adminRepository.createIfNotExist(admin)
@@ -116,6 +116,13 @@ describe("AdminServiceのテスト", () => {
         expect(r.adminInviteKey).toBe(inviteKeys[i])
         expect(r.startAt).toBeNull()
       })
+    })
+
+    test("異常系_存在しないadminIdならエラーを投げる", async () => {
+      const notExistAdminId = uuid()
+      await expect(() =>
+        adminService.getManagedRooms({ adminId: notExistAdminId }),
+      ).rejects.toThrow()
     })
   })
 })
