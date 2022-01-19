@@ -18,7 +18,7 @@
   color: $color;
   text-decoration: none;
   white-space: nowrap;
-  background: rgba(255, 255, 255, 0%);
+  background: rgba(255, 255, 255, 0);
   border: 2px solid $color;
   border-radius: 4px;
 
@@ -33,11 +33,11 @@
   &:hover,
   &:focus {
     @if $color == $admin-primary {
-      background-color: rgba(112, 145, 195, 10%);
+      background-color: rgba(112, 145, 195, 0.1);
     } @else if $color == $danger {
-      background-color: rgba(225, 147, 147, 10%);
+      background-color: rgba(225, 147, 147, 0.1);
     } @else if $color == $primary {
-      background-color: rgba(242, 141, 47, 10%);
+      background-color: rgba(242, 141, 47, 0.1);
     }
   }
 
@@ -109,9 +109,9 @@
     cursor: pointer;
 
     @if $color == #f07b7b {
-      background-color: rgba(240, 123, 123, 20%);
+      background-color: rgba(240, 123, 123, 0.2);
     } @else {
-      background-color: rgba(111, 111, 111, 20%);
+      background-color: rgba(111, 111, 111, 0.2);
     }
   }
 

@@ -9,7 +9,7 @@
 
   &:hover {
     @if $color == $primary {
-      background-color: rgba(242, 141, 47, 20%);
+      background-color: rgba(242, 141, 47, 0.2);
     }
   }
 
@@ -90,15 +90,15 @@
       transition: all 0.1s;
 
       &:hover {
-        background: rgba(0, 0, 0, 8%);
+        background: rgba(0, 0, 0, 0.08);
       }
 
       &:active {
-        background: rgba(0, 0, 0, 8%);
+        background: rgba(0, 0, 0, 0.08);
       }
 
       &:disabled {
-        color: rgba(204, 204, 204, 50%);
+        color: rgba(204, 204, 204, 0.5);
         background: transparent;
       }
     }
@@ -108,7 +108,7 @@
     position: relative;
     z-index: 0;
     padding: 15px;
-    background-color: rgba(255, 255, 255, 10%);
+    background-color: rgba(255, 255, 255, 0.1);
     border-bottom: 1px solid rgb(239, 239, 239);
 
     &--filter-btn {
@@ -307,7 +307,7 @@
           border-radius: 100%;
 
           &:hover {
-            background: rgba(0, 0, 0, 2.1%);
+            background: rgba(0, 0, 0, 0.021);
           }
         }
       }
@@ -617,7 +617,7 @@
   cursor: pointer;
   background-color: white;
   border-radius: 99px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 15%);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
 
   &:hover {
     background-color: $placeholder-gray;
@@ -683,7 +683,7 @@
     background: white;
     border: 1px solid $placeholder-gray;
     border-radius: 5px;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 15%);
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
     transition: border 3s ease-out, box-shadow 3s ease-out;
 
     // スクロール時のハイライトで利用するCSS / highlightクラスはjsで動的に追加される
@@ -830,7 +830,7 @@
           transition: all 0.2s;
 
           &:hover:not(:disabled) {
-            background: rgba(249, 69, 69, 10%);
+            background: rgba(249, 69, 69, 0.1);
           }
 
           & > svg {

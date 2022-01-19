@@ -280,7 +280,7 @@
 }
 
 .vm--overlay {
-  background-color: rgba(10, 10, 10, 50%) !important;
+  background-color: rgba(10, 10, 10, 0.5) !important;
 }
 
 .home-add-sessions-modal {
@@ -359,7 +359,7 @@
           padding: 0;
           margin-left: 5px;
           color: $admin-primary;
-          background: rgba(255, 255, 255, 0%);
+          background: rgba(255, 255, 255, 0);
           border: none;
 
           & > .check-icon {
