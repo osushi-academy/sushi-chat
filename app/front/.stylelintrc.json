@@ -6,6 +6,7 @@
   "rules": {
     "color-function-notation": "legacy",
     "selector-class-pattern": null,
-    "no-descending-specificity": null
+    "no-descending-specificity": null,
+    "alpha-value-notation": "number"
   }
 }
