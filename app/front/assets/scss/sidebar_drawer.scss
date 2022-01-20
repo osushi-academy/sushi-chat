@@ -1,4 +1,6 @@
 .sidebar-drawer {
+  overflow-y: auto;
+  background: $bg;
   & > .sidebar-content {
     position: relative;
     padding-top: 4px;

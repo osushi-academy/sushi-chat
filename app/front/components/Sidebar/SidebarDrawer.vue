@@ -5,7 +5,7 @@
         v-if="showSidebar"
         :image-url="imageUrl"
         :show-humberger="true"
-        :class="'sidebar-content'"
+        class="sidebar-content"
         :click-humberger="closeSidebar"
       ></SidebarContent>
     </transition>

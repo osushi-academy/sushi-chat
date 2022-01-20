@@ -1,10 +1,8 @@
 .sidebar {
   width: 320px;
   height: 100%;
-  background: $bg;
   z-index: 50;
   color: $black;
-  padding: 16px 0;
   display: flex;
   flex-direction: column;
 
@@ -206,8 +204,8 @@
   & > .footer-section {
     display: flex;
     flex-wrap: wrap;
-    margin-top: auto;
-    padding: 0 32px;
+    margin: auto auto 0 auto;
+    padding: 0 0 1rem 0;
 
     & > .footer-link {
       margin-top: 0.5em;
