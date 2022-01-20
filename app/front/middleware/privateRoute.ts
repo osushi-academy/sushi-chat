@@ -1,7 +1,8 @@
 import { Middleware } from "@nuxt/types"
+import { AuthStore } from "~/store"
 
-const privateRoute: Middleware = ({ store, redirect }) => {
-  if (!store.getters["auth/isLoggedIn"]) {
+const privateRoute: Middleware = ({ redirect }) => {
+  if (!AuthStore.isLoggedIn) {
     return redirect("/login")
   }
 }

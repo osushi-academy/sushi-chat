@@ -9,7 +9,7 @@ class StampRepository implements IStampRepository {
     const pgClient = await this.pgPool.client()
 
     const query =
-      "INSERT INTO Stamps (id, room_id, topic_id, user_id, timestamp) VALUES ($1, $2, $3, $4, $5)"
+      "INSERT INTO Stamps (id, room_id, topic_id, user_id, timestamp, created_at) VALUES ($1, $2, $3, $4, $5, $6)"
 
     try {
       await pgClient.query(query, [
@@ -18,6 +18,7 @@ class StampRepository implements IStampRepository {
         stamp.topicId,
         stamp.userId,
         stamp.timestamp,
+        stamp.createdAt,
       ])
     } catch (e) {
       StampRepository.logError(e, "store()")
