@@ -202,39 +202,33 @@ class RoomRepository implements IRoomRepository {
           room.id,
         ]),
         pgClient.query(roomAdminsQuery, [room.id, ...room.adminIds]),
-        Promise.all(
-          room.topics.map((t) =>
-            pgClient.query(topicQuery, [
-              RoomRepository.topicStateMap[t.state],
-              room.topicTimeData[t.id].offsetTime,
-              new Date(),
+        ...room.topics.map((t) =>
+          pgClient.query(topicQuery, [
+            RoomRepository.topicStateMap[t.state],
+            room.topicTimeData[t.id].offsetTime,
+            new Date(),
+            room.id,
+            t.id,
+          ]),
+        ),
+        ...Object.entries(room.topicTimeData)
+          .filter(([_, topicTimeData]) => topicTimeData.openedDate !== null)
+          .map(([topicId, topicTimeData]) =>
+            pgClient.query(openedAtQuery, [
+              topicId,
               room.id,
-              t.id,
+              topicTimeData.openedDate,
             ]),
           ),
-        ),
-        Promise.all(
-          Object.entries(room.topicTimeData)
-            .filter(([_, topicTimeData]) => topicTimeData.openedDate !== null)
-            .map(([topicId, topicTimeData]) =>
-              pgClient.query(openedAtQuery, [
-                topicId,
-                room.id,
-                topicTimeData.openedDate,
-              ]),
-            ),
-        ),
-        Promise.all(
-          Object.entries(room.topicTimeData)
-            .filter(([_, topicTimeData]) => topicTimeData.pausedDate !== null)
-            .map(([topicId, timeData]) =>
-              pgClient.query(pausedAtQuery, [
-                topicId,
-                room.id,
-                timeData.pausedDate,
-              ]),
-            ),
-        ),
+        ...Object.entries(room.topicTimeData)
+          .filter(([_, topicTimeData]) => topicTimeData.pausedDate !== null)
+          .map(([topicId, timeData]) =>
+            pgClient.query(pausedAtQuery, [
+              topicId,
+              room.id,
+              timeData.pausedDate,
+            ]),
+          ),
       ])
     } finally {
       pgClient.release()
@@ -272,4 +266,4 @@ class RoomRepository implements IRoomRepository {
   }
 }
 
-export default RoomRepositoryr
+export default RoomRepository
