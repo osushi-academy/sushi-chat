@@ -262,8 +262,9 @@ export default Vue.extend({
     },
     clickDownload() {
       const messages = ChatItemStore.chatItems
-        .filter(({ type }) => type === "message")
-        .filter(({ iconId }) => iconId !== 0)
+        .filter(({ topicId }) => topicId === this.topicId)
+        .filter(({ type }) => type !== "reaction")
+        .filter(({ senderType }) => senderType !== "system")
         .map(
           (message) =>
             "🍣: " + (message.content as string).replaceAll("\n", "\n") + "\n",
