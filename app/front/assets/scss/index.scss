@@ -28,7 +28,7 @@
 .chat-room-area {
   display: flex;
   overflow-x: scroll;
-  @media screen and (max-width: $large) {
+  @media screen and (max-width: $medium) {
     &__cover {
       position: fixed;
       width: 100%;

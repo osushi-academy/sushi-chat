@@ -98,14 +98,6 @@ export default Vue.extend({
     MenuIcon,
   },
   props: {
-    roomTitle: {
-      type: String,
-      required: true,
-    },
-    roomDescription: {
-      type: String,
-      default: "",
-    },
     title: {
       type: String,
       required: true,
