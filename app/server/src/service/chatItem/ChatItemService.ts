@@ -49,7 +49,7 @@ class ChatItemService {
       ? ((await this.chatItemRepository.find(quoteId)) as Message | Answer)
       : null
 
-    let timestamp: number
+    let timestamp: number | null
     try {
       timestamp = room.calcTimestamp(topicId)
     } catch (e) {
@@ -67,7 +67,7 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      timestamp,
+      timestamp ?? undefined,
     )
 
     try {
@@ -107,7 +107,7 @@ class ChatItemService {
       | Question
       | Answer
 
-    let timestamp: number
+    let timestamp: number | null
     try {
       timestamp = room.calcTimestamp(topicId)
     } catch (e) {
@@ -124,11 +124,7 @@ class ChatItemService {
       senderType,
       quote,
       new Date(),
-<<<<<<< HEAD
-      timestamp,
-=======
-      room.calcTimestamp(topicId) ?? undefined,
->>>>>>> develop
+      timestamp ?? undefined,
     )
 
     try {
@@ -169,7 +165,7 @@ class ChatItemService {
         ? null
         : ((await this.chatItemRepository.find(quoteId)) as Message | Answer)
 
-    let timestamp: number
+    let timestamp: number | null
     try {
       timestamp = room.calcTimestamp(topicId)
     } catch (e) {
@@ -187,11 +183,7 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-<<<<<<< HEAD
-      timestamp,
-=======
-      room.calcTimestamp(topicId) ?? undefined,
->>>>>>> develop
+      timestamp ?? undefined,
     )
 
     try {
@@ -229,7 +221,7 @@ class ChatItemService {
 
     const quote = (await this.chatItemRepository.find(quoteId)) as Question
 
-    let timestamp: number
+    let timestamp: number | null
     try {
       timestamp = room.calcTimestamp(topicId)
     } catch (e) {
@@ -247,11 +239,7 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-<<<<<<< HEAD
-      timestamp,
-=======
-      room.calcTimestamp(topicId) ?? undefined,
->>>>>>> develop
+      timestamp ?? undefined,
     )
 
     try {
@@ -277,7 +265,7 @@ class ChatItemService {
     if (!pinnedChatItem) {
       throw new ErrorWithCode(`ChatItem(${chatItemId}) was not found.`, 404)
     }
-   //TODO: speakerしかピン留めできないようにする
+    //TODO: speakerしかピン留めできないようにする
 
     this.chatItemDelivery.pinChatItem(pinnedChatItem)
     await this.chatItemRepository.pinChatItem(pinnedChatItem)

@@ -12,12 +12,10 @@ import Message from "../chatItem/Message"
 import { v4 as uuid } from "uuid"
 import {
   ArgumentError,
-  ErrorWithCode,
   NotAuthorizedError,
   NotFoundError,
   StateError,
 } from "../../error"
-import User from "../user/User"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -105,13 +103,18 @@ class RoomClass {
   public calcTimestamp = (topicId: number): number | null => {
     const topic = this.findTopicOrThrow(topicId)
     if (topic.state === "not-started") {
-      throw new Error(`Topic(id:${topicId}) was not started.`)
+      throw new ArgumentError(`Topic(id:${topicId}) was not started.`)
     }
+
+    // 停止中・終了後のトピックの場合はタイムスタンプをnullとする
     if (topic.state !== "ongoing") {
       return null
     }
 
-    const openedDate = this.findOpenedDateOrThrow(topicId)
+    const openedDate = this._topicTimeData[topicId].openedDate
+    if (openedDate === null) {
+      throw new StateError(`OpenedDate of ongoing Topic(${topicId}) is null.`)
+    }
     const offsetTime = this._topicTimeData[topicId].offsetTime
     const timestamp = new Date().getTime() - openedDate - offsetTime
 
@@ -388,17 +391,6 @@ class RoomClass {
   }
 
   private postBotMessage = (topicId: number, content: string): Message => {
-    let timestamp: number
-    try {
-      timestamp = this.calcTimestamp(topicId)
-    } catch (e) {
-      if (e instanceof NotFoundError) {
-        throw new ErrorWithCode(e.message, 404)
-      } else {
-        throw new Error(e.message)
-      }
-    }
-
     const botMessage = new Message(
       uuid(),
       topicId,
@@ -407,7 +399,7 @@ class RoomClass {
       content,
       null,
       new Date(),
-      timestamp,
+      this.calcTimestamp(topicId) ?? undefined,
     )
     this._chatItems.push(botMessage)
 
@@ -424,14 +416,6 @@ class RoomClass {
       throw new NotFoundError(`Topic(${topicId}) was not found.`)
     }
     return topic
-  }
-
-  private findOpenedDateOrThrow(topicId: number): number {
-    const openedDate = this._topicTimeData[topicId].openedDate
-    if (openedDate === null) {
-      throw new NotFoundError(`openedDate of topicId(id: ${topicId}) is null.`)
-    }
-    return openedDate
   }
 
   private assertRoomIsOngoing() {

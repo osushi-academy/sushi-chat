@@ -122,10 +122,13 @@ export const restSetup = (
   // 管理しているルーム一覧を取得する
   adminRouter.get("/room", async (req, res) => {
     try {
-      const rooms = await adminService.fetchManagedRooms({
-        // @ts-ignore bodyをadminIdの受け渡しに利用しているため
-        adminId: req.body.adminId,
-      })
+      const [rooms] = await Promise.all([
+        adminService.getManagedRooms(
+          // TODO: adminIdがrequestの型定義にないので静的解析エラーになる。adminIdを適切な場所に入れるようにする
+          // @ts-ignore
+          req.body.adminId,
+        ),
+      ])
 
       res.send({
         result: "success",

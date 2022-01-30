@@ -4,7 +4,6 @@ import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
 import IAdminAuth from "../../domain/admin/IAdminAuth"
 import { ErrorWithCode } from "../../error"
-import { getManagedRoomsCommand } from "./commands"
 
 class AdminService {
   constructor(
@@ -32,40 +31,21 @@ class AdminService {
    * @param adminId 管理者のユーザーID
    * @return Promise<RoomClass[]> 管理者が管理しているルームの一覧
    */
-  public async getManagedRooms(
-    command: getManagedRoomsCommand,
-  ): Promise<RoomClass[]> {
-    const admin = await this.find(command.adminId)
-    const managedRoomsIds = admin.managedRoomsIds
-    // FIXME: postgresqlのコネクションプールのリミットが10なので、for文でfindRoomを回しすぎるとプールが足りなくなって運
-    //        が悪いとデッドロックになるため、取得するルーム数を制限している。1リクエストにつき1コネクションを割り当てれ
-    //        ば直せそう。
-    const limitedManagedRoomIds = managedRoomsIds.slice(0, 3)
-
-    // roomがnullの場合は無視する
-    const managedRooms = (
-      await Promise.all<RoomClass | null>(
-        limitedManagedRoomIds.map(async (roomId) => {
-          const room = await this.findRoom(roomId)
-          return room
-        }),
-      )
-    ).filter((room): room is RoomClass => room != null)
-
-    return managedRooms
-  }
-
-  private async find(adminId: string): Promise<Admin> {
+  public async getManagedRooms(adminId: string): Promise<RoomClass[]> {
     const admin = await this.adminRepository.find(adminId)
-    if (!admin) {
-      throw new ErrorWithCode(`Admin(${adminId}) was not found.`, 404)
+    if (admin === null) {
+      throw new ErrorWithCode(`Admin(${adminId}) was not found`, 404)
     }
 
-    const managedRooms = await Promise.all(
-      admin.managedRoomsIds.map((roomId) => this.roomRepository.find(roomId)),
-    )
+    // FIXME: postgresqlのコネクションプールのリミットが10なので、for文でfindRoomを回しすぎるとプールが足りなくなって運
+    //        が悪いとデッドロックになるため、取得するルーム数を制限している。1リクエストにつき1コネクションを割り当てた
+    //         り、依存関係のあるクエリを並列処理しなければ直りそう。
+    const limitedManagedRoomIds = admin.managedRoomsIds.slice(0, 3)
 
-    return managedRooms.filter((room): room is RoomClass => room !== null)
+    // roomがnullの場合は除去する
+    return (
+      await Promise.all(limitedManagedRoomIds.map(this.roomRepository.find))
+    ).filter((room): room is RoomClass => room != null)
   }
 }
 

@@ -27,7 +27,7 @@ class StampService {
       throw new ErrorWithCode(`Room(${roomId}) was not found.`, 404)
     }
 
-    let timestamp: number
+    let timestamp: number | null
     try {
       timestamp = room.calcTimestamp(topicId)
     } catch (e) {
@@ -36,6 +36,13 @@ class StampService {
       } else {
         throw new Error(e.message)
       }
+    }
+
+    if (timestamp === null) {
+      throw new ErrorWithCode(
+        `timestamp of Topic(${topicId}) of Room(${roomId}) must not be null.`,
+        400,
+      )
     }
 
     const stamp = this.stampFactory.create(
