@@ -124,7 +124,11 @@ class ChatItemService {
       senderType,
       quote,
       new Date(),
+<<<<<<< HEAD
       timestamp,
+=======
+      room.calcTimestamp(topicId) ?? undefined,
+>>>>>>> develop
     )
 
     try {
@@ -183,7 +187,11 @@ class ChatItemService {
       content,
       quote,
       new Date(),
+<<<<<<< HEAD
       timestamp,
+=======
+      room.calcTimestamp(topicId) ?? undefined,
+>>>>>>> develop
     )
 
     try {
@@ -239,7 +247,11 @@ class ChatItemService {
       content,
       quote,
       new Date(),
+<<<<<<< HEAD
       timestamp,
+=======
+      room.calcTimestamp(topicId) ?? undefined,
+>>>>>>> develop
     )
 
     try {

@@ -13,7 +13,7 @@ export const NewIconId = (value: number): IconId => {
       `value(${value}) is invalid for IconId: out of ${VALUE_MIN} to ${VALUE_MAX}.`,
     )
   }
-  return value as any
+  return value as unknown as IconId
 }
 
 export default IconId

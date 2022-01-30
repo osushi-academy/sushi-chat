@@ -2,9 +2,9 @@ import Admin from "../../domain/admin/admin"
 import IAdminRepository from "../../domain/admin/IAdminRepository"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import RoomClass from "../../domain/room/Room"
-import { getManagedRoomsCommand } from "./commands"
 import IAdminAuth from "../../domain/admin/IAdminAuth"
 import { ErrorWithCode } from "../../error"
+import { getManagedRoomsCommand } from "./commands"
 
 class AdminService {
   constructor(
@@ -32,9 +32,30 @@ class AdminService {
    * @param adminId 管理者のユーザーID
    * @return Promise<RoomClass[]> 管理者が管理しているルームの一覧
    */
-  public async fetchManagedRooms({
-    adminId,
-  }: getManagedRoomsCommand): Promise<RoomClass[]> {
+  public async getManagedRooms(
+    command: getManagedRoomsCommand,
+  ): Promise<RoomClass[]> {
+    const admin = await this.find(command.adminId)
+    const managedRoomsIds = admin.managedRoomsIds
+    // FIXME: postgresqlのコネクションプールのリミットが10なので、for文でfindRoomを回しすぎるとプールが足りなくなって運
+    //        が悪いとデッドロックになるため、取得するルーム数を制限している。1リクエストにつき1コネクションを割り当てれ
+    //        ば直せそう。
+    const limitedManagedRoomIds = managedRoomsIds.slice(0, 3)
+
+    // roomがnullの場合は無視する
+    const managedRooms = (
+      await Promise.all<RoomClass | null>(
+        limitedManagedRoomIds.map(async (roomId) => {
+          const room = await this.findRoom(roomId)
+          return room
+        }),
+      )
+    ).filter((room): room is RoomClass => room != null)
+
+    return managedRooms
+  }
+
+  private async find(adminId: string): Promise<Admin> {
     const admin = await this.adminRepository.find(adminId)
     if (!admin) {
       throw new ErrorWithCode(`Admin(${adminId}) was not found.`, 404)
