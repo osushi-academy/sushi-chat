@@ -44,7 +44,9 @@ class AdminService {
 
     // roomがnullの場合は除去する
     return (
-      await Promise.all(limitedManagedRoomIds.map(this.roomRepository.find))
+      await Promise.all(
+        limitedManagedRoomIds.map((id) => this.roomRepository.find(id)),
+      )
     ).filter((room): room is RoomClass => room != null)
   }
 }

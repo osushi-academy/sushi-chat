@@ -26,7 +26,7 @@ class EphemeralRoomRepository implements IRoomRepository {
     )
   }
 
-  public async find(roomId: string) {
+  public find(roomId: string) {
     return Promise.resolve(this.rooms.find((r) => r.id === roomId) ?? null)
   }
 
