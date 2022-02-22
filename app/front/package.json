@@ -30,6 +30,7 @@
     "vue-feather-icons": "^5.1.0",
     "vue-js-modal": "^2.0.0-rc.6",
     "vue-material-design-icons": "^4.13.0",
+    "vue-tippy": "v4",
     "vuedraggable": "^2.24.3"
   },
   "devDependencies": {
