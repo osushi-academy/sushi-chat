@@ -166,7 +166,8 @@
     }
 
     &--content {
-      display: box;
+      /* stylelint-disable */
+      display: -webkit-box;
       width: 100%;
       max-height: 2.5rem;
       overflow: hidden;
