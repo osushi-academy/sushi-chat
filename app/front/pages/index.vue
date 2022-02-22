@@ -26,7 +26,7 @@
         </div>
         <br />
         <br />
-        <button class="lp__main--loginbutton" @click="signInWithGoogle">
+        <button class="lp__main--loginbutton" @click="signInWithGoogle()">
           はじめる
         </button>
       </div>
