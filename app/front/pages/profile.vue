@@ -39,7 +39,7 @@ export default Vue.extend({
     async logout() {
       try {
         await this.$fire.auth.signOut()
-        this.$router.push("/login")
+        this.$router.push("/")
       } catch {
         alert("ログアウトに失敗しました")
       }
