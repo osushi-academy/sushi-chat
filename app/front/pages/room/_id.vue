@@ -83,6 +83,7 @@ type DataType = {
 }
 Vue.use(VModal)
 export default Vue.extend({
+  name: "Id",
   components: {
     AdminTool,
     ChatRoom,
