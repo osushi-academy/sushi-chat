@@ -1,0 +1,4 @@
+export const MAX_ROOM_TITLE_LENGTH = 100
+export const MAX_ROOM_DESCRIPTION_LENGTH = 500
+export const MAX_TOPIC_TITLE_LENGTH = 100
+export const MAX_MESSAGE_LENGTH = 300
