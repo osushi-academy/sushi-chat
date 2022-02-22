@@ -308,6 +308,7 @@ export default Vue.extend({
           status: "success",
         })),
       )
+      StampStore.setStamps(res.data.stamps)
       res.data.topicStates.forEach((topicState) => {
         TopicStateItemStore.change({
           key: topicState.topicId,
