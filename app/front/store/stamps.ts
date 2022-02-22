@@ -18,6 +18,11 @@ export default class Stamps extends VuexModule {
   }
 
   @Mutation
+  public setStamps(stamps: StampModel[]) {
+    this._stamps = stamps
+  }
+
+  @Mutation
   public add(s: StampModel) {
     this._stamps.push(s)
   }
