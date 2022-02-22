@@ -172,7 +172,11 @@ type DataType = {
   copyAdminCompleted: boolean
 }
 
-Vue.use(VueTippy)
+Vue.use(VueTippy, {
+  flipDuration: 0,
+  animateFill: false,
+  delay: [500, 0],
+})
 Vue.component("Tippy", TippyComponent)
 
 export default Vue.extend({
