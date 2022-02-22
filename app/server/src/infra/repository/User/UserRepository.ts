@@ -1,6 +1,7 @@
 import IUserRepository from "../../../domain/user/IUserRepository"
 import User from "../../../domain/user/User"
 import PGPool from "../PGPool"
+import { Pool, PoolClient } from "pg"
 
 class UserRepository implements IUserRepository {
   constructor(private readonly pgPool: PGPool) {}
@@ -66,9 +67,10 @@ class UserRepository implements IUserRepository {
     }
   }
 
-  public async selectByRoomId(roomId: string): Promise<User[]> {
-    const pgClient = await this.pgPool.client()
-
+  public async selectByRoomId(
+    roomId: string,
+    pgClient: PoolClient,
+  ): Promise<User[]> {
     const query =
       "SELECT u.id, u.is_admin, u.is_system, u.room_id, u.icon_id, ts.topic_id FROM users u LEFT JOIN topics_speakers ts on u.id = ts.user_id WHERE u.room_id = $1 AND u.has_left = false"
     try {
@@ -86,11 +88,8 @@ class UserRepository implements IUserRepository {
 
       return users
     } catch (e) {
-      console.log(e)
       UserRepository.logError(e, "selectByRoomId()")
       throw e
-    } finally {
-      pgClient.release()
     }
   }
 

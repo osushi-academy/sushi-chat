@@ -7,6 +7,7 @@ import ChatItem from "../../../domain/chatItem/ChatItem"
 import PGPool from "../PGPool"
 import { ChatItemSenderType, ChatItemType } from "sushi-chat-shared"
 import User from "../../../domain/user/User"
+import { PoolClient } from "pg"
 
 class ChatItemRepository implements IChatItemRepository {
   constructor(private readonly pgPool: PGPool) {}
@@ -146,9 +147,10 @@ class ChatItemRepository implements IChatItemRepository {
     }
   }
 
-  public async selectByRoomId(roomId: string): Promise<ChatItem[]> {
-    const pgClient = await this.pgPool.client()
-
+  public async selectByRoomId(
+    roomId: string,
+    pgClient: PoolClient,
+  ): Promise<ChatItem[]> {
     const query =
       "SELECT " +
       "ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at, " +
@@ -167,8 +169,6 @@ class ChatItemRepository implements IChatItemRepository {
     } catch (e) {
       ChatItemRepository.logError(e, "selectByRoomId()")
       throw e
-    } finally {
-      pgClient.release()
     }
   }
 

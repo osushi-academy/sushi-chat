@@ -107,10 +107,10 @@ class RoomRepository implements IRoomRepository {
         await Promise.all([
           pgClient.query(roomQuery, [roomId]),
           pgClient.query(topicsQuery, [roomId]),
-          this.adminRepository.selectIdsByRoomId(roomId),
-          this.userRepository.selectByRoomId(roomId),
-          this.stampRepository.selectByRoomId(roomId),
-          this.chatItemRepository.selectByRoomId(roomId),
+          this.adminRepository.selectIdsByRoomId(roomId, pgClient),
+          this.userRepository.selectByRoomId(roomId, pgClient),
+          this.stampRepository.selectByRoomId(roomId, pgClient),
+          this.chatItemRepository.selectByRoomId(roomId, pgClient),
         ])
 
       if (roomRes.rowCount < 1) return null

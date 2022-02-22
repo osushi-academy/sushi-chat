@@ -1,6 +1,7 @@
 import IStampRepository from "../../../domain/stamp/IStampRepository"
 import Stamp from "../../../domain/stamp/Stamp"
 import PGPool from "../PGPool"
+import { Pool, PoolClient } from "pg"
 
 class StampRepository implements IStampRepository {
   constructor(private readonly pgPool: PGPool) {}
@@ -57,9 +58,10 @@ class StampRepository implements IStampRepository {
     }
   }
 
-  public async selectByRoomId(roomId: string): Promise<Stamp[]> {
-    const pgClient = await this.pgPool.client()
-
+  public async selectByRoomId(
+    roomId: string,
+    pgClient: PoolClient,
+  ): Promise<Stamp[]> {
     const query =
       "SELECT id, topic_id, user_id, created_at, timestamp FROM stamps WHERE room_id = $1"
     try {
@@ -77,8 +79,6 @@ class StampRepository implements IStampRepository {
     } catch (e) {
       StampRepository.logError(e, "selectByRoomId()")
       throw e
-    } finally {
-      pgClient.release()
     }
   }
 

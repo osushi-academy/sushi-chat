@@ -1,6 +1,7 @@
 import IAdminRepository from "../../../domain/admin/IAdminRepository"
 import Admin from "../../../domain/admin/admin"
 import PGPool from "../PGPool"
+import { PoolClient } from "pg"
 
 class AdminRepository implements IAdminRepository {
   constructor(private readonly pgPool: PGPool) {}
@@ -47,9 +48,10 @@ class AdminRepository implements IAdminRepository {
     }
   }
 
-  public async selectIdsByRoomId(roomId: string): Promise<string[]> {
-    const pgClient = await this.pgPool.client()
-
+  public async selectIdsByRoomId(
+    roomId: string,
+    pgClient: PoolClient,
+  ): Promise<string[]> {
     const query = "SELECT admin_id FROM rooms_admins WHERE room_id = $1"
 
     try {
@@ -58,8 +60,6 @@ class AdminRepository implements IAdminRepository {
     } catch (e) {
       AdminRepository.logError(e, "find()")
       throw e
-    } finally {
-      pgClient.release()
     }
   }
 

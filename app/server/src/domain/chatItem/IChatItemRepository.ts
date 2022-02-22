@@ -3,6 +3,7 @@ import Reaction from "./Reaction"
 import Question from "./Question"
 import Answer from "./Answer"
 import ChatItem from "./ChatItem"
+import { PoolClient } from "pg"
 
 interface IChatItemRepository {
   saveMessage(message: Message): void
@@ -10,7 +11,7 @@ interface IChatItemRepository {
   saveQuestion(question: Question): void
   saveAnswer(answer: Answer): void
   find(chatItemId: string): Promise<ChatItem | null>
-  selectByRoomId(roomId: string): Promise<ChatItem[]>
+  selectByRoomId(roomId: string, pgClient: PoolClient): Promise<ChatItem[]>
   pinChatItem(chatItem: ChatItem): void
 }
 
