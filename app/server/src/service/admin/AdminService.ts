@@ -30,33 +30,17 @@ class AdminService {
   public async getManagedRooms(
     command: getManagedRoomsCommand,
   ): Promise<RoomClass[]> {
-    const admin = await this.find(command.adminId)
-    const managedRoomsIds = admin.managedRoomsIds
-
-    // roomがnullの場合は無視する
-    const managedRooms = (
-      await Promise.all<RoomClass | null>(
-        managedRoomsIds.map(async (roomId) => {
-          const room = await this.findRoom(roomId)
-          return room
-        }),
-      )
-    ).filter((room): room is RoomClass => room != null)
-
-    return managedRooms
-  }
-
-  private async find(adminId: string): Promise<Admin> {
-    const admin = await this.adminRepository.find(adminId)
+    const admin = await this.adminRepository.find(command.adminId)
     if (!admin) {
       throw new Error(`[sushi-chat-server] Admin does not exists.`)
     }
-    return admin
-  }
 
-  private async findRoom(roomId: string): Promise<RoomClass | null> {
-    const room = await this.roomRepository.find(roomId)
-    return room
+    // roomがnullの場合は無視する
+    return (
+      await Promise.all(
+        admin.managedRoomsIds.map((id) => this.roomRepository.find(id)),
+      )
+    ).filter((room): room is RoomClass => room != null)
   }
 }
 
