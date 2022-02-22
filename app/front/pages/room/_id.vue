@@ -205,7 +205,6 @@ export default Vue.extend({
 
       // SocketIOのコールバックの登録
       socket.on("PUB_CHAT_ITEM", (chatItem) => {
-        console.log(chatItem)
         // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
         ChatItemStore.addOrUpdate({ ...chatItem, status: "success" })
       })
@@ -254,8 +253,8 @@ export default Vue.extend({
           state,
           topicId,
         },
-        (res) => {
-          console.log(res)
+        () => {
+          // do nothing
         },
       )
     },
@@ -324,8 +323,8 @@ export default Vue.extend({
     // ルーム終了
     async finishRoom() {
       const socket = await this.$socket()
-      socket.emit("ADMIN_FINISH_ROOM", {}, (res) => {
-        console.log(res)
+      socket.emit("ADMIN_FINISH_ROOM", {}, () => {
+        // do nothing
       })
       this.roomState = "finished"
     },
