@@ -96,9 +96,7 @@ describe("AdminServiceのテスト", () => {
         ),
       )
 
-      const managedRooms = await adminService.getManagedRooms({
-        adminId: admin.id,
-      })
+      const managedRooms = await adminService.getManagedRooms(admin.id)
       expect(managedRooms).toHaveLength(rooms.length)
       managedRooms.forEach((r, i) => {
         expect(r.id).toBe(roomIds[i])
@@ -121,7 +119,7 @@ describe("AdminServiceのテスト", () => {
     test("異常系_存在しないadminIdならエラーを投げる", async () => {
       const notExistAdminId = uuid()
       await expect(() =>
-        adminService.getManagedRooms({ adminId: notExistAdminId }),
+        adminService.getManagedRooms(notExistAdminId),
       ).rejects.toThrow()
     })
   })

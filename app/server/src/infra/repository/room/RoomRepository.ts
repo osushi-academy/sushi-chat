@@ -9,6 +9,7 @@ import PGPool from "../PGPool"
 import { RoomState, TopicState } from "sushi-chat-shared"
 import IAdminRepository from "../../../domain/admin/IAdminRepository"
 import User from "../../../domain/user/User"
+import { ArgumentError } from "../../../error"
 
 class RoomRepository implements IRoomRepository {
   constructor(
@@ -20,6 +21,13 @@ class RoomRepository implements IRoomRepository {
   ) {}
 
   public async build(room: RoomClass) {
+    const creatorAdminId = room.adminIds.values().next().value
+    if (!creatorAdminId) {
+      throw new ArgumentError(
+        `Admin who built the room(${room.id}) is not set.`,
+      )
+    }
+
     const pgClient = await this.pgPool.client()
 
     const insertRoomQuery =
@@ -45,12 +53,9 @@ class RoomRepository implements IRoomRepository {
       .join(", ")
     const insertTopicsQuery = `INSERT INTO Topics (id, room_id, topic_state_id, title) VALUES ${insertedTopicsStr}`
 
-    const creatorAdminId = room.adminIds.values().next().value
-    if (!creatorAdminId) {
-      throw new Error(`Admin who created room(${room.id}) is not set.`)
-    }
     const insertRoomAdminQuery =
       "INSERT INTO rooms_admins (admin_id, room_id) VALUES ($1, $2)"
+
     const insertSystemUserQuery =
       "INSERT INTO users (id, room_id, icon_id, is_admin, is_system, has_left) VALUES ($1, $2, $3, $4, $5, $6)"
 
@@ -75,9 +80,6 @@ class RoomRepository implements IRoomRepository {
           false,
         ]),
       ])
-    } catch (e) {
-      RoomRepository.logError(e, "build()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -161,9 +163,6 @@ class RoomRepository implements IRoomRepository {
         stamps,
         systemUser,
       )
-    } catch (e) {
-      RoomRepository.logError(e, "find()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -174,32 +173,36 @@ class RoomRepository implements IRoomRepository {
 
     const roomQuery =
       "UPDATE rooms SET room_state_id = $1, start_at = $2, finish_at = $3, archived_at = $4, updated_at = $5 WHERE id = $6"
-    const updateRoom = async () => {
-      await pgClient.query(roomQuery, [
-        RoomRepository.roomStateMap[room.state],
-        room.startAt,
-        room.finishAt,
-        room.archivedAt,
-        new Date(),
-        room.id,
-      ])
-    }
 
     // 例: '($2 $1), ($3, $1), ($4, $1), ...'
     const roomAdminValues = ArrayRange(room.adminIds.size)
       .map((i) => `($${i + 2}, $1)`)
       .join(", ")
-
     const roomAdminsQuery = `INSERT INTO rooms_admins (admin_id, room_id) VALUES ${roomAdminValues} ON CONFLICT (admin_id, room_id) DO NOTHING`
-    const updateRoomAdmins = async () => {
-      await pgClient.query(roomAdminsQuery, [room.id, ...room.adminIds])
-    }
 
     const topicQuery =
       "UPDATE topics SET topic_state_id = $1, offset_mil_sec = $2, updated_at = $3 WHERE room_id = $4 AND id = $5"
-    const updateTopic = async () => {
-      await Promise.all(
-        room.topics.map((t) =>
+
+    const openedAtQuery =
+      "INSERT INTO topic_opened_at (topic_id, room_id, opened_at_mil_sec) VALUES($1, $2, $3) ON CONFLICT (topic_id, room_id) DO UPDATE SET opened_at_mil_sec = $3"
+
+    const pausedAtQuery =
+      "INSERT INTO topic_paused_at (topic_id, room_id, paused_at_mil_sec) VALUES($1, $2, $3) ON CONFLICT (topic_id, room_id) DO UPDATE SET paused_at_mil_sec = $3"
+
+    try {
+      // NOTE: 毎回全てのトピックのstateとtimeDataを更新しており、かつ複数クエリを発行しているので、
+      //       パフォーマンスの問題が出てきたらここを疑う
+      await Promise.all([
+        pgClient.query(roomQuery, [
+          RoomRepository.roomStateMap[room.state],
+          room.startAt,
+          room.finishAt,
+          room.archivedAt,
+          new Date(),
+          room.id,
+        ]),
+        pgClient.query(roomAdminsQuery, [room.id, ...room.adminIds]),
+        ...room.topics.map((t) =>
           pgClient.query(topicQuery, [
             RoomRepository.topicStateMap[t.state],
             room.topicTimeData[t.id].offsetTime,
@@ -208,42 +211,25 @@ class RoomRepository implements IRoomRepository {
             t.id,
           ]),
         ),
-      )
-    }
-
-    const openedAtQuery =
-      "INSERT INTO topic_opened_at (topic_id, room_id, opened_at_mil_sec) VALUES($1, $2, $3) ON CONFLICT (topic_id, room_id) DO UPDATE SET opened_at_mil_sec = $3"
-    const pausedAtQuery =
-      "INSERT INTO topic_paused_at (topic_id, room_id, paused_at_mil_sec) VALUES($1, $2, $3) ON CONFLICT (topic_id, room_id) DO UPDATE SET paused_at_mil_sec = $3"
-    const updateTopicTimeData = async () => {
-      await Promise.all(
-        Object.entries(room.topicTimeData).map(([topicId, timeData]) => {
-          if (timeData.openedDate !== null) {
-            pgClient
-              .query(openedAtQuery, [topicId, room.id, timeData.openedDate])
-              .catch(console.error)
-          }
-          if (timeData.pausedDate !== null) {
-            pgClient
-              .query(pausedAtQuery, [topicId, room.id, timeData.pausedDate])
-              .catch(console.error)
-          }
-        }),
-      )
-    }
-
-    try {
-      // NOTE: 毎回全てのトピックのstateとtimeDataを更新しており、かつ複数クエリを発行しているので、
-      //       パフォーマンスの問題が出てきたらここを疑う
-      await Promise.all([
-        updateRoom(),
-        updateRoomAdmins(),
-        updateTopic(),
-        updateTopicTimeData(),
+        ...Object.entries(room.topicTimeData)
+          .filter(([_, topicTimeData]) => topicTimeData.openedDate !== null)
+          .map(([topicId, topicTimeData]) =>
+            pgClient.query(openedAtQuery, [
+              topicId,
+              room.id,
+              topicTimeData.openedDate,
+            ]),
+          ),
+        ...Object.entries(room.topicTimeData)
+          .filter(([_, topicTimeData]) => topicTimeData.pausedDate !== null)
+          .map(([topicId, timeData]) =>
+            pgClient.query(pausedAtQuery, [
+              topicId,
+              room.id,
+              timeData.pausedDate,
+            ]),
+          ),
       ])
-    } catch (e) {
-      RoomRepository.logError(e, "update()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -261,7 +247,7 @@ class RoomRepository implements IRoomRepository {
       if (v === n) return k as RoomState
     }
 
-    throw new Error(`${n} is not assigned room-state int.`)
+    throw new ArgumentError(`${n} is not assigned room-state int.`)
   }
 
   private static readonly topicStateMap: Record<TopicState, number> = {
@@ -276,15 +262,7 @@ class RoomRepository implements IRoomRepository {
       if (v === n) return k as TopicState
     }
 
-    throw new Error(`${n} is not assigned topic-state int.`)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static logError(error: any, context: string) {
-    const datetime = new Date().toISOString()
-    console.error(
-      `[${datetime}] RoomRepository.${context}: ${error ?? "Unknown error."}`,
-    )
+    throw new ArgumentError(`${n} is not assigned topic-state int.`)
   }
 }
 

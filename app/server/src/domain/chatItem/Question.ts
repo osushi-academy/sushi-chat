@@ -1,8 +1,9 @@
 import ChatItem from "./ChatItem"
-import { ChatItemSenderType } from "sushi-chat-shared"
+import { ChatItemSenderType, MAX_MESSAGE_LENGTH } from "sushi-chat-shared"
 import User from "../user/User"
 import Message from "./Message"
 import Answer from "./Answer"
+import split from "graphemesplit"
 
 class Question extends ChatItem {
   constructor(
@@ -17,6 +18,13 @@ class Question extends ChatItem {
     isPinned = false,
   ) {
     super(id, topicId, user, senderType, createdAt, timestamp, isPinned)
+    // バリデーション
+    // ルームタイトル
+    if (split(this.content).length > MAX_MESSAGE_LENGTH) {
+      throw new Error(
+        `Question(id: ${this.id}) content length(${this.content}}) is too long.`,
+      )
+    }
   }
 }
 

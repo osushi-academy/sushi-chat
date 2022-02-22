@@ -125,6 +125,11 @@ import VModal from "vue-js-modal"
 import draggable from "vuedraggable"
 import PlusIcon from "vue-material-design-icons/Plus.vue"
 import { MenuIcon, MinusCircleIcon } from "vue-feather-icons"
+import {
+  MAX_ROOM_TITLE_LENGTH,
+  MAX_TOPIC_TITLE_LENGTH,
+} from "sushi-chat-shared"
+import split from "graphemesplit"
 import AddSessionsModal from "@/components/Home/AddSessionsModal.vue"
 import CreationCompletedModal from "@/components/Home/CreationCompletedModal.vue"
 
@@ -219,8 +224,8 @@ export default Vue.extend({
         // 重複しているトピックはカウントしない
         if (set.has(topicTitle)) continue
         // 長さ制限を超えている
-        if (topicTitle.length > this.MAX_TOPIC_LENGTH) {
-          alert("セッション名は" + this.MAX_TOPIC_LENGTH + "文字までです。")
+        if (split(topicTitle).length > MAX_TOPIC_TITLE_LENGTH) {
+          alert("セッション名は" + MAX_TOPIC_TITLE_LENGTH + "文字までです。")
           return
         }
         const t = {
@@ -251,6 +256,21 @@ export default Vue.extend({
         // room名とセッションが不足していたらエラー
         if (this.roomName === "" || sessions.length === 0) {
           throw new Error("入力が不足しています")
+        }
+        // room名が長すぎたらエラー
+        if (split(this.roomName).length > MAX_ROOM_TITLE_LENGTH) {
+          throw new Error(
+            "イベント名は" + MAX_ROOM_TITLE_LENGTH + "文字までです。",
+          )
+        }
+        // セッション名が長すぎたらエラー
+        for (const topic of sessions) {
+          // 長さ制限を超えている
+          if (split(topic.title).length > MAX_TOPIC_TITLE_LENGTH) {
+            throw new Error(
+              "セッション名は" + MAX_TOPIC_TITLE_LENGTH + "文字までです。",
+            )
+          }
         }
 
         const res = await this.$apiClient.post("/room", {

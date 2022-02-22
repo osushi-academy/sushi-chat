@@ -14,9 +14,13 @@ import {
 import IUserRepository from "../../domain/user/IUserRepository"
 import IChatItemDelivery from "../../domain/chatItem/IChatItemDelivery"
 import { ChatItemSenderType } from "sushi-chat-shared"
-import UserService from "../user/UserService"
-import RealtimeRoomService from "../room/RealtimeRoomService"
 import User from "../../domain/user/User"
+import {
+  ArgumentError,
+  ErrorWithCode,
+  NotFoundError,
+  StateError,
+} from "../../error"
 
 class ChatItemService {
   constructor(
@@ -26,17 +30,6 @@ class ChatItemService {
     private readonly chatItemDelivery: IChatItemDelivery,
   ) {}
 
-  public static async findChatItemOrThrow(
-    chatItemId: string,
-    chatItemRepository: IChatItemRepository,
-  ) {
-    const chatItem = await chatItemRepository.find(chatItemId)
-    if (!chatItem) {
-      throw new Error(`ChatItem(id:${chatItemId}) was not found.`)
-    }
-    return chatItem
-  }
-
   public async postMessage({
     topicId,
     chatItemId,
@@ -45,14 +38,27 @@ class ChatItemService {
     userId,
   }: PostMessageCommand) {
     const { user, senderType } = await this.fetchUserData(userId, topicId)
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const roomId = user.roomId
+
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room${roomId}) was not found.`, 404)
+    }
+
     const quote = quoteId
       ? ((await this.chatItemRepository.find(quoteId)) as Message | Answer)
       : null
 
+    let timestamp: number | null
+    try {
+      timestamp = room.calcTimestamp(topicId)
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new ErrorWithCode(e.message, 404)
+      } else {
+        throw new Error(e.message)
+      }
+    }
     const message = new Message(
       chatItemId,
       topicId,
@@ -61,10 +67,21 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      room.calcTimestamp(topicId) ?? undefined,
+      timestamp ?? undefined,
     )
 
-    room.postChatItem(userId, message)
+    try {
+      room.postChatItem(userId, message)
+    } catch (e) {
+      if (e instanceof ArgumentError || e instanceof StateError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotFoundError) {
+        // userがroomに参加していなかった場合
+        throw new ErrorWithCode(e.message, 400)
+      } else {
+        throw new Error(e.message)
+      }
+    }
     console.log(`message: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postMessage(message)
@@ -78,15 +95,28 @@ class ChatItemService {
     quoteId,
   }: PostReactionCommand) {
     const { user, senderType } = await this.fetchUserData(userId, topicId)
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const roomId = user.roomId
+
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room${roomId}) was not found.`, 404)
+    }
+
     const quote = (await this.chatItemRepository.find(quoteId)) as
       | Message
       | Question
       | Answer
 
+    let timestamp: number | null
+    try {
+      timestamp = room.calcTimestamp(topicId)
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new ErrorWithCode(e.message, 404)
+      } else {
+        throw new Error(e.message)
+      }
+    }
     const reaction = new Reaction(
       chatItemId,
       topicId,
@@ -94,10 +124,21 @@ class ChatItemService {
       senderType,
       quote,
       new Date(),
-      room.calcTimestamp(topicId) ?? undefined,
+      timestamp ?? undefined,
     )
 
-    room.postChatItem(userId, reaction)
+    try {
+      room.postChatItem(userId, reaction)
+    } catch (e) {
+      if (e instanceof ArgumentError || e instanceof StateError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotFoundError) {
+        // userがroomに参加していなかった場合
+        throw new ErrorWithCode(e.message, 400)
+      } else {
+        throw new Error(e.message)
+      }
+    }
     console.log(`reaction to ${quoteId}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postReaction(reaction)
@@ -112,16 +153,28 @@ class ChatItemService {
     quoteId,
   }: PostQuestionCommand) {
     const { user, senderType } = await this.fetchUserData(userId, topicId)
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const roomId = user.roomId
+
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room${roomId}) was not found.`, 404)
+    }
 
     const quote =
       quoteId == null
         ? null
         : ((await this.chatItemRepository.find(quoteId)) as Message | Answer)
 
+    let timestamp: number | null
+    try {
+      timestamp = room.calcTimestamp(topicId)
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new ErrorWithCode(e.message, 404)
+      } else {
+        throw new Error(e.message)
+      }
+    }
     const question = new Question(
       chatItemId,
       topicId,
@@ -130,10 +183,21 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      room.calcTimestamp(topicId) ?? undefined,
+      timestamp ?? undefined,
     )
 
-    room.postChatItem(userId, question)
+    try {
+      room.postChatItem(userId, question)
+    } catch (e) {
+      if (e instanceof ArgumentError || e instanceof StateError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotFoundError) {
+        // userがroomに参加していなかった場合
+        throw new ErrorWithCode(e.message, 400)
+      } else {
+        throw new Error(e.message)
+      }
+    }
     console.log(`question: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postQuestion(question)
@@ -148,12 +212,25 @@ class ChatItemService {
     content,
   }: PostAnswerCommand) {
     const { user, senderType } = await this.fetchUserData(userId, topicId)
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const roomId = user.roomId
+
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId} was not found.`, 404)
+    }
+
     const quote = (await this.chatItemRepository.find(quoteId)) as Question
 
+    let timestamp: number | null
+    try {
+      timestamp = room.calcTimestamp(topicId)
+    } catch (e) {
+      if (e instanceof NotFoundError) {
+        throw new ErrorWithCode(e.message, 404)
+      } else {
+        throw new Error(e.message)
+      }
+    }
     const answer = new Answer(
       chatItemId,
       topicId,
@@ -162,10 +239,21 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      room.calcTimestamp(topicId) ?? undefined,
+      timestamp ?? undefined,
     )
 
-    room.postChatItem(userId, answer)
+    try {
+      room.postChatItem(userId, answer)
+    } catch (e) {
+      if (e instanceof ArgumentError || e instanceof StateError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotFoundError) {
+        // userがroomに参加していなかった場合
+        throw new ErrorWithCode(e.message, 400)
+      } else {
+        throw new Error(e.message)
+      }
+    }
     console.log(`answer: ${content}(id: ${chatItemId})`)
 
     this.chatItemDelivery.postAnswer(answer)
@@ -173,11 +261,11 @@ class ChatItemService {
   }
 
   public async pinChatItem({ chatItemId }: PinChatItemCommand) {
-    const pinnedChatItem = await ChatItemService.findChatItemOrThrow(
-      chatItemId,
-      this.chatItemRepository,
-    )
-    // TODO: speakerしかピン留めできないようにする
+    const pinnedChatItem = await this.chatItemRepository.find(chatItemId)
+    if (!pinnedChatItem) {
+      throw new ErrorWithCode(`ChatItem(${chatItemId}) was not found.`, 404)
+    }
+    //TODO: speakerしかピン留めできないようにする
 
     this.chatItemDelivery.pinChatItem(pinnedChatItem)
     await this.chatItemRepository.pinChatItem(pinnedChatItem)
@@ -190,16 +278,16 @@ class ChatItemService {
     user: User
     senderType: ChatItemSenderType
   }> => {
-    const user = await UserService.findUserOrThrow(userId, this.userRepository)
-    const isAdmin = user.isAdmin
+    const user = await this.userRepository.find(userId)
+    if (!user) {
+      throw new ErrorWithCode(`User(${userId}) was not found.`, 404)
+    }
 
-    // const roomId = user.roomId
-    const senderType = isAdmin
+    const senderType = user.isAdmin
       ? "admin"
       : user.speakAt === topicId
       ? "speaker"
       : "general"
-    // const iconId = isAdmin ? User.ADMIN_ICON_ID : user.iconId
 
     return { user, senderType }
   }

@@ -2,6 +2,7 @@ import IRoomRepository from "../../../domain/room/IRoomRepository"
 import RoomClass from "../../../domain/room/Room"
 import Admin from "../../../domain/admin/admin"
 import EphemeralAdminRepository from "../admin/EphemeralAdminRepository"
+import { NotFoundError } from "../../../error"
 
 class EphemeralRoomRepository implements IRoomRepository {
   private rooms: RoomClass[] = []
@@ -12,10 +13,10 @@ class EphemeralRoomRepository implements IRoomRepository {
     this.rooms.push(room)
 
     // room作成者のmanagedRoomIdsを更新
-    const adminId = room.adminIds.values().next().value as string
+    const adminId = room.adminIds.values().next().value
     const admin = this.adminRepository.admins.find((a) => a.id === adminId)
     if (!admin) {
-      throw new Error(`Admin(${adminId}) was not found.`)
+      throw new NotFoundError(`Admin(${adminId}) was not found.`)
     }
     this.adminRepository.admins = this.adminRepository.admins.filter(
       (a) => a.id !== adminId,
@@ -25,7 +26,7 @@ class EphemeralRoomRepository implements IRoomRepository {
     )
   }
 
-  public async find(roomId: string) {
+  public find(roomId: string) {
     return Promise.resolve(this.rooms.find((r) => r.id === roomId) ?? null)
   }
 
