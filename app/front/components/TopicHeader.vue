@@ -38,10 +38,10 @@
         表示する項目を絞り込むことができます
       </div>
       <div class="topic-header__details--line" />
-      <div class="topic-header__details--download" @click="clickDownload">
+      <button class="topic-header__details--download" @click="clickDownload">
         <DownloadIcon size="1.2x" aria-hidden="true"></DownloadIcon>
         <span class="text">現在までのチャット履歴のダウンロード</span>
-      </div>
+      </button>
     </div>
     <div v-if="pinnedChatItemContent != null" class="topic-header__bookmark">
       <div class="chatitem__bookmark">
@@ -52,10 +52,12 @@
         ></PinIcon>
       </div>
       <button
-        class="topic-header__bookmark--text"
+        class="topic-header__bookmark--button"
         @click="clickScrollToMessage"
       >
-        {{ pinnedChatItemContent }}
+        <span class="topic-header__bookmark--content">
+          {{ pinnedChatItemContent }}
+        </span>
       </button>
       <button
         v-show="isAdmin || isSpeaker"

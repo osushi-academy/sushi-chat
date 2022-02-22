@@ -95,7 +95,7 @@ export default Vue.extend({
       return RoomStore.room
     },
     isRoomStarted(): boolean {
-      return this.room.state === "ongoing"
+      return this.room.state === "ongoing" || this.room.state === "finished"
     },
     isAdmin(): boolean {
       return UserItemStore.userItems.isAdmin
@@ -159,19 +159,42 @@ export default Vue.extend({
       RoomStore.set(res.data)
       TopicStore.set(res.data.topics)
 
-      // 開催中の時
       if (this.room.state === "ongoing") {
+        // 開催中
         if (this.isAdmin) {
           this.adminEnterRoom()
         } else {
           // ユーザーの入室
           this.$modal.show("sushi-modal")
         }
+      } else if (this.room.state === "finished") {
+        // 終了時。すべてのトピックが閉じたルームのアーカイブが閲覧できる。
+        const history = await this.$apiClient
+          .get({
+            pathname: "/room/:id/history",
+            params: { id: this.room.id },
+          })
+          .catch((e) => {
+            throw new Error(e)
+          })
+        if (history.result === "error") {
+          console.error(history.error)
+          return
+        }
+        // 入室
+        ChatItemStore.setChatItems(
+          history.data.chatItems.map((chatItem) => ({
+            ...chatItem,
+            status: "success",
+          })),
+        )
+        history.data.pinnedChatItemIds.forEach((pinnedChatItem) => {
+          if (pinnedChatItem) {
+            PinnedChatItemsStore.add(pinnedChatItem)
+          }
+        })
+        this.isRoomEnter = true
       }
-      if (this.room.state === "finished") {
-        // 本当はRESTでアーカイブデータを取ってきて表示する
-      }
-      // NOTE: もしかして：archivedも返ってくる？
     },
     // socket.ioのセットアップ。配信を受け取る
     async socketSetUp() {

@@ -4,6 +4,7 @@ import Answer from "../../../domain/chatItem/Answer"
 import Message from "../../../domain/chatItem/Message"
 import Question from "../../../domain/chatItem/Question"
 import Reaction from "../../../domain/chatItem/Reaction"
+import { ArgumentError } from "../../../error"
 
 class EphemeralChatItemRepository implements IChatItemRepository {
   private chatItems: ChatItem[] = []
@@ -89,7 +90,9 @@ class EphemeralChatItemRepository implements IChatItemRepository {
         true,
       )
     } else {
-      throw new Error(`ChatItem(${chatItem.id}) instance type is invalid.`)
+      throw new ArgumentError(
+        `ChatItem(${chatItem.id}) instance type is unexpected.`,
+      )
     }
 
     this.chatItems.push(pinned)

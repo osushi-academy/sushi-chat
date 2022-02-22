@@ -4,6 +4,7 @@ import Question from "../../domain/chatItem/Question"
 import Reaction from "../../domain/chatItem/Reaction"
 import ChatItem from "../../domain/chatItem/ChatItem"
 import { ChatItemModel } from "sushi-chat-shared"
+import { ArgumentError } from "../../error"
 
 class ChatItemModelBuilder {
   public static buildChatItems(chatItems: ChatItem[]): ChatItemModel[] {
@@ -13,7 +14,7 @@ class ChatItemModelBuilder {
       if (c instanceof Question) return this.buildQuestion(c)
       if (c instanceof Answer) return this.buildAnswer(c)
 
-      throw new Error(`instance type of chatItem(id ${c.id}) is invalid.`)
+      throw new ArgumentError(`Instance type of chatItem(${c.id}) is invalid.`)
     })
   }
 

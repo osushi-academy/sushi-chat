@@ -2,10 +2,11 @@ import Message from "./domain/chatItem/Message"
 import Question from "./domain/chatItem/Question"
 import Reaction from "./domain/chatItem/Reaction"
 import { Routes } from "./expressRoute"
-import express, { Response } from "express"
+import express from "express"
 import AdminService from "./service/admin/AdminService"
 import RestRoomService from "./service/room/RestRoomService"
 import { covertToNewTopicArray } from "./utils/topics"
+import { handleRestError, ErrorWithCode } from "./error"
 
 export const restSetup = (
   app: Routes,
@@ -51,7 +52,7 @@ export const restSetup = (
         },
       })
     } catch (e) {
-      handleError(e, req.route, res)
+      handleRestError(e, req.route, res)
     }
   })
 
@@ -64,7 +65,7 @@ export const restSetup = (
       try {
         adminId = await adminService.verifyToken(token)
       } catch (e) {
-        handleError(e, req.route, res)
+        handleRestError(e, req.route, res)
         return
       }
     }
@@ -80,7 +81,7 @@ export const restSetup = (
         data: room,
       })
     } catch (e) {
-      handleError(e, req.route, res)
+      handleRestError(e, req.route, res)
     }
   })
 
@@ -95,11 +96,13 @@ export const restSetup = (
   adminRouter.use(async (req, res, next) => {
     const token = extractToken(req.headers.authorization)
     if (!token) {
-      handleError(
-        new Error("Token is missing; e.g. Authorization: Bearer <id token>"),
+      handleRestError(
+        new ErrorWithCode(
+          "Token is missing; e.g. Authorization: Bearer <ID_TOKEN>",
+          401,
+        ),
         req.route,
         res,
-        401,
       )
       return
     }
@@ -109,7 +112,7 @@ export const restSetup = (
       // TODO:bodyがanyで入れるの簡単だったので入れてるが、本当は専用のフィールドに入れたい
       req.body.adminId = adminId
     } catch (e) {
-      handleError(e, req.route, res)
+      handleRestError(e, req.route, res)
       return
     }
 
@@ -119,10 +122,13 @@ export const restSetup = (
   // 管理しているルーム一覧を取得する
   adminRouter.get("/room", async (req, res) => {
     try {
-      const rooms = await adminService.getManagedRooms({
-        // @ts-ignore bodyをadminIdの受け渡しに利用しているため
-        adminId: req.body.adminId,
-      })
+      const [rooms] = await Promise.all([
+        adminService.getManagedRooms(
+          // TODO: adminIdがrequestの型定義にないので静的解析エラーになる。adminIdを適切な場所に入れるようにする
+          // @ts-ignore
+          req.body.adminId,
+        ),
+      ])
 
       res.send({
         result: "success",
@@ -139,7 +145,7 @@ export const restSetup = (
         }),
       })
     } catch (e) {
-      handleError(e, req.route, res)
+      handleRestError(e, req.route, res)
     }
   })
 
@@ -167,7 +173,7 @@ export const restSetup = (
         },
       })
     } catch (e) {
-      handleError(e, req.route, res)
+      handleRestError(e, req.route, res)
     }
   })
 
@@ -180,7 +186,7 @@ export const restSetup = (
       })
       res.send({ result: "success", data: undefined })
     } catch (e) {
-      handleError(e, req.route, res)
+      handleRestError(e, req.route, res)
     }
   })
 
@@ -193,7 +199,7 @@ export const restSetup = (
       })
       res.send({ result: "success", data: undefined })
     } catch (e) {
-      handleError(e, req.route, res)
+      handleRestError(e, req.route, res)
     }
   })
 
@@ -201,17 +207,20 @@ export const restSetup = (
   adminRouter.post("/room/:id/invited", async (req, res) => {
     const adminInviteKey = req.query["admin_invite_key"]
     if (!adminInviteKey) {
-      handleError(
-        new Error("invite admin needs admin_invite_key."),
+      handleRestError(
+        new ErrorWithCode("`Invite admin` needs admin_invite_key.", 400),
         req.route,
         res,
-        400,
       )
 
       return
     }
     if (typeof adminInviteKey !== "string") {
-      handleError(new Error("invalid parameter."), req.route, res, 400)
+      handleRestError(
+        new ErrorWithCode("invalid parameter.", 400),
+        req.route,
+        res,
+      )
       return
     }
 
@@ -223,7 +232,7 @@ export const restSetup = (
       })
       res.send({ result: "success", data: undefined })
     } catch (e) {
-      handleError(e, req.route, res)
+      handleRestError(e, req.route, res)
     }
   })
 
@@ -231,30 +240,5 @@ export const restSetup = (
     if (!authHeader || !authHeader.startsWith("Bearer")) return null
 
     return authHeader.substring("Bearer ".length, authHeader.length)
-  }
-
-  const handleError = (
-    error: Error,
-    route: string,
-    res: Response,
-    code = 500,
-  ) => {
-    // サーバーエラーの時のみエラーログに書き込む
-    if (code >= 500) {
-      logError(route, error)
-    }
-
-    res.status(code).send({
-      result: "error",
-      error: {
-        code: `${code}`,
-        message: error.message ?? "Unknown error.",
-      },
-    })
-  }
-
-  const logError = (context: string, error: Error) => {
-    const date = new Date().toISOString()
-    console.error(`[${date}] ${context}`, error ?? "Unknown error")
   }
 }
