@@ -13,9 +13,6 @@ class AdminRepository implements IAdminRepository {
 
     try {
       await pgClient.query(query, [admin.id, admin.name])
-    } catch (e) {
-      AdminRepository.logError(e, "createIfNotExist()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -39,9 +36,6 @@ class AdminRepository implements IAdminRepository {
       const roomIds = roomsRes.rows.map((r) => r.room_id)
 
       return new Admin(adminId, admin.name, roomIds)
-    } catch (e) {
-      AdminRepository.logError(e, "find()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -55,20 +49,9 @@ class AdminRepository implements IAdminRepository {
     try {
       const res = await pgClient.query(query, [roomId])
       return res.rows.map((r) => r.admin_id)
-    } catch (e) {
-      AdminRepository.logError(e, "find()")
-      throw e
     } finally {
       pgClient.release()
     }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static logError(error: any, context: string) {
-    const datetime = new Date().toISOString()
-    console.error(
-      `[${datetime}] AdminRepository.${context}: ${error ?? "Unknown error."}`,
-    )
   }
 }
 

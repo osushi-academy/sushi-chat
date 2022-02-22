@@ -21,11 +21,7 @@ class PGPool {
   }
 
   public async end() {
-    this.pgPool
-      .end()
-      .catch((e) =>
-        console.error(`Failed to end postgres pool connection: ${e}`),
-      )
+    await this.pgPool.end()
   }
 }
 

@@ -13,12 +13,7 @@ import IRoomRepository from "./domain/room/IRoomRepository"
 import IChatItemRepository from "./domain/chatItem/IChatItemRepository"
 import IStampRepository from "./domain/stamp/IStampRepository"
 import UserDelivery from "./infra/delivery/user/UserDelivery"
-import {
-  ErrorResponse,
-  ServerListenEventName,
-  ServerListenEventsMap,
-  ServerPubEventsMap,
-} from "sushi-chat-shared"
+import { ServerListenEventsMap, ServerPubEventsMap } from "sushi-chat-shared"
 import RoomDelivery from "./infra/delivery/room/RoomDelivery"
 import ChatItemDelivery from "./infra/delivery/chatItem/ChatItemDelivery"
 import StampDelivery from "./infra/delivery/stamp/StampDelivery"
@@ -28,6 +23,7 @@ import { DefaultEventsMap } from "socket.io/dist/typed-events"
 import IStampFactory from "./domain/stamp/IStampFactory"
 import IAdminAuth from "./domain/admin/IAdminAuth"
 import AdminAuth from "./infra/auth/AdminAuth"
+import { handleSocketIOError, logError, ErrorWithCode } from "./error"
 import { CORS_OPTION } from "./utils/http"
 
 export class GlobalSocket extends Server<
@@ -149,7 +145,7 @@ const createSocketIOServer = async (
 
         callback({ result: "success", data: response })
       } catch (e) {
-        handleError(callback, "ENTER_ROOM", e)
+        handleSocketIOError(callback, "ENTER_ROOM", e)
       }
     })
 
@@ -166,7 +162,7 @@ const createSocketIOServer = async (
 
         callback({ result: "success", data: res })
       } catch (e) {
-        handleError(callback, "ADMIN_ENTER_ROOM", e)
+        handleSocketIOError(callback, "ADMIN_ENTER_ROOM", e)
       }
     })
 
@@ -180,7 +176,7 @@ const createSocketIOServer = async (
         })
         callback({ result: "success", data: undefined })
       } catch (e) {
-        handleError(callback, "ADMIN_CHANGE_TOPIC_STATE", e)
+        handleSocketIOError(callback, "ADMIN_CHANGE_TOPIC_STATE", e)
       }
     })
 
@@ -226,17 +222,16 @@ const createSocketIOServer = async (
             break
 
           default:
-            handleError(
+            handleSocketIOError(
               callback,
               "POST_CHAT_ITEM",
-              new Error(`Invalid received.type: ${chatItemType}`),
-              400,
+              new ErrorWithCode(`Invalid received.type: ${chatItemType}`, 400),
             )
             return
         }
         callback({ result: "success", data: undefined })
       } catch (e) {
-        handleError(callback, "POST_CHAT_ITEM", e)
+        handleSocketIOError(callback, "POST_CHAT_ITEM", e)
       }
     })
 
@@ -250,7 +245,7 @@ const createSocketIOServer = async (
         })
         callback({ result: "success", data: undefined })
       } catch (e) {
-        handleError(callback, "POST_STAMP", e)
+        handleSocketIOError(callback, "POST_STAMP", e)
       }
     })
 
@@ -259,7 +254,7 @@ const createSocketIOServer = async (
         await chatItemService.pinChatItem({ chatItemId: received.chatItemId })
         callback({ result: "success", data: undefined })
       } catch (e) {
-        handleError(callback, "POST_PINNED_MESSAGE", e)
+        handleSocketIOError(callback, "POST_PINNED_MESSAGE", e)
       }
     })
 
@@ -270,7 +265,7 @@ const createSocketIOServer = async (
         await roomService.finish({ userId: userId })
         callback({ result: "success", data: undefined })
       } catch (e) {
-        handleError(callback, "ADMIN_FINISH_ROOM", e)
+        handleSocketIOError(callback, "ADMIN_FINISH_ROOM", e)
       }
     })
 
@@ -285,25 +280,6 @@ const createSocketIOServer = async (
   })
 
   return io
-}
-
-const handleError = (
-  callback: (response: ErrorResponse) => void,
-  event: ServerListenEventName,
-  error: Error,
-  code = 500,
-) => {
-  logError(event, error)
-  callback({
-    result: "error",
-    error: { code: `${code}`, message: error.message ?? "Unknown error" },
-  })
-}
-
-const logError = (context: string, error: Error) => {
-  const date = new Date().toISOString()
-  console.error(`[${date}]${context}:${error ?? "Unknown error."}`)
-  console.error(error)
 }
 
 export default createSocketIOServer

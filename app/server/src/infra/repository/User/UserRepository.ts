@@ -32,9 +32,6 @@ class UserRepository implements IUserRepository {
 
     try {
       await Promise.all(queries.map((q) => q()))
-    } catch (e) {
-      UserRepository.logError(e, "create()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -58,9 +55,6 @@ class UserRepository implements IUserRepository {
         row.icon_id,
         row.speak_at,
       )
-    } catch (e) {
-      UserRepository.logError(e, "find()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -85,10 +79,6 @@ class UserRepository implements IUserRepository {
       })
 
       return users
-    } catch (e) {
-      console.log(e)
-      UserRepository.logError(e, "selectByRoomId()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -101,20 +91,9 @@ class UserRepository implements IUserRepository {
 
     try {
       await pgClient.query(query, [user.id])
-    } catch (e) {
-      UserRepository.logError(e, "leaveRoom()")
-      throw e
     } finally {
       pgClient.release()
     }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static logError(error: any, context: string) {
-    const datetime = new Date().toISOString()
-    console.error(
-      `[${datetime}] UserRepository.${context}: ${error ?? "Unknown error."}`,
-    )
   }
 }
 

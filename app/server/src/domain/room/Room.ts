@@ -17,6 +17,12 @@ import Answer from "../chatItem/Answer"
 import Message from "../chatItem/Message"
 import { v4 as uuid } from "uuid"
 import split from "graphemesplit"
+import {
+  ArgumentError,
+  NotAuthorizedError,
+  NotFoundError,
+  StateError,
+} from "../../error"
 
 class RoomClass {
   private readonly _topics: Topic[]
@@ -121,8 +127,21 @@ class RoomClass {
     return this._archivedAt
   }
 
-  public calcTimestamp = (topicId: number): number => {
-    const openedDate = this.findOpenedDateOrThrow(topicId)
+  public calcTimestamp = (topicId: number): number | null => {
+    const topic = this.findTopicOrThrow(topicId)
+    if (topic.state === "not-started") {
+      throw new ArgumentError(`Topic(id:${topicId}) was not started.`)
+    }
+
+    // 停止中・終了後のトピックの場合はタイムスタンプをnullとする
+    if (topic.state !== "ongoing") {
+      return null
+    }
+
+    const openedDate = this._topicTimeData[topicId].openedDate
+    if (openedDate === null) {
+      throw new StateError(`OpenedDate of ongoing Topic(${topicId}) is null.`)
+    }
     const offsetTime = this._topicTimeData[topicId].offsetTime
     const timestamp = new Date().getTime() - openedDate - offsetTime
 
@@ -194,12 +213,10 @@ class RoomClass {
   /**
    * ユーザーをルームから退室させる
    * @param userId 退室させるユーザーのID
-   * @returns number アクティブなユーザー数
+   * @returns number ユーザーを退室させた後のアクティブユーザー数
    */
   public leaveUser = (userId: string): number => {
-    this.assertUserExists(userId)
     this.userIds.delete(userId)
-
     return this.activeUserCount
   }
 
@@ -209,7 +226,11 @@ class RoomClass {
    * @param adminInviteKey 送られてきた招待キー
    */
   public inviteAdmin = (adminId: string, adminInviteKey: string): void => {
-    this.assertSameAdminInviteKey(adminInviteKey)
+    const result = this.validateAdminInviteKey(adminInviteKey)
+    if (!result) {
+      throw new ArgumentError(`AdminInviteKey(${adminInviteKey}) is invalid.`)
+    }
+
     this.adminIds.add(adminId)
   }
 
@@ -218,12 +239,12 @@ class RoomClass {
    * @param adminId 確認したいadminのID
    */
   public isAdmin = (adminId: string): boolean => {
-    const isAdmin = this.adminIds.has(adminId)
-    return isAdmin
+    return this.adminIds.has(adminId)
   }
 
   /**
    * トピックの状態を変更する
+   * admin(Roomに参加している)のみ実行可能
    * @param topicId 状態が更新されるトピックのID
    * @param state 変更後のトピックの状態
    */
@@ -260,7 +281,7 @@ class RoomClass {
       }
 
       default: {
-        throw new Error(`Topic state(${state}) is invalid.`)
+        throw new ArgumentError(`Topic state(${state}) is invalid.`)
       }
     }
   }
@@ -301,11 +322,17 @@ class RoomClass {
    * @returns MessageClass 運営botメッセージ
    */
   private pauseTopic(topic: Topic): Message {
-    topic.state = "paused"
-
     this._topicTimeData[topic.id].pausedDate = new Date().getTime()
 
-    return this.postBotMessage(topic.id, "【運営Bot】\n 発表が中断されました")
+    const message = this.postBotMessage(
+      topic.id,
+      "【運営Bot】\n 発表が中断されました",
+    )
+
+    // NOTE: stateの更新前に、botmessageのタイムスタンプを計算しておく必要がある
+    topic.state = "paused"
+
+    return message
   }
 
   /**
@@ -314,8 +341,6 @@ class RoomClass {
    * @returns MessageClass 運営botメッセージ
    */
   private finishTopic = (topic: Topic): Message => {
-    topic.state = "finished"
-
     // 質問の集計
     const questions = this._chatItems.filter<Question>(
       (c): c is Question => c instanceof Question && c.topicId === topic.id,
@@ -333,7 +358,7 @@ class RoomClass {
     )
 
     // トピック終了のBotメッセージ
-    return this.postBotMessage(
+    const message = this.postBotMessage(
       topic.id,
       [
         "【運営Bot】\n 発表が終了しました！\n（引き続きコメントを投稿いただけます）",
@@ -343,6 +368,11 @@ class RoomClass {
         .filter(Boolean)
         .join("\n"),
     )
+
+    // NOTE: stateの更新前に、botmessageのタイムスタンプを計算しておく必要がある
+    topic.state = "finished"
+
+    return message
   }
 
   /**
@@ -364,6 +394,7 @@ class RoomClass {
   public postChatItem = (userId: string, chatItem: ChatItem) => {
     this.assertRoomIsOngoing()
     this.assertUserExists(userId)
+
     // NOTE: 同じユーザーが、同じchatItemに対し、複数回リアクションすることはできない
     if (
       chatItem instanceof Reaction &&
@@ -371,14 +402,14 @@ class RoomClass {
         .filter(
           (chatItem): chatItem is Reaction => chatItem instanceof Reaction,
         )
-        .find(
+        .some(
           ({ topicId, user, quote }) =>
             topicId === chatItem.topicId &&
             user.id === chatItem.user.id &&
             quote.id === chatItem.quote.id,
-        ) != null
+        )
     ) {
-      throw new Error(
+      throw new ArgumentError(
         `Reaction(topicId: ${chatItem.topicId}, user.id: ${chatItem.user.id}, quote.id: ${chatItem.quote.id}) has already exists.`,
       )
     }
@@ -395,7 +426,7 @@ class RoomClass {
       content,
       null,
       new Date(),
-      this.calcTimestamp(topicId),
+      this.calcTimestamp(topicId) ?? undefined,
     )
     this._chatItems.push(botMessage)
 
@@ -409,65 +440,46 @@ class RoomClass {
   private findTopicOrThrow(topicId: number) {
     const topic = this._topics.find((topic) => topic.id === topicId)
     if (!topic) {
-      throw new Error(`Topic(id:${topicId}) was not found.`)
+      throw new NotFoundError(`Topic(${topicId}) was not found.`)
     }
     return topic
   }
 
-  private findOpenedDateOrThrow(topicId: number): number {
-    const openedDate = this._topicTimeData[topicId].openedDate
-    if (openedDate === null) {
-      throw new Error(`openedDate of topicId(id: ${topicId}) is null.`)
-    }
-    return openedDate
-  }
-
   private assertRoomIsOngoing() {
-    if (this._state != "ongoing") {
-      throw new Error(`Room(id: ${this.id}) is not ongoing.`)
+    if (this._state !== "ongoing") {
+      throw new StateError(`Room(${this.id}) is not ongoing.`)
     }
   }
 
   private assertRoomIsNotStarted() {
-    if (this._state != "not-started") {
-      // TODO: エラーの種別を捕捉できる仕組みが必要。カスタムのエラーを定義する。
-      //  → 例：複数管理者がほぼ同時にルーム開始/終了をリクエストした場合、2番手のエラーはserviceかcontrollerでエラーの
-      //         種別を捕捉できた方が良さそう
-      throw new Error(
-        `[sushi-chat-server] Room(id: ${this.id}) has already started.`,
-      )
+    if (this._state !== "not-started") {
+      throw new StateError(`Room(${this.id}) has already started.`)
     }
   }
 
   private assertRoomIsFinished() {
-    if (this._state != "finished") {
-      throw new Error(`Room(id: ${this.id}) is not finished.`)
+    if (this._state !== "finished") {
+      throw new StateError(`Room(${this.id}) is not finished.`)
     }
   }
 
   private assertUserExists(userId: string) {
-    const exists = this.userIds.has(userId)
-    if (!exists) {
-      throw new Error(
-        `[sushi-chat-server] User(id: ${userId}) does not exists.`,
-      )
+    const exist = this.userIds.has(userId)
+    if (!exist) {
+      throw new NotFoundError(`User(${userId}) not exist.`)
     }
   }
 
-  private assertSameAdminInviteKey(adminInviteKey: string) {
-    const same = this.adminInviteKey === adminInviteKey
-    if (!same) {
-      throw new Error(
-        `[sushi-chat-server] adminInviteKey(${adminInviteKey}) does not matches.`,
-      )
-    }
+  private validateAdminInviteKey(adminInviteKey: string) {
+    // TODO: ハッシュ化して保存しておいて、受け取った値をハッシュ化して比較すべき
+    return this.adminInviteKey === adminInviteKey
   }
 
-  private assertIsAdmin(adminId: string) {
-    const isAdmin = this.adminIds.has(adminId)
+  private assertIsAdmin(userId: string) {
+    const isAdmin = this.adminIds.has(userId)
     if (!isAdmin) {
-      throw new Error(
-        `Admin(id:${adminId}) is not admin of this room(id:${this.id}).`,
+      throw new NotAuthorizedError(
+        `User(${userId}) is not admin of room(${this.id}).`,
       )
     }
   }

@@ -7,6 +7,7 @@ import ChatItem from "../../../domain/chatItem/ChatItem"
 import PGPool from "../PGPool"
 import { ChatItemSenderType, ChatItemType } from "sushi-chat-shared"
 import User from "../../../domain/user/User"
+import { ArgumentError } from "../../../error"
 
 class ChatItemRepository implements IChatItemRepository {
   constructor(private readonly pgPool: PGPool) {}
@@ -30,9 +31,6 @@ class ChatItemRepository implements IChatItemRepository {
         message.timestamp,
         message.createdAt,
       ])
-    } catch (e) {
-      ChatItemRepository.logError(e, "saveMessage()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -56,9 +54,6 @@ class ChatItemRepository implements IChatItemRepository {
         reaction.timestamp,
         reaction.createdAt,
       ])
-    } catch (e) {
-      ChatItemRepository.logError(e, "saveReaction()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -83,9 +78,6 @@ class ChatItemRepository implements IChatItemRepository {
         question.timestamp,
         question.createdAt,
       ])
-    } catch (e) {
-      ChatItemRepository.logError(e, "saveQuestion()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -110,9 +102,6 @@ class ChatItemRepository implements IChatItemRepository {
         answer.timestamp,
         answer.createdAt,
       ])
-    } catch (e) {
-      ChatItemRepository.logError(e, "saveAnswer()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -138,9 +127,6 @@ class ChatItemRepository implements IChatItemRepository {
       if (res.rowCount < 1) return null
 
       return await this.buildChatItem(res.rows[0])
-    } catch (e) {
-      ChatItemRepository.logError(e, "find()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -164,9 +150,6 @@ class ChatItemRepository implements IChatItemRepository {
     try {
       const res = await pgClient.query(query, [roomId])
       return Promise.all(res.rows.map(this.buildChatItem))
-    } catch (e) {
-      ChatItemRepository.logError(e, "selectByRoomId()")
-      throw e
     } finally {
       pgClient.release()
     }
@@ -183,15 +166,11 @@ class ChatItemRepository implements IChatItemRepository {
         chatItem.topicId,
         chatItem.id,
       ])
-    } catch (e) {
-      ChatItemRepository.logError(e, "pinChatItem()")
-      throw e
     } finally {
       pgClient.release()
     }
   }
 
-  // NOTE: arrow functionにしないとthisの挙動のせいでバグる
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private buildChatItem(row: any) {
     const id = row.id
@@ -277,7 +256,7 @@ class ChatItemRepository implements IChatItemRepository {
 
         default:
           // "Reaction"がquoteになることもないので、その場合もここにくる
-          throw Error(`Invalid quote type: ${quoteTypeId}`)
+          throw new ArgumentError(`Invalid quote type: ${quoteTypeId}`)
       }
     }
 
@@ -331,7 +310,7 @@ class ChatItemRepository implements IChatItemRepository {
         )
 
       default: {
-        throw new Error(`chatItemType(${chatItemType}) is invalid.`)
+        throw new ArgumentError(`ChatItemType(${chatItemType}) is invalid.`)
       }
     }
   }
@@ -348,7 +327,7 @@ class ChatItemRepository implements IChatItemRepository {
       if (v === n) return k as ChatItemType
     }
 
-    throw new Error(`${n} is not assigned chat-item-type int.`)
+    throw new ArgumentError(`${n} is not assigned chat-item-type int.`)
   }
 
   private static senderTypeMap = {
@@ -363,17 +342,7 @@ class ChatItemRepository implements IChatItemRepository {
       if (v === n) return k as ChatItemSenderType
     }
 
-    throw new Error(`${n} is not assigned sender-type int.`)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private static logError(error: any, context: string) {
-    const datetime = new Date().toISOString()
-    console.error(
-      `[${datetime}] ChatItemRepository.${context}: ${
-        error ?? "Unknown error."
-      }`,
-    )
+    throw new ArgumentError(`${n} is not assigned sender-type int.`)
   }
 }
 

@@ -37,8 +37,10 @@
         </transition-group>
         <div v-if="showGraph" class="graph-wrapper">
           <div class="graph-action-area" style="text-align: end">
-            <button class="close-button" @click="showGraph = false">
-              <XIcon></XIcon>
+            <button @click="showGraph = false">
+              <span class="close-button">
+                <XIcon></XIcon>
+              </span>
             </button>
           </div>
           <AnalysisGraph :topic-title="topic.title" :topic-id="topicId" />
@@ -59,7 +61,11 @@
           :topic-id="topicId"
         />
       </div>
-      <button class="message-badge" :class="{ isNotify }" @click="clickScroll">
+      <button
+        class="message-badge"
+        :class="{ isNotify }"
+        @click="scrollToBottom"
+      >
         <ArrowDownIcon size="1.2x"></ArrowDownIcon>
       </button>
     </div>
@@ -197,7 +203,7 @@ export default Vue.extend({
       } catch (e) {
         window.alert("メッセージの送信に失敗しました")
       }
-      this.clickScroll()
+      this.scrollToBottom()
       this.selectedChatItem = null
     },
     // リアクションボタン
@@ -236,8 +242,9 @@ export default Vue.extend({
       }
     },
     // いちばん下までスクロール
-    clickScroll() {
+    scrollToBottom() {
       const element: Element | null = (this.$refs.scrollable as Vue).$el
+      console.log(element?.scrollHeight)
       if (element) {
         element.scrollTo({
           top: element.scrollHeight,
@@ -255,8 +262,9 @@ export default Vue.extend({
     },
     clickDownload() {
       const messages = ChatItemStore.chatItems
-        .filter(({ type }) => type === "message")
-        .filter(({ iconId }) => iconId !== 0)
+        .filter(({ topicId }) => topicId === this.topicId)
+        .filter(({ type }) => type !== "reaction")
+        .filter(({ senderType }) => senderType !== "system")
         .map(
           (message) =>
             "🍣: " + (message.content as string).replaceAll("\n", "\n") + "\n",
@@ -275,6 +283,9 @@ export default Vue.extend({
     },
     clickShowAll() {
       this.isAllCommentShowed = true
+      Vue.nextTick(() => {
+        setTimeout(() => this.scrollToBottom(), 100)
+      })
     },
     clickNotShowAll() {
       this.isAllCommentShowed = false
