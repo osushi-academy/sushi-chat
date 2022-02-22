@@ -17,8 +17,10 @@ import Admin from "../domain/admin/admin"
 describe("UserServiceのテスト", () => {
   let adminId: string
   let roomId: string
-  let userId: string
-  let iconId: IconId
+  let adminUserId: string
+  let adminUserIconId: IconId
+  let normalUserId: string
+  let normalUserIconId: IconId
 
   let userRepository: IUserRepository
   let roomRepository: IRoomRepository
@@ -46,8 +48,12 @@ describe("UserServiceのテスト", () => {
     adminRepository.createIfNotExist(new Admin(adminId, adminName, []))
 
     roomId = uuid()
-    userId = uuid()
-    iconId = NewIconId(Math.floor(Math.random() * 9) + 1)
+
+    adminUserId = uuid()
+    adminUserIconId = NewIconId(Math.floor(Math.random() * 10) + 1)
+
+    normalUserId = uuid()
+    normalUserIconId = NewIconId(Math.floor(Math.random() * 10) + 1)
   })
 
   describe("adminEnterRoomのテスト", () => {
@@ -63,18 +69,96 @@ describe("UserServiceのテスト", () => {
       )
       roomRepository.build(room)
 
-      await userService.adminEnterRoom({ roomId, userId, idToken: "" })
+      await userService.adminEnterRoom({
+        roomId,
+        userId: adminUserId,
+        idToken: "",
+      })
 
-      const user = await userRepository.find(userId)
-      if (!user) {
-        throw new Error(`User(${userId}) was not found.`)
+      const adminUser = await userRepository.find(adminUserId)
+      if (!adminUser) {
+        throw new Error(`User(${adminUserId}) was not found.`)
       }
 
-      expect(user.id).toBe(userId)
-      expect(user.roomId).toBe(roomId)
-      expect(user.speakAt).toBeUndefined()
-      expect(user.iconId).toBe(User.ADMIN_ICON_ID)
-      expect(user.isAdmin).toBeTruthy()
+      expect(adminUser.id).toBe(adminUserId)
+      expect(adminUser.roomId).toBe(roomId)
+      expect(adminUser.speakAt).toBeUndefined()
+      expect(adminUser.iconId).toBe(User.ADMIN_ICON_ID)
+      expect(adminUser.isAdmin).toBeTruthy()
+    })
+
+    test("異常系_存在しないroomに参加しようとするとエラーになる", async () => {
+      const notExistRoomId = uuid()
+      await expect(() =>
+        userService.adminEnterRoom({
+          roomId: notExistRoomId,
+          userId: adminUserId,
+          idToken: "",
+        }),
+      ).rejects.toThrow()
+    })
+
+    test("異常系_開始していないroomに参加しようとするとエラーになる", async () => {
+      const room = new RoomClass(
+        roomId,
+        "テストルーム",
+        uuid(),
+        "テスト用のルームです。",
+        [1, 2].map((i) => ({ title: `テストトピック${i}` })),
+        new Set([adminId]),
+        "not-started",
+      )
+      roomRepository.build(room)
+
+      await expect(() =>
+        userService.adminEnterRoom({
+          roomId,
+          userId: adminUserId,
+          idToken: "",
+        }),
+      ).rejects.toThrow()
+    })
+
+    test("異常系_終了したroomに参加しようとするとエラーになる", async () => {
+      const room = new RoomClass(
+        roomId,
+        "テストルーム",
+        uuid(),
+        "テスト用のルームです。",
+        [1, 2].map((i) => ({ title: `テストトピック${i}` })),
+        new Set([adminId]),
+        "finished",
+      )
+      roomRepository.build(room)
+
+      await expect(() =>
+        userService.adminEnterRoom({
+          roomId,
+          userId: adminUserId,
+          idToken: "",
+        }),
+      ).rejects.toThrow()
+    })
+
+    test("異常系_アーカイブされたroomに参加しようとするとエラーになる", async () => {
+      const room = new RoomClass(
+        roomId,
+        "テストルーム",
+        uuid(),
+        "テスト用のルームです。",
+        [1, 2].map((i) => ({ title: `テストトピック${i}` })),
+        new Set([adminId]),
+        "archived",
+      )
+      roomRepository.build(room)
+
+      await expect(() =>
+        userService.adminEnterRoom({
+          roomId,
+          userId: adminUserId,
+          idToken: "",
+        }),
+      ).rejects.toThrow()
     })
   })
 
@@ -91,19 +175,96 @@ describe("UserServiceのテスト", () => {
       )
       roomRepository.build(room)
 
-      const iconId = 1
-      await userService.enterRoom({ userId, roomId, iconId })
+      await userService.enterRoom({
+        userId: normalUserId,
+        roomId,
+        iconId: normalUserIconId.valueOf(),
+      })
 
-      const user = await userRepository.find(userId)
-      if (!user) {
-        throw new Error(`User(${userId}) was not found.`)
+      const normalUser = await userRepository.find(normalUserId)
+      if (!normalUser) {
+        throw new Error(`User(${normalUserId}) was not found.`)
       }
 
-      expect(user.id).toBe(userId)
-      expect(user.roomId).toBe(roomId)
-      expect(user.speakAt).toBeUndefined()
-      expect(user.iconId).toBe(iconId)
-      expect(user.isAdmin).toBeFalsy()
+      expect(normalUser.id).toBe(normalUserId)
+      expect(normalUser.roomId).toBe(roomId)
+      expect(normalUser.speakAt).toBeUndefined()
+      expect(normalUser.iconId).toBe(normalUserIconId)
+      expect(normalUser.isAdmin).toBeFalsy()
+    })
+
+    test("異常系_存在しないroomに参加しようとするとエラーになる", async () => {
+      const notExistRoomId = uuid()
+      await expect(() =>
+        userService.adminEnterRoom({
+          roomId: notExistRoomId,
+          userId: normalUserId,
+          idToken: "",
+        }),
+      ).rejects.toThrow()
+    })
+
+    test("異常系_開始していないroomに参加しようとするとエラーになる", async () => {
+      const room = new RoomClass(
+        roomId,
+        "テストルーム",
+        uuid(),
+        "テスト用のルームです。",
+        [1, 2].map((i) => ({ title: `テストトピック${i}` })),
+        new Set([adminId]),
+        "not-started",
+      )
+      roomRepository.build(room)
+
+      await expect(() =>
+        userService.adminEnterRoom({
+          roomId,
+          userId: normalUserId,
+          idToken: "",
+        }),
+      ).rejects.toThrow()
+    })
+
+    test("異常系_終了したroomに参加しようとするとエラーになる", async () => {
+      const room = new RoomClass(
+        roomId,
+        "テストルーム",
+        uuid(),
+        "テスト用のルームです。",
+        [1, 2].map((i) => ({ title: `テストトピック${i}` })),
+        new Set([adminId]),
+        "finished",
+      )
+      roomRepository.build(room)
+
+      await expect(() =>
+        userService.adminEnterRoom({
+          roomId,
+          userId: normalUserId,
+          idToken: "",
+        }),
+      ).rejects.toThrow()
+    })
+
+    test("異常系_アーカイブされたroomに参加しようとするとエラーになる", async () => {
+      const room = new RoomClass(
+        roomId,
+        "テストルーム",
+        uuid(),
+        "テスト用のルームです。",
+        [1, 2].map((i) => ({ title: `テストトピック${i}` })),
+        new Set([adminId]),
+        "archived",
+      )
+      roomRepository.build(room)
+
+      await expect(() =>
+        userService.adminEnterRoom({
+          roomId,
+          userId: normalUserId,
+          idToken: "",
+        }),
+      ).rejects.toThrow()
     })
   })
 
@@ -121,31 +282,38 @@ describe("UserServiceのテスト", () => {
         [],
         null,
         null,
-        new Set([userId]),
+        new Set([adminUserId, normalUserId]),
       )
       roomRepository.build(room)
+
+      userRepository.create(
+        new User(adminUserId, true, false, roomId, adminUserIconId),
+      )
+      userRepository.create(
+        new User(normalUserId, false, false, roomId, normalUserIconId),
+      )
     })
 
     test("正常系_管理者ユーザーがroomから退出する", async () => {
-      userRepository.create(new User(userId, true, false, roomId, iconId))
+      await userService.leaveRoom({ userId: adminUserId })
 
-      await userService.leaveRoom({ userId })
+      const adminUser = await userRepository.find(adminUserId)
 
-      const user = await userRepository.find(userId)
-
-      // roomから退出したuserは取得されない
-      expect(user).toBeNull()
+      // roomから退出したuserはfindで取得されない
+      expect(adminUser).toBeNull()
     })
 
     test("正常系_一般ユーザーがroomから退出する", async () => {
-      userRepository.create(new User(userId, false, false, roomId, iconId))
+      await userService.leaveRoom({ userId: normalUserId })
 
-      await userService.leaveRoom({ userId })
+      const normalUser = await userRepository.find(normalUserId)
 
-      const user = await userRepository.find(userId)
-
-      // roomから退出したuserは取得されない
-      expect(user).toBeNull()
+      // roomから退出したuserはfindで取得されない
+      expect(normalUser).toBeNull()
     })
+  })
+
+  test("異常系_ roomに参加していないユーザーの場合、参加する前に通信が切断されてしまったと判断して何もしない", async () => {
+    await expect(() => userService.leaveRoom({ userId: uuid() })).resolves
   })
 })

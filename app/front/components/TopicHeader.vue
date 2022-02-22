@@ -11,11 +11,12 @@
       </div>
       <div class="title">{{ title }}</div>
       <button
-        class="more-button"
         aria-label="メニューを開閉する"
         @click="isOpenDetails = !isOpenDetails"
       >
-        <MoreVerticalIcon aria-hidden="true"></MoreVerticalIcon>
+        <span class="more-button">
+          <MoreVerticalIcon aria-hidden="true"></MoreVerticalIcon>
+        </span>
       </button>
     </div>
     <div v-if="isOpenDetails" class="topic-header__details">
@@ -37,10 +38,10 @@
         表示する項目を絞り込むことができます
       </div>
       <div class="topic-header__details--line" />
-      <div class="topic-header__details--download" @click="clickDownload">
+      <button class="topic-header__details--download" @click="clickDownload">
         <DownloadIcon size="1.2x" aria-hidden="true"></DownloadIcon>
         <span class="text">現在までのチャット履歴のダウンロード</span>
-      </div>
+      </button>
     </div>
     <div v-if="pinnedChatItemContent != null" class="topic-header__bookmark">
       <div class="chatitem__bookmark">
@@ -51,19 +52,22 @@
         ></PinIcon>
       </div>
       <button
-        class="topic-header__bookmark--text"
+        class="topic-header__bookmark--button"
         @click="clickScrollToMessage"
       >
-        {{ pinnedChatItemContent }}
+        <span class="topic-header__bookmark--content">
+          {{ pinnedChatItemContent }}
+        </span>
       </button>
       <button
         v-show="isAdmin || isSpeaker"
-        class="topic-header__bookmark--close-icon"
         aria-label="ピン留め解除"
         title="ピン留め解除"
         @click="removePinnedMessage"
       >
-        <XCircleIcon size="1.2x" aria-hidden="true"></XCircleIcon>
+        <span class="topic-header__bookmark--close-icon">
+          <XCircleIcon size="1.2x" aria-hidden="true"></XCircleIcon>
+        </span>
       </button>
     </div>
   </div>

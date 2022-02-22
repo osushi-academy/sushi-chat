@@ -4,6 +4,7 @@ import Question from "../../domain/chatItem/Question"
 import Reaction from "../../domain/chatItem/Reaction"
 import ChatItem from "../../domain/chatItem/ChatItem"
 import { ChatItemModel } from "sushi-chat-shared"
+import { ArgumentError } from "../../error"
 
 class ChatItemModelBuilder {
   public static buildChatItems(chatItems: ChatItem[]): ChatItemModel[] {
@@ -13,7 +14,7 @@ class ChatItemModelBuilder {
       if (c instanceof Question) return this.buildQuestion(c)
       if (c instanceof Answer) return this.buildAnswer(c)
 
-      throw new Error(`instance type of chatItem(id ${c.id}) is invalid.`)
+      throw new ArgumentError(`Instance type of chatItem(${c.id}) is invalid.`)
     })
   }
 
@@ -40,7 +41,7 @@ class ChatItemModelBuilder {
       iconId: message.user.iconId.valueOf(),
       content: message.content,
       quote: quoteModel,
-      timestamp: message.timestamp,
+      timestamp: message.timestamp ?? undefined,
     }
   }
 
@@ -66,7 +67,7 @@ class ChatItemModelBuilder {
       senderType: reaction.senderType,
       iconId: reaction.user.iconId.valueOf(),
       quote: quoteModel,
-      timestamp: reaction.timestamp,
+      timestamp: reaction.timestamp ?? undefined,
     }
   }
 
@@ -91,7 +92,7 @@ class ChatItemModelBuilder {
       iconId: question.user.iconId.valueOf(),
       content: question.content,
       quote: quoteModel,
-      timestamp: question.timestamp,
+      timestamp: question.timestamp ?? undefined,
     }
   }
 
@@ -108,7 +109,7 @@ class ChatItemModelBuilder {
       quote: !recursive
         ? undefined
         : this.buildQuestion(answer.quote as Question),
-      timestamp: answer.timestamp,
+      timestamp: answer.timestamp ?? undefined,
     }
   }
 }

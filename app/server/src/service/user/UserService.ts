@@ -8,11 +8,16 @@ import User from "../../domain/user/User"
 import IRoomRepository from "../../domain/room/IRoomRepository"
 import IUserDelivery from "../../domain/user/IUserDelivery"
 import ChatItemModelBuilder from "../chatItem/ChatItemModelBuilder"
-import RealtimeRoomService from "../room/RealtimeRoomService"
 import { ChatItemModel, StampModel, TopicState } from "sushi-chat-shared"
 import StampModelBuilder from "../stamp/StampModelBuilder"
 import IconId, { NewIconId } from "../../domain/user/IconId"
 import IAdminAuth from "../../domain/admin/IAdminAuth"
+import {
+  ArgumentError,
+  ErrorWithCode,
+  NotAuthorizedError,
+  StateError,
+} from "../../error"
 
 class UserService {
   constructor(
@@ -21,17 +26,6 @@ class UserService {
     private readonly userDelivery: IUserDelivery,
     private readonly adminAuth: IAdminAuth,
   ) {}
-
-  public static async findUserOrThrow(
-    id: string,
-    userRepository: IUserRepository,
-  ): Promise<User> {
-    const user = await userRepository.find(id)
-    if (!user) {
-      throw new Error(`User(id:${id}) was not found.`)
-    }
-    return user
-  }
 
   public async adminEnterRoom({
     roomId,
@@ -44,14 +38,26 @@ class UserService {
     pinnedChatItemIds: (string | null)[]
     topicStates: { topicId: number; state: TopicState }[]
   }> {
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
-      this.roomRepository,
-    )
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId}) was not found.`, 404)
+    }
+
+    const { adminId } = await this.adminAuth.verifyIdToken(idToken)
 
     // roomが始まっていない or adminでないと、ここでエラー
-    const { adminId } = await this.adminAuth.verifyIdToken(idToken)
-    const activeUserCount = room.joinAdminUser(userId, adminId)
+    let activeUserCount: number
+    try {
+      activeUserCount = room.joinAdminUser(userId, adminId)
+    } catch (e) {
+      if (e instanceof StateError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else if (e instanceof NotAuthorizedError) {
+        throw new ErrorWithCode(e.message, 403)
+      } else {
+        throw new Error(e.message)
+      }
+    }
 
     // roomにjoinできたらuserも作成
 
@@ -63,8 +69,19 @@ class UserService {
       true,
     )
 
+    let chatItems: ChatItemModel[]
+    try {
+      chatItems = ChatItemModelBuilder.buildChatItems(room.chatItems)
+    } catch (e) {
+      if (e instanceof ArgumentError) {
+        throw new ErrorWithCode(e.message, 500)
+      } else {
+        throw new Error(e.message)
+      }
+    }
+
     return {
-      chatItems: ChatItemModelBuilder.buildChatItems(room.chatItems),
+      chatItems,
       stamps: StampModelBuilder.buildStamps(room.stamps),
       activeUserCount,
       pinnedChatItemIds: room.pinnedChatItemIds,
@@ -84,19 +101,39 @@ class UserService {
     pinnedChatItemIds: (string | null)[]
     topicStates: { topicId: number; state: TopicState }[]
   }> {
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      roomId,
-      this.roomRepository,
-    )
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId}) was not found`, 404)
+    }
 
     // roomが始まっていないとここでエラー
-    const activeUserCount = room.joinUser(userId)
+    let activeUserCount: number
+    try {
+      activeUserCount = room.joinUser(userId)
+    } catch (e) {
+      if (e instanceof StateError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else {
+        throw new Error(e.message)
+      }
+    }
+
+    let newIconId: IconId
+    try {
+      newIconId = NewIconId(iconId)
+    } catch (e) {
+      if (e instanceof ArgumentError) {
+        throw new ErrorWithCode(e.message, 400)
+      } else {
+        throw new Error(e.message)
+      }
+    }
 
     await this.createUser(
       activeUserCount,
       userId,
       roomId,
-      NewIconId(iconId),
+      newIconId,
       false,
       speakerTopicId,
     )
@@ -113,13 +150,15 @@ class UserService {
   public async leaveRoom({ userId }: UserLeaveCommand) {
     const user = await this.userRepository.find(userId)
     if (!user) {
-      // 操作不要
+      // ユーザーがまだ登録されていなければ、ルームに入る前に接続が切れたと判断して何も処理をしない
       return
     }
-    const room = await RealtimeRoomService.findRoomOrThrow(
-      user.roomId,
-      this.roomRepository,
-    )
+    const roomId = user.roomId
+
+    const room = await this.roomRepository.find(roomId)
+    if (!room) {
+      throw new ErrorWithCode(`Room(${roomId}) was not found.`, 404)
+    }
 
     const activeUserCount = room.leaveUser(user.id)
 
