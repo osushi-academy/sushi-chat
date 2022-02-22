@@ -174,7 +174,6 @@ export default Vue.extend({
         return
       }
       try {
-        console.log(id)
         const response = await this.$apiClient.put({
           pathname: "/room/:id/archive",
           params: { id },

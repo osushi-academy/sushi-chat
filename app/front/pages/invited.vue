@@ -80,11 +80,6 @@ export default Vue.extend({
         window.alert("処理に失敗しました")
         throw new Error("管理者招待失敗")
       }
-      console.log({
-        title: this.room.title,
-        id: this.room.id,
-        adminInviteKey: this.room.adminInviteKey,
-      })
       this.$modal.show("home-invite-success-modal", {
         title: this.room.title,
         id: this.room.id,

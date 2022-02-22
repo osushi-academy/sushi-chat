@@ -30,10 +30,9 @@ export default Vue.extend({
   methods: {
     async callSampleApi() {
       try {
-        const res = await this.$axios.$get("http://localhost:7000/auth-test")
-        console.log(res)
+        await this.$axios.$get("http://localhost:7000/auth-test")
       } catch (e) {
-        console.log(e)
+        console.error(e)
       }
     },
     async logout() {
