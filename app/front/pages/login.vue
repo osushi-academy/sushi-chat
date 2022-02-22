@@ -64,7 +64,6 @@ export default Vue.extend({
       const provider = new this.$fireModule.auth.GoogleAuthProvider()
       try {
         await this.$fire.auth.signInWithRedirect(provider)
-        console.log("LOGIN SUCCESS")
       } catch (e) {
         alert("ログインに失敗しました")
         console.error(e)

@@ -234,7 +234,6 @@ export default Vue.extend({
           behavior: "smooth",
           block: "nearest",
         })
-        console.log(id)
         element.classList.add("highlight")
         setTimeout(() => {
           element.classList.remove("highlight")
