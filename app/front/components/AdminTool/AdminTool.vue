@@ -7,7 +7,7 @@
             <p>管理者ツール - {{ room.title }}</p>
           </div>
           <div class="room-url">
-            <button :title="shareUrl" @click="writeToClipboard(shareUrl, 0)">
+            <button :title="roomUrl" @click="writeToClipboard(roomUrl, 0)">
               <div id="url-copy-label" class="room-text">
                 <span class="bold">参加者</span>用<br />招待URLのコピー
               </div>
@@ -23,8 +23,8 @@
             </button>
             <button
               id="admin-url-copy-label"
-              :title="adminUrl"
-              @click="writeToClipboard(adminUrl, 1)"
+              :title="inviteUrl"
+              @click="writeToClipboard(inviteUrl, 1)"
             >
               <div class="room-text">
                 <span class="bold">管理者</span>用<br />招待URLのコピー
@@ -78,8 +78,9 @@
                 topicStateItems[topic.id] === 'not-started' ||
                 topicStateItems[topic.id] === 'paused'
               "
+              v-tippy
               aria-label="トピックを開始する"
-              title="トピックを開始する"
+              content="トピックを開始する"
               @click="clickPlayPauseButton(topic.id)"
             >
               <PlayCircleIcon aria-hidden="true"></PlayCircleIcon>
@@ -87,17 +88,19 @@
             <!-- ongoing -->
             <template v-else-if="topicStateItems[topic.id] === 'ongoing'">
               <button
+                v-tippy
                 class="pause"
-                title="トピックを一時停止する"
+                content="トピックを一時停止する"
                 aria-label="トピックを一時停止する"
                 @click="clickPlayPauseButton(topic.id)"
               >
                 <PauseCircleIcon aria-hidden="true"></PauseCircleIcon>
               </button>
               <button
+                v-tippy
                 class="danger"
                 aria-label="トピックを終了する"
-                title="トピックを終了する"
+                content="トピックを終了する"
                 @click="clickFinishButton(topic.id)"
               >
                 <StopCircleIcon aria-hidden="true"></StopCircleIcon>
@@ -106,8 +109,9 @@
             <!-- finished -->
             <button
               v-else-if="topicStateItems[topic.id] === 'finished'"
+              v-tippy
               aria-label="トピックを再度開始する"
-              title="トピックを再度開始する"
+              content="トピックを再度開始する"
               class="reopen"
               @click="clickRestartButton(topic.id)"
             >
@@ -152,6 +156,8 @@ import {
   CheckIcon,
   AlertCircleIcon,
 } from "vue-feather-icons"
+// @ts-ignore
+import VueTippy, { TippyComponent } from "vue-tippy"
 import ICONS from "@/utils/icons"
 import {
   UserItemStore,
@@ -166,6 +172,13 @@ type DataType = {
   copyCompleted: boolean
   copyAdminCompleted: boolean
 }
+
+Vue.use(VueTippy, {
+  flipDuration: 0,
+  animateFill: false,
+  delay: [500, 0],
+})
+Vue.component("Tippy", TippyComponent)
 
 export default Vue.extend({
   name: "AdminTool",
@@ -206,7 +219,7 @@ export default Vue.extend({
     icon() {
       return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
     },
-    adminUrl(): string {
+    inviteUrl(): string {
       if (this.room.adminInviteKey) {
         return `${location.origin}/invited/?roomId=${encodeURIComponent(
           this.room.id,
@@ -214,8 +227,8 @@ export default Vue.extend({
       }
       return ""
     },
-    shareUrl(): string {
-      return `${location.origin}?roomId=${encodeURIComponent(this.room.id)}`
+    roomUrl(): string {
+      return `${location.origin}/room/${encodeURIComponent(this.room.id)}`
     },
     // 各トピックごとのコメント数、スタンプ数を集計する
     postCounts(): Record<number, { commentCount: number; stampCount: number }> {

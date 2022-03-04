@@ -1,5 +1,5 @@
 import { Module, VuexModule, Action, Mutation } from "vuex-module-decorators"
-import firebase from "firebase"
+import type firebase from "firebase/app"
 
 type AuthUser = {
   uid: string
