@@ -60,7 +60,7 @@
         </span>
       </button>
       <button
-        v-show="isAdmin || isSpeaker"
+        v-show="(isAdmin || isSpeaker) && !disableInteraction"
         aria-label="ピン留め解除"
         title="ピン留め解除"
         @click="removePinnedMessage"
@@ -107,6 +107,10 @@ export default Vue.extend({
       type: Object,
       default: undefined,
     } as PropOptions<ChatItemModel | undefined>,
+    disableInteraction: {
+      type: Boolean,
+      required: true,
+    },
   },
   data(): DataType {
     return {

@@ -37,6 +37,7 @@
             :topic-index="index"
             :topic-id="topic.id"
             :topic-state="topicStateItems[topic.id]"
+            :disable-interaction="room.state === 'finished'"
           />
         </div>
       </div>

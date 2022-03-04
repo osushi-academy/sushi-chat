@@ -4,6 +4,7 @@
       :title="topic.title"
       :topic-index="topicId"
       :pinned-chat-item="pinnedChatItem"
+      :disable-interaction="disableInteraction"
       @download="clickDownload"
       @click-show-all="clickShowAll"
       @click-not-show-all="clickNotShowAll"
@@ -29,6 +30,7 @@
               "
               :topic-id="topicId"
               :message="message"
+              :disable-interaction="disableInteraction"
               @click-thumb-up="clickReaction"
               @click-reply="selectChatItem(message)"
               @click-pin="pinChatItem(message.id)"
@@ -70,6 +72,7 @@
       </button>
     </div>
     <TextArea
+      v-show="!disableInteraction"
       :topic-title="topic.title"
       :topic-id="topicId"
       :disabled="topicState == 'not-started'"
@@ -127,6 +130,10 @@ export default Vue.extend({
       type: String,
       default: "not-started",
     } as PropOptions<TopicState>,
+    disableInteraction: {
+      type: Boolean,
+      required: true,
+    },
   },
   data(): DataType {
     return {

@@ -684,6 +684,8 @@
     .comment-footer {
       display: flex;
       align-items: flex-end;
+      min-height: 1.5rem;
+
       & > .comment-timestamp {
         color: $text-gray;
         font-size: 10px;
