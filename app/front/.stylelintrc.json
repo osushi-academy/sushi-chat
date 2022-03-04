@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "stylelint-config-standard-scss",
+    "stylelint-config-recess-order"
+  ],
+  "rules": {
+    "color-function-notation": "legacy",
+    "selector-class-pattern": null,
+    "no-descending-specificity": null,
+    "alpha-value-notation": "number"
+  }
+}
