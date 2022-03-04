@@ -118,7 +118,6 @@ export default class ChatItems extends VuexModule {
         content: text,
         quoteId: target?.id,
       })
-      console.log("send message: ", text)
     } catch (e) {
       this.updateStatus({ id, status: "failure" })
     }
@@ -150,7 +149,6 @@ export default class ChatItems extends VuexModule {
         topicId: message.topicId,
         quoteId: message.id,
       })
-      console.log("send reaction: ", message.content)
     } catch (e) {
       this.updateStatus({ id, status: "failure" })
     }
@@ -198,7 +196,6 @@ export default class ChatItems extends VuexModule {
         content: text,
         quoteId: target?.id,
       })
-      console.log("send question: ", text)
     } catch (e) {
       this.updateStatus({ id, status: "failure" })
     }
@@ -245,7 +242,6 @@ export default class ChatItems extends VuexModule {
         quoteId: target.id,
         content: text,
       })
-      console.log("send answer: ", text)
     } catch (e) {
       this.updateStatus({ id, status: "failure" })
     }
@@ -258,7 +254,6 @@ export default class ChatItems extends VuexModule {
     this.updateStatus({ id: chatItem.id, status: "loading" })
     try {
       await emitAsync(socket, "POST_CHAT_ITEM", chatItem)
-      console.log("retry send chatItem: ", chatItem.content)
     } catch (e) {
       this.updateStatus({ id: chatItem.id, status: "failure" })
     }

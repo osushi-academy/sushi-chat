@@ -1,4 +1,5 @@
-import firebase from "firebase"
+import firebase from "firebase/app"
+import "firebase/auth"
 
 const getIdToken = async () => {
   const idToken = await firebase.auth().currentUser?.getIdToken()

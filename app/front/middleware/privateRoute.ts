@@ -3,7 +3,7 @@ import { AuthStore } from "~/store"
 
 const privateRoute: Middleware = ({ redirect }) => {
   if (!AuthStore.isLoggedIn) {
-    return redirect("/login")
+    return redirect("/")
   }
 }
 

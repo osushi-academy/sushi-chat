@@ -244,7 +244,6 @@ export default Vue.extend({
     // いちばん下までスクロール
     scrollToBottom() {
       const element: Element | null = (this.$refs.scrollable as Vue).$el
-      console.log(element?.scrollHeight)
       if (element) {
         element.scrollTo({
           top: element.scrollHeight,

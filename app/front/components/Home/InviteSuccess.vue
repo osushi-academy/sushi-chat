@@ -22,13 +22,17 @@
             class="home-creation-completed-modal__invitation__content__detail"
           >
             <div
-              class=" home-creation-completed-modal__invitation__content__detail--url"
+              class="
+                home-creation-completed-modal__invitation__content__detail--url
+              "
             >
-              {{ url }}
+              {{ roomUrl }}
             </div>
             <button
-              class=" home-creation-completed-modal__invitation__content__detail--button"
-              @click="copy(url, 0)"
+              class="
+                home-creation-completed-modal__invitation__content__detail--button
+              "
+              @click="copy(roomUrl, 0)"
             >
               <CheckIcon v-if="copyCompleted" class="check-icon"></CheckIcon>
               <CopyIcon v-else></CopyIcon>
@@ -45,13 +49,17 @@
             class="home-creation-completed-modal__invitation__content__detail"
           >
             <div
-              class=" home-creation-completed-modal__invitation__content__detail--url"
+              class="
+                home-creation-completed-modal__invitation__content__detail--url
+              "
             >
-              {{ adminUrl }}
+              {{ inviteUrl }}
             </div>
             <button
-              class=" home-creation-completed-modal__invitation__content__detail--button"
-              @click="copy(adminUrl, 1)"
+              class="
+                home-creation-completed-modal__invitation__content__detail--button
+              "
+              @click="copy(inviteUrl, 1)"
             >
               <CheckIcon
                 v-if="copyAdminCompleted"
@@ -66,11 +74,9 @@
     <template #hide-button>
       <div class="home-creation-completed-modal__footer">
         <NuxtLink to="/home" class="hide-button"> マイページに戻る </NuxtLink>
-        <NuxtLink
-          :to="'/?user=admin&roomId=' + roomId"
-          class="room-access-button"
-          >ルームを見る</NuxtLink
-        >
+        <NuxtLink :to="roomUrl + '?user=admin'" class="room-access-button">
+          ルームを見る
+        </NuxtLink>
       </div>
     </template>
   </Modal>
@@ -109,10 +115,10 @@ export default Vue.extend({
     }
   },
   computed: {
-    url(): string {
-      return `${location.origin}/?roomId=${this.roomId}`
+    roomUrl(): string {
+      return `${location.origin}/room/${this.roomId}`
     },
-    adminUrl(): string {
+    inviteUrl(): string {
       return `${location.origin}/invited/?roomId=${this.roomId}&admin_invite_key=${this.adminInviteKey}`
     },
   },

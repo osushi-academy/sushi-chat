@@ -7,7 +7,7 @@
             <p>管理者ツール - {{ title }}</p>
           </div>
           <div class="room-url">
-            <button :title="shareUrl" @click="writeToClipboard(shareUrl, 0)">
+            <button :title="roomUrl" @click="writeToClipboard(roomUrl, 0)">
               <div id="url-copy-label" class="room-text">
                 <span class="bold">参加者</span>用<br />招待URLのコピー
               </div>
@@ -23,8 +23,8 @@
             </button>
             <button
               id="admin-url-copy-label"
-              :title="adminUrl"
-              @click="writeToClipboard(adminUrl, 1)"
+              :title="inviteUrl"
+              @click="writeToClipboard(inviteUrl, 1)"
             >
               <div class="room-text">
                 <span class="bold">管理者</span>用<br />招待URLのコピー
@@ -220,13 +220,13 @@ export default Vue.extend({
     icon() {
       return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
     },
-    adminUrl(): string {
+    inviteUrl(): string {
       return `${location.origin}/invited/?roomId=${encodeURIComponent(
         this.roomId,
       )}&admin_invite_key=${encodeURIComponent(this.adminInviteKey)}`
     },
-    shareUrl(): string {
-      return `${location.origin}?roomId=${encodeURIComponent(this.roomId)}`
+    roomUrl(): string {
+      return `${location.origin}/room/${encodeURIComponent(this.roomId)}`
     },
     // 各トピックごとのコメント数、スタンプ数を集計する
     postCounts(): Record<number, { commentCount: number; stampCount: number }> {
