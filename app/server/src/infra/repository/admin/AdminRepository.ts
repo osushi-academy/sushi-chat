@@ -63,6 +63,25 @@ class AdminRepository implements IAdminRepository {
     }
   }
 
+  public async selectIdsByRoomIds(
+    roomIds: string[],
+    pgClient: PoolClient,
+  ): Promise<Record<string, string[]>> {
+    const query =
+      "SELECT room_id, admin_id FROM rooms_admins WHERE room_id = ANY($1::UUID[])"
+
+    const res = await pgClient.query(query, [roomIds])
+    return res.rows.reduce<Record<string, string[]>>((acc, cur) => {
+      if (cur.room_id in acc) {
+        acc[cur.room_id].push(cur.admin_id)
+      } else {
+        acc[cur.room_id] = [cur.acmin_id]
+      }
+
+      return acc
+    }, {})
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static logError(error: any, context: string) {
     const datetime = new Date().toISOString()

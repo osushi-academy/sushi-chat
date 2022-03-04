@@ -12,6 +12,10 @@ interface IChatItemRepository {
   saveAnswer(answer: Answer): void
   find(chatItemId: string): Promise<ChatItem | null>
   selectByRoomId(roomId: string, pgClient: PoolClient): Promise<ChatItem[]>
+  selectByRoomIds(
+    roomIds: string[],
+    pgClient?: PoolClient, // TODO: remove this arg to avoid appearing of implementation detail in interface
+  ): Promise<Record<string, ChatItem[]>> // chatItems per room
   pinChatItem(chatItem: ChatItem): void
 }
 

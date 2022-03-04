@@ -93,6 +93,35 @@ class UserRepository implements IUserRepository {
     }
   }
 
+  public async selectByRoomIds(
+    roomIds: string[],
+    pgClient: PoolClient,
+  ): Promise<Record<string, User[]>> {
+    const query = `SELECT u.id, u.is_admin, u.is_system, u.room_id, u.icon_id, ts.topic_id FROM users u
+        LEFT JOIN topics_speakers ts on u.id = ts.user_id
+        WHERE u.room_id = ANY($1::UUID[]) AND u.has_left = false`
+
+    const res = await pgClient.query(query, [roomIds])
+    return res.rows.reduce<Record<string, User[]>>((acc, cur) => {
+      const user = new User(
+        cur.id,
+        cur.is_admin,
+        cur.is_system,
+        cur.room_id,
+        cur.icon_id,
+        cur.topic_id,
+      )
+
+      if (cur.room_id in acc) {
+        acc[cur.room_id].push(user)
+      } else {
+        acc[cur.room_id] = [user]
+      }
+
+      return acc
+    }, {})
+  }
+
   public async leaveRoom(user: User) {
     const pgClient = await this.pgPool.client()
 

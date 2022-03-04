@@ -36,6 +36,17 @@ class EphemeralChatItemRepository implements IChatItemRepository {
     )
   }
 
+  public selectByRoomIds(
+    roomIds: string[],
+  ): Promise<Record<string, ChatItem[]>> {
+    return Promise.resolve(
+      roomIds.reduce<Record<string, ChatItem[]>>((acc, cur) => {
+        acc[cur] = this.chatItems.filter((c) => c.user.roomId === cur)
+        return acc
+      }, {}),
+    )
+  }
+
   public pinChatItem(chatItem: ChatItem) {
     this.chatItems = this.chatItems.filter((c) => c.id !== chatItem.id)
 

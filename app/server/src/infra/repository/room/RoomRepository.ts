@@ -171,6 +171,105 @@ class RoomRepository implements IRoomRepository {
     }
   }
 
+  public async findRooms(roomIds: string[]): Promise<RoomClass[]> {
+    const pgClient = await this.pgPool.client()
+
+    const roomQuery = `SELECT r.id, r.title, r.room_state_id, r.invite_key, r.description, r.start_at, r.finish_at, r.archived_at, u.id as system_user_id
+        FROM rooms r JOIN users u on u.is_system = true AND r.id = u.room_id
+        WHERE r.id = ANY($1::UUID[]) ORDER BY r.created_at DESC`
+
+    const topicsQuery = `WITH topic as (
+        SELECT t.id, t.room_id, t.topic_state_id, t.title, t.offset_mil_sec, toa.opened_at_mil_sec, tpa.paused_at_mil_sec FROM topics t
+        LEFT OUTER JOIN topic_opened_at toa on t.id = toa.topic_id AND t.room_id = toa.room_id
+        LEFT OUTER JOIN topic_paused_at tpa on t.id = tpa.topic_id AND t.room_id = tpa.room_id
+        WHERE t.room_id = ANY($1::UUID[])
+      )
+      SELECT topic.id, topic.topic_state_id, topic.title, topic.offset_mil_sec, topic.opened_at_mil_sec, topic.paused_at_mil_sec, topic.room_id,
+      (
+      SELECT chat_item_id FROM topics_pinned_chat_items
+      WHERE room_id = topic.room_id AND topic_id = topic.id
+      ORDER BY created_at DESC
+      LIMIT 1
+      ) as pinned_chat_item_id
+      FROM topic ORDER BY topic.room_id, topic.id`
+
+    try {
+      const [roomRes, topicsRes, adminIds, users, stamps, chatItems] =
+        await Promise.all([
+          pgClient.query(roomQuery, [roomIds]),
+          pgClient.query(topicsQuery, [roomIds]),
+          this.adminRepository.selectIdsByRoomIds(roomIds, pgClient),
+          this.userRepository.selectByRoomIds(roomIds, pgClient),
+          this.stampRepository.selectByRoomIds(roomIds, pgClient),
+          this.chatItemRepository.selectByRoomIds(roomIds, pgClient),
+        ])
+
+      if (roomRes.rowCount < 1) return []
+
+      const topicsPerRoom = topicsRes.rows.reduce<Record<string, any>>(
+        (acc, cur) => {
+          if (cur.room_id in acc) {
+            acc[cur.room_id].push(cur)
+          } else {
+            acc[cur.room_id] = [cur]
+          }
+
+          return acc
+        },
+        {},
+      )
+
+      return roomRes.rows.map((room) => {
+        const roomState = RoomRepository.intToRoomState(room.room_state_id)
+
+        // TODO: use reduce to simplify
+        const topics: Topic[] = []
+        const topicTimeData: Record<string, TopicTimeData> = {}
+        for (const topic of topicsPerRoom[room.id]) {
+          topics.push({
+            id: topic.id,
+            title: topic.title,
+            state: RoomRepository.intToTopicState(topic.topic_state_id),
+            pinnedChatItemId: topic.pinned_chat_item_id ?? undefined,
+          })
+          topicTimeData[topic.id] = {
+            openedDate: topic.opened_at_mil_sec ?? null,
+            pausedDate: topic.paused_at_mil_sec ?? null,
+            offsetTime: topic.offset_mil_sec,
+          }
+        }
+
+        const systemUser = new User(
+          room.system_user_id,
+          false,
+          true,
+          room.id,
+          User.SYSTEM_USER_ICON_ID,
+        )
+
+        return new RoomClass(
+          room.id,
+          room.title,
+          room.invite_key,
+          room.description,
+          topics,
+          new Set(adminIds[room.id]),
+          roomState,
+          room.start_at,
+          topicTimeData,
+          room.finish_at,
+          room.archived_at,
+          new Set(users[room.id] ? users[room.id].map((u) => u.id) : []),
+          chatItems[room.id] ?? [],
+          stamps[room.id] ?? [],
+          systemUser,
+        )
+      })
+    } finally {
+      pgClient.release()
+    }
+  }
+
   public async update(room: RoomClass) {
     const pgClient = await this.pgPool.client()
 

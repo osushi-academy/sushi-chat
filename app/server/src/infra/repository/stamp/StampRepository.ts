@@ -82,6 +82,34 @@ class StampRepository implements IStampRepository {
     }
   }
 
+  public async selectByRoomIds(
+    roomIds: string[],
+    pgClient: PoolClient,
+  ): Promise<Record<string, Stamp[]>> {
+    const query =
+      "SELECT room_id, id, topic_id, user_id, created_at, timestamp FROM stamps WHERE room_id = ANY($1::UUID[])"
+
+    const res = await pgClient.query(query, [roomIds])
+    return res.rows.reduce<Record<string, Stamp[]>>((acc, cur) => {
+      const stamp = new Stamp(
+        cur.id,
+        cur.user_id,
+        cur.room_id,
+        cur.topic_id,
+        cur.created_at,
+        cur.timestamp,
+      )
+
+      if (cur.room_id in acc) {
+        acc[cur.room_id].push(stamp)
+      } else {
+        acc[cur.room_id] = [stamp]
+      }
+
+      return acc
+    }, {})
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static logError(error: any, context: string) {
     const datetime = new Date().toISOString()

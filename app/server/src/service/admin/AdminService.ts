@@ -35,12 +35,7 @@ class AdminService {
       throw new Error(`[sushi-chat-server] Admin does not exists.`)
     }
 
-    // roomがnullの場合は無視する
-    return (
-      await Promise.all(
-        admin.managedRoomsIds.map((id) => this.roomRepository.find(id)),
-      )
-    ).filter((room): room is RoomClass => room != null)
+    return this.roomRepository.findRooms(admin.managedRoomsIds)
   }
 }
 
