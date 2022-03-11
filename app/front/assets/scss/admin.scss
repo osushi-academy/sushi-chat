@@ -1,45 +1,50 @@
-/*管理画面*/
+/* 管理画面 */
 .drawer-menu-wrapper {
   position: fixed;
-  z-index: $z-modal;
   right: 0;
-  height: 100%;
-  background-color: $bg;
-  word-break: break-all;
+  z-index: $z-modal;
   display: none;
+  height: 100%;
+  word-break: break-all;
+  background-color: $bg;
+
   @media screen and (min-width: $large) {
     display: block;
   }
 
   .drawer-menu {
-    padding: 16px 30px;
     display: flex;
     flex-direction: column;
-    height: 100%;
     width: 100%;
+    height: 100%;
+    padding: 16px 30px;
 
     &__header {
       display: flex;
       flex-direction: column;
+
       .start-button {
         display: flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
         padding: 1.5rem 0;
+        margin-top: 2rem;
+        font-size: 18px;
         background-color: white;
         border: 1px solid transparent;
         border-radius: 4px;
-        font-size: 18px;
-        margin-top: 2rem;
         transition: all 0.3s;
+
         &__label {
           margin-right: 0.5rem;
         }
+
         &:hover {
           background-color: #fbfbfb;
           border-color: $gray;
         }
       }
+
       .room-info {
         flex: 1;
         min-width: 0;
@@ -47,37 +52,43 @@
         .room-title {
           font-size: 150%;
         }
+
         .room-url {
           display: flex;
+
           button {
             display: flex;
             align-items: center;
             padding: 1rem 1.5rem;
             margin: 1em 1em 1em 0;
+            font-size: 14px;
             background-color: white;
             border: 1px solid transparent;
             border-radius: 4px;
-            font-size: 14px;
             transition: all 0s;
+
             &:hover {
               background-color: #fbfbfb;
               border-color: $gray;
             }
+
             .room-text {
-              text-align: left;
               margin-right: 0.5rem;
+              text-align: left;
+
               & > .bold {
                 font-weight: bold;
               }
             }
+
             .copy-button {
-              border: none;
-              background: none;
-              color: $text-gray;
               // width: 1.5em;
               // height: 1.5em;
               align-items: center;
               justify-content: center;
+              color: $text-gray;
+              background: none;
+              border: none;
 
               &.check-icon {
                 color: #3ba73b;
@@ -87,11 +98,13 @@
         }
       }
     }
+
     &__topic-list {
+      margin-top: 30px;
+
       // flex: 1 1 0;
       overflow-y: scroll;
       font-size: 120%;
-      margin-top: 30px;
 
       .topic {
         display: flex;
@@ -104,61 +117,69 @@
 
       .ongoing {
         background-color: white;
+
         .label {
-          border: solid transparent 2px;
-          background-color: #f6666e;
           color: white;
+          background-color: #f6666e;
+          border: solid transparent 2px;
         }
       }
+
       .paused {
         background-color: white;
+
         .label {
+          box-sizing: border-box;
           color: #f6666e;
           background-color: white;
           border: solid #f6666e 2px;
-          box-sizing: border-box;
         }
       }
+
       .finished {
         background-color: $gray;
       }
+
       .not-started {
-        background-color: white;
         color: $disabled-gray;
+        background-color: white;
       }
 
       .topic-number {
-        padding-left: 10px;
-        min-width: 3em;
         width: 5%;
+        min-width: 3em;
+        padding-left: 10px;
       }
 
       .topic-name {
-        flex: 1 1 0;
         display: flex;
+        flex: 1 1 0;
         align-items: center;
 
         .label {
+          display: inline-block;
+          flex-shrink: 0;
+          padding: 0 8px;
+          margin-left: 1rem;
           font-size: 50%;
           font-weight: bold;
-          padding: 0px 8px;
-          border-radius: 24px;
-          margin-left: 1rem;
-          display: inline-block;
           vertical-align: middle;
-          flex-shrink: 0;
+          border-radius: 24px;
         }
       }
+
       .topic-infos {
         display: flex;
         flex-direction: row;
         margin-left: 1rem;
+
         .topic-info {
-          width: 4em;
           display: flex;
           flex-direction: column;
-          justify-content: center;
           align-items: center;
+          justify-content: center;
+          width: 4em;
+
           & .text-mini {
             font-size: 12px;
           }
@@ -169,15 +190,16 @@
         display: flex;
         justify-content: center;
         margin-left: 1rem;
+
         button {
-          width: 40px;
-          height: 40px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 100%;
-          border: none;
+          width: 40px;
+          height: 40px;
           color: $black;
+          border: none;
+          border-radius: 100%;
           transition: all 0.1s;
 
           &:hover {
@@ -198,24 +220,29 @@
         }
       }
     }
+
     &__footer {
       margin-top: 1rem;
+
       .end-button {
         display: flex;
-        justify-content: center;
         align-items: center;
+        justify-content: center;
         padding: 1em;
         background-color: white;
         border: 1px solid transparent;
         border-radius: 4px;
         transition: all 0.2s;
+
         &:hover {
           background-color: #fbfbfb;
           border-color: $gray;
         }
+
         &__icon {
           color: #dd4848;
         }
+
         &__label {
           margin-right: 0.5rem;
         }
@@ -226,6 +253,6 @@
 
 @media screen and (min-width: 880px) {
   .room-info {
-    padding: 0px;
+    padding: 0;
   }
 }
