@@ -125,15 +125,14 @@ export default Vue.extend({
   },
   created() {
     // roomId取得
-    RoomStore.setId(this.$route.query.roomId as string)
+    RoomStore.setId(this.$route.path.split("/")[2])
     if (this.$route.query.user === "admin") {
       UserItemStore.changeIsAdmin(true)
     }
   },
   mounted() {
     if (typeof this.room.id === "undefined") {
-      // TODO: this.room.idが存在しない場合、/loginにリダイレクト
-      this.$router.push("/login")
+      this.$router.push("/")
     }
     // statusに合わせた操作をする
     this.checkStatusAndAction()
