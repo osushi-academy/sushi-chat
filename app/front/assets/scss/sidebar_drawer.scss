@@ -2,22 +2,6 @@
   overflow-y: scroll;
   height: 100%;
   background: $bg;
-  & .sidebar-drawer-transition {
-    &-enter-active,
-    &-leave-active {
-      transition: all 0.3s;
-    }
-
-    &-enter,
-    &-leave-to {
-      transform: translateX(-100%);
-    }
-
-    &-enter-to,
-    &-leave {
-      transform: translateX(0);
-    }
-  }
   & > .sidebar-content {
     position: relative;
     padding-top: 4px;
@@ -31,29 +15,6 @@
       &-enter-active,
       &-leave-active {
         transition: all 0.3s;
-      }
-    }
-  }
-
-  & > .menu-button-wrapper {
-    z-index: 40;
-    background: transparent;
-    fill: $black;
-
-    & > .menu-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 2.5em;
-      height: 2.5em;
-      color: white;
-      background: transparent;
-      border: none;
-      border-radius: 99px;
-
-      &:hover,
-      &:focus {
-        background: $hover-button-background;
       }
       &-enter,
       &-leave-to {

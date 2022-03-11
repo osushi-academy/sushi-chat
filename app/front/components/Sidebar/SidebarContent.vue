@@ -140,6 +140,9 @@
         </a>
       </div>
     </div>
+    <div class="lp__footer">
+      &copy; osushi academy {{ new Date().getFullYear() }}
+    </div>
   </nav>
 </template>
 <script lang="ts">

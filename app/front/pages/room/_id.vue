@@ -36,9 +36,6 @@
         />
       </div>
     </main>
-    <footer class="lp__footer">
-      &copy; osushi academy {{ new Date().getFullYear() }}
-    </footer>
   </div>
 </template>
 <script lang="ts">
