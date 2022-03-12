@@ -181,6 +181,7 @@ resource "aws_codebuild_project" "main" {
     type = "CODEPIPELINE"
   }
 
+  # TODO: use secrets manager to store sensitive information
   environment {
     compute_type    = "BUILD_GENERAL1_SMALL"
     image           = "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
@@ -188,8 +189,83 @@ resource "aws_codebuild_project" "main" {
     privileged_mode = true
 
     environment_variable {
+      name  = "AWS_REGION"
+      value = module.data.region
+    }
+
+    environment_variable {
+      name  = "TASK_FAMILY"
+      value = var.ecs_task_family
+    }
+
+    environment_variable {
+      name  = "TASK_CPU"
+      value = var.ecs_task_cpu
+    }
+
+    environment_variable {
+      name  = "TASK_MEMORY"
+      value = var.ecs_task_memory
+    }
+
+    environment_variable {
       name  = "EXECUTION_ROLE_ARN"
       value = var.ecs_task_execution_role_arn
+    }
+
+    environment_variable {
+      name  = "DATABASE_URL"
+      value = var.database_url
+    }
+
+    environment_variable {
+      name  = "SOCKET_IO_ADMIN_UI_PASSWORD"
+      value = var.socket_io_admin_ui_password
+    }
+
+    environment_variable {
+      name  = "REDIS_HOST"
+      value = var.redis_host
+    }
+
+    environment_variable {
+      name  = "CORS_ORIGIN"
+      value = var.cors_origin
+    }
+
+    environment_variable {
+      name  = "CORS_ORIGIN_PREVIEW"
+      value = var.cors_origin_preview
+    }
+
+    environment_variable {
+      name  = "FIREBASE_ADMIN_PROJECT_ID"
+      value = var.firebase_admin_project_id
+    }
+
+    environment_variable {
+      name  = "FIREBASE_ADMIN_CLIENT_EMAIL"
+      value = var.firebase_admin_client_email
+    }
+
+    environment_variable {
+      name  = "FIREBASE_ADMIN_PRIVATE_KEY"
+      value = var.firebase_admin_private_key
+    }
+
+    environment_variable {
+      name  = "APP_LOG_GROUP"
+      value = var.ecs_task_app_log_group
+    }
+
+    environment_variable {
+      name  = "NGINX_LOG_GROUP"
+      value = var.ecs_task_nginx_log_group
+    }
+
+    environment_variable {
+      name  = "APP_IMAGE_URI"
+      value = var.ecr_app_repository_url
     }
 
     environment_variable {

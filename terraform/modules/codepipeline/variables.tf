@@ -49,6 +49,66 @@ variable "ecs_task_execution_role_arn" {
   description = "ARN of ECS Task Execution Role"
 }
 
+variable "database_url" {
+  type        = string
+  description = "Database URL"
+}
+
+variable "socket_io_admin_ui_password" {
+  type        = string
+  description = "password for Socket IO Admin UI"
+}
+
+variable "redis_host" {
+  type        = string
+  description = "hostname for Redis"
+}
+
+variable "cors_origin" {
+  type        = string
+  description = "hostname of CORS origin"
+}
+
+variable "cors_origin_preview" {
+  type        = string
+  description = "hostname of CORS origin for preview"
+}
+
+variable "firebase_admin_project_id" {
+  type        = string
+  description = "project ID of Firebase admin"
+}
+
+variable "firebase_admin_client_email" {
+  type        = string
+  description = "client email of Firebase admin"
+}
+
+variable "firebase_admin_private_key" {
+  type        = string
+  description = "private key of Firebase admin"
+}
+
+variable "ecs_task_cpu" {
+  type        = number
+  description = "CPU for ECS Task"
+}
+
+variable "ecs_task_memory" {
+  type        = number
+  description = "Memory size for ECS Task"
+}
+
+variable "ecs_task_app_log_group" {
+  type        = string
+  description = "CloudWatch Log Group name for ecs task app container"
+}
+
+variable "ecs_task_nginx_log_group" {
+  type        = string
+  description = "CloudWatch Log Group name for ecs task nginx container"
+}
+
 variable "ecr_app_arn" {
   type        = string
   description = "ARN of ECR for app image"
@@ -57,6 +117,11 @@ variable "ecr_app_arn" {
 variable "ecr_nginx_arn" {
   type        = string
   description = "ARN of ECR for nginx image"
+}
+
+variable "ecr_app_repository_url" {
+  type        = string
+  description = "ECR repository URL for app image"
 }
 
 variable "ecr_nginx_repository_url" {
