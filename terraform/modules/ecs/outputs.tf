@@ -22,12 +22,28 @@ output "task_family" {
 output "task_execution_role_arn" {
   value = data.aws_iam_role.ecs_task_execution_role.arn
 }
+output "task_cpu" {
+  value = aws_ecs_task_definition.main.cpu
+}
+output "task_memory" {
+  value = aws_ecs_task_definition.main.memory
+}
+
+output "task_app_log_group_name" {
+  value = aws_cloudwatch_log_group.ecs_app.name
+}
+output "task_nginx_log_group_name" {
+  value = aws_cloudwatch_log_group.ecs_nginx.name
+}
 
 output "ecr_app_arn" {
   value = aws_ecr_repository.app.arn
 }
 output "ecr_nginx_arn" {
   value = aws_ecr_repository.nginx.arn
+}
+output "ecr_app_repository_url" {
+  value = aws_ecr_repository.app.repository_url
 }
 output "ecr_nginx_repository_url" {
   value = aws_ecr_repository.nginx.repository_url

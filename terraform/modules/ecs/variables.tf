@@ -72,21 +72,3 @@ variable "firebase_admin_private_key" {
   type        = string
   description = "private key of Firebase admin"
 }
-
-variable "task_cpu" {
-  type        = number
-  description = "CPU size of ECS task"
-  default     = 256
-}
-
-variable "task_memory" {
-  type        = number
-  description = "Memory size of ECS task"
-  default     = 512
-}
-
-variable "task_count" {
-  type        = number
-  description = "desired count of ECS tasks"
-  default     = 2
-}
