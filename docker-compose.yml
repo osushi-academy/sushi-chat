@@ -18,6 +18,7 @@ services:
     build:
       context: .
       dockerfile: app/server/Dockerfile
+    command: ["yarn", "dev:server"]
     environment:
       - NODE_ENV=development
       - DB_SSL=OFF
