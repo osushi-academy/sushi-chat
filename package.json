@@ -25,7 +25,8 @@
     "fix:dry-run": "yarn workspaces run fix:dry-run",
     "fix:dry-run:front": "yarn workspace sushi-chat-front fix:dry-run",
     "fix:dry-run:server": "yarn workspace sushi-chat-server fix:dry-run",
-    "fix:dry-run:shared": "yarn workspace sushi-chat-shared fix:dry-run"
+    "fix:dry-run:shared": "yarn workspace sushi-chat-shared fix:dry-run",
+    "test:server": "yarn workspace sushi-chat-server test"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.28.5",

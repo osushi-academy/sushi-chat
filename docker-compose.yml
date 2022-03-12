@@ -33,6 +33,18 @@ services:
       - ./app/shared:/src/app/shared
     depends_on:
       - db
+  server_test:
+    container_name: sushi-server-test
+    build:
+      context: .
+      dockerfile: app/server/Dockerfile
+    command: ["yarn", "test:server"]
+    environment:
+      - NODE_ENV=development
+      - DB_SSL=OFF
+      - DATABASE_URL=postgres://sushi_test:chat@db_test:5432/sushi_chat_test
+    depends_on:
+      - db
   nginx:
     container_name: sushi-nginx
     build:
@@ -53,3 +65,13 @@ services:
       - POSTGRES_DB=sushi_chat
     ports:
       - "54320:5432"
+  db_test:
+    container_name: sushi-db-test
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=chat
+      - POSTGRES_USER=sushi_test
+      - POSTGRES_DB=sushi_chat_test
+    ports:
+      - "54321:5432"

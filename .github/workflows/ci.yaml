@@ -50,4 +50,4 @@ jobs:
       - name: build shared package
         run: yarn build:shared
       - name: Run test
-        run: yarn workspace sushi-chat-server test
+        run: yarn test:server
