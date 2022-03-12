@@ -30,11 +30,25 @@ services:
     volumes:
       - ./app/server:/src/app/server
       - ./app/shared:/src/app/shared
+    depends_on:
+      - db
+  nginx:
+    container_name: sushi-nginx
+    build:
+      context: ./nginx
+    environment:
+      - APP_HOST=server
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
   db:
     container_name: sushi-db
     image: postgres
     restart: always
     environment:
-      POSTGRES_PASSWORD: chat
-      POSTGRES_USER: sushi
-      POSTGRES_DB: sushi_chat
+      - POSTGRES_PASSWORD=chat
+      - POSTGRES_USER=sushi
+      - POSTGRES_DB=sushi_chat
+    ports:
+      - "54320:5432"
