@@ -61,7 +61,7 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      room.calcTimestamp(topicId),
+      room.calcTimestamp(topicId) ?? undefined,
     )
 
     room.postChatItem(userId, message)
@@ -94,7 +94,7 @@ class ChatItemService {
       senderType,
       quote,
       new Date(),
-      room.calcTimestamp(topicId),
+      room.calcTimestamp(topicId) ?? undefined,
     )
 
     room.postChatItem(userId, reaction)
@@ -130,7 +130,7 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      room.calcTimestamp(topicId),
+      room.calcTimestamp(topicId) ?? undefined,
     )
 
     room.postChatItem(userId, question)
@@ -162,7 +162,7 @@ class ChatItemService {
       content,
       quote,
       new Date(),
-      room.calcTimestamp(topicId),
+      room.calcTimestamp(topicId) ?? undefined,
     )
 
     room.postChatItem(userId, answer)
@@ -177,6 +177,7 @@ class ChatItemService {
       chatItemId,
       this.chatItemRepository,
     )
+    // TODO: speakerしかピン留めできないようにする
 
     this.chatItemDelivery.pinChatItem(pinnedChatItem)
     await this.chatItemRepository.pinChatItem(pinnedChatItem)

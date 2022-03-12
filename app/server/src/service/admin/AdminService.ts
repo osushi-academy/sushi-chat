@@ -32,11 +32,15 @@ class AdminService {
   ): Promise<RoomClass[]> {
     const admin = await this.find(command.adminId)
     const managedRoomsIds = admin.managedRoomsIds
+    // FIXME: postgresqlのコネクションプールのリミットが10なので、for文でfindRoomを回しすぎるとプールが足りなくなって運
+    //        が悪いとデッドロックになるため、取得するルーム数を制限している。1リクエストにつき1コネクションを割り当てれ
+    //        ば直せそう。
+    const limitedManagedRoomIds = managedRoomsIds.slice(0,3)
 
     // roomがnullの場合は無視する
     const managedRooms = (
       await Promise.all<RoomClass | null>(
-        managedRoomsIds.map(async (roomId) => {
+        limitedManagedRoomIds.map(async (roomId) => {
           const room = await this.findRoom(roomId)
           return room
         }),

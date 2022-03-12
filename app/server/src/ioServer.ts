@@ -171,9 +171,9 @@ const createSocketIOServer = async (
     })
 
     // トピック状態の変更
-    socket.on("ADMIN_CHANGE_TOPIC_STATE", (received, callback) => {
+    socket.on("ADMIN_CHANGE_TOPIC_STATE", async (received, callback) => {
       try {
-        roomService.changeTopicState({
+        await roomService.changeTopicState({
           userId,
           topicId: received.topicId,
           state: received.state,
@@ -241,9 +241,9 @@ const createSocketIOServer = async (
     })
 
     // スタンプを投稿する
-    socket.on("POST_STAMP", (received, callback) => {
+    socket.on("POST_STAMP", async (received, callback) => {
       try {
-        stampService.post({
+        await stampService.post({
           id: received.id,
           userId,
           topicId: received.topicId,
@@ -254,9 +254,9 @@ const createSocketIOServer = async (
       }
     })
 
-    socket.on("POST_PINNED_MESSAGE", (received, callback) => {
+    socket.on("POST_PINNED_MESSAGE", async (received, callback) => {
       try {
-        chatItemService.pinChatItem({ chatItemId: received.chatItemId })
+        await chatItemService.pinChatItem({ chatItemId: received.chatItemId })
         callback({ result: "success", data: undefined })
       } catch (e) {
         handleError(callback, "POST_PINNED_MESSAGE", e)
@@ -265,9 +265,9 @@ const createSocketIOServer = async (
 
     // ルームを終了する
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    socket.on("ADMIN_FINISH_ROOM", (_, callback) => {
+    socket.on("ADMIN_FINISH_ROOM", async (_, callback) => {
       try {
-        roomService.finish({ userId: userId })
+        await roomService.finish({ userId: userId })
         callback({ result: "success", data: undefined })
       } catch (e) {
         handleError(callback, "ADMIN_FINISH_ROOM", e)
@@ -275,9 +275,9 @@ const createSocketIOServer = async (
     })
 
     //接続解除時に行う処理
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       try {
-        userService.leaveRoom({ userId })
+        await userService.leaveRoom({ userId })
       } catch (e) {
         logError("disconnect", e)
       }

@@ -1,7 +1,7 @@
 import { Module, VuexModule, Mutation, Action } from "vuex-module-decorators"
 import { ChatItemModel, ChatItemSenderType } from "sushi-chat-shared"
 import getUUID from "~/utils/getUUID"
-import { AuthStore, UserItemStore } from "~/store"
+import { UserItemStore } from "~/store"
 import buildSocket from "~/utils/socketIO"
 import emitAsync from "~/utils/emitAsync"
 
@@ -86,8 +86,9 @@ export default class ChatItems extends VuexModule {
     target?: ChatItemModel
   }) {
     const id = getUUID()
+    const isAdmin = UserItemStore.userItems.isAdmin
 
-    const senderType: ChatItemSenderType = UserItemStore.userItems.isAdmin
+    const senderType: ChatItemSenderType = isAdmin
       ? "admin"
       : UserItemStore.userItems.speakerId === topicId
       ? "speaker"
@@ -108,7 +109,7 @@ export default class ChatItems extends VuexModule {
     })
 
     // サーバーに送信する
-    const socket = buildSocket(AuthStore.idToken)
+    const socket = await buildSocket(isAdmin)
     try {
       await emitAsync(socket, "POST_CHAT_ITEM", {
         id,
@@ -126,6 +127,8 @@ export default class ChatItems extends VuexModule {
   @Action({ rawError: true })
   public async postReaction({ message }: { message: ChatItemModel }) {
     const id = getUUID()
+    const isAdmin = UserItemStore.userItems.isAdmin
+
     // ローカルに反映する
     this.add({
       id,
@@ -139,7 +142,7 @@ export default class ChatItems extends VuexModule {
       quote: message,
     })
     // サーバーに反映する
-    const socket = buildSocket(AuthStore.idToken)
+    const socket = await buildSocket(isAdmin)
     try {
       await emitAsync(socket, "POST_CHAT_ITEM", {
         id,
@@ -164,8 +167,9 @@ export default class ChatItems extends VuexModule {
     target?: ChatItemModel
   }) {
     const id = getUUID()
+    const isAdmin = UserItemStore.userItems.isAdmin
 
-    const senderType: ChatItemSenderType = UserItemStore.userItems.isAdmin
+    const senderType: ChatItemSenderType = isAdmin
       ? "admin"
       : UserItemStore.userItems.speakerId === topicId
       ? "speaker"
@@ -185,7 +189,7 @@ export default class ChatItems extends VuexModule {
       quote: target,
     })
     // サーバーに反映する
-    const socket = buildSocket(AuthStore.idToken)
+    const socket = await buildSocket(isAdmin)
     try {
       await emitAsync(socket, "POST_CHAT_ITEM", {
         id,
@@ -211,6 +215,7 @@ export default class ChatItems extends VuexModule {
     target: ChatItemModel
   }) {
     const id = getUUID()
+    const isAdmin = UserItemStore.userItems.isAdmin
 
     const senderType: ChatItemSenderType = UserItemStore.userItems.isAdmin
       ? "admin"
@@ -231,7 +236,7 @@ export default class ChatItems extends VuexModule {
       content: text,
     })
     // サーバーに反映する
-    const socket = buildSocket(AuthStore.idToken)
+    const socket = await buildSocket(isAdmin)
     try {
       await emitAsync(socket, "POST_CHAT_ITEM", {
         id,
@@ -248,7 +253,8 @@ export default class ChatItems extends VuexModule {
 
   @Action({ rawError: true })
   public async retrySendChatItem({ chatItem }: { chatItem: ChatItemModel }) {
-    const socket = buildSocket(AuthStore.idToken)
+    const isAdmin = UserItemStore.userItems.isAdmin
+    const socket = await buildSocket(isAdmin)
     this.updateStatus({ id: chatItem.id, status: "loading" })
     try {
       await emitAsync(socket, "POST_CHAT_ITEM", chatItem)

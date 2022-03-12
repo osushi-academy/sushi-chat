@@ -35,16 +35,18 @@
         </div>
         <div v-else class="text">
           <button
-            class="long-text"
+            class="long-text--button"
             @click.stop="
               // NOTE: 型推論のためにifを追加
               if (message.quote != null) scrolltoMessage(message.quote.id)
             "
           >
-            <template v-if="message.type != 'answer'">
-              > {{ message.quote.content }}
-            </template>
-            <template v-else> Q. {{ message.quote.content }} </template>
+            <span class="long-text--content">
+              <template v-if="message.type != 'answer'">
+                > {{ message.quote.content }}
+              </template>
+              <template v-else> Q. {{ message.quote.content }} </template>
+            </span>
           </button>
           <UrlToLink :text="message.content" />
         </div>
