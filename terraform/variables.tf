@@ -97,3 +97,9 @@ variable "github_repository" {
   type        = string
   description = "GitHub repository name that stores code for application"
 }
+
+variable "github_branch" {
+  type        = string
+  description = "GitHub branch that triggers a deployment"
+  default     = "main"
+}

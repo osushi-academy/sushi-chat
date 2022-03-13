@@ -72,6 +72,7 @@ module "codepipeline" {
 
   github_org        = var.github_org
   github_repository = var.github_repository
+  github_branch     = var.github_branch
 
   ecs_cluster_arn             = module.ecs.cluster_arn
   ecs_cluster_name            = module.ecs.cluster_name
