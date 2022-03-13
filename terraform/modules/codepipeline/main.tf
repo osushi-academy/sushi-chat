@@ -63,7 +63,7 @@ resource "aws_codepipeline" "main" {
         ApplicationName                = aws_codedeploy_app.main.name
         DeploymentGroupName            = aws_codedeploy_deployment_group.main.deployment_group_name
         TaskDefinitionTemplateArtifact = "build_output"
-        AppSpecTemplateArtifact        = "source_output"
+        AppSpecTemplateArtifact        = "build_output"
         Image1ArtifactName             = "build_output"
         Image1ContainerName            = "IMAGE1_NAME"
       }
