@@ -414,6 +414,5 @@ resource "aws_iam_role_policy_attachment" "codedeploy" {
 }
 
 data "aws_iam_policy" "codedeploy_role" {
-  name = "AWSCodeDeployRoleForECSLimited"
+  name = "AWSCodeDeployRoleForECS"
 }
-
