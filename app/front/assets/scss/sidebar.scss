@@ -1,11 +1,11 @@
 .sidebar {
   z-index: 50;
-  color: $black;
   display: flex;
   flex-direction: column;
   width: 320px;
   height: 100%;
   padding: 16px 0;
+  color: $black;
   background: $bg;
 
   & > .top-section {
@@ -211,8 +211,8 @@
   & > .footer-section {
     display: flex;
     flex-wrap: wrap;
-    margin: auto auto 0 auto;
-    padding: 0 0 1rem 0;
+    padding: 0 0 1rem;
+    margin: auto auto 0;
 
     & > .footer-link {
       margin-top: 0.5em;

@@ -30,15 +30,16 @@
 .chat-room-area {
   display: flex;
   overflow-x: scroll;
+
   @media screen and (max-width: $medium) {
     &__cover {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
       z-index: $z-modal - 1;
       display: block;
+      width: 100%;
+      height: 100%;
       background: rgba(0, 0, 0, 0.3);
     }
   }
@@ -82,14 +83,15 @@
 
       & > .menu-button {
         display: flex;
+        align-items: center;
+        justify-content: center;
         width: 2.5em;
         height: 2.5em;
+        color: white;
         background: transparent;
         border: none;
         border-radius: 99px;
-        align-items: center;
-        justify-content: center;
-        color: white;
+
         &:hover,
         &:focus {
           background: $hover-button-background;
