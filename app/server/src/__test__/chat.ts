@@ -204,7 +204,7 @@ describe("機能テスト", () => {
           client
             .post("/room")
             .send({
-              title: `傘増し用ルーム${n + 1}`,
+              title: `かさ増し用ルーム${n + 1}`,
               topics: [{ title: "トピック" }],
               description: "ルームの説明",
             })

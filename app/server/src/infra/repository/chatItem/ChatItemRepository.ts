@@ -219,7 +219,6 @@ class ChatItemRepository implements IChatItemRepository {
     }
   }
 
-  // NOTE: arrow functionにしないとthisの挙動のせいでバグる
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private static buildChatItem(row: any) {
     const id = row.id
@@ -309,7 +308,6 @@ class ChatItemRepository implements IChatItemRepository {
       }
     }
 
-    // NOTE: 複数回クエリを発行するとパフォーマンスの低下につながるので、一回のクエリでとってこれるならそうしたい
     switch (chatItemType) {
       case "message":
         return new Message(
