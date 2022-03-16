@@ -1,6 +1,7 @@
 import IStampRepository from "../../../domain/stamp/IStampRepository"
 import Stamp from "../../../domain/stamp/Stamp"
 import PGPool from "../PGPool"
+import { Pool, PoolClient } from "pg"
 
 class StampRepository implements IStampRepository {
   constructor(private readonly pgPool: PGPool) {}
@@ -57,9 +58,10 @@ class StampRepository implements IStampRepository {
     }
   }
 
-  public async selectByRoomId(roomId: string): Promise<Stamp[]> {
-    const pgClient = await this.pgPool.client()
-
+  public async selectByRoomId(
+    roomId: string,
+    pgClient: PoolClient,
+  ): Promise<Stamp[]> {
     const query =
       "SELECT id, topic_id, user_id, created_at, timestamp FROM stamps WHERE room_id = $1"
     try {
@@ -77,9 +79,35 @@ class StampRepository implements IStampRepository {
     } catch (e) {
       StampRepository.logError(e, "selectByRoomId()")
       throw e
-    } finally {
-      pgClient.release()
     }
+  }
+
+  public async selectByRoomIds(
+    roomIds: string[],
+    pgClient: PoolClient,
+  ): Promise<Record<string, Stamp[]>> {
+    const query =
+      "SELECT room_id, id, topic_id, user_id, created_at, timestamp FROM stamps WHERE room_id = ANY($1::UUID[])"
+
+    const res = await pgClient.query(query, [roomIds])
+    return res.rows.reduce<Record<string, Stamp[]>>((acc, cur) => {
+      const stamp = new Stamp(
+        cur.id,
+        cur.user_id,
+        cur.room_id,
+        cur.topic_id,
+        cur.created_at,
+        cur.timestamp,
+      )
+
+      if (cur.room_id in acc) {
+        acc[cur.room_id].push(stamp)
+      } else {
+        acc[cur.room_id] = [stamp]
+      }
+
+      return acc
+    }, {})
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

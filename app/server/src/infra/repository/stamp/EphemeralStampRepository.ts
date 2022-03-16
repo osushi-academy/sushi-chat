@@ -29,6 +29,15 @@ class EphemeralStampRepository implements IStampRepository {
   public selectByRoomId(roomId: string): Promise<Stamp[]> {
     return Promise.resolve(this.stamps.filter((s) => s.roomId === roomId))
   }
+
+  public selectByRoomIds(roomIds: string[]): Promise<Record<string, Stamp[]>> {
+    return Promise.resolve(
+      roomIds.reduce<Record<string, Stamp[]>>((acc, cur) => {
+        acc[cur] = this.stamps.filter((s) => s.roomId === cur)
+        return acc
+      }, {}),
+    )
+  }
 }
 
 export default EphemeralStampRepository

@@ -196,14 +196,30 @@ describe("機能テスト", () => {
   })
 
   describe("room一覧取得", () => {
+    // NOTE: ルームがコネクションプールの上限数以上ある時に怒るバグが存在したため、それが起こらないことを保証するために
+    //  たくさんルームを作る
+    beforeAll(async () => {
+      await Promise.all(
+        ArrayRange(10).map((n) =>
+          client
+            .post("/room")
+            .send({
+              title: `かさ増し用ルーム${n + 1}`,
+              topics: [{ title: "トピック" }],
+              description: "ルームの説明",
+            })
+            .set("Authorization", "Bearer Token"),
+        ),
+      )
+    })
+
     test("正常系_管理者がroom一覧を取得", async () => {
       const res = await client.get("/room").set("Authorization", "Bearer token")
 
       expect(res.statusCode).toBe(200)
-      expect(res.body).toStrictEqual<SuccessResponse<RoomModel[]>>({
-        result: "success",
-        data: [roomData],
-      })
+      expect(res.body.result).toBe("success")
+      // 新しい順に取得されるので、ダミーでないデータは最後に来る
+      expect(res.body.data[res.body.data.length - 1]).toStrictEqual(roomData)
     })
   })
 

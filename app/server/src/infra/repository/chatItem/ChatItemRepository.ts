@@ -7,6 +7,7 @@ import ChatItem from "../../../domain/chatItem/ChatItem"
 import PGPool from "../PGPool"
 import { ChatItemSenderType, ChatItemType } from "sushi-chat-shared"
 import User from "../../../domain/user/User"
+import { PoolClient } from "pg"
 
 class ChatItemRepository implements IChatItemRepository {
   constructor(private readonly pgPool: PGPool) {}
@@ -137,7 +138,7 @@ class ChatItemRepository implements IChatItemRepository {
       const res = await pgClient.query(query, [chatItemId])
       if (res.rowCount < 1) return null
 
-      return await this.buildChatItem(res.rows[0])
+      return await ChatItemRepository.buildChatItem(res.rows[0])
     } catch (e) {
       ChatItemRepository.logError(e, "find()")
       throw e
@@ -146,30 +147,57 @@ class ChatItemRepository implements IChatItemRepository {
     }
   }
 
-  public async selectByRoomId(roomId: string): Promise<ChatItem[]> {
-    const pgClient = await this.pgPool.client()
-
-    const query =
-      "SELECT " +
-      "ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at, " +
-      "u.icon_id, u.is_admin, u.is_system, u.has_left, " +
-      "q.id AS quote_id, q.room_id AS quote_room_id, q.topic_id AS quote_topic_id, q.user_id AS quote_user_id, q.chat_item_type_id AS quote_type_id, q.sender_type_id AS quote_sender_type_id, q.content AS quote_content, q.timestamp AS quote_timestamp, q.created_at AS quote_created_at, " +
-      "qu.icon_id AS quote_icon_id, qu.is_admin AS quote_is_admin, qu.is_system AS quote_is_system, qu.has_left AS quote_has_left " +
-      "FROM chat_items ci " +
-      "JOIN users u ON ci.user_id = u.id AND ci.room_id = $1 " +
-      "LEFT JOIN chat_items q ON ci.quote_id = q.id " +
-      "LEFT JOIN users qu ON q.user_id = qu.id " +
-      "ORDER BY ci.created_at"
+  public async selectByRoomId(
+    roomId: string,
+    pgClient: PoolClient,
+  ): Promise<ChatItem[]> {
+    const query = `SELECT
+        ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at,
+        u.icon_id, u.is_admin, u.is_system, u.has_left,
+        q.id AS quote_id, q.room_id AS quote_room_id, q.topic_id AS quote_topic_id, q.user_id AS quote_user_id, q.chat_item_type_id AS quote_type_id, q.sender_type_id AS quote_sender_type_id, q.content AS quote_content, q.timestamp AS quote_timestamp, q.created_at AS quote_created_at,
+        qu.icon_id AS quote_icon_id, qu.is_admin AS quote_is_admin, qu.is_system AS quote_is_system, qu.has_left AS quote_has_left
+        FROM chat_items ci
+        JOIN users u ON ci.user_id = u.id AND ci.room_id = $1
+        LEFT JOIN chat_items q ON ci.quote_id = q.id
+        LEFT JOIN users qu ON q.user_id = qu.id
+        ORDER BY ci.created_at`
 
     try {
       const res = await pgClient.query(query, [roomId])
-      return Promise.all(res.rows.map(this.buildChatItem))
+      return Promise.all(res.rows.map(ChatItemRepository.buildChatItem))
     } catch (e) {
       ChatItemRepository.logError(e, "selectByRoomId()")
       throw e
-    } finally {
-      pgClient.release()
     }
+  }
+
+  public async selectByRoomIds(
+    roomIds: string[],
+    pgClient: PoolClient,
+  ): Promise<Record<string, ChatItem[]>> {
+    const query = `SELECT
+        ci.id, ci.room_id, ci.topic_id, ci.user_id, ci.chat_item_type_id, ci.sender_type_id, ci.quote_id, ci.content, ci.timestamp, ci.created_at,
+        u.icon_id, u.is_admin, u.is_system, u.has_left,
+        q.id AS quote_id, q.room_id AS quote_room_id, q.topic_id AS quote_topic_id, q.user_id AS quote_user_id, q.chat_item_type_id AS quote_type_id, q.sender_type_id AS quote_sender_type_id, q.content AS quote_content, q.timestamp AS quote_timestamp, q.created_at AS quote_created_at,
+        qu.icon_id AS quote_icon_id, qu.is_admin AS quote_is_admin, qu.is_system AS quote_is_system, qu.has_left AS quote_has_left
+        FROM chat_items ci
+        JOIN users u ON ci.user_id = u.id AND ci.room_id = ANY($1::UUID[])
+        LEFT JOIN chat_items q ON ci.quote_id = q.id
+        LEFT JOIN users qu ON q.user_id = qu.id
+        ORDER BY ci.created_at`
+
+    const res = await pgClient.query(query, [roomIds])
+    return res.rows.reduce<Record<string, ChatItem[]>>((acc, cur) => {
+      const chatItem = ChatItemRepository.buildChatItem(cur)
+
+      if (cur.room_id in acc) {
+        acc[cur.room_id].push(chatItem)
+      } else {
+        acc[cur.room_id] = [chatItem]
+      }
+
+      return acc
+    }, {})
   }
 
   public async pinChatItem(chatItem: ChatItem) {
@@ -191,9 +219,8 @@ class ChatItemRepository implements IChatItemRepository {
     }
   }
 
-  // NOTE: arrow functionにしないとthisの挙動のせいでバグる
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private buildChatItem(row: any) {
+  private static buildChatItem(row: any) {
     const id = row.id
     const roomId = row.room_id
     const topicId = row.topic_id
@@ -281,7 +308,6 @@ class ChatItemRepository implements IChatItemRepository {
       }
     }
 
-    // NOTE: 複数回クエリを発行するとパフォーマンスの低下につながるので、一回のクエリでとってこれるならそうしたい
     switch (chatItemType) {
       case "message":
         return new Message(

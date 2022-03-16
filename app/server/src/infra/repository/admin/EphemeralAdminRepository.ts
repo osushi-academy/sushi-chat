@@ -23,6 +23,19 @@ class EphemeralAdminRepository implements IAdminRepository {
       this.admins.filter((a) => roomId in a.managedRoomsIds).map((a) => a.id),
     )
   }
+
+  public selectIdsByRoomIds(
+    roomIds: string[],
+  ): Promise<Record<string, string[]>> {
+    return Promise.resolve(
+      roomIds.reduce<Record<string, string[]>>((acc, cur) => {
+        acc[cur] = this.admins
+          .filter((a) => a.managedRoomsIds.includes(cur))
+          .map((a) => a.id)
+        return acc
+      }, {}),
+    )
+  }
 }
 
 export default EphemeralAdminRepository

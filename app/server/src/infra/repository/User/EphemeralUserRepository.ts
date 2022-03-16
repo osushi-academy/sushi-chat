@@ -21,6 +21,15 @@ class EphemeralUserRepository implements IUserRepository {
   public leaveRoom(user: User): void {
     this.users = this.users.filter((u) => u.id !== user.id)
   }
+
+  public selectByRoomIds(roomIds: string[]): Promise<Record<string, User[]>> {
+    return Promise.resolve(
+      roomIds.reduce<Record<string, User[]>>((acc, cur) => {
+        acc[cur] = this.users.filter((u) => u.roomId === cur)
+        return acc
+      }, {}),
+    )
+  }
 }
 
 export default EphemeralUserRepository
