@@ -3,6 +3,7 @@ DROP TRIGGER IF EXISTS update_rooms_trigger ON rooms;
 DROP TRIGGER IF EXISTS update_topic_states_trigger ON topic_states;
 DROP TRIGGER IF EXISTS update_topics_trigger ON topics;
 DROP TRIGGER IF EXISTS update_icons_trigger ON icons;
+DROP TRIGGER IF EXISTS update_users_trigger ON users;
 DROP TRIGGER IF EXISTS update_admins_trigger ON admins;
 DROP TRIGGER IF EXISTS update_sender_types_trigger ON sender_types;
 DROP TRIGGER IF EXISTS update_chat_item_types_trigger ON chat_item_types;

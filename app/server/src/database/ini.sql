@@ -96,8 +96,13 @@ CREATE TABLE IF NOT EXISTS users
   is_admin   BOOLEAN   NOT NULL,
   is_system   BOOLEAN   NOT NULL,
   has_left   BOOLEAN   NOT NULL DEFAULT FALSE,
-  created_at TIMESTAMP NOT NULL DEFAULT current_timestamp
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+DROP TRIGGER IF EXISTS update_users_trigger ON users;
+CREATE TRIGGER update_userss_trigger BEFORE UPDATE ON users FOR EACH ROW
+  EXECUTE PROCEDURE set_update_time();
+
 CREATE TABLE IF NOT EXISTS topics_speakers
 (
   user_id  TEXT REFERENCES users (id),
