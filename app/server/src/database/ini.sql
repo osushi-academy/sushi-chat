@@ -1,4 +1,15 @@
+DROP TRIGGER IF EXISTS update_room_states_trigger ON room_states;
+DROP TRIGGER IF EXISTS update_rooms_trigger ON rooms;
+DROP TRIGGER IF EXISTS update_topic_states_trigger ON topic_states;
+DROP TRIGGER IF EXISTS update_topics_trigger ON topics;
+DROP TRIGGER IF EXISTS update_icons_trigger ON icons;
+DROP TRIGGER IF EXISTS update_users_trigger ON users;
+DROP TRIGGER IF EXISTS update_admins_trigger ON admins;
+DROP TRIGGER IF EXISTS update_sender_types_trigger ON sender_types;
+DROP TRIGGER IF EXISTS update_chat_item_types_trigger ON chat_item_types;
+DROP TRIGGER IF EXISTS update_service_admins_trigger ON service_admins;
 DROP FUNCTION IF EXISTS set_update_time();
+
 CREATE FUNCTION set_update_time() RETURNS trigger AS '
   begin
     new.updated_at := ''now'';
@@ -13,7 +24,6 @@ CREATE TABLE IF NOT EXISTS room_states
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-DROP TRIGGER IF EXISTS update_room_states_trigger ON room_states;
 CREATE TRIGGER update_room_states_trigger BEFORE UPDATE ON room_states FOR EACH ROW
   EXECUTE PROCEDURE set_update_time();
 
@@ -30,7 +40,6 @@ CREATE TABLE IF NOT EXISTS rooms
   created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-DROP TRIGGER IF EXISTS update_rooms_trigger ON rooms;
 CREATE TRIGGER update_rooms_trigger BEFORE UPDATE ON rooms FOR EACH ROW
   EXECUTE PROCEDURE set_update_time();
 
@@ -41,7 +50,6 @@ CREATE TABLE IF NOT EXISTS topic_states
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-DROP TRIGGER IF EXISTS update_topic_states_trigger ON topic_states;
 CREATE TRIGGER update_topic_states_trigger BEFORE UPDATE ON topic_states FOR EACH ROW
   EXECUTE PROCEDURE set_update_time();
 
@@ -56,7 +64,6 @@ CREATE TABLE IF NOT EXISTS topics
   updated_at     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (room_id, id)
 );
-DROP TRIGGER IF EXISTS update_topics_trigger ON topics;
 CREATE TRIGGER update_topics_trigger BEFORE UPDATE ON topics FOR EACH ROW
   EXECUTE PROCEDURE set_update_time();
 
@@ -84,7 +91,6 @@ CREATE TABLE IF NOT EXISTS icons
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-DROP TRIGGER IF EXISTS update_icons_trigger ON icons;
 CREATE TRIGGER update_icons_trigger BEFORE UPDATE ON icons FOR EACH ROW
   EXECUTE PROCEDURE set_update_time();
 
@@ -99,8 +105,7 @@ CREATE TABLE IF NOT EXISTS users
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-DROP TRIGGER IF EXISTS update_users_trigger ON users;
-CREATE TRIGGER update_userss_trigger BEFORE UPDATE ON users FOR EACH ROW
+CREATE TRIGGER update_users_trigger BEFORE UPDATE ON users FOR EACH ROW
   EXECUTE PROCEDURE set_update_time();
 
 CREATE TABLE IF NOT EXISTS topics_speakers
@@ -119,7 +124,6 @@ CREATE TABLE IF NOT EXISTS admins
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-DROP TRIGGER IF EXISTS update_admins_trigger ON admins;
 CREATE TRIGGER update_admins_trigger BEFORE UPDATE ON admins FOR EACH ROW
   EXECUTE PROCEDURE set_update_time();
 
@@ -138,7 +142,6 @@ CREATE TABLE IF NOT EXISTS sender_types
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-DROP TRIGGER IF EXISTS update_sender_types_trigger ON sender_types;
 CREATE TRIGGER update_sender_types_trigger BEFORE UPDATE ON sender_types FOR EACH ROW
   EXECUTE PROCEDURE set_update_time();
 
@@ -149,7 +152,6 @@ CREATE TABLE IF NOT EXISTS chat_item_types
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-DROP TRIGGER IF EXISTS update_chat_item_types_trigger ON chat_item_types;
 CREATE TRIGGER update_chat_item_types_trigger BEFORE UPDATE ON chat_item_types FOR EACH ROW
   EXECUTE PROCEDURE set_update_time();
 
@@ -195,6 +197,5 @@ CREATE TABLE IF NOT EXISTS service_admins
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-DROP TRIGGER IF EXISTS update_service_admins_trigger ON service_admins;
 CREATE TRIGGER update_service_admins_trigger BEFORE UPDATE ON service_admins FOR EACH ROW
   EXECUTE PROCEDURE set_update_time();
