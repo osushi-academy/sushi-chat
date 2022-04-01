@@ -1,5 +1,5 @@
 <template>
-  <div class="lp">
+  <div v-show="loadingFinished" class="lp">
     <header class="lp__header">
       <div class="lp__header--title">
         <img :src="require('@/static/icon.png')" />sushi-chat
@@ -42,23 +42,24 @@
 <script lang="ts">
 import Vue from "vue"
 import { AuthStore } from "~/store"
+
+type DataType = {
+  loadingFinished: boolean
+}
+
 export default Vue.extend({
   name: "Index",
-  computed: {
-    isLoggedIn() {
-      return AuthStore.isLoggedIn
-    },
+  data(): DataType {
+    return {
+      loadingFinished: false,
+    }
   },
-  watch: {
-    isLoggedIn: {
-      immediate: true,
-      handler() {
-        if (this.isLoggedIn) {
-          // NOTE: ログイン済みの場合はプロフィールページへリダイレクトする
-          this.$router.push("/home")
-        }
-      },
-    },
+  created() {
+    if (AuthStore.isLoggedIn) {
+      this.$router.push("/home")
+      return
+    }
+    this.loadingFinished = true
   },
   methods: {
     async signInWithGoogle() {

@@ -56,10 +56,7 @@ export default {
   css: ["@/assets/scss/app.scss"],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [
-    '@/plugins/apiClient',
-    '@/plugins/socket',
-  ],
+  plugins: ["@/plugins/apiClient", "@/plugins/socket"],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -78,9 +75,9 @@ export default {
       "@nuxtjs/pwa",
       {
         manifest: {
-          lang: 'ja',
+          lang: "ja",
         },
-      }
+      },
     ],
   ],
   loaders: {
@@ -91,7 +88,11 @@ export default {
       silent: true,
     },
   },
-
+  loadingIndicator: {
+    name: "circle",
+    color: "#f28d2f",
+    background: "white",
+  },
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/axios
@@ -99,26 +100,26 @@ export default {
     "nuxt-webfontloader",
     "socket.io-client",
     [
-      '@nuxtjs/firebase',
+      "@nuxtjs/firebase",
       {
         config: {
-          apiKey: 'AIzaSyCBQ3FB9HwLD0m1tn9UvbOHyovydVxffLE',
-          authDomain: 'sushi-chat-osushi.firebaseapp.com',
-          projectId: 'sushi-chat-osushi',
-          storageBucket: 'sushi-chat-osushi.appspot.com',
-          messagingSenderId: '803145893857',
-          appId: '1:803145893857:web:762dc197f836b4fcfb34a0',
-          measurementId: 'G-3L8Q6J93EC'
+          apiKey: "AIzaSyCBQ3FB9HwLD0m1tn9UvbOHyovydVxffLE",
+          authDomain: "sushi-chat-osushi.firebaseapp.com",
+          projectId: "sushi-chat-osushi",
+          storageBucket: "sushi-chat-osushi.appspot.com",
+          messagingSenderId: "803145893857",
+          appId: "1:803145893857:web:762dc197f836b4fcfb34a0",
+          measurementId: "G-3L8Q6J93EC",
         },
         services: {
           auth: {
             initialize: {
-              onIdTokenChangedAction: 'auth/onIdTokenChangedAction',
+              onIdTokenChangedAction: "auth/onIdTokenChangedAction",
             },
-          }
-        }
-      }
-    ]
+          },
+        },
+      },
+    ],
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -133,7 +134,9 @@ export default {
   webfontloader: {
     google: {
       // FIXME: デグレが起きて旧バージョンを見たいケースのためにコメントアウトにしておく。不要になったら消す。
-      families: ["M PLUS 1p:100,400,700", /* "Material Icons", "Material Icons Outlined" */],
+      families: [
+        "M PLUS 1p:100,400,700" /* "Material Icons", "Material Icons Outlined" */,
+      ],
     },
   },
 
