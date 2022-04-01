@@ -32,7 +32,10 @@ resource "aws_ecs_service" "main" {
 
   lifecycle {
     # These are changed by CodeDeploy
-    ignore_changes = [task_definition, load_balancer]
+    ignore_changes = [
+      task_definition,
+      load_balancer["target_group_arn"]
+    ]
   }
 }
 
