@@ -1,0 +1,56 @@
+{
+  "executionRoleArn": "$EXECUTION_ROLE_ARN",
+  "containerDefinitions": [
+    {
+      "name": "app",
+      "image": "<IMAGE1_NAME>",
+      "essential": true,
+      "environment": [
+        { "name" : "DATABASE_URL", "value" : "$DATABASE_URL" },
+        { "name" : "SOCKET_IO_ADMIN_UI_PASSWORD", "value" : "$SOCKET_IO_ADMIN_UI_PASSWORD" },
+        { "name" : "REDIS_HOST", "value" : "$REDIS_HOST" },
+        { "name" : "CORS_ORIGIN", "value" : "$CORS_ORIGIN" },
+        { "name" : "CORS_ORIGIN_PREVIEW", "value" : "$CORS_ORIGIN_PREVIEW" },
+        { "name" : "SOCKET_IO_ADAPTER", "value" : "redis" },
+        { "name" : "FIREBASE_ADMIN_PROJECT_ID", "value" : "$FIREBASE_ADMIN_PROJECT_ID" },
+        { "name" : "FIREBASE_ADMIN_CLIENT_EMAIL", "value" : "$FIREBASE_ADMIN_CLIENT_EMAIL" },
+        { "name" : "FIREBASE_ADMIN_PRIVATE_KEY", "value" : "$FIREBASE_ADMIN_PRIVATE_KEY" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "$APP_LOG_GROUP",
+          "awslogs-stream-prefix": "app",
+          "awslogs-region": "$AWS_REGION"
+        }
+      }
+    },
+    {
+      "name": "nginx",
+      "image": "$NGINX_IMAGE_URI",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "$NGINX_LOG_GROUP",
+          "awslogs-stream-prefix": "nginx",
+          "awslogs-region": "$AWS_REGION"
+        }
+      }
+    }
+  ],
+  "family": "$TASK_FAMILY",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "networkMode": "awsvpc",
+  "cpu": "$TASK_CPU",
+  "memory": "$TASK_MEMORY"
+}

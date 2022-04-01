@@ -1,20 +1,78 @@
 version: '3'
 services:
-  app:
+  front:
     container_name: sushi-front
-    # 対話モード
-    tty: true
-    # Dockerfileの場所
     build:
-        context: ./
-        dockerfile: ./app/Dockerfile
+        context: .
+        dockerfile: app/front/Dockerfile
     working_dir: /home
-    # ホストOSとコンテナ内でソースコードを共有する
-    # cachedで高速化
     volumes:
       - ./:/home:cached
-    # コンテナ内部の3000を外部から3000でアクセスする
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
       - HOST=0.0.0.0
+      - API_BASE_URL=http://localhost:7000
+  server:
+    platform: 'linux/amd64'
+    container_name: sushi-server
+    build:
+      context: .
+      dockerfile: app/server/Dockerfile
+    command: ["yarn", "dev:server"]
+    environment:
+      - NODE_ENV=development
+      - DB_SSL=OFF
+      - DATABASE_URL=postgres://sushi:chat@db:5432/sushi_chat
+      - FIREBASE_ADMIN_PROJECT_ID=$FIREBASE_ADMIN_PROJECT_ID
+      - FIREBASE_ADMIN_CLIENT_EMAIL=$FIREBASE_ADMIN_CLIENT_EMAIL
+      - FIREBASE_ADMIN_PRIVATE_KEY=$FIREBASE_ADMIN_PRIVATE_KEY
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./app/server:/src/app/server
+      - ./app/shared:/src/app/shared
+    depends_on:
+      - db
+  server_test:
+    container_name: sushi-server-test
+    build:
+      context: .
+      dockerfile: app/server/Dockerfile
+    command: ["yarn", "test:server"]
+    environment:
+      - NODE_ENV=development
+      - DB_SSL=OFF
+      - DATABASE_URL=postgres://sushi_test:chat@db_test:5432/sushi_chat_test
+    depends_on:
+      - db
+  nginx:
+    container_name: sushi-nginx
+    build:
+      context: ./nginx
+    environment:
+      - APP_HOST=server
+    ports:
+      - "8080:80"
+    depends_on:
+      - server
+  db:
+    container_name: sushi-db
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=chat
+      - POSTGRES_USER=sushi
+      - POSTGRES_DB=sushi_chat
+    ports:
+      - "54320:5432"
+  db_test:
+    container_name: sushi-db-test
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=chat
+      - POSTGRES_USER=sushi_test
+      - POSTGRES_DB=sushi_chat_test
+    ports:
+      - "54321:5432"

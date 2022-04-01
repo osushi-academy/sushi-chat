@@ -3,18 +3,6 @@ data "aws_route53_zone" "main" {
   private_zone = false
 }
 
-resource "aws_route53_record" "main" {
-  name    = var.domain
-  type    = "A"
-  zone_id = data.aws_route53_zone.main.id
-
-  alias {
-    evaluate_target_health = false
-    name                   = aws_lb.main.dns_name
-    zone_id                = aws_lb.main.zone_id
-  }
-}
-
 resource "aws_acm_certificate" "main" {
   domain_name       = var.domain
   validation_method = "DNS"
@@ -25,9 +13,8 @@ resource "aws_acm_certificate" "main" {
 }
 
 resource "aws_route53_record" "validation" {
-  zone_id    = data.aws_route53_zone.main.zone_id
-  ttl        = 60
-  depends_on = [aws_acm_certificate.main]
+  zone_id = data.aws_route53_zone.main.zone_id
+  ttl     = 60
 
   for_each = {
     for dvo in aws_acm_certificate.main.domain_validation_options : dvo.domain_name => {
