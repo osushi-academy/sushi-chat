@@ -172,7 +172,7 @@ class RoomRepository implements IRoomRepository {
     const pgClient = await this.pgPool.client()
 
     const roomQuery =
-      "UPDATE rooms SET room_state_id = $1, start_at = $2, finish_at = $3, archived_at = $4, updated_at = $5 WHERE id = $6"
+      "UPDATE rooms SET room_state_id = $1, start_at = $2, finish_at = $3, archived_at = $4 WHERE id = $5"
 
     // 例: '($2 $1), ($3, $1), ($4, $1), ...'
     const roomAdminValues = ArrayRange(room.adminIds.size)
@@ -181,7 +181,7 @@ class RoomRepository implements IRoomRepository {
     const roomAdminsQuery = `INSERT INTO rooms_admins (admin_id, room_id) VALUES ${roomAdminValues} ON CONFLICT (admin_id, room_id) DO NOTHING`
 
     const topicQuery =
-      "UPDATE topics SET topic_state_id = $1, offset_mil_sec = $2, updated_at = $3 WHERE room_id = $4 AND id = $5"
+      "UPDATE topics SET topic_state_id = $1, offset_mil_sec = $2 WHERE room_id = $3 AND id = $4"
 
     const openedAtQuery =
       "INSERT INTO topic_opened_at (topic_id, room_id, opened_at_mil_sec) VALUES($1, $2, $3) ON CONFLICT (topic_id, room_id) DO UPDATE SET opened_at_mil_sec = $3"
@@ -198,7 +198,6 @@ class RoomRepository implements IRoomRepository {
           room.startAt,
           room.finishAt,
           room.archivedAt,
-          new Date(),
           room.id,
         ]),
         pgClient.query(roomAdminsQuery, [room.id, ...room.adminIds]),
@@ -206,7 +205,6 @@ class RoomRepository implements IRoomRepository {
           pgClient.query(topicQuery, [
             RoomRepository.topicStateMap[t.state],
             room.topicTimeData[t.id].offsetTime,
-            new Date(),
             room.id,
             t.id,
           ]),
