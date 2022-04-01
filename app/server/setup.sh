@@ -11,5 +11,3 @@ for db_url in "${db_urls[@]}"; do
   psql -f app/server/src/database/ini.sql "$db_url"
   cat app/server/src/database/seed/* | psql -f - "$db_url"
 done
-
-docker-compose stop db db_test
