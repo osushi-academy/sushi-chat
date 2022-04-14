@@ -4,7 +4,7 @@
       <div class="drawer-menu__header">
         <div class="room-info">
           <div class="room-title">
-            <p>管理者ツール - {{ title }}</p>
+            <p>管理者ツール - {{ room.title }}</p>
           </div>
           <div class="room-url">
             <button :title="roomUrl" @click="writeToClipboard(roomUrl, 0)">
@@ -52,7 +52,7 @@
 
       <div class="drawer-menu__topic-list">
         <div
-          v-for="(topic, index) in topics"
+          v-for="topic in topics"
           :key="topic.id"
           class="topic"
           :class="
@@ -61,7 +61,7 @@
               : 'not-started'
           "
         >
-          <div class="topic-number">#{{ index }}</div>
+          <div class="topic-number">#{{ topic.id }}</div>
           <div class="topic-name">
             {{ topic.title }}
             <span v-if="topicStateItems[topic.id] === 'ongoing'" class="label">
@@ -146,7 +146,7 @@
 
 <script lang="ts">
 import Vue from "vue"
-import { Topic } from "sushi-chat-shared"
+import { RoomModel, Topic } from "sushi-chat-shared"
 import {
   PlayCircleIcon,
   PauseCircleIcon,
@@ -165,6 +165,7 @@ import {
   TopicStateItemStore,
   ChatItemStore,
   StampStore,
+  RoomStore,
 } from "~/store"
 
 type DataType = {
@@ -190,24 +191,6 @@ export default Vue.extend({
     CheckIcon,
     AlertCircleIcon,
   },
-  props: {
-    roomId: {
-      type: String,
-      required: true,
-    },
-    title: {
-      type: String,
-      default: "",
-    },
-    roomState: {
-      type: String,
-      required: true,
-    },
-    adminInviteKey: {
-      type: String,
-      required: true,
-    },
-  },
   data(): DataType {
     return {
       copyCompleted: false,
@@ -215,14 +198,17 @@ export default Vue.extend({
     }
   },
   computed: {
+    room(): RoomModel {
+      return RoomStore.room
+    },
     isNotRoomStarted(): boolean {
-      return this.roomState === "not-started"
+      return this.room.state === "not-started"
     },
     isRoomOngoing(): boolean {
-      return this.roomState === "ongoing"
+      return this.room.state === "ongoing"
     },
     isRoomFinished(): boolean {
-      return this.roomState === "finished"
+      return this.room.state === "finished"
     },
     topics(): Topic[] {
       return TopicStore.topics
@@ -234,12 +220,15 @@ export default Vue.extend({
       return ICONS[UserItemStore.userItems.myIconId] ?? ICONS[0]
     },
     inviteUrl(): string {
-      return `${location.origin}/invited/?roomId=${encodeURIComponent(
-        this.roomId,
-      )}&admin_invite_key=${encodeURIComponent(this.adminInviteKey)}`
+      if (this.room.adminInviteKey) {
+        return `${location.origin}/invited/?roomId=${encodeURIComponent(
+          this.room.id,
+        )}&admin_invite_key=${encodeURIComponent(this.room.adminInviteKey)}`
+      }
+      return ""
     },
     roomUrl(): string {
-      return `${location.origin}/room/${encodeURIComponent(this.roomId)}`
+      return `${location.origin}/room/${encodeURIComponent(this.room.id)}`
     },
     // 各トピックごとのコメント数、スタンプ数を集計する
     postCounts(): Record<number, { commentCount: number; stampCount: number }> {

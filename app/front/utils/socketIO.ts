@@ -10,7 +10,6 @@ const buildSocket = async (
   asAdmin: boolean,
 ): Promise<Socket<ServerPubEventsMap, ServerListenEventsMap>> => {
   const idToken = !asAdmin ? null : await getIdToken()
-
   // NOTE: キャッシュがあれば返す
   if (
     socket != null &&

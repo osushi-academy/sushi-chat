@@ -88,7 +88,11 @@ export default {
       silent: true,
     },
   },
-
+  loadingIndicator: {
+    name: "circle",
+    color: "#f28d2f",
+    background: "white",
+  },
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     "@nuxtjs/axios",
