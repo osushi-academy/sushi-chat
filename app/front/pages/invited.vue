@@ -39,29 +39,42 @@ export default Vue.extend({
     InviteSuccess,
   },
   async asyncData({ app, query }) {
-    const res = await app.$apiClient.get({
-      pathname: "/room/:id",
-      params: { id: query.roomId as string },
-    })
+    if (
+      query.roomId == null ||
+      query.roomId === "" ||
+      query.adminInviteKey == null ||
+      query.adminInviteKey === ""
+    ) {
+      throw new Error(
+        "エラーが発生しました。URLが間違っている可能性があります。",
+      )
+    }
+
+    const res = await app.$apiClient
+      .get({
+        pathname: "/room/:id",
+        params: { id: query.roomId as string },
+      })
+      .catch(() => {
+        throw new Error(
+          "エラーが発生しました。URLが間違っている可能性があります。",
+        )
+      })
     if (res.result === "error") {
-      throw new Error("ルーム情報なし")
+      throw res.error
     }
     return { room: res.data }
   },
   data(): DataType {
     return { room: {} as RoomModel, roomId: "", adminInviteKey: "" }
   },
-  created() {
+  mounted() {
     // roomId取得
     this.roomId = this.$route.query.roomId as string
     // adminInviteKey取得
     this.adminInviteKey = this.$route.query.admin_invite_key as string
-  },
-  mounted() {
-    // roomId取得
-    this.roomId = this.$route.query.roomId as string
-    if (this.roomId !== "") {
-      // TODO: this.room.idが存在しない→404
+    if (this.roomId == null || this.roomId === "") {
+      this.$router.push("/")
     }
   },
   methods: {
