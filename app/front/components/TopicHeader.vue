@@ -40,7 +40,13 @@
       <div class="topic-header__details--line" />
       <button class="topic-header__details--download" @click="clickDownload">
         <DownloadIcon size="1.2x" aria-hidden="true"></DownloadIcon>
-        <span class="text">現在までのチャット履歴のダウンロード</span>
+        <span class="text">
+          {{
+            disableInteraction
+              ? "チャット履歴のダウンロード"
+              : "現在までのチャット履歴のダウンロード"
+          }}
+        </span>
       </button>
     </div>
     <div v-if="pinnedChatItemContent != null" class="topic-header__bookmark">

@@ -72,10 +72,10 @@
       </button>
     </div>
     <TextArea
-      v-show="!disableInteraction"
       :topic-title="topic.title"
       :topic-id="topicId"
-      :disabled="topicState == 'not-started'"
+      :not-started="topicState == 'not-started'"
+      :finished="disableInteraction"
       :selected-chat-item="selectedChatItem"
       @submit="clickSubmit"
       @deselectChatItem="deselectChatItem"

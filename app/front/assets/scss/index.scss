@@ -463,7 +463,7 @@
       color: $primary;
       &:disabled {
         color: rgb(172, 172, 172);
-        cursor: default;
+        cursor: not-allowed;
       }
 
       & > .question-badge {
@@ -504,6 +504,14 @@
       font-size: 85%;
       margin-right: 3em;
       user-select: none;
+
+      &.disabled {
+        cursor: default;
+        color: $disabled-gray;
+        & > input {
+          cursor: default;
+        }
+      }
     }
   }
   & > .error-message {
