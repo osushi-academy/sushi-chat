@@ -1,11 +1,11 @@
 <template>
   <div class="topic-header">
     <div class="main-line">
-      <!-- TODO:横スクロールから1セッションへの切り替えが完了するまで非表示 -->
-      <!-- <SidebarDrawer
-        :title="'技育CAMPハッカソン vol.5'"
-        :description="'2日間(事前開発OK)で成果物を創ってエンジニアとしてレベルアップするオンラインハッカソン。テーマは「無駄開発」。'"
-      /> -->
+      <div v-if="!showSidebar" class="menu-button-wrapper">
+        <button class="menu-button" @click="openSidebar">
+          <menu-icon size="1x"></menu-icon>
+        </button>
+      </div>
       <div class="index">
         #<span style="font-size: 80%">{{ topicIndex }}</span>
       </div>
@@ -82,9 +82,14 @@
 import Vue from "vue"
 import type { PropOptions } from "vue"
 import { ChatItemModel } from "sushi-chat-shared"
-import { DownloadIcon, MoreVerticalIcon, XCircleIcon } from "vue-feather-icons"
+import {
+  DownloadIcon,
+  MoreVerticalIcon,
+  XCircleIcon,
+  MenuIcon,
+} from "vue-feather-icons"
 import PinIcon from "vue-material-design-icons/Pin.vue"
-import { PinnedChatItemsStore, UserItemStore } from "~/store"
+import { PinnedChatItemsStore, UserItemStore, SidebarStore } from "~/store"
 
 type DataType = {
   isAllCommentShowed: boolean
@@ -94,11 +99,11 @@ type DataType = {
 export default Vue.extend({
   name: "TopicHeader",
   components: {
-    // SidebarDrawer,
     XCircleIcon,
     PinIcon,
     MoreVerticalIcon,
     DownloadIcon,
+    MenuIcon,
   },
   props: {
     title: {
@@ -136,6 +141,9 @@ export default Vue.extend({
         return
       }
       return this.pinnedChatItem?.content
+    },
+    showSidebar(): boolean {
+      return SidebarStore.showSidebar
     },
   },
   methods: {
@@ -175,6 +183,9 @@ export default Vue.extend({
           element.classList.remove("highlight")
         }, 0)
       }
+    },
+    openSidebar() {
+      SidebarStore.set(true)
     },
   },
 })

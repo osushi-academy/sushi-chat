@@ -2,9 +2,9 @@
   <div class="sushi-select">
     <div class="sushi-select__bg" />
     <section class="sushi-select__header">
-      <h1 class="sushi-select__header--title">{{ title }}</h1>
+      <h1 class="sushi-select__header--title">{{ room.title }}</h1>
       <p class="sushi-select__header--content">
-        {{ description }}
+        {{ room.description }}
       </p>
     </section>
 
@@ -89,25 +89,16 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { RoomModel } from "sushi-chat-shared"
 import { HelpCircleIcon, ChevronDownIcon } from "vue-feather-icons"
 import ICONS from "@/utils/icons"
-import { TopicStore, UserItemStore } from "~/store"
+import { TopicStore, UserItemStore, RoomStore } from "~/store"
 
 export default Vue.extend({
   name: "SelectIconModal",
   components: {
     HelpCircleIcon,
     ChevronDownIcon,
-  },
-  props: {
-    title: {
-      type: String,
-      default: "",
-    },
-    description: {
-      type: String,
-      default: "",
-    },
   },
   data() {
     return {
@@ -123,6 +114,9 @@ export default Vue.extend({
     },
     topics() {
       return TopicStore.topics
+    },
+    room(): RoomModel {
+      return RoomStore.room
     },
   },
   methods: {

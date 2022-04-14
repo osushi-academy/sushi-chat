@@ -3,26 +3,17 @@
     <main>
       <SelectIconModal
         v-if="loadingFinished && isRoomStarted && !isAdmin && !isRoomEnter"
-        :title="room.title"
-        :description="room.description"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
       <NotStarted
         v-if="loadingFinished && !isRoomStarted && !isAdmin"
-        :title="room.title"
-        :description="room.description"
         @check-status-and-action="checkStatusAndAction"
         @click-icon="clickIcon"
         @hide-modal="hide"
       />
       <AdminTool
         v-if="showAdminTool"
-        :room="room"
-        :room-id="room.id"
-        :title="room.title"
-        :room-state="roomState"
-        :admin-invite-key="room.adminInviteKey"
         @start-room="startRoom"
         @change-topic-state="changeTopicState"
         @finish-room="finishRoom"
@@ -32,19 +23,22 @@
         class="chat-room-area"
         :class="{ 'show-admin-tool': showAdminTool }"
       >
-        <div v-for="(topic, index) in topics" :key="index">
-          <ChatRoom
-            :topic-index="index"
-            :topic-id="topic.id"
-            :topic-state="topicStateItems[topic.id]"
-            :disable-interaction="room.state === 'finished'"
-          />
-        </div>
+        <SidebarDrawer />
+        <div
+          v-if="showSidebar"
+          class="chat-room-area__cover"
+          @click="closeSidebar"
+        />
+        <ChatRoom
+          :topic-index="selectedTopicId"
+          :topic-id="selectedTopicId"
+          :topic-state="topicStateItems[selectedTopicId]"
+          :disable-interaction="room.state === 'finished'"
+        />
       </div>
     </main>
   </div>
 </template>
-
 <script lang="ts">
 import Vue from "vue"
 import VModal from "vue-js-modal"
@@ -52,7 +46,6 @@ import {
   Topic,
   TopicState,
   RoomModel,
-  RoomState,
   StampModel,
   PubUserCountParam,
   PubPinnedMessageParam,
@@ -61,48 +54,46 @@ import {
 import AdminTool from "@/components/AdminTool/AdminTool.vue"
 import ChatRoom from "@/components/ChatRoom.vue"
 import SelectIconModal from "@/components/SelectIconModal.vue"
+import SidebarDrawer from "@/components/Sidebar/SidebarDrawer.vue"
 import {
   ChatItemStore,
   DeviceStore,
   UserItemStore,
+  SelectedTopicStore,
+  SidebarStore,
   StampStore,
   TopicStore,
   TopicStateItemStore,
   PinnedChatItemsStore,
+  RoomStore,
 } from "~/store"
 
 // Data型
 type DataType = {
-  // 管理画面
-  hamburgerMenu: string
-  isDrawer: boolean
   // ルーム情報
   activeUserCount: number
-  room: RoomModel
   isRoomEnter: boolean
-  roomState: RoomState
 }
 Vue.use(VModal)
 export default Vue.extend({
-  name: "Id",
+  name: "Index",
   components: {
     AdminTool,
     ChatRoom,
     SelectIconModal,
+    SidebarDrawer,
   },
   data(): DataType {
     return {
-      // 管理画面
-      hamburgerMenu: "menu",
-      isDrawer: false,
       // ルーム情報
       activeUserCount: 0,
-      room: {} as RoomModel,
       isRoomEnter: false,
-      roomState: "not-started",
     }
   },
   computed: {
+    room(): RoomModel {
+      return RoomStore.room
+    },
     isRoomStarted(): boolean {
       return this.room.state === "ongoing" || this.room.state === "finished"
     },
@@ -117,16 +108,22 @@ export default Vue.extend({
       // 各トピックの状態
       return TopicStateItemStore.topicStateItems
     },
+    selectedTopicId(): number {
+      return SelectedTopicStore.selectedTopicId
+    },
     showAdminTool(): boolean {
       return this.isAdmin && this.room.adminInviteKey != null
     },
     loadingFinished(): boolean {
       return Object.keys(this.room).length > 1
     },
+    showSidebar(): boolean {
+      return SidebarStore.showSidebar
+    },
   },
   created() {
     // roomId取得
-    this.room.id = this.$route.path.split("/")[2]
+    RoomStore.setId(this.$route.path.split("/")[2])
     if (this.$route.query.user === "admin") {
       UserItemStore.changeIsAdmin(true)
     }
@@ -158,8 +155,7 @@ export default Vue.extend({
       if (res.result === "error") {
         throw new Error(res.error.message)
       }
-      this.room = res.data
-      this.roomState = res.data.state
+      RoomStore.set(res.data)
       TopicStore.set(res.data.topics)
 
       if (this.room.state === "ongoing") {
@@ -207,6 +203,7 @@ export default Vue.extend({
 
       // SocketIOのコールバックの登録
       socket.on("PUB_CHAT_ITEM", (chatItem) => {
+        console.log(chatItem)
         // 自分が送信したChatItemであればupdate、他のユーザーが送信したchatItemであればaddを行う
         ChatItemStore.addOrUpdate({ ...chatItem, status: "success" })
       })
@@ -237,15 +234,6 @@ export default Vue.extend({
         }
       })
     },
-    // 管理画面の開閉
-    clickDrawerMenu() {
-      this.isDrawer = !this.isDrawer
-      if (this.isDrawer) {
-        this.hamburgerMenu = "close"
-      } else {
-        this.hamburgerMenu = "menu"
-      }
-    },
     async changeTopicState(topicId: number, state: TopicState) {
       TopicStateItemStore.change({ key: topicId, state })
       const socket = await this.$socket()
@@ -255,8 +243,8 @@ export default Vue.extend({
           state,
           topicId,
         },
-        () => {
-          // do nothing
+        (res) => {
+          console.log(res)
         },
       )
     },
@@ -308,7 +296,6 @@ export default Vue.extend({
           status: "success",
         })),
       )
-      StampStore.setStamps(res.data.stamps)
       res.data.topicStates.forEach((topicState) => {
         TopicStateItemStore.change({
           key: topicState.topicId,
@@ -326,10 +313,10 @@ export default Vue.extend({
     // ルーム終了
     async finishRoom() {
       const socket = await this.$socket()
-      socket.emit("ADMIN_FINISH_ROOM", {}, () => {
-        // do nothing
+      socket.emit("ADMIN_FINISH_ROOM", {}, (res) => {
+        console.log(res)
       })
-      this.roomState = "finished"
+      RoomStore.setState("finished")
     },
     // アイコン選択
     clickIcon(index: number) {
@@ -345,12 +332,15 @@ export default Vue.extend({
         })
         .then(() => {
           this.adminEnterRoom()
-          this.roomState = "ongoing"
+          RoomStore.setState("ongoing")
         })
         .catch((e) => {
           console.error(e)
           window.alert("ルームを開始できませんでした")
         })
+    },
+    closeSidebar() {
+      SidebarStore.set(false)
     },
   },
 })
