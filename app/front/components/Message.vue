@@ -59,7 +59,7 @@
               : showTimestamp(message.timestamp)
           }}
         </div>
-        <div class="badges">
+        <div v-show="!disableInteraction" class="badges">
           <template v-if="message.status !== 'failure'">
             <button
               v-if="isAdminorSpeaker"
@@ -195,6 +195,10 @@ export default Vue.extend({
     } as PropOptions<ChatItemWithStatus>,
     topicId: {
       type: Number,
+      required: true,
+    },
+    disableInteraction: {
+      type: Boolean,
       required: true,
     },
   },

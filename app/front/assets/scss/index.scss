@@ -574,6 +574,14 @@
       margin-right: 3em;
       font-size: 85%;
       user-select: none;
+
+      &.disabled {
+        cursor: default;
+        color: $disabled-gray;
+        & > input {
+          cursor: default;
+        }
+      }
     }
   }
 
@@ -766,6 +774,7 @@
     .comment-footer {
       display: flex;
       align-items: flex-end;
+      min-height: 1.5rem;
 
       & > .comment-timestamp {
         flex: 1;

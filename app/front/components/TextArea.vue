@@ -48,8 +48,8 @@
       <div class="instruction">
         <KeyInstruction />
       </div>
-      <label class="question-checkbox">
-        <input v-model="isQuestion" type="checkbox" /><span
+      <label class="question-checkbox" :class="{ disabled }">
+        <input v-model="isQuestion" type="checkbox" :disabled="disabled" /><span
           >質問として投稿</span
         >
       </label>
@@ -102,7 +102,11 @@ export default Vue.extend({
       type: Number,
       required: true,
     },
-    disabled: {
+    notStarted: {
+      type: Boolean,
+      required: true,
+    },
+    finished: {
       type: Boolean,
       required: true,
     },
@@ -120,7 +124,9 @@ export default Vue.extend({
   },
   computed: {
     placeholder(): string {
-      return this.$props.disabled
+      return this.$props.finished
+        ? "ルームは終了しました"
+        : this.$props.notStarted
         ? "※ まだコメントはオープンしていません"
         : "ここにコメントを入力して盛り上げよう 🎉🎉"
     },
@@ -132,6 +138,9 @@ export default Vue.extend({
     },
     messageLength(): number {
       return split(this.text).length
+    },
+    disabled(): boolean {
+      return this.$props.notStarted || this.$props.finished
     },
   },
   methods: {

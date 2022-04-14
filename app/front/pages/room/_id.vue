@@ -33,6 +33,7 @@
           :topic-index="selectedTopicId"
           :topic-id="selectedTopicId"
           :topic-state="topicStateItems[selectedTopicId]"
+          :disable-interaction="room.state === 'finished'"
         />
       </div>
     </main>
