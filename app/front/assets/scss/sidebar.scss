@@ -211,8 +211,8 @@
   & > .footer-section {
     display: flex;
     flex-wrap: wrap;
-    padding: 0 32px;
-    margin-top: auto;
+    padding: 0 0 1rem;
+    margin: auto auto 0;
 
     & > .footer-link {
       margin-top: 0.5em;

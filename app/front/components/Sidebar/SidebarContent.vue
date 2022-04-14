@@ -4,7 +4,7 @@
       <button class="menu-button" @click="clickHumberger">
         <menu-icon size="1x"></menu-icon>
       </button>
-      <div class="title">{{ title }}</div>
+      <div class="title">{{ room.title }}</div>
     </div>
     <div class="event-logo">
       <img
@@ -24,20 +24,20 @@
     </div>
     <div class="event-description">
       <p>
-        {{ description }}
+        {{ room.description }}
       </p>
     </div>
     <div class="channel-section">
       <ul>
-        <li class="channel">
+        <!-- <li class="channel">
           <button
             class="channel-content"
             :class="{ selected: selectedTopicId === 0 }"
-            @click="selectedTopicId = 0"
+            @click="selectTopic(0)"
           >
             <span class="hashtag">#</span>雑談ラウンジ
           </button>
-        </li>
+        </li> -->
         <li class="channel">
           <button
             class="channel-content has-subchannel"
@@ -74,7 +74,7 @@
                 <button
                   class="subchannel"
                   :class="{ selected: selectedTopicId === topic.id }"
-                  @click="selectedTopicId = topic.id"
+                  @click="selectTopic(topic.id)"
                 >
                   <span
                     :class="{ 'subchannel-arrow': true, first: index === 0 }"
@@ -140,16 +140,20 @@
         </a>
       </div>
     </div>
+    <div class="lp__footer">
+      &copy; osushi academy {{ new Date().getFullYear() }}
+    </div>
   </nav>
 </template>
 <script lang="ts">
 import Vue from "vue"
+import { RoomModel, Topic } from "sushi-chat-shared"
 import type { PropOptions } from "vue"
 import { MenuIcon } from "vue-feather-icons"
+import { RoomStore, SelectedTopicStore, TopicStore } from "~/store"
 
 type DataType = {
   openSessions: boolean
-  selectedTopicId: number
 }
 
 export default Vue.extend({
@@ -158,18 +162,6 @@ export default Vue.extend({
     MenuIcon,
   },
   props: {
-    title: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    topics: {
-      type: Array,
-      required: true,
-    } as PropOptions<{ id: number; title: string }[]>, // NOTE: ここの受け渡しの形は暫定
     showHumberger: {
       type: Boolean,
       default: false,
@@ -191,13 +183,20 @@ export default Vue.extend({
   data(): DataType {
     return {
       openSessions: true,
-      selectedTopicId: 0, // TODO: Vuexに移す
     }
   },
   computed: {
+    room(): RoomModel {
+      return RoomStore.room
+    },
+    topics(): Topic[] {
+      return TopicStore.topics
+    },
+    selectedTopicId(): number {
+      return SelectedTopicStore.selectedTopicId
+    },
     selectedTopic(): { id: number; title: string } | undefined {
-      const selectedTopicId = this.selectedTopicId
-      return this.topics.find(({ id }) => id === selectedTopicId)
+      return this.topics.find(({ id }) => id === this.selectedTopicId)
     },
   },
   methods: {
@@ -212,6 +211,9 @@ export default Vue.extend({
     },
     leave(el: HTMLElement) {
       el.style.height = "0"
+    },
+    selectTopic(id: number) {
+      SelectedTopicStore.set(id)
     },
   },
 })
