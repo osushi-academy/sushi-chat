@@ -129,7 +129,7 @@ export default Vue.extend({
     }
   },
   mounted() {
-    if (typeof this.room.id === "undefined") {
+    if (typeof this.room.id === "undefined" || this.room.id === "") {
       this.$router.push("/")
     }
     // statusに合わせた操作をする
