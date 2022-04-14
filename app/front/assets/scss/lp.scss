@@ -1,115 +1,142 @@
 .lp {
-  background-image: url(../img/LP_background.png);
-  background-size: cover;
   position: relative;
-  width: 100%;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  min-height: 100vh;
+  background-image: url("../img/LP_background.png");
+  background-size: cover;
+
   &__header {
-    display: flex;
     position: sticky;
     top: 0;
-    background-color: white;
-    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.25);
+    display: flex;
     padding: 0.5rem 1rem;
+    background-color: white;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.25);
+
     @include text-size("lg");
     @include invalidated-a-style;
+
     @media screen and (min-width: $small) {
       padding: 0.5rem 2rem;
     }
+
     &--title {
       display: flex;
       flex: 1;
       white-space: nowrap;
+
       img {
         width: 30px;
         height: 30px;
         margin-right: 10px;
       }
     }
+
     &--twitter {
       img {
         border-radius: 100%;
       }
     }
   }
+
   &__main {
     display: flex;
-    flex-direction: column-reverse;
     flex: 1;
+    flex-direction: column-reverse;
     justify-content: center;
+
     @media screen and (min-width: $small) {
       display: flex;
       flex-direction: row;
-      margin: 0 5rem;
       align-items: center;
+      margin: 0 5rem;
     }
+
     &__text {
+      margin-top: 15px;
       text-align: center;
+
       &--catchcopy {
         font-size: 1.5rem;
         background-color: white;
       }
+
       &--details {
         font-size: 0.7rem;
         background-color: white;
       }
-      margin-top: 15px;
+
       @media screen and (min-width: $small) {
         width: 50%;
         text-align: left;
+
         &--catchcopy {
           font-size: 2rem;
         }
+
         &--details {
           font-size: 1rem;
         }
       }
+
       @media screen and (min-width: $large) {
         width: 50%;
+
         &--catchcopy {
           font-size: 3rem;
         }
+
         &--details {
           font-size: 1.2rem;
         }
       }
     }
+
     &--loginbutton {
-      font-size: 1.3rem;
-      margin: 0 auto;
       padding: 1rem 5rem;
-      color: white;
+      margin: 0 auto;
+      font-size: 1.3rem;
       font-weight: bold;
+      color: white;
       text-decoration: none;
       white-space: nowrap;
-      border-radius: 10px;
-      border: none;
       background-color: $primary;
+      border: none;
+      border-radius: 10px;
+
       &:hover {
         background-color: #f4a458;
       }
     }
+
     &__img {
       display: flex;
       justify-content: center;
+
       img {
         width: 70%;
       }
+
       @media screen and (min-width: $small) {
         width: 50%;
+
         img {
           width: 90%;
         }
       }
     }
   }
+
   &__footer {
     padding: 0.5rem 1rem;
     text-align: right;
+
     @include text-size("sm");
+
     @media screen and (min-width: $small) {
+      // nothing
     }
   }
 }
