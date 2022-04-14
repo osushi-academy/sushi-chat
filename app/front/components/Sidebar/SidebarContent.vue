@@ -191,7 +191,7 @@ export default Vue.extend({
   data(): DataType {
     return {
       openSessions: true,
-      selectedTopicId: 0, // TODO: Vuexに移す
+      selectedTopicId: 0,
     }
   },
   computed: {
