@@ -129,7 +129,7 @@ export default Vue.extend({
     }
   },
   mounted() {
-    if (typeof this.room.id === "undefined") {
+    if (typeof this.room.id === "undefined" || this.room.id === "") {
       this.$router.push("/")
     }
     // statusに合わせた操作をする
@@ -149,6 +149,9 @@ export default Vue.extend({
           params: { id: this.room.id },
         })
         .catch((e) => {
+          window.alert(
+            "エラーが発生しました。URLが間違っている可能性があります。",
+          )
           throw new Error(e)
         })
 
