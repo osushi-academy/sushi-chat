@@ -167,6 +167,7 @@ export default Vue.extend({
         }
       } else if (this.room.state === "finished") {
         // 終了時。すべてのトピックが閉じたルームのアーカイブが閲覧できる。
+        this.isRoomEnter = true
         const history = await this.$apiClient
           .get({
             pathname: "/room/:id/history",
@@ -191,7 +192,6 @@ export default Vue.extend({
             PinnedChatItemsStore.add(pinnedChatItem)
           }
         })
-        this.isRoomEnter = true
       }
     },
     // socket.ioのセットアップ。配信を受け取る
