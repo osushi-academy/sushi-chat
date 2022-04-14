@@ -189,37 +189,29 @@ export default Vue.extend({
     async clickSubmit(text: string, isQuestion: boolean) {
       const target = this.selectedChatItem ?? undefined
       const topicId = this.topicId
-      try {
-        if (target == null || target.type !== "question") {
-          // リプライ
-          if (isQuestion) {
-            // 質問
-            await ChatItemStore.postQuestion({ text, topicId, target })
-          } else {
-            // 通常メッセージ
-            await ChatItemStore.postMessage({
-              text,
-              topicId,
-              target,
-            })
-          }
-        } else if (target.type === "question") {
-          // 回答
-          await ChatItemStore.postAnswer({ text, topicId, target })
+      if (target == null || target.type !== "question") {
+        // リプライ
+        if (isQuestion) {
+          // 質問
+          await ChatItemStore.postQuestion({ text, topicId, target })
+        } else {
+          // 通常メッセージ
+          await ChatItemStore.postMessage({
+            text,
+            topicId,
+            target,
+          })
         }
-      } catch (e) {
-        window.alert("メッセージの送信に失敗しました")
+      } else if (target.type === "question") {
+        // 回答
+        await ChatItemStore.postAnswer({ text, topicId, target })
       }
       this.scrollToBottom()
       this.selectedChatItem = null
     },
     // リアクションボタン
     async clickReaction(message: ChatItemModel) {
-      try {
-        await ChatItemStore.postReaction({ message })
-      } catch (e) {
-        window.alert("リアクションの送信に失敗しました")
-      }
+      await ChatItemStore.postReaction({ message })
     },
     // リプライ先のChatItemを選択し、textareaにフォーカス
     selectChatItem(message: ChatItemModel) {

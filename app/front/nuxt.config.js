@@ -95,7 +95,6 @@ export default {
   },
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
-    // https://go.nuxtjs.dev/axios
     "@nuxtjs/axios",
     "nuxt-webfontloader",
     "socket.io-client",
@@ -133,10 +132,7 @@ export default {
   // WebFontLoader
   webfontloader: {
     google: {
-      // FIXME: デグレが起きて旧バージョンを見たいケースのためにコメントアウトにしておく。不要になったら消す。
-      families: [
-        "M PLUS 1p:100,400,700" /* "Material Icons", "Material Icons Outlined" */,
-      ],
+      families: ["M PLUS 1p:100,400,700"],
     },
   },
 
