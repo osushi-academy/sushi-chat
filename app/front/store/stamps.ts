@@ -45,11 +45,10 @@ export default class Stamps extends VuexModule {
   public async sendFavorite(topicId: number) {
     const socket = await buildSocket(UserItemStore.userItems.isAdmin)
     const id = getUUID()
-    // StampStoreは配信で追加する
     this.add({
       id,
       topicId,
-      timestamp: 1000, // TODO: 正しいタイムスタンプを設定する
+      timestamp: 0,
       createdAt: new Date().toISOString(),
     })
     await emitAsync(socket, "POST_STAMP", { topicId, id })

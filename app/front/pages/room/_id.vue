@@ -149,6 +149,9 @@ export default Vue.extend({
           params: { id: this.room.id },
         })
         .catch((e) => {
+          window.alert(
+            "エラーが発生しました。URLが間違っている可能性があります。",
+          )
           throw new Error(e)
         })
 
