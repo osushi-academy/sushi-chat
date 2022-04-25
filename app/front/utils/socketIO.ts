@@ -9,15 +9,12 @@ let socket: SocketIOType | null = null
 const buildSocket = async (
   asAdmin: boolean,
 ): Promise<Socket<ServerPubEventsMap, ServerListenEventsMap>> => {
-  const idToken = !asAdmin ? null : await getIdToken()
   // NOTE: キャッシュがあれば返す
-  if (
-    socket != null &&
-    "token" in socket.auth &&
-    socket.auth.token === idToken
-  ) {
+  if (socket != null) {
     return socket
   }
+
+  const idToken = !asAdmin ? null : await getIdToken()
 
   socket = io(process.env.apiBaseUrl as string, {
     auth: {
